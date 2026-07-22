@@ -1,0 +1,434 @@
+{
+"days": [
+
+{
+"date": "2026-07-22",
+"theme_title": "Elle le prend pour le jardinier",
+"theme_lede": "Elle cherchait un corps. Elle a trouvé quelqu'un qui l'appelait par son prénom.",
+"central_message": "Marie pleure devant un tombeau vide et ne reconnaît pas celui qu'elle cherche, alors qu'elle le regarde en face. Ce qui change tout n'est ni un raisonnement ni une preuve : c'est un prénom. Il dit « Marie », et elle se retourne. La foi ne commence pas quand on comprend, elle commence quand on s'entend appeler.",
+"verse": {
+  "text": "« Jésus lui dit : Marie ! Elle se retourna, et lui dit en hébreu : Rabbouni ! c'est-à-dire, Maître ! »",
+  "ref": "Jean 20.16"
+},
+"reading_summaries": [
+ {"position":1,"title":"Si quelqu'un est en Christ, il est une nouvelle créature","tag":"Épîtres · Paul",
+  "summary":"Paul décrit ce que la mort et la résurrection de Jésus produisent chez ceux qui y croient. Deux conséquences, et la seconde surprend. D'abord on ne vit plus pour soi. Ensuite, et c'est le point le plus dérangeant, on ne regarde plus personne « selon la chair », c'est-à-dire selon les apparences, le passé, la réputation. Paul l'applique d'abord au Christ lui-même : il l'avait jugé sur les apparences, et il s'était trompé. Le texte se termine sur une formule qui a changé des vies : le monde ancien s'en est allé, un monde nouveau est né."},
+ {"position":2,"title":"Mon âme a soif de toi","tag":"Psaumes · Prière",
+  "summary":"David écrit ce psaume au désert, et l'image ne sort pas de nulle part : terre aride, altérée, sans eau. Il ne demande pas d'abord une solution à sa situation, il dit sa soif. C'est un texte qui autorise le manque au lieu de le corriger. Et il ose une comparaison que peu de croyants oseraient : ton amour vaut mieux que la vie elle-même. Le psaume se termine non par une réponse reçue, mais par une main tenue."},
+ {"position":3,"title":"Femme, pourquoi pleures-tu ?","tag":"Évangile · Jean",
+  "summary":"La première personne à voir Jésus ressuscité est une femme, dans une culture où son témoignage n'avait presque aucune valeur légale. Aucun faussaire n'aurait inventé cela. Elle regarde Jésus, elle lui parle, et elle le prend pour le jardinier. Ce n'est pas de la distraction : elle cherchait un cadavre, pas un vivant. Ce qui la fait basculer n'est pas une explication mais un mot, son prénom. Puis il l'envoie porter la nouvelle à ceux qu'il appelle désormais ses frères."}
+],
+"bread_lead": "Il y a une expérience que tout le monde connaît : chercher partout un objet qu'on tient déjà dans la main. On regarde, on ne voit pas, parce qu'on cherche autre chose. Marie fait exactement cela devant le tombeau, et la scène est trop humaine pour avoir été inventée.",
+"bread_says": [
+ "Le détail du jardinier n'est pas un décor. Jean situe la scène dans un jardin, et son évangile a commencé par « au commencement », comme la Genèse. L'allusion est voulue : ce qui a été cassé dans un jardin est réparé dans un jardin. Marie ne se trompe donc pas tout à fait en le prenant pour le jardinier. Elle se trompe de jardin.",
+ "Et il y a le moment où tout bascule. Jésus ne se lance pas dans une démonstration, il ne montre pas ses mains, il ne cite pas les Écritures. Il dit un mot : « Marie ». Quelques chapitres plus tôt, il avait annoncé que le bon berger appelle ses brebis par leur nom et qu'elles reconnaissent sa voix. Ce n'est pas une image poétique, c'est ici qu'elle se vérifie."
+],
+"bread_touches": [
+ "Beaucoup de gens attendent de comprendre pour croire, et restent bloqués là des années. Marie a la preuve sous les yeux et ne la voit pas. Ce qui la retourne, c'est d'être reconnue avant d'avoir reconnu. La foi chrétienne n'est pas d'abord un raisonnement auquel on adhère, c'est quelqu'un qui vous appelle par votre prénom.",
+ "Le second effet est plus exigeant. Paul dit que nous ne regardons plus personne selon la chair. Marie a mal identifié Jésus, mais nous faisons pire tous les jours avec les vivants : on classe les gens sur leur réputation, leur passé, une phrase entendue. <span class='ref-inline'>2 Corinthiens 5.16</span> nous interdit ce raccourci. Devant chaque personne, il faut se demander qui elle est en train de devenir."
+],
+"actions": [
+ {"title":"Dites votre prénom à voix haute devant Dieu.","body":"Une seule fois, sans rien ajouter. Puis restez trente secondes en silence. C'est un exercice qui paraît ridicule et qui ne l'est pas : il vous rappelle que vous êtes connu, pas seulement compté."},
+ {"title":"Retirez une étiquette à quelqu'un.","body":"Une personne que vous avez classée « selon la chair », sur son passé ou sa réputation. Aujourd'hui, adressez-lui la parole comme si vous ne saviez rien d'elle."},
+ {"title":"Annoncez une chose à quelqu'un.","body":"Marie est envoyée dire ce qu'elle a vu, pas ce qu'elle a compris. Une phrase simple à une personne, sur ce qui vous porte en ce moment. Vous n'avez pas à être convaincant."}
+],
+"prayer_open": "Seigneur, je cherche souvent des choses que tu m'as déjà données, et je passe à côté de toi en te regardant. Ouvre mes yeux ce matin. Appelle-moi par mon nom, comme tu l'as fait pour elle, et donne-moi de me retourner. Que je regarde ceux que je croiserai aujourd'hui non pas comme je les ai toujours vus, mais comme tu peux les faire devenir. Au nom de Jésus, amen.",
+"prayer_close": "Père, garde en moi ce que j'ai lu ce matin. Si j'ai jeté un regard trop rapide sur quelqu'un, pardonne-moi. Si quelqu'un m'a mal vu, garde-moi de la rancune. Et donne-moi de dire simplement, à qui voudra l'entendre, ce que j'ai vu de toi. Au nom de Jésus, amen.",
+"evening": {
+ "verse":"« Heureux ceux qui n'ont pas vu, et qui ont cru ! »","verse_ref":"Jean 20.29",
+ "title":"Croire sans avoir vu",
+ "meditation":[
+  "Thomas a exigé de toucher, et Jésus le lui a accordé sans le sermonner. Retenez d'abord cela : le doute n'a pas été puni, il a été pris au sérieux.",
+  "Puis vient cette phrase, et elle est pour nous. Elle ne dit pas qu'il vaut mieux ne pas avoir de preuves. Elle dit que ceux qui croient sans avoir vu ne sont pas des croyants de seconde catégorie. Ils sont déclarés heureux.",
+  "Ce soir, si votre foi vous paraît plus mince que celle des autres, souvenez-vous que la parole la plus encourageante de l'évangile a été dite exactement pour vous."],
+ "review":[
+  {"title":"Où ai-je vu quelque chose aujourd'hui ?","body":"Un signe, même minuscule. Nommez-le avant de dormir."},
+  {"title":"Qui ai-je regardé de travers ?","body":"Sans dramatiser. On le nomme et on le laisse."},
+  {"title":"Qu'est-ce que je crois sans le sentir ?","body":"Nommez-le. C'est exactement ce que le verset appelle heureux."}],
+ "prayer":"Seigneur, je ne t'ai pas vu, et je te parle quand même. Certains soirs cela me paraît simple, d'autres soirs beaucoup moins, et ce soir tu sais où j'en suis. Je te confie ce que je n'arrive pas à croire. Garde ceux que j'aime, garde ceux qui cherchent sans trouver, et donne-moi un sommeil paisible. Au nom de Jésus, amen."
+},
+"witness": {
+ "thread":[
+  "L'histoire de Marie de Magdala est un excellent point de départ avec quelqu'un qui ne croit pas, pour une raison simple : elle ne croit pas non plus. Elle pense à un vol de cadavre, ce qui est l'hypothèse la plus rationnelle. Le texte ne présente pas des naïfs, il présente des gens qui cherchent une explication normale.",
+  "Le détail à mentionner, parce qu'il fait souvent réfléchir : ce sont des femmes qui découvrent le tombeau vide, dans une culture où leur témoignage ne valait presque rien en justice. Personne ne fabrique une preuve avec des témoins irrecevables."],
+ "openers":[
+  "« Tu savais que dans le récit de la résurrection, la première témoin prend Jésus pour le jardinier ? Même les disciples n'y croyaient pas. »",
+  "« Ça t'est déjà arrivé de chercher partout un truc que tu avais dans la main ? J'ai lu un texte ce matin qui parle exactement de ça, en beaucoup plus grand. »",
+  "« Tu crois qu'on peut être reconnu par quelqu'un avant de le reconnaître soi-même ? Moi je l'ai vécu, et pas avec un humain. »"],
+ "objection_q":"« Les témoins de la résurrection étaient des croyants, forcément ils ont vu ce qu'ils voulaient voir. »",
+ "objection_a":[
+  "C'est une objection sérieuse, et le texte lui donne partiellement raison sur un point : ces gens attendaient bien quelque chose. Mais pas cela. Marie cherche un cadavre à déplacer, Thomas refuse catégoriquement de croire, les autres traitent le récit des femmes de radotage. Ce ne sont pas des gens qui projettent, ce sont des gens qu'il a fallu convaincre.",
+  "Et il y a l'argument que les historiens trouvent le plus difficile à contourner : ces mêmes hommes, terrorisés au point de s'enfermer à clef, ont fini par mourir plutôt que de se rétracter. On peut mourir pour une erreur sincère. On ne meurt pas pour un mensonge qu'on a soi-même fabriqué."]
+}
+},
+
+{
+"date": "2026-07-23",
+"theme_title": "Ce n'est plus moi qui vis",
+"theme_lede": "La vie chrétienne n'est pas un effort supplémentaire. C'est un changement de sève.",
+"central_message": "Paul ne dit pas qu'il fait des efforts pour ressembler au Christ. Il dit qu'il est mort et que quelqu'un d'autre vit en lui. Jésus donne l'image exacte : le sarment ne se force pas à produire du raisin, il reste attaché. Toute la différence entre la religion et la foi tient dans ce déplacement, de l'effort à la dépendance.",
+"verse": {
+  "text": "« J'ai été crucifié avec Christ ; et si je vis, ce n'est plus moi qui vis, c'est Christ qui vit en moi. »",
+  "ref": "Galates 2.20"
+},
+"reading_summaries": [
+ {"position":1,"title":"Je vis, mais ce n'est plus moi","tag":"Épîtres · Paul",
+  "summary":"Deux versets qui condensent toute la lettre aux Galates. Paul vient de reprendre publiquement Pierre, qui ménageait les apparences devant un groupe influent. Sa conclusion dépasse la querelle : si la justice s'obtenait par la Loi, Christ serait mort pour rien. Puis il décrit sa propre vie avec une formule qui a marqué des siècles de spiritualité. Il ne dit pas qu'il imite Jésus, il dit qu'il est mort avec lui et que Jésus vit désormais en lui. Et il finit par le plus personnel : qui m'a aimé et s'est livré pour moi."},
+ {"position":2,"title":"Goûtez et voyez comme le Seigneur est bon","tag":"Psaumes · Prière",
+  "summary":"Un psaume qui invite à l'expérience plutôt qu'à la théorie. Le verbe est concret : goûtez. On ne demande pas d'être convaincu d'abord, on demande d'essayer. David y raconte aussi sa propre délivrance sans la maquiller : il a eu peur, il a crié, il a été entendu. Et il ajoute une phrase qui console beaucoup de gens abîmés : le Seigneur est près de ceux qui ont le cœur brisé."},
+ {"position":3,"title":"Demeurez en moi, comme moi en vous","tag":"Évangile · Jean",
+  "summary":"L'une des sept déclarations « Je suis » de l'évangile de Jean, et probablement la plus pratique. Jésus prend une image que ses auditeurs connaissent par cœur, la vigne, et il en tire une règle simple : un sarment coupé ne produit rien, non par manque de volonté mais par manque de sève. Le verbe demeurer revient sept fois en huit versets. Et il y a un détail rude : le vigneron taille aussi les branches qui portent du fruit, précisément parce qu'elles en portent."}
+],
+"bread_lead": "On a tous connu la période où l'on décide de mieux faire. Plus de discipline, plus de régularité, plus de volonté. Ça tient trois semaines. Paul et Jésus disent la même chose par deux images différentes : le problème n'est pas votre volonté, c'est l'endroit où vous cherchez la force.",
+"bread_says": [
+ "Le grec de Galates 2.20 est au parfait : « j'ai été crucifié » désigne une action passée dont l'effet dure. Ce n'est pas quelque chose que Paul refait chaque matin, c'est un fait acquis dont il vit. Et le mot suivant est décisif : ce n'est plus moi. Le christianisme ne propose pas une amélioration de soi, il annonce une substitution.",
+ "Jésus donne la version agricole de la même chose. Le sarment ne fournit aucun effort pour produire du raisin, il reste attaché et la sève fait le reste. Le verbe grec <em>menô</em>, demeurer, signifie rester, habiter, tenir. Il ne décrit pas une performance mais une position. Et Jésus précise que le vigneron taille aussi ce qui porte du fruit : ce qui vous est retiré n'est pas toujours une punition, c'est parfois une préparation."
+],
+"bread_touches": [
+ "Il y a un épuisement très particulier chez les croyants sérieux : celui de porter soi-même ce qui devrait être porté. On prie pour tenir, au lieu de tenir parce qu'on prie. La différence paraît subtile, elle est énorme. La question du jour n'est pas « comment faire plus » mais « où suis-je branché ».",
+ "L'autre point touche ceux qui traversent une période de perte. Une taille ressemble beaucoup à une amputation quand on la subit. La différence se voit à la saison suivante, pas sur le moment. Cela n'excuse rien de ce qui fait mal, et Jésus ne demande pas de trouver cela agréable. Il demande de rester attaché pendant."
+],
+"actions": [
+ {"title":"Repérez où vous forcez.","body":"Un domaine où vous tenez à la volonté pure depuis des mois. Nommez-le, et dites-le à Dieu tel quel, sans promettre de faire mieux."},
+ {"title":"Dix minutes sans rien produire.","body":"Asseyez-vous avec le texte de Jean 15 ouvert, sans objectif. Demeurer n'est pas une activité, et c'est pour ça que c'est difficile."},
+ {"title":"Goûtez, ne raisonnez pas.","body":"Le psaume dit goûtez et voyez, dans cet ordre. Aujourd'hui, faites une chose que vous croyez juste sans attendre d'en être convaincu d'avance."}
+],
+"prayer_open": "Seigneur, je commence trop souvent la journée en me demandant si je vais tenir. Ce matin je change de question : je te demande de vivre en moi. Je ne veux pas mieux t'imiter, je veux rester attaché à toi. Ce que tu dois tailler, taille-le, même si je ne comprends pas sur le moment. Et donne-moi de goûter ta bonté avant de chercher à l'expliquer. Au nom de Jésus, amen.",
+"prayer_close": "Père, cette journée, je ne l'ai pas portée seul, même quand j'ai cru le faire. Ce que j'ai fait de bon vient de toi. Ce que j'ai forcé, reprends-le. Garde-moi attaché à toi cette nuit comme le sarment à la vigne, sans que j'aie à y penser. Au nom de Jésus, amen.",
+"evening": {
+ "verse":"« Notre homme intérieur se renouvelle de jour en jour. »","verse_ref":"2 Corinthiens 4.16",
+ "title":"Ce qui se refait pendant que le reste s'use",
+ "meditation":[
+  "Paul écrit cela après avoir énuméré lucidement ce qui lui arrive : pressé, dans la détresse, persécuté, abattu. Il ne nie rien. Il constate simplement que deux mouvements ont lieu en même temps.",
+  "L'un descend, l'autre monte. Le corps fatigue, l'âge avance, les forces baissent, et il n'y a rien à nier là-dessus. Mais autre chose se reconstruit, jour après jour, et cela ne dépend pas de la forme du moment.",
+  "Ce soir, vous êtes probablement fatigué. Cette fatigue est réelle et elle ne dit pas tout de vous. Quelque chose s'est refait en vous aujourd'hui sans que vous le voyiez."],
+ "review":[
+  {"title":"Où ai-je forcé aujourd'hui ?","body":"Sans vous juger. On regarde et on dépose."},
+  {"title":"Où la sève est-elle passée ?","body":"Un moment où ce qui est sorti de vous ne venait manifestement pas de vous."},
+  {"title":"Qu'est-ce qui s'use en ce moment ?","body":"Nommez-le simplement. Le verset ne demande pas de le nier."}],
+ "prayer":"Seigneur, mon extérieur se fatigue et je le sens ce soir. Fais ton travail à l'intérieur pendant que je dors. Je te laisse ce qui n'a pas abouti, ce que j'ai mal fait, et ce que je n'ai pas eu la force d'affronter. Renouvelle en moi ce que je ne sais pas renouveler. Au nom de Jésus, amen."
+},
+"witness": {
+ "thread":[
+  "Galates 2.20 est le verset à garder pour quelqu'un qui trouve les chrétiens moralisateurs. Il dit exactement l'inverse de ce que la plupart des gens imaginent de la foi : il ne s'agit pas de mieux se comporter, il s'agit de ne plus vivre à partir de soi.",
+  "L'image de la vigne est utilisable avec n'importe qui, parce qu'elle ne demande aucune connaissance religieuse. Tout le monde comprend qu'une branche coupée sèche. C'est une porte d'entrée qui évite le vocabulaire d'initiés."],
+ "openers":[
+  "« Tu connais des gens qui s'épuisent à essayer d'être quelqu'un de bien ? J'ai lu ce matin un truc qui dit que c'est exactement le mauvais point de départ. »",
+  "« Il y a une phrase de Paul, dans la Bible : je vis, mais ce n'est plus moi qui vis. Je trouve ça vertigineux comme façon de se décrire. »",
+  "« Tu as déjà eu l'impression qu'on te taillait, dans une période difficile, et que ça a servi après ? Il y a une image agricole là-dessus qui m'a marqué. »"],
+ "objection_q":"« Vous dites que Dieu taille, mais alors c'est lui qui envoie les épreuves ? »",
+ "objection_a":[
+  "Il faut distinguer deux choses que l'image mêle facilement. La Bible ne dit pas que Dieu fabrique le mal ni qu'il l'approuve. Elle dit qu'il ne gaspille rien, y compris ce qu'il n'a pas voulu. Ce n'est pas la même affirmation, et beaucoup de souffrance inutile vient de cette confusion.",
+  "L'honnêteté demande aussi de reconnaître que cette réponse a une limite. Devant certaines épreuves, aucune explication ne tient debout, et le livre de Job passe quarante chapitres à n'en donner aucune. Ce que la foi promet n'est pas le sens de chaque événement, c'est une présence dedans."]
+}
+},
+
+{
+"date": "2026-07-24",
+"theme_title": "Quatre terrains, une seule semence",
+"theme_lede": "Le semeur ne change pas. Le grain ne change pas. Ce qui change, c'est le sol.",
+"central_message": "Jésus explique lui-même sa parabole, ce qui est rare, et il déplace la question. On se demande si la Parole est vraie ; il demande dans quel état est le terrain qui la reçoit. Trois sols échouent pour trois raisons différentes : l'inattention, la superficialité, l'encombrement. Aucune ne concerne la qualité de la semence.",
+"verse": {
+  "text": "« Celui qui a reçu la semence dans la bonne terre, c'est celui qui entend la parole et la comprend ; il porte du fruit, et un grain en donne cent, un autre soixante, un autre trente. »",
+  "ref": "Matthieu 13.23"
+},
+"reading_summaries": [
+ {"position":1,"title":"Je vous donnerai des bergers selon mon cœur","tag":"Ancien Testament · Prophètes",
+  "summary":"Jérémie annonce un retour, mais il annonce surtout une rupture inattendue. Dieu promet un jour où l'on ne parlera même plus de l'arche de l'alliance, l'objet le plus sacré d'Israël, celui qui contenait la Loi. On ne s'en souviendra plus, on n'en fera pas d'autre. Ce n'est pas un mépris de l'ancien : c'est l'annonce que la présence de Dieu ne tiendra plus dans un coffre. Et le texte s'ouvre sur les nations, toutes appelées vers Jérusalem."},
+ {"position":2,"title":"Il le garde, comme un berger son troupeau","tag":"Ancien Testament · Cantique",
+  "summary":"Un cantique de Jérémie que la liturgie place à la place du psaume. Il tient dans un renversement : celui qui a dispersé est celui qui rassemble. Le prophète ne sépare pas les deux gestes, ce qui est intellectuellement inconfortable et pastoralement honnête. Et il finit sur une promesse très concrète : je change leur deuil en joie, je les console après la peine. Pas à la place de la peine, après."},
+ {"position":3,"title":"Écoutez ce que signifie la parabole du semeur","tag":"Évangile · Matthieu",
+  "summary":"Jésus commente rarement ses paraboles, ce qui rend ce passage précieux. Quatre terrains, quatre destins pour une même semence. Le chemin, trop tassé, où rien ne pénètre. Le sol pierreux, où tout lève vite et meurt à la première chaleur. Les épines, où les soucis et la séduction des richesses étouffent sans bruit. Et la bonne terre, définie par deux verbes seulement : entendre et comprendre. Le rendement annoncé, cent pour un, était considéré comme exceptionnel dans l'agriculture antique."}
+],
+"bread_lead": "Quand une parole ne produit rien en nous, notre premier réflexe est de douter de la parole. La parabole du semeur fait exactement l'inverse et c'est ce qui la rend inconfortable : elle nous demande de regarder le sol.",
+"bread_says": [
+ "Les trois échecs ne se ressemblent pas, et c'est la finesse du texte. Le chemin est un sol tassé par le passage : rien n'y entre parce que trop de choses y sont passées. Le sol pierreux produit l'illusion la plus dangereuse, une croissance rapide sans racines, qui ne résiste pas à la première difficulté. Les épines, elles, ne tuent pas, elles étouffent, et Jésus nomme précisément les deux coupables : les soucis du siècle et la séduction des richesses.",
+ "La bonne terre n'est pas définie par la ferveur ni par la moralité, mais par deux verbes : entendre et comprendre. Le mot grec <em>suniemi</em> signifie assembler, mettre ensemble. Comprendre, ici, ce n'est pas saisir intellectuellement, c'est faire le lien entre ce qu'on lit et ce qu'on vit. C'est exactement le travail que demande une vraie lecture de la Bible."
+],
+"bread_touches": [
+ "Le diagnostic est facile à poser sur soi si l'on est honnête. Le tassement se reconnaît à la lecture machinale, où l'on parcourt sans que rien n'entre. La superficialité se reconnaît aux enthousiasmes qui retombent. L'étouffement est le plus insidieux, parce qu'il ne fait pas de bruit : la Parole est là, elle n'est simplement pas prioritaire.",
+ "La bonne nouvelle du texte est ailleurs, et on la manque souvent. Un terrain, ça se travaille. Un chemin se laboure, des pierres s'enlèvent, des épines s'arrachent. Jésus ne dit pas que chacun est né dans une catégorie. Il décrit des états, et un état se change."
+],
+"actions": [
+ {"title":"Posez votre diagnostic, sans complaisance.","body":"Lequel des quatre sols décrit votre état de ce mois-ci ? Écrivez-le en un mot sur un papier. Un diagnostic honnête vaut mieux que dix bonnes résolutions."},
+ {"title":"Arrachez une épine, une seule.","body":"Une chose précise qui étouffe : un temps d'écran, une inquiétude ressassée, une ambition qui prend toute la place. Retirez-lui trente minutes aujourd'hui."},
+ {"title":"Reliez le texte à votre journée.","body":"Comprendre, c'est assembler. Ce soir, notez en une phrase le lien entre ce que vous avez lu ce matin et une chose précise qui vous est arrivée."}
+],
+"prayer_open": "Seigneur, je viens sans savoir dans quel état est mon terrain. Il y a des endroits tassés en moi, des endroits sans profondeur, et des ronces que je n'ose pas nommer. Fais le travail que je ne sais pas faire. Retourne ce qui doit l'être, même si ça remue. Et donne-moi d'entendre ta Parole aujourd'hui, pas seulement de la lire. Au nom de Jésus, amen.",
+"prayer_close": "Père, ce que j'ai lu ce matin, empêche-le d'être emporté. Garde-le en terre. Je ne verrai peut-être rien aujourd'hui, et c'est normal : rien ne pousse en une journée. Donne-moi la patience de celui qui sème et qui attend. Au nom de Jésus, amen.",
+"evening": {
+ "verse":"« Que celui qui a des oreilles pour entendre entende. »","verse_ref":"Matthieu 13.9",
+ "title":"Entendre n'est pas écouter",
+ "meditation":[
+  "La phrase revient plusieurs fois dans les évangiles, et elle est étrange : tous ceux qui l'écoutent ont des oreilles. Jésus ne parle donc pas de l'organe, il parle d'une disposition.",
+  "Il y a une différence entre entendre un bruit et écouter quelqu'un. La première chose est passive, la seconde est un acte. Toute la journée, nous entendons énormément et nous écoutons très peu.",
+  "Avant de dormir, une seule question : qu'est-ce que j'ai entendu aujourd'hui sans l'écouter ? Une phrase de quelqu'un, un avertissement intérieur, un verset lu ce matin. Reprenez-le maintenant, sans rien en faire."],
+ "review":[
+  {"title":"Qu'ai-je entendu sans écouter ?","body":"Une parole de quelqu'un, ou une parole de Dieu. Reprenez-la en silence."},
+  {"title":"Qu'est-ce qui a étouffé, aujourd'hui ?","body":"Un souci, une urgence, un écran. On le nomme sans se condamner."},
+  {"title":"Qu'est-ce qui a levé ?","body":"Même petit. Une intuition, un geste, une paix. Remerciez pour ça."}],
+ "prayer":"Seigneur, j'ai beaucoup entendu aujourd'hui et j'ai peu écouté. Fais le tri pendant la nuit. Ce qui vient de toi, enracine-le. Ce qui vient du bruit, laisse-le partir. Donne-moi demain des oreilles un peu plus ouvertes qu'aujourd'hui. Au nom de Jésus, amen."
+},
+"witness": {
+ "thread":[
+  "La parabole du semeur est probablement le texte le plus facile à raconter à quelqu'un qui ne connaît rien, parce qu'elle n'exige aucun prérequis et qu'elle décrit une expérience universelle : la même information ne produit pas le même effet chez deux personnes.",
+  "Elle a aussi une vertu rare, elle protège de la pression. Vous n'êtes pas responsable du terrain de l'autre, seulement du semis. Beaucoup de chrétiens s'épuisent parce qu'ils ont inversé ces deux rôles."],
+ "openers":[
+  "« Tu as remarqué que la même phrase peut transformer quelqu'un et glisser complètement sur son voisin ? Il y a une parabole là-dessus que je trouve très juste. »",
+  "« Il y a un texte qui dit que ce sont les soucis et l'argent qui étouffent le plus les choses importantes. Pas les grandes fautes, juste ça. »",
+  "« Ça t'arrive d'être enthousiaste trois semaines puis plus rien ? Moi souvent. Et j'ai lu une explication ce matin qui m'a parlé. »"],
+ "objection_q":"« J'ai déjà essayé de lire la Bible, ça ne m'a rien fait. »",
+ "objection_a":[
+  "Il faut d'abord acquiescer, parce que c'est une expérience réelle et très fréquente. La parabole du semeur dit exactement cela : trois fois sur quatre, ça ne donne rien. Ce n'est pas un aveu d'échec, c'est un constat honnête placé par Jésus lui-même en tête de son enseignement.",
+  "Ensuite on peut proposer quelque chose de concret plutôt que d'insister. La plupart des gens commencent par la Genèse, s'enlisent dans le Lévitique et abandonnent. Suggérez l'évangile de Jean, un chapitre par jour, en le lisant comme un document et non comme un test. C'est un conseil pratique, pas un argument, et c'est souvent ce qui manque."]
+}
+},
+
+{
+"date": "2026-07-25",
+"theme_title": "Un trésor dans des vases de terre",
+"theme_lede": "La fragilité n'est pas un défaut du dispositif. Elle en fait partie.",
+"central_message": "Paul dresse une liste sans complaisance de ce qu'il traverse, et chaque élément est suivi d'un « mais » : pressé mais non réduit à l'extrémité, abattu mais non perdu. Le contenant est ordinaire, cassable, sans valeur. C'est voulu. Si le vase était magnifique, on regarderait le vase. Et Jésus, le même jour, retourne la définition de la grandeur : le premier sera le serviteur.",
+"verse": {
+  "text": "« Nous portons ce trésor dans des vases de terre, afin que cette grande puissance soit attribuée à Dieu, et non pas à nous. »",
+  "ref": "2 Corinthiens 4.7"
+},
+"reading_summaries": [
+ {"position":1,"title":"Pressés, mais non réduits à l'extrémité","tag":"Épîtres · Paul",
+  "summary":"Un des passages les plus honnêtes du Nouveau Testament sur la vie chrétienne. Paul ne prétend pas que tout va bien. Il énumère quatre situations dures, et à chaque fois il ajoute une limite : la difficulté est réelle, elle n'est pas totale. L'image du vase de terre était très parlante à Corinthe, où l'on rangeait parfois des objets précieux dans des poteries sans valeur, justement pour ne pas attirer l'attention. Le paragraphe se termine sur une logique de contagion : ce que Paul traverse profite à d'autres."},
+ {"position":2,"title":"Qui sème dans les larmes moissonne dans la joie","tag":"Psaumes · Prière",
+  "summary":"Un chant de retour d'exil, écrit par des gens qui n'y croyaient plus : nous étions comme en rêve. Il tient les deux bouts sans les opposer, les larmes du semis et la joie de la moisson, et il ne promet pas que les premières seront annulées. Le verset le plus dense est le dernier : il s'en va en pleurant et jette la semence, il revient dans la joie et rapporte les gerbes. Semer, dans une année de disette, c'était renoncer à manger un grain qu'on aurait pu manger tout de suite."},
+ {"position":3,"title":"Le Fils de l'homme n'est pas venu pour être servi","tag":"Évangile · Matthieu",
+  "summary":"Une mère demande les meilleures places pour ses deux fils, et la scène est d'un réalisme presque gênant. Jésus ne la rabroue pas, il répond à côté de la demande : pouvez-vous boire la coupe que je vais boire ? Les dix autres s'indignent, et leur indignation trahit qu'ils voulaient la même chose. La réponse de Jésus ne corrige pas l'ambition, elle en change la direction : chez vous, la grandeur se mesure au service. Le passage se conclut sur le mot rançon, l'un des plus explicites du Nouveau Testament sur le sens de la croix."}
+],
+"bread_lead": "Nous passons beaucoup d'énergie à cacher ce qui craque. Devant les autres, devant nous-mêmes, parfois devant Dieu. Paul prend le problème à l'envers : si le vase était solide et beau, personne ne regarderait ce qu'il y a dedans.",
+"bread_says": [
+ "L'expression traduite par « vases de terre » désigne la poterie la plus commune, celle qu'on jetait sans y penser une fois fêlée. Le contraste est volontaire et presque provocant : un trésor inestimable dans un contenant sans valeur. Paul en donne la raison, et elle est logique plus que pieuse : c'est ainsi qu'on ne se trompe pas sur l'origine de la puissance.",
+ "La série des quatre oppositions mérite d'être lue lentement, parce qu'elle refuse deux mensonges à la fois. Le premier serait de nier la difficulté : Paul dit pressé, dans la détresse, persécuté, abattu, sans rien adoucir. Le second serait de s'y enfermer : chaque fois, une limite est posée. C'est une description que beaucoup reconnaissent, entre le déni et le désespoir."
+],
+"bread_touches": [
+ "Cela change ce qu'on fait de ses fêlures. Il ne s'agit ni de les exhiber ni de les masquer, mais d'accepter qu'elles laissent passer la lumière. Les gens qui témoignent le mieux ne sont presque jamais ceux qui ont l'air solides. Ce sont ceux qui ont visiblement traversé quelque chose et qui sont encore debout.",
+ "L'évangile ajoute la conséquence pratique. Les disciples voulaient les places, ce qui est parfaitement humain, et Jésus ne leur reproche pas de vouloir compter. Il déplace l'échelle. <span class='ref-inline'>Matthieu 20.28</span> : il n'est pas venu pour être servi. Le seul classement qui l'intéresse est celui du service rendu, et c'est un classement que personne ne publie."
+],
+"actions": [
+ {"title":"Ne réparez pas une fêlure aujourd'hui.","body":"Une chose que vous cachez habituellement par fierté. Aujourd'hui, dites-la simplement à une personne de confiance, sans la dramatiser ni vous excuser."},
+ {"title":"Rendez un service invisible.","body":"Quelque chose que personne ne saura et que vous ne raconterez pas. C'est le seul test fiable de ce que Jésus décrit."},
+ {"title":"Semez sans voir.","body":"Un geste dont vous ne verrez pas le résultat : un message, un don, une prière pour quelqu'un qui l'ignorera. Le psaume dit qu'on sème en pleurant et qu'on récolte plus tard."}
+],
+"prayer_open": "Seigneur, je passe beaucoup de temps à paraître solide, et tu sais exactement où ça craque. Ce matin je ne cache rien. Sers-toi de ce vase tel qu'il est, avec ses fêlures, et fais qu'on voie le trésor plutôt que le contenant. Apprends-moi à mesurer ma journée au service rendu et non à ce qu'on aura remarqué. Au nom de Jésus, amen.",
+"prayer_close": "Père, s'il y a eu aujourd'hui un moment où j'ai voulu la première place, tu l'as vu et je ne le nie pas. Reprends cette envie et retourne-la. Ce que j'ai semé sans rien voir, garde-le. Et donne-moi de me réjouir demain d'un service que personne ne saura. Au nom de Jésus, amen.",
+"evening": {
+ "verse":"« Nos légères afflictions du moment présent produisent pour nous, au-delà de toute mesure, un poids éternel de gloire. »","verse_ref":"2 Corinthiens 4.17",
+ "title":"La balance de Paul",
+ "meditation":[
+  "Le mot « légères » choque, et il faut le prendre au sérieux avant de l'accepter. Celui qui écrit cela a été fouetté, lapidé, emprisonné, naufragé. Ce n'est pas quelqu'un qui minimise depuis un fauteuil.",
+  "Il ne dit pas que la souffrance est légère en elle-même. Il la met sur une balance. Le mot hébreu qui donne « gloire », <em>kavod</em>, signifie littéralement poids. D'un côté le moment présent, de l'autre un poids éternel. Ce n'est pas une consolation, c'est une comparaison.",
+  "Ce soir, ne cherchez pas à trouver légère votre journée si elle a été dure. Posez-la simplement sur l'autre plateau, et laissez la balance faire son travail pendant que vous dormez."],
+ "review":[
+  {"title":"Qu'est-ce qui pèse ce soir ?","body":"Nommez-le précisément, sans l'atténuer. C'est la première moitié du verset."},
+  {"title":"Où ai-je servi sans compter ?","body":"Même une fois. Remerciez pour cette occasion plutôt que d'en tirer fierté."},
+  {"title":"Qu'est-ce que je pose sur l'autre plateau ?","body":"Une promesse à laquelle vous vous accrochez. Redites-la une fois, à voix basse."}],
+ "prayer":"Seigneur, ce soir je ne trouve pas ma journée légère, et je ne vais pas faire semblant. Je la pose devant toi telle qu'elle est. Prends ce qui pèse et mets-le sur ta balance. Fais reposer mon corps qui est un vase de terre, et garde en moi ce qui ne se casse pas. Au nom de Jésus, amen."
+},
+"witness": {
+ "thread":[
+  "L'image du vase de terre est une des meilleures portes d'entrée qui soient, parce qu'elle contredit le préjugé le plus répandu sur les croyants : qu'ils prétendraient aller bien. Paul dit précisément le contraire, et le dire soi-même désarme beaucoup de méfiance.",
+  "La règle pratique est simple. Ne racontez pas une victoire, racontez une fêlure et ce qui vous a tenu dedans. Les gens ne croient pas les gagnants, ils croient les survivants."],
+ "openers":[
+  "« Il y a une phrase de Paul que j'aime bien : on porte un trésor dans des vases de terre. En gros, c'est cassable et c'est fait exprès. »",
+  "« Tu as remarqué qu'on écoute rarement les gens qui vont bien ? Moi ce qui m'a marqué chez les croyants que je connais, c'est pas leur solidité. »",
+  "« Tu penses quoi de l'idée que le vrai classement, c'est pas qui commande mais qui sert ? Ça a l'air naïf et pourtant je vois pas de meilleur critère. »"],
+ "objection_q":"« Si Dieu vous aime, pourquoi votre vie n'est-elle pas plus facile ? »",
+ "objection_a":[
+  "La réponse commence par un aveu : le christianisme n'a jamais promis une vie facile, et les textes sont d'une clarté gênante là-dessus. Paul énumère persécutions, détresse, abattement. Jésus annonce à ses disciples qu'ils auront des difficultés dans le monde. Toute prédication qui promet le contraire trahit le texte.",
+  "Ce qui est promis est autre chose : une présence dedans, et un poids qui finit par contrebalancer. On peut ajouter une observation vérifiable : les gens qui tiennent le mieux dans les épreuves ne sont pas ceux qui en ont été épargnés, mais ceux qui ont un cadre pour les traverser. C'est ce que la foi fournit, et c'est déjà considérable."]
+}
+},
+
+{
+"date": "2026-07-26",
+"theme_title": "Il vend tout, et il rachète le champ",
+"theme_lede": "Ce n'est pas un sacrifice. C'est un homme qui a compris ce que ça valait.",
+"central_message": "Deux hommes trouvent quelque chose et vendent tout, et le texte précise « dans sa joie ». Rien dans ces paraboles ne ressemble à un renoncement douloureux : ce sont des gens qui font une excellente affaire. Le même jour, Salomon demande un cœur intelligent plutôt que la richesse ou une longue vie, et Dieu s'en réjouit. La question du jour n'est pas ce que vous êtes prêt à sacrifier, mais ce que vous estimez réellement.",
+"verse": {
+  "text": "« Le royaume des cieux est encore semblable à un trésor caché dans un champ. L'homme qui l'a trouvé le cache ; et, dans sa joie, il va vendre tout ce qu'il a, et achète ce champ. »",
+  "ref": "Matthieu 13.44"
+},
+"reading_summaries": [
+ {"position":1,"title":"Donne à ton serviteur un cœur attentif","tag":"Ancien Testament · Historiques",
+  "summary":"Dieu propose à Salomon de demander ce qu'il veut, sans condition. C'est probablement la question la plus révélatrice de toute la Bible, parce que la réponse dit tout de celui qui répond. Salomon ne demande ni la longévité, ni la fortune, ni la victoire, mais un cœur capable d'écouter et de discerner. Le texte hébreu dit littéralement un cœur qui entend. Et Dieu se réjouit non de l'humilité de la demande, mais de sa justesse."},
+ {"position":2,"title":"De quel amour j'aime ta loi","tag":"Psaumes · Prière",
+  "summary":"Extraits du plus long psaume du psautier, entièrement consacré à la Parole de Dieu. Le ton surprend ceux qui imaginent la Loi comme une contrainte : le psalmiste parle de plaisir, de merveille, de quelque chose qui vaut mieux que l'or. Un verset donne la clé de tout le recueil : déchiffrer ta parole illumine, et les simples comprennent. La compréhension n'y est pas réservée aux savants."},
+ {"position":3,"title":"Il les a destinés d'avance à être semblables à son Fils","tag":"Épîtres · Paul",
+  "summary":"Trois versets denses, souvent cités et souvent mal compris. Paul y décrit une chaîne complète : connus d'avance, prédestinés, appelés, justifiés, glorifiés. Le dernier maillon est au passé alors qu'il ne s'est pas encore produit, ce qui dit la certitude de l'ensemble. Le but annoncé n'est pas le confort ni la réussite, mais la ressemblance avec le Fils. Et le premier verset, le plus connu, ne promet pas que tout est bon, il promet que tout concourt à un bien."},
+ {"position":4,"title":"Le trésor, la perle et le filet","tag":"Évangile · Matthieu",
+  "summary":"Trois paraboles très courtes, et un renversement entre les deux premières. Dans l'une l'homme ne cherchait rien et trouve par hasard ; dans l'autre le marchand cherchait exactement cela depuis des années. Les deux réagissent pareil. La troisième, le filet, change de registre et parle du tri final, rappelant que la joie annoncée n'annule pas le sérieux. Jésus conclut par une image sur le maître de maison qui tire de son trésor du neuf et de l'ancien, ce qui est une belle définition de la lecture de la Bible."}
+],
+"bread_lead": "On présente souvent la foi comme un renoncement : ce qu'il faudrait abandonner, arrêter, sacrifier. Jésus raconte deux histoires de gens qui vendent absolument tout, et le seul sentiment mentionné dans le texte est la joie.",
+"bread_says": [
+ "Le détail juridique du premier récit surprend nos oreilles modernes : l'homme recache le trésor avant d'acheter le champ. Dans le droit rabbinique, ce qui est trouvé dans un terrain appartient au propriétaire du terrain. Sa démarche n'est donc pas de la ruse, c'est la seule façon légale d'entrer en possession de ce qu'il a vu. Il paie le prix du champ pour obtenir ce qu'il sait être dedans.",
+ "Les deux paraboles décrivent deux façons d'arriver à la foi, et l'Église a souvent tort d'en privilégier une. Le premier ne cherchait rien, il travaillait dans un champ qui n'était pas à lui. Le second cherchait des perles depuis des années. Le converti brutal et le chercheur patient finissent au même endroit, avec la même réaction : ils vendent tout, dans la joie."
+],
+"bread_touches": [
+ "La question que pose ce texte n'est pas « qu'êtes-vous prêt à sacrifier », qui est une question religieuse et culpabilisante. C'est « qu'est-ce que vous estimez vraiment ». Personne ne trouve difficile de vendre une vieille voiture pour une maison. Là où l'on hésite, c'est là où l'on n'a pas vu la valeur.",
+ "Salomon vient éclairer cela d'un autre côté. On lui offre tout, et ce qu'il demande révèle ce qu'il est. Faites l'exercice pour vous-même, honnêtement : si la même proposition vous était faite ce matin, quelle serait votre première réponse, avant celle que vous croyez devoir donner ? La réponse spontanée est la vraie."
+],
+"actions": [
+ {"title":"Répondez à la question de Salomon.","body":"Écrivez en une phrase ce que vous demanderiez si Dieu vous disait « demande ce que je dois te donner ». Ne cherchez pas la bonne réponse, écrivez la vraie."},
+ {"title":"Chiffrez une hésitation.","body":"Un domaine où vous freinez depuis longtemps. La parabole suggère que ce n'est pas un problème de courage mais d'estimation. Demandez à Dieu de vous montrer la valeur, pas de vous donner la force."},
+ {"title":"Sortez du neuf et de l'ancien.","body":"Relisez un passage que vous connaissez par cœur, en cherchant une seule chose que vous n'aviez jamais remarquée. C'est exactement ce que décrit le dernier verset."}
+],
+"prayer_open": "Seigneur, tu poses à Salomon une question que tu me poses aussi ce matin : qu'est-ce que je veux vraiment. Tu connais ma réponse spontanée mieux que moi. Donne-moi un cœur qui entend, plutôt que les choses que je crois vouloir. Et montre-moi la valeur de ce que tu offres, pour que ce que je lâche ne me coûte plus rien. Au nom de Jésus, amen.",
+"prayer_close": "Père, si aujourd'hui j'ai tenu à des choses qui ne valent pas ce que je crois, desserre doucement mes doigts. Je ne veux pas renoncer par devoir, je veux voir assez clair pour ne plus regretter. Fais concourir cette journée, y compris ce qui a raté, au bien que tu prépares. Au nom de Jésus, amen.",
+"evening": {
+ "verse":"« Tout scribe instruit de ce qui regarde le royaume des cieux est semblable à un maître de maison qui tire de son trésor des choses nouvelles et des choses anciennes. »","verse_ref":"Matthieu 13.52",
+ "title":"Du neuf et de l'ancien",
+ "meditation":[
+  "Jésus vient d'enchaîner sept paraboles, et il termine sur une image qui décrit celui qui les a comprises. Pas un savant, un maître de maison. Quelqu'un qui gère un garde-manger.",
+  "L'ordre des mots compte : des choses nouvelles et des choses anciennes. Il ne s'agit ni de jeter l'ancien pour courir après le neuf, ni de s'installer dans l'ancien en se méfiant de tout. Les deux sortent du même coffre.",
+  "Ce soir, regardez votre semaine comme ce garde-manger. Qu'est-ce qui est ancien et vous tient encore debout ? Qu'est-ce qui est neuf et que vous n'aviez pas vu venir ?"],
+ "review":[
+  {"title":"Qu'est-ce que j'ai reçu de neuf cette semaine ?","body":"Une compréhension, une rencontre, une porte. Nommez-la."},
+  {"title":"Qu'est-ce que l'ancien m'a donné ?","body":"Une habitude, un verset connu, une fidélité. Remerciez pour la durée."},
+  {"title":"Qu'est-ce que je garde pour demain ?","body":"Une seule chose. Le reste peut attendre lundi."}],
+ "prayer":"Seigneur, tu as mis dans ma vie du neuf et de l'ancien, et je ne sais pas toujours quoi faire des deux. Garde-moi de courir après la nouveauté et de m'endormir dans l'habitude. Cette semaine se termine, avec ce qu'elle a de réussi et de manqué. Je te la remets entière et je vais dormir. Au nom de Jésus, amen."
+},
+"witness": {
+ "thread":[
+  "Ces deux paraboles sont précieuses parce qu'elles corrigent l'image la plus dissuasive de la foi : celle du sacrifice. Personne n'a envie qu'on lui demande de renoncer à des choses. Or le texte parle de quelqu'un qui vend tout dans la joie, ce qui n'a rien à voir.",
+  "Elles permettent aussi de valider deux chemins différents. Si votre interlocuteur ne cherche rien, il est l'homme du champ. S'il cherche depuis des années, il est le marchand de perles. Dans les deux cas, la Bible a prévu son cas."],
+ "openers":[
+  "« Si quelqu'un te disait demande ce que tu veux, tu répondrais quoi en premier ? Pas la réponse noble, la vraie. »",
+  "« Il y a une parabole où un type vend absolument tout ce qu'il a, et le texte précise qu'il est joyeux. J'ai toujours trouvé ça contre-intuitif. »",
+  "« Tu es plutôt du genre à chercher un sens, ou à ne rien chercher du tout ? Parce qu'il y a une histoire pour chacun des deux. »"],
+ "objection_q":"« Devenir croyant, c'est renoncer à trop de choses. »",
+ "objection_a":[
+  "Commencez par reconnaître que la crainte est fondée : oui, quelque chose change, et prétendre le contraire serait malhonnête. Mais la parabole décrit la scène autrement. L'homme ne se force pas à vendre, il court le faire, parce qu'il a vu la valeur de ce qu'il achète.",
+  "On peut retourner la question sans agressivité : ce que vous appelez renoncer, est-ce que vous y tenez vraiment, ou est-ce que vous avez juste l'habitude ? La plupart des gens découvrent en répondant que la liste est plus courte qu'ils ne croyaient. Et il reste honnête d'ajouter que la foi coûte réellement quelque chose à certains, notamment dans les familles où elle divise."]
+}
+},
+
+{
+"date": "2026-07-27",
+"theme_title": "La plus petite de toutes les semences",
+"theme_lede": "Dieu travaille rarement à l'échelle où nous regardons.",
+"central_message": "Deux images minuscules pour dire la même chose : une graine que l'on perdrait entre deux doigts, et du levain qu'une femme enfouit dans la pâte. Aucune des deux ne se voit pendant qu'elle agit. Jérémie, lui, montre l'inverse dans un geste étrange : une ceinture qu'on éloigne du corps pourrit. Ce qui reste attaché grandit sans bruit, ce qui s'éloigne se défait sans bruit.",
+"verse": {
+  "text": "« C'est la plus petite de toutes les semences ; mais, quand il a poussé, il est plus grand que les légumes et devient un arbre, de sorte que les oiseaux du ciel viennent habiter dans ses branches. »",
+  "ref": "Matthieu 13.32"
+},
+"reading_summaries": [
+ {"position":1,"title":"La ceinture cachée près de l'Euphrate","tag":"Ancien Testament · Prophètes",
+  "summary":"Dieu demande à Jérémie un geste concret et absurde en apparence : acheter une ceinture de lin, la porter, puis aller la cacher dans la fente d'un rocher très loin de chez lui. Longtemps après, il retourne la chercher : elle est pourrie, inutilisable. L'explication vient ensuite, et elle est d'une tendresse inattendue sous la sévérité. La ceinture serre les reins, elle est ce qui se tient le plus près du corps. Dieu dit qu'il s'était attaché son peuple ainsi, pour qu'il soit sa parure. Éloigné, le lin pourrit."},
+ {"position":2,"title":"Le Rocher qui t'a mis au monde, tu l'oublies","tag":"Ancien Testament · Cantique",
+  "summary":"Extrait du cantique de Moïse, l'un des textes les plus anciens de la Bible, transmis en poésie pour être mémorisé. Le reproche central n'est pas la révolte mais l'oubli, ce qui est plus banal et plus grave. Dieu y est appelé Rocher, une image de stabilité que l'on peut quitter sans même le décider. Et il y a cette annonce que Paul reprendra plus tard : un peuple qui n'était pas un peuple deviendra un motif de jalousie, ce qui ouvre la porte aux nations."},
+ {"position":3,"title":"La graine de moutarde et le levain","tag":"Évangile · Matthieu",
+  "summary":"Deux paraboles jumelles, et Jésus choisit ses images avec soin. La graine de sénevé était proverbiale pour désigner la petitesse absolue, et l'arbre qu'elle devient reprend une image des prophètes pour dire un royaume où les nations viennent s'abriter. Le levain, lui, travaille par contamination, invisible, à l'intérieur. Fait notable, le levain est presque toujours une image négative dans la Bible : Jésus la retourne. Le texte se clôt sur une citation du Psaume 78 qui explique pourquoi il enseigne ainsi."}
+],
+"bread_lead": "Nous mesurons la valeur des choses à ce qu'elles produisent tout de suite. Une graine ne produit rien tout de suite. Du levain non plus. C'est exactement pour cela que Jésus a choisi ces deux images pour décrire ce que Dieu fait dans le monde.",
+"bread_says": [
+ "La graine de sénevé était, dans le langage courant du premier siècle, l'unité de mesure de l'insignifiance. Dire « la foi grosse comme une graine de moutarde » revenait à dire presque rien. Et l'arbre qui en sort n'est pas une simple hyperbole : les prophètes utilisaient déjà l'image d'un grand arbre où les oiseaux nichent pour parler d'un royaume qui abrite les nations. Jésus annonce donc quelque chose de très vaste avec l'image de quelque chose de très petit.",
+ "Le levain est plus surprenant, parce que dans presque tout le reste de la Bible il symbolise la corruption qui se propage. Jésus le retourne délibérément. Le point commun des deux images est l'invisibilité du travail : personne ne voit lever la pâte, personne ne voit pousser la graine. Jérémie donne la contrepartie sombre du même principe, avec sa ceinture : ce qui s'éloigne se défait aussi lentement, aussi silencieusement."
+],
+"bread_touches": [
+ "Cela console une catégorie de gens très précise : ceux qui trouvent que leur foi ne produit rien de visible. Vous priez et il ne se passe rien de spectaculaire. Vous êtes fidèle et personne ne le remarque. Les deux images du jour disent que c'est exactement l'aspect normal d'un travail en cours.",
+ "Mais le texte de Jérémie empêche d'en faire un oreiller. Le même principe joue dans l'autre sens. On ne s'éloigne jamais d'un coup, on s'éloigne comme le lin pourrit, sans date, sans décision, par simple distance. La question du soir n'est donc pas « où en suis-je » mais « dans quelle direction est-ce que je dérive »."
+],
+"actions": [
+ {"title":"Semez quelque chose de minuscule.","body":"Un geste dont personne ne verra l'effet cette semaine : une prière pour quelqu'un, un mot d'encouragement, dix minutes données. Ne cherchez pas le résultat."},
+ {"title":"Vérifiez une distance.","body":"Un domaine où vous vous êtes éloigné sans jamais l'avoir décidé. Nommez-le aujourd'hui pendant qu'il est encore récupérable."},
+ {"title":"Comptez sur un an, pas sur un jour.","body":"Choisissez une habitude minuscule, cinq minutes maximum, et engagez-vous dessus pour un an. C'est l'échelle des deux paraboles."}
+],
+"prayer_open": "Seigneur, je voudrais souvent que tu travailles à une échelle que je puisse voir, et tu travailles à une échelle que je ne vois pas. Apprends-moi la patience de la graine. Ce que tu as semé en moi, fais-le pousser même si je n'en constate rien cette semaine. Et montre-moi où je me suis éloigné sans m'en apercevoir, pendant que je peux encore revenir. Au nom de Jésus, amen.",
+"prayer_close": "Père, je ne sais pas ce qui a poussé aujourd'hui, et ce n'est pas mon travail de le savoir. J'ai fait ce que j'ai pu, souvent mal, parfois bien. Garde-moi près de toi comme une ceinture au corps, et ne me laisse pas dériver sans m'avertir. Au nom de Jésus, amen.",
+"evening": {
+ "verse":"« Le royaume des cieux est semblable à du levain qu'une femme a pris et mis dans trois mesures de farine, jusqu'à ce que la pâte soit toute levée. »","verse_ref":"Matthieu 13.33",
+ "title":"Ce qui travaille pendant qu'on dort",
+ "meditation":[
+  "Le levain ne fait rien pendant qu'on le regarde. Il fait tout pendant qu'on s'occupe d'autre chose, et notamment pendant la nuit. Aucun boulanger ne veille sa pâte.",
+  "Trois mesures de farine, dans les usages de l'époque, représentaient une quantité considérable, de quoi nourrir une centaine de personnes. Une pincée de levain pour cela. Le rapport est volontairement démesuré.",
+  "Ce soir, il y a des choses dans votre vie qui n'ont pas avancé aujourd'hui. Cela ne signifie pas qu'elles n'avancent pas. Allez dormir, c'est précisément l'heure où le levain travaille."],
+ "review":[
+  {"title":"Qu'est-ce qui n'a pas bougé aujourd'hui ?","body":"Nommez-le sans impatience. La lenteur n'est pas l'échec."},
+  {"title":"Qu'est-ce que j'ai semé sans le voir ?","body":"Un mot, un geste, une prière. Vous n'en verrez peut-être jamais le fruit."},
+  {"title":"Où ai-je dérivé cette semaine ?","body":"Une distance prise sans décision. Revenez d'un pas avant de dormir."}],
+ "prayer":"Seigneur, je te laisse la pâte. Ce que j'ai pétri aujourd'hui, fais-le lever pendant que je dors. Je ne veux pas veiller sur des choses que tu portes mieux que moi. Garde ceux que j'aime, et fais-moi retrouver demain ce que j'ai laissé s'éloigner. Au nom de Jésus, amen."
+},
+"witness": {
+ "thread":[
+  "Ces deux paraboles sont utiles avec quelqu'un qui trouve le christianisme dépassé ou marginal. On peut lui accorder le constat sans se défendre : oui, c'est petit. C'est ce que Jésus a annoncé, et il a choisi comme image la plus petite chose que ses auditeurs connaissaient.",
+  "L'argument à ne pas manquer : douze hommes sans réseau ni argent, dans une province lointaine de l'Empire, et trois siècles plus tard l'Empire lui-même. Ce n'est pas une preuve de vérité, mais c'est un fait historique qui donne à réfléchir sur l'échelle."],
+ "openers":[
+  "« Tu connais l'expression grosse comme une graine de moutarde ? Elle vient d'un texte où c'est justement le point de départ de quelque chose d'énorme. »",
+  "« Ça t'est déjà arrivé de t'éloigner de quelqu'un sans jamais l'avoir décidé ? J'ai lu une image très juste là-dessus ce matin, avec une ceinture. »",
+  "« Tu crois qu'on peut changer quelque chose en faisant des trucs minuscules pendant des années ? Moi j'ai longtemps pensé que non. »"],
+ "objection_q":"« Le christianisme recule partout, ça prouve bien que c'est fini. »",
+ "objection_a":[
+  "Il faut d'abord préciser le fait, parce qu'il est souvent faux tel qu'il est énoncé. Le christianisme recule en Europe occidentale, c'est exact et il n'y a pas à le nier. Il progresse fortement en Afrique et en Asie, au point que le centre de gravité du christianisme mondial s'est déplacé hors d'Occident depuis plusieurs décennies.",
+  "Ensuite, sur le fond : le nombre n'a jamais été un argument dans un sens ou dans l'autre. Une chose n'est pas vraie parce qu'elle est majoritaire, ni fausse parce qu'elle devient minoritaire. Jésus a d'ailleurs annoncé une croissance discrète plutôt qu'une domination, et l'image de la graine dit exactement cela."]
+}
+},
+
+{
+"date": "2026-07-28",
+"theme_title": "Le tri n'est pas pour maintenant",
+"theme_lede": "Jésus explique la parabole de l'ivraie, et il en donne l'heure.",
+"central_message": "Les disciples demandent une explication, ce qui est rare, et Jésus la donne point par point. Il y aura une moisson, un tri, une fin. Rien n'est édulcoré. Mais la date ne nous appartient pas, et le champ n'est pas l'Église, c'est le monde. Le même jour, Jérémie plaide pour un peuple coupable en disant simplement : ne romps pas ton alliance avec nous.",
+"verse": {
+  "text": "« Alors les justes resplendiront comme le soleil dans le royaume de leur Père. Que celui qui a des oreilles pour entendre entende. »",
+  "ref": "Matthieu 13.43"
+},
+"reading_summaries": [
+ {"position":1,"title":"Rappelle-toi, ne romps pas ton alliance","tag":"Ancien Testament · Prophètes",
+  "summary":"Jérémie décrit une catastrophe sans en atténuer une ligne : les morts de l'épée dans la campagne, la faim dans la ville, et jusqu'aux responsables religieux qui parcourent le pays sans rien comprendre. Puis il fait une chose remarquable. Il ne plaide pas l'innocence, il reconnaît la faute au nom de tous. Et son seul argument n'est pas le mérite du peuple mais le nom de Dieu et son alliance. C'est un modèle de prière pour ceux qui n'ont plus rien à faire valoir."},
+ {"position":2,"title":"Pour la gloire de ton nom, délivre-nous","tag":"Psaumes · Prière",
+  "summary":"Un psaume de désastre national, écrit après une destruction. Il pose la question que tout le monde finit par poser : combien de temps encore ? Et il demande deux choses avec insistance, l'effacement des fautes et la délivrance, en s'appuyant chaque fois sur le même motif, la gloire du nom de Dieu. Le psaume se termine sur une promesse plutôt que sur une exigence : nous pourrons te rendre grâce sans fin."},
+ {"position":3,"title":"Explique-nous la parabole de l'ivraie","tag":"Évangile · Matthieu",
+  "summary":"Une des rares fois où Jésus décode élément par élément : le semeur est le Fils de l'homme, le champ est le monde, la moisson est la fin, les moissonneurs sont les anges. Ce décodage a une conséquence souvent négligée : puisque le champ est le monde et non l'Église, la parabole ne dit pas d'abord qu'il y a des hypocrites parmi les croyants, elle dit que le bien et le mal coexistent dans l'histoire. Et elle se termine sur une image lumineuse, les justes resplendissant comme le soleil, qui vient équilibrer la fournaise."}
+],
+"bread_lead": "Nous vivons dans une époque qui trie en permanence : les bons et les mauvais, ceux qui ont raison et les autres. Jésus décrit un tri final, réel et sérieux, et il en confie l'exécution à quelqu'un d'autre que nous.",
+"bread_says": [
+ "Le point le plus souvent manqué est dans le décodage lui-même : le champ, c'est le monde. Pas l'assemblée. La parabole ne parle donc pas d'abord du problème des hypocrites dans les Églises, elle parle de la coexistence du bien et du mal dans l'histoire entière. Cela déplace complètement la lecture : la question n'est pas de savoir qui est chrétien pour de bon, mais pourquoi Dieu laisse le mal durer.",
+ "Et Jésus ne minimise rien de la fin. Il parle de fournaise, de pleurs, de grincements de dents, avec un vocabulaire qu'aucune lecture honnête ne peut évacuer. Mais il termine ailleurs : les justes resplendiront comme le soleil. C'est une citation de <span class='ref-inline'>Daniel 12.3</span>, et elle donne à la parabole sa vraie destination. Le dernier mot du texte n'est pas la fournaise, c'est la lumière."
+],
+"bread_touches": [
+ "Le soulagement est immédiat pour qui veut bien le prendre : la charge du tri ne vous revient pas. Ni sur les autres, ni sur vous-même. Beaucoup de croyants s'épuisent à évaluer en permanence leur propre authenticité. Cette parabole leur retire l'outil des mains.",
+ "Jérémie ajoute la façon de prier quand on n'a rien à faire valoir. Il ne dit pas « nous ne le méritions pas », il dit « nous avons péché contre toi », puis il s'accroche à l'alliance. C'est exactement la prière possible les jours où l'on se sait en tort. On ne plaide pas son dossier, on rappelle une promesse."
+],
+"actions": [
+ {"title":"Rendez un dossier.","body":"Une personne que vous jugez depuis longtemps, ou vous-même. Aujourd'hui, dites à Dieu que vous lui laissez ce tri. Une phrase suffit, et il faudra probablement la répéter."},
+ {"title":"Priez comme Jérémie.","body":"Sans plaider votre cause. Reconnaissez ce qui est vrai, puis appuyez-vous uniquement sur ce que Dieu a promis. C'est la prière la plus solide qui existe."},
+ {"title":"Regardez la fin, une minute.","body":"Relisez le verset du jour et imaginez-le sérieusement. L'espérance chrétienne n'est pas un vague optimisme, elle a une image précise, et elle se cultive."}
+],
+"prayer_open": "Seigneur, je passe mon temps à trier ce que tu ne m'as pas demandé de trier, et je m'y épuise. Ce matin je te rends cette charge, sur les autres et sur moi. Je n'ai pas de dossier à plaider devant toi : je m'appuie sur ce que tu as promis. Et donne-moi de regarder la fin que tu annonces, non pour fuir aujourd'hui, mais pour le traverser autrement. Au nom de Jésus, amen.",
+"prayer_close": "Père, si aujourd'hui j'ai conclu trop vite sur quelqu'un, retire-le de mon cœur avant la nuit. Ce que tu laisses pousser, je n'ai pas à l'arracher. Garde en moi l'image des justes qui resplendiront, quand la journée n'a rien eu de lumineux. Au nom de Jésus, amen.",
+"evening": {
+ "verse":"« La paix soit avec vous ! »","verse_ref":"Jean 20.19",
+ "title":"Il entre par les portes fermées",
+ "meditation":[
+  "Le soir de la résurrection, les disciples sont enfermés à clef, par peur. Ce détail est important : ce ne sont pas des gens en train de prier avec confiance, ce sont des gens barricadés.",
+  "Jésus n'attend pas qu'ils ouvrent. Il entre. Et la première chose qu'il dit n'est pas un reproche sur leur fuite du vendredi, alors qu'il aurait eu de quoi. C'est la paix.",
+  "Si vous finissez cette journée barricadé sur quelque chose, retenez l'ordre des événements. Il n'a pas fallu qu'ils ouvrent pour qu'il entre, et il n'a pas fallu qu'ils s'expliquent pour qu'il donne la paix."],
+ "review":[
+  {"title":"Sur quoi suis-je barricadé ce soir ?","body":"Une peur, un sujet, une personne. Nommez-le sans le forcer."},
+  {"title":"Qui ai-je trié aujourd'hui ?","body":"On le reconnaît, on le dépose, on n'y revient pas."},
+  {"title":"Qu'est-ce que je reçois comme paix ?","body":"Pas celle que vous fabriquez. Celle qui vous est donnée. Recevez-la simplement."}],
+ "prayer":"Seigneur, ce soir je suis fermé sur certaines choses, et tu le sais. Entre quand même. Je ne vais pas tout t'expliquer, tu connais déjà le dossier. Donne-moi ta paix, celle qui ne dépend pas de ce que j'ai réglé aujourd'hui. Veille sur les miens et fais-moi dormir. Au nom de Jésus, amen."
+},
+"witness": {
+ "thread":[
+  "L'explication de la parabole de l'ivraie contient le détail le plus utile pour parler avec quelqu'un qui reproche aux Églises leur hypocrisie : le champ, c'est le monde. Beaucoup de croyants citent ce texte pour excuser les défauts de l'Église, et Jésus dit autre chose de plus large.",
+  "L'autre force du texte est son honnêteté sur la fin. Ne l'escamotez pas : votre interlocuteur sentira tout de suite si vous adoucissez. Dites-le tel quel, puis dites aussi où le texte se termine, sur des justes qui resplendissent."],
+ "openers":[
+  "« Tu trouves qu'on passe notre temps à trier les gens en ce moment ? Il y a un texte qui dit que ce tri existe mais qu'il n'est pas de notre ressort. »",
+  "« Comment tu ferais pour prier si tu savais que tu es en tort ? Il y a une prière très courte dans la Bible qui fait exactement ça, sans se justifier. »",
+  "« Tu penses qu'il y aura une fin à tout ça, ou que ça tourne indéfiniment ? Moi j'ai longtemps préféré ne pas y penser. »"],
+ "objection_q":"« Un Dieu d'amour qui parle de fournaise, ça ne tient pas ensemble. »",
+ "objection_a":[
+  "La tension est réelle et il ne faut pas prétendre la dissoudre en une phrase. Deux précisions aident cependant. D'abord, c'est Jésus qui parle le plus du jugement dans tout le Nouveau Testament, ce qui interdit de garder le Jésus doux en supprimant ces textes : ils viennent du même personnage. Ensuite, le vocabulaire est imagé et varié, feu, ténèbres, séparation, et ces images ne se combinent pas littéralement.",
+  "Ce que la plupart des textes décrivent, au fond, c'est une séparation définitive d'avec Dieu. Dans cette lecture, Dieu ne jette personne dehors, il ratifie un refus maintenu. Cela ne rend pas la chose légère, et l'honnêteté demande de reconnaître que des chrétiens sérieux divergent sur sa durée et sa nature. Ce qui n'est pas dans le flou, en revanche, c'est l'insistance de l'invitation."]
+}
+}
+
+]
+}
