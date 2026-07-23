@@ -51,7 +51,8 @@ async function gemini(c: Call): Promise<Raw> {
         generationConfig: {
           responseMimeType: 'application/json',
           maxOutputTokens: c.maxTokens ?? 32000,
-          temperature: c.temperature ?? 0.7
+          temperature: c.temperature ?? 0.7,
+          thinkingConfig: { thinkingBudget: 0 }
         }
       })
     });
