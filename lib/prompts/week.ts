@@ -33,6 +33,70 @@ export const DaySchema = z.object({
 export const WeekSchema = z.object({ days: z.array(DaySchema) });
 export type GeneratedDay = z.infer<typeof DaySchema>;
 
+/* Schema au format Gemini (OpenAPI), pour forcer la structure exacte
+   de la sortie et empecher les chaines la ou il faut des tableaux. */
+const titleBody = {
+  type: 'OBJECT',
+  properties: { title: { type: 'STRING' }, body: { type: 'STRING' } },
+  required: ['title', 'body']
+};
+export const DAY_GEMINI_SCHEMA = {
+  type: 'OBJECT',
+  properties: {
+    date: { type: 'STRING' },
+    theme_title: { type: 'STRING' },
+    theme_lede: { type: 'STRING' },
+    central_message: { type: 'STRING' },
+    verse: {
+      type: 'OBJECT',
+      properties: { text: { type: 'STRING' }, ref: { type: 'STRING' } },
+      required: ['text', 'ref']
+    },
+    reading_summaries: {
+      type: 'ARRAY',
+      items: {
+        type: 'OBJECT',
+        properties: {
+          position: { type: 'INTEGER' }, title: { type: 'STRING' },
+          tag: { type: 'STRING' }, summary: { type: 'STRING' }
+        },
+        required: ['position', 'title', 'tag', 'summary']
+      }
+    },
+    bread_lead: { type: 'STRING' },
+    bread_says: { type: 'ARRAY', items: { type: 'STRING' } },
+    bread_touches: { type: 'ARRAY', items: { type: 'STRING' } },
+    actions: { type: 'ARRAY', items: titleBody },
+    prayer_open: { type: 'STRING' },
+    prayer_close: { type: 'STRING' },
+    evening: {
+      type: 'OBJECT',
+      properties: {
+        verse: { type: 'STRING' }, verse_ref: { type: 'STRING' }, title: { type: 'STRING' },
+        meditation: { type: 'ARRAY', items: { type: 'STRING' } },
+        review: { type: 'ARRAY', items: titleBody },
+        prayer: { type: 'STRING' }
+      },
+      required: ['verse', 'verse_ref', 'title', 'meditation', 'review', 'prayer']
+    },
+    witness: {
+      type: 'OBJECT',
+      properties: {
+        thread: { type: 'ARRAY', items: { type: 'STRING' } },
+        openers: { type: 'ARRAY', items: { type: 'STRING' } },
+        objection_q: { type: 'STRING' },
+        objection_a: { type: 'ARRAY', items: { type: 'STRING' } }
+      },
+      required: ['thread', 'openers', 'objection_q', 'objection_a']
+    }
+  },
+  required: [
+    'date', 'theme_title', 'theme_lede', 'central_message', 'verse',
+    'reading_summaries', 'bread_lead', 'bread_says', 'bread_touches', 'actions',
+    'prayer_open', 'prayer_close', 'evening', 'witness'
+  ]
+};
+
 export const WEEK_SYSTEM = `Tu es le redacteur du Pain quotidien, un site de meditation
 biblique quotidienne d'orientation protestante evangelique.
 

@@ -4,7 +4,7 @@ import { admin } from '@/lib/supabase/admin';
 import { fetchAelf, parseReadings, liturgicalInfo } from '@/lib/aelf';
 import { getPassage } from '@/lib/bible';
 import { callJSON, cost, modelName, PROVIDER } from '@/lib/llm';
-import { DaySchema, WEEK_SYSTEM, dayUserPrompt } from '@/lib/prompts/week';
+import { DaySchema, WEEK_SYSTEM, dayUserPrompt, DAY_GEMINI_SCHEMA } from '@/lib/prompts/week';
 
 export const maxDuration = 300;
 export const dynamic = 'force-dynamic';
@@ -75,6 +75,7 @@ export async function GET(req: NextRequest) {
               text: r.text, substituted: r.substituted
             }))
           }),
+          responseSchema: DAY_GEMINI_SCHEMA,
           maxTokens: 16000
         });
         totalIn += usage.input; totalOut += usage.output;

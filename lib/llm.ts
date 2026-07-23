@@ -13,7 +13,7 @@ import { z } from 'zod';
 export type Provider = 'gemini' | 'groq' | 'mistral' | 'cerebras' | 'anthropic' | 'none';
 export const PROVIDER = (process.env.LLM_PROVIDER ?? 'gemini') as Provider;
 
-type Call = { system: string; user: string; maxTokens?: number; temperature?: number };
+type Call = { system: string; user: string; maxTokens?: number; temperature?: number; responseSchema?: any };
 type Raw = { text: string; input: number; output: number };
 
 /* Tarifs en dollars par million de tokens. Zero pour les paliers gratuits. */
@@ -50,6 +50,7 @@ async function gemini(c: Call): Promise<Raw> {
         contents: [{ role: 'user', parts: [{ text: c.user }] }],
         generationConfig: {
           responseMimeType: 'application/json',
+          ...(c.responseSchema ? { responseSchema: c.responseSchema } : {}),
           maxOutputTokens: c.maxTokens ?? 32000,
           temperature: c.temperature ?? 0.7
         }
