@@ -25,6 +25,8 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
   const [hl, setHl] = useState<Record<string, number>>(
     Object.fromEntries((highlights ?? []).map((h: any) => [`${h.book}-${h.chapter}-${h.verse}`, h.color])));
   const [myNotes, setMyNotes] = useState<any[]>(notes ?? []);
+  const [results, setResults] = useState<any[] | null>(null);
+  const [searching, setSearching] = useState(false);
 
   const bookName = books.find((b: any) => b.id === book)?.name ?? '';
   const chapters = books.find((b: any) => b.id === book)?.chapters ?? 1;
@@ -96,6 +98,20 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
     const norm = m[1].trim().toLowerCase();
     const b = books.find((x: any) => x.name.toLowerCase().startsWith(norm));
     if (b) { setBook(b.id); setChapter(Math.min(+m[2], b.chapters)); setExplain(null); }
+  };
+
+  // Recherche : une reference (nom + chiffre) ouvre le passage ;
+  // un simple mot lance une concordance sur toute la traduction.
+  const runSearch = async () => {
+    const q = search.trim();
+    if (!q) { setResults(null); return; }
+    if (/\S\s+\d/.test(q)) { go(q); setResults(null); return; }
+    setSearching(true); setResults([]);
+    const { data } = await supabase.from('verses')
+      .select('book, chapter, verse, text')
+      .eq('translation', trad).ilike('text', `%${q}%`)
+      .order('book').order('chapter').order('verse').limit(400);
+    setResults(data ?? []); setSearching(false);
   };
 
   return (
@@ -189,8 +205,8 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
         <div style={{ padding: '24px 30px 4px' }}>
           <input className="field" type="search" value={search}
                  onChange={e => setSearch(e.target.value)}
-                 onKeyDown={e => { if (e.key === 'Enter') go(search); }}
-                 placeholder="Rechercher une reference, par exemple Jean 3 ou Psaume 23" />
+                 onKeyDown={e => { if (e.key === 'Enter') runSearch(); }}
+                 placeholder="Une reference (Jean 3) ou un mot a chercher (peur, grace...)" />
           <div className="reader-bar">
             <select className="field" value={trad} onChange={e => setTrad(e.target.value)}>
               {translations.map((t: any) => <option key={t.code} value={t.code}>{t.name}</option>)}
@@ -258,6 +274,29 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
           </div>
         )}
       </div>
+
+      {results !== null && (
+        <>
+          <h2 className="sect">Recherche</h2>
+          <p className="sub">
+            {searching ? 'Recherche en cours…'
+              : results.length === 0 ? `Aucun verset ne contient « ${search} ».`
+              : `${results.length}${results.length === 400 ? '+ (400 premiers)' : ''} verset${results.length > 1 ? 's' : ''} contiennent « ${search} ».`}
+            {' '}<a style={{ cursor: 'pointer', color: 'var(--accent)' }} onClick={() => { setResults(null); setSearch(''); }}>Effacer</a>
+          </p>
+          {!searching && results.length > 0 && (
+            <div className="card pad">
+              {results.map((r, i) => (
+                <div className="entry" key={i} style={{ cursor: 'pointer' }}
+                     onClick={() => { setBook(r.book); setChapter(r.chapter); setSel(r.verse); setResults(null); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
+                  <div className="eref">{books.find((b: any) => b.id === r.book)?.name} {r.chapter}.{r.verse}</div>
+                  <div className="etext">{r.text}</div>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
+      )}
 
       <h2 className="sect">Mon carnet de bord</h2>
       <p className="sub">{myNotes.length} note{myNotes.length > 1 ? 's' : ''} et {Object.keys(hl).length} surlignage{Object.keys(hl).length > 1 ? 's' : ''}.</p>
