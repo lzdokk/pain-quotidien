@@ -79,3 +79,19 @@ ${r.text}`).join('\n')}
 
 Renvoie { "days": [ ... ] } avec un objet par date, dans l'ordre.`;
 }
+
+export function dayUserPrompt(d: {
+  date: string; season: string | null; week: string | null;
+  readings: Array<{ position: number; reference: string; title: string; text: string; substituted?: string }>;
+}) {
+  return `Redige le contenu complet de la journee suivante.
+
+════════ ${d.date} ════════
+Temps liturgique : ${d.season ?? 'ordinaire'} ${d.week ?? ''}
+${d.readings.map(r => `
+--- Lecture ${r.position} : ${r.reference}${r.substituted ? ` (remplace ${r.substituted}, hors canon protestant)` : ''}
+${r.title}
+${r.text}`).join('\n')}
+
+Renvoie un seul objet JSON conforme au schema d'une journee, avec le champ "date" egal a "${d.date}".`;
+}
