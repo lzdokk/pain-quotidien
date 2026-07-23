@@ -48,10 +48,19 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
 
   const load = useCallback(async () => {
     setLoading(true); setSel(null);
+    const t = translations.find((x: any) => x.code === trad);
+    if (t?.source === 'apibible') {
+      // Traduction sous licence hebergee sur API.Bible, lue via notre route serveur.
+      const r = await fetch(`/api/bible/chapter?trans=${trad}&book=${book}&chapter=${chapter}`);
+      const j = await r.json();
+      setVerses(((j.verses ?? []) as Array<[number, string]>).map(v => ({ verse: v[0], text: v[1] })));
+      setLoading(false);
+      return;
+    }
     const { data } = await supabase.from('verses').select('verse, text')
       .eq('translation', trad).eq('book', book).eq('chapter', chapter).order('verse');
     setVerses((data ?? []) as V[]); setLoading(false);
-  }, [trad, book, chapter]);
+  }, [trad, book, chapter, translations]);
 
   useEffect(() => { load(); }, [load]);
 
