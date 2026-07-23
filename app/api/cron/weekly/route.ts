@@ -24,14 +24,20 @@ export async function GET(req: NextRequest) {
     return new NextResponse('Unauthorized', { status: 401 });
   }
 
+  const params = new URL(req.url).searchParams;
   const start = new Date();
-  if (new URL(req.url).searchParams.get('from') !== 'today') start.setUTCDate(start.getUTCDate() + 1);
-  const dates = Array.from({ length: 7 }, (_, i) => {
+  if (params.get('from') !== 'today') start.setUTCDate(start.getUTCDate() + 1);
+  const all = Array.from({ length: 7 }, (_, i) => {
     const d = new Date(start); d.setUTCDate(d.getUTCDate() + i); return iso(d);
   });
+  // On genere par petits paquets pour tenir sous la limite de 60 s de Vercel.
+  // ?days=3 (defaut) et ?skip=0, on rappelle en avancant skip de 3 en 3.
+  const perRun = Math.min(Math.max(1, Number(params.get('days') ?? 3)), 7);
+  const skip = Math.max(0, Number(params.get('skip') ?? 0));
+  const dates = all.slice(skip, skip + perRun);
 
   const { data: run } = await admin.from('generation_runs')
-    .insert({ kind: 'week', period_start: dates[0], period_end: dates[6] })
+    .insert({ kind: 'week', period_start: dates[0], period_end: dates[dates.length - 1] })
     .select('id').single();
   const runId = run!.id;
 
@@ -128,7 +134,7 @@ export async function GET(req: NextRequest) {
     }
 
     await admin.from('generation_runs').update({
-      status: created === 7 ? 'ok' : created > 0 ? 'partial' : 'failed',
+      status: created === dates.length ? 'ok' : created > 0 ? 'partial' : 'failed',
       days_created: created,
       input_tokens: totalIn, output_tokens: totalOut,
       cost_usd: cost(totalIn, totalOut),
@@ -139,7 +145,7 @@ export async function GET(req: NextRequest) {
     revalidatePath('/');
     return NextResponse.json({
       ok: created > 0, run: runId, days: created,
-      range: [dates[0], dates[6]],
+      range: [dates[0], dates[dates.length - 1]],
       errors: errors.length ? errors : undefined,
       cost_usd: +cost(totalIn, totalOut).toFixed(4)
     });
