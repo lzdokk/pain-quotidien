@@ -2,13 +2,42 @@ import { admin } from '@/lib/supabase/admin';
 
 export type Verse = { verse: number; text: string };
 
-/** Reference "Michee 7.14-15,18-20" vers { book, chapter, verses[] } */
+const denorm = (s: string) =>
+  s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
+
+/**
+ * Abreviations AELF vers noms complets du canon protestant.
+ * Sans cette table, les evangiles (Mt, Mc, Lc, Jn) et la plupart des
+ * epitres ne correspondent a aucun livre et sont perdus silencieusement.
+ * Les livres deuterocanoniques (Tb, Jdt, 1 M, 2 M, Sg, Si, Ba) sont
+ * remplaces en amont dans lib/aelf.ts, ils n'ont pas besoin d'entree ici.
+ */
+const ABBREV: Record<string, string> = {
+  'gn': 'Genese', 'ex': 'Exode', 'lv': 'Levitique', 'nb': 'Nombres', 'dt': 'Deuteronome',
+  'jos': 'Josue', 'jg': 'Juges', 'rt': 'Ruth',
+  '1 s': '1 Samuel', '2 s': '2 Samuel', '1 r': '1 Rois', '2 r': '2 Rois',
+  '1 ch': '1 Chroniques', '2 ch': '2 Chroniques', 'esd': 'Esdras', 'ne': 'Nehemie',
+  'est': 'Esther', 'jb': 'Job', 'job': 'Job', 'ps': 'Psaumes', 'pr': 'Proverbes',
+  'qo': 'Ecclesiaste', 'ec': 'Ecclesiaste', 'ct': 'Cantique',
+  'is': 'Esaie', 'jr': 'Jeremie', 'lm': 'Lamentations', 'ez': 'Ezechiel', 'dn': 'Daniel',
+  'os': 'Osee', 'jl': 'Joel', 'am': 'Amos', 'ab': 'Abdias', 'jon': 'Jonas', 'mi': 'Michee',
+  'na': 'Nahum', 'ha': 'Habacuc', 'so': 'Sophonie', 'ag': 'Aggee', 'za': 'Zacharie', 'ml': 'Malachie',
+  'mt': 'Matthieu', 'mc': 'Marc', 'lc': 'Luc', 'jn': 'Jean', 'ac': 'Actes', 'rm': 'Romains',
+  '1 co': '1 Corinthiens', '2 co': '2 Corinthiens', 'ga': 'Galates', 'ep': 'Ephesiens',
+  'ph': 'Philippiens', 'col': 'Colossiens', '1 th': '1 Thessaloniciens', '2 th': '2 Thessaloniciens',
+  '1 tm': '1 Timothee', '2 tm': '2 Timothee', 'tt': 'Tite', 'phm': 'Philemon', 'he': 'Hebreux',
+  'jc': 'Jacques', '1 p': '1 Pierre', '2 p': '2 Pierre',
+  '1 jn': '1 Jean', '2 jn': '2 Jean', '3 jn': '3 Jean', 'jude': 'Jude', 'jud': 'Jude', 'ap': 'Apocalypse'
+};
+
+/** Reference "Michee 7.14-15,18-20" ou "Mt 5, 1-12" vers { name, chapter, verses[] } */
 export function parseRef(ref: string) {
-  const m = ref.match(/^(.+?)\s+(\d+)[.:]?\s*(.*)$/);
+  const cleaned = ref.replace(/ /g, ' ').trim();
+  const m = cleaned.match(/^(.+?)\s+(\d+)[.,:]?\s*(.*)$/);
   if (!m) return null;
   const [, name, chapter, rest] = m;
   const verses: number[] = [];
-  rest.split(/[,;]/).forEach(part => {
+  rest.split(/[.,;]/).forEach(part => {
     const range = part.trim().match(/^(\d+)\s*-\s*(\d+)$/);
     if (range) { for (let v = +range[1]; v <= +range[2]; v++) verses.push(v); }
     else if (/^\d+$/.test(part.trim())) verses.push(+part.trim());
@@ -17,11 +46,11 @@ export function parseRef(ref: string) {
 }
 
 export async function bookIdByName(name: string) {
-  const norm = name.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  const key = denorm(name);
+  const full = ABBREV[key] ?? name;
+  const norm = denorm(full);
   const { data } = await admin.from('books').select('id,name');
-  return data?.find(b =>
-    b.name.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').startsWith(norm)
-  )?.id ?? null;
+  return data?.find(b => denorm(b.name).startsWith(norm))?.id ?? null;
 }
 
 export async function getVerses(translation: string, book: number, chapter: number, only?: number[]) {
