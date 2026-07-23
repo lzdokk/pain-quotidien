@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
   }
 
   const start = new Date();
-  start.setUTCDate(start.getUTCDate() + 1);          // demain
+  if (new URL(req.url).searchParams.get('from') !== 'today') start.setUTCDate(start.getUTCDate() + 1);
   const dates = Array.from({ length: 7 }, (_, i) => {
     const d = new Date(start); d.setUTCDate(d.getUTCDate() + i); return iso(d);
   });
