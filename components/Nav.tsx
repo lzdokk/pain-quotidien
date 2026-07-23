@@ -55,7 +55,7 @@ export default function Nav({ user }: { user: any }) {
 
       {sheet && (
         <div className="sheet on" onClick={e => { if (e.target === e.currentTarget) setSheet(false); }}>
-          <div className="sheet-in"><SignIn /></div>
+          <div className="sheet-in"><SignIn user={user} /></div>
         </div>
       )}
     </>

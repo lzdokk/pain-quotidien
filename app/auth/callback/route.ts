@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabase/server';
 
-/** Retour OAuth : Google, Apple, Facebook, et lien magique par e-mail. */
+/** Retour apres confirmation d'email suite a une inscription. */
 export async function GET(req: NextRequest) {
   const { searchParams, origin } = new URL(req.url);
   const code = searchParams.get('code');
