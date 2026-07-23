@@ -71,7 +71,7 @@ export async function GET(req: NextRequest) {
           text: r.text, substituted: r.substituted
         }))
       }))),
-      maxTokens: 32000
+      maxTokens: 60000
     });
 
     // ── 3. Sauvegarde ───────────────────────────────────────────────
