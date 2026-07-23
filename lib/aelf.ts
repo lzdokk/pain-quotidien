@@ -35,13 +35,15 @@ export async function fetchAelf(date: string) {
 
 export function parseReadings(payload: any): AelfReading[] {
   const lectures = payload?.messes?.[0]?.lectures ?? [];
-  const seen = new Set<string>();
-  return lectures
-    .filter((l: any) => {
-      if (seen.has(l.type)) return false;   // AELF double parfois l'evangile
-      seen.add(l.type); return true;
-    })
-    .map((l: any) => {
+  // AELF propose souvent plusieurs options pour un meme temps de lecture
+  // ("OU BIEN"). On les regroupe par type, dans l'ordre d'apparition.
+  const groups = new Map<string, any[]>();
+  for (const l of lectures) {
+    const arr = groups.get(l.type) ?? [];
+    arr.push(l);
+    groups.set(l.type, arr);
+  }
+  const build = (l: any): AelfReading => {
       const ref = String(l.ref || '').replace(/ /g, ' ').trim();
       const prefix = DEUTERO.find(d => ref.startsWith(d + ' '));
       const key = ref.split(',')[0].trim();
@@ -54,7 +56,16 @@ export function parseReadings(payload: any): AelfReading[] {
         deuterocanonical: Boolean(prefix),
         substitute: prefix ? (SUBSTITUTIONS[key] ?? 'Esaie 55.6-9') : undefined
       };
-    });
+  };
+
+  const out: AelfReading[] = [];
+  for (const options of groups.values()) {
+    const parsed = options.map(build);
+    // On prefere une option deja dans le canon protestant, pour eviter
+    // une substitution quand AELF offre justement une alternative canonique.
+    out.push(parsed.find(p => !p.deuterocanonical) ?? parsed[0]);
+  }
+  return out;
 }
 
 export function liturgicalInfo(payload: any) {

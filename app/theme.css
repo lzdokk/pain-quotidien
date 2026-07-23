@@ -38,7 +38,7 @@
   --serif: "New York","Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
   --sans: -apple-system,BlinkMacSystemFont,"SF Pro Text","Inter","Helvetica Neue",Arial,sans-serif;
   --ease: cubic-bezier(.22,1,.36,1);
-  --maxw: 720px;
+  --maxw: 780px;
 }
 
 html[data-mode="soir"]{

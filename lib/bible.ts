@@ -33,16 +33,23 @@ const ABBREV: Record<string, string> = {
 /** Reference "Michee 7.14-15,18-20" ou "Mt 5, 1-12" vers { name, chapter, verses[] } */
 export function parseRef(ref: string) {
   const cleaned = ref.replace(/ /g, ' ').trim();
-  const m = cleaned.match(/^(.+?)\s+(\d+)[.,:]?\s*(.*)$/);
+  // Psaume donne sans nom de livre par AELF : "33 (34), 2-3"
+  const c2 = /^\d/.test(cleaned) ? 'Psaumes ' + cleaned : cleaned;
+  // AELF numerote les psaumes a la grecque, l'hebreu est entre parentheses.
+  // Segond 1910 suit l'hebreu : on prend le nombre entre parentheses s'il existe.
+  const alt = c2.match(/\((\d+)\)/);
+  const m = c2.match(/^(.+?)\s+(\d+)/);
   if (!m) return null;
-  const [, name, chapter, rest] = m;
+  const name = m[1].trim();
+  const chapter = alt ? +alt[1] : +m[2];
+  const rest = c2.replace(/\(\d+\)/, '').replace(/^.+?\s+\d+[.,:]?/, '');
   const verses: number[] = [];
   rest.split(/[.,;]/).forEach(part => {
     const range = part.trim().match(/^(\d+)\s*-\s*(\d+)$/);
     if (range) { for (let v = +range[1]; v <= +range[2]; v++) verses.push(v); }
     else if (/^\d+$/.test(part.trim())) verses.push(+part.trim());
   });
-  return { name: name.trim(), chapter: +chapter, verses };
+  return { name, chapter, verses };
 }
 
 export async function bookIdByName(name: string) {

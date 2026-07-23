@@ -26,6 +26,21 @@ body{font-family:var(--sans);background:var(--bg);color:var(--ink);line-height:1
 .icon-btn.avatar{background:var(--accent);border-color:var(--accent);color:#fff}
 html[data-mode="soir"] .icon-btn.avatar{color:#0E141A}
 
+/* Barre d'onglets mobile, fixee en bas comme une application */
+.tabbar{display:none}
+@media(max-width:700px){
+ .nav .tabs{display:none}
+ .tabbar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:70;justify-content:space-around;gap:2px;
+  background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:saturate(180%) blur(24px);
+  -webkit-backdrop-filter:saturate(180%) blur(24px);border-top:1px solid var(--line);
+  padding:7px 4px calc(7px + env(safe-area-inset-bottom))}
+ .tabbar a{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:4px 2px;border-radius:12px;color:var(--ink-4);font-size:10px;font-weight:620;
+  letter-spacing:-.01em;text-decoration:none;transition:color .2s var(--ease)}
+ .tabbar a svg{width:22px;height:22px}
+ .tabbar a[aria-current="true"]{color:var(--accent)}
+}
+
 .daybar{position:sticky;top:56px;z-index:55;background:color-mix(in srgb,var(--bg) 90%,transparent);
  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--line)}
 .daybar-in{max-width:var(--maxw);margin:0 auto;padding:11px 24px;display:flex;align-items:center;gap:10px}
