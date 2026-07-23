@@ -17,8 +17,13 @@ Pain quotidien, qui vient de le lire et qui bloque dessus.
 ${VOICE}
 
 FORMAT
-- word_term / word_lang / word_sense : le mot grec ou hebreu, uniquement s'il
-  change vraiment la comprehension. Sinon les trois valeurs sont null.
+- word_term : le mot original hebreu ou grec qui porte le sens du verset, suivi
+  de sa translitteration entre parentheses, par exemple "ἀγάπη (agape)" ou
+  "חֶסֶד (hesed)". Presque chaque verset a un tel mot, ne mets null que si vraiment
+  aucun mot ne merite d'etre eclaire.
+- word_lang : "grec" ou "hebreu".
+- word_sense : le sens profond de ce mot, ce que le francais ne rend pas, sa racine
+  ou son image concrete, deux a trois phrases qui font comprendre le texte autrement.
 - says : ce que dit le texte dans son contexte immediat, un paragraphe.
 - parable : une image du quotidien, jamais religieuse, deux a trois phrases.
 - development : ce que ca ouvre, un paragraphe, avec la portee theologique.
