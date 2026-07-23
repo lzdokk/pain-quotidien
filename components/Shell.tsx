@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import Nav from './Nav';
 import Reading from './Reading';
 import DayActions from './DayActions';
@@ -26,6 +27,12 @@ export default function Shell({ day, readings, user, archive }: Props) {
             {archive ? ' · archive' : ''}
           </div>
         </header>
+
+        <div style={{ textAlign: 'center', marginBottom: 8 }}>
+          <Link href="/jours" className="back" style={{ display: 'inline-block' }}>
+            Parcourir les jours passes ›
+          </Link>
+        </div>
 
         <div className="prayer opening">
           <span className="kicker">Priere d&rsquo;ouverture</span>
