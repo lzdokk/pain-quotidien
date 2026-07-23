@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { supabaseServer } from '@/lib/supabase/server';
 import Nav from '@/components/Nav';
 import ValidateCourse from '@/components/ValidateCourse';
+import CourseHomework from '@/components/CourseHomework';
 
 export const revalidate = 86400;
 const KIND: Record<string, string> = { E: 'Exegese', D: 'Doctrine', P: 'Pratique', G: 'Langue' };
@@ -18,6 +19,10 @@ export default async function Fiche({ params }: { params: Promise<{ code: string
   const { data: lvl } = await sb.from('cursus_levels').select('name').eq('id', g?.level_id ?? '').maybeSingle();
   const { data: prog } = user
     ? await sb.from('course_progress').select('code').eq('code', code).maybeSingle()
+    : { data: null };
+  const { data: last } = user
+    ? await sb.from('course_submissions').select('*').eq('code', code)
+        .order('created_at', { ascending: false }).limit(1).maybeSingle()
     : { data: null };
 
   return (
@@ -72,6 +77,8 @@ export default async function Fiche({ params }: { params: Promise<{ code: string
               <p style={{ marginTop: 8 }}>{c.assignment}</p>
               <ValidateCourse code={c.code} user={user} initial={Boolean(prog)} />
             </div>
+
+            <CourseHomework code={c.code} user={user} last={last} />
           </>
         )}
       </main>
