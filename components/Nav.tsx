@@ -43,19 +43,23 @@ export default function Nav({ user }: { user: any }) {
                  strokeWidth="1.7" strokeLinecap="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z" /></svg>
           </button>
 
-          <button className={`icon-btn${user ? ' avatar' : ''}`} onClick={() => setSheet(true)} aria-label="Mon compte">
-            {user ? initial.toUpperCase() : (
+          {user ? (
+            <Link href="/compte" className="icon-btn avatar" aria-label="Mon compte">
+              {initial.toUpperCase()}
+            </Link>
+          ) : (
+            <button className="icon-btn" onClick={() => setSheet(true)} aria-label="Mon compte">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
                 <circle cx="12" cy="8" r="3.6" /><path d="M4.5 20a7.5 7.5 0 0115 0" />
               </svg>
-            )}
-          </button>
+            </button>
+          )}
         </div>
       </nav>
 
-      {sheet && (
+      {sheet && !user && (
         <div className="sheet on" onClick={e => { if (e.target === e.currentTarget) setSheet(false); }}>
-          <div className="sheet-in"><SignIn user={user} /></div>
+          <div className="sheet-in"><SignIn /></div>
         </div>
       )}
     </>
