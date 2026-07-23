@@ -14,6 +14,13 @@ function answerText(content: string) {
 export default function Profile({ user, profile, plan, notes, highlights, conversations }: any) {
   const [search, setSearch] = useState('');
   const [myNotes, setMyNotes] = useState(notes);
+  const [reminder, setReminder] = useState(Boolean(profile?.wants_reading_reminder));
+
+  const toggleReminder = async () => {
+    const next = !reminder;
+    setReminder(next);
+    await supabase.from('profiles').update({ wants_reading_reminder: next }).eq('id', user.id);
+  };
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -41,6 +48,19 @@ export default function Profile({ user, profile, plan, notes, highlights, conver
         <div className="mini" style={{ marginTop: 10 }}><strong>Notes enregistrees</strong><span>{notes.length}</span></div>
         <div className="mini" style={{ marginTop: 10 }}><strong>Versets surlignes</strong><span>{highlights.length}</span></div>
 
+        <div className="mini" style={{ marginTop: 18, alignItems: 'center' }}>
+          <strong>Rappel quotidien par email</strong>
+          <button className="btn sm" onClick={toggleReminder}
+                  style={{ background: reminder ? 'var(--accent)' : 'transparent',
+                           color: reminder ? '#fff' : 'var(--ink-2)',
+                           borderColor: reminder ? 'var(--accent)' : 'var(--line-2)' }}>
+            {reminder ? 'Active' : 'Desactive'}
+          </button>
+        </div>
+        <p className="fine" style={{ marginTop: 6 }}>
+          Un message le soir si vous n&rsquo;avez pas encore lu, pour tenir votre serie.
+        </p>
+
         <button
           className="btn"
           style={{ marginTop: 20 }}
@@ -64,7 +84,7 @@ export default function Profile({ user, profile, plan, notes, highlights, conver
             {search ? 'Aucune note ne correspond a cette recherche.' : 'Rien pour l’instant. Ouvrez la Bible et notez ce qui vous parle.'}
           </p>
         ) : filtered.map((n: any) => (
-          <div clame="entry" key={n.id}>
+          <div className="entry" key={n.id}>
             <div className="eref">{n.reference}</div>
             <div className="etext">{n.verse_text}</div>
             <div className="enote">{n.body}</div>

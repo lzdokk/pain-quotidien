@@ -32,9 +32,9 @@ async function main() {
     BOOKS.map((b, i) => ({ id: i + 1, name: b[0], chapters: b[1], testament: b[2] }))
   );
   await admin.from('translations').upsert({
-    code, name: code === 'FRLSG' ? 'Segond 1910' : code,
+    code, name: code === 'FRLSG' ? 'Segond 1910' : code === 'FRDBY' ? 'Darby' : code,
     public_domain: code === 'FRLSG' || code === 'FRDBY', enabled: true,
-    notice: 'Domaine public'
+    notice: code === 'FRDBY' ? 'Darby, domaine public' : 'Segond 1910, domaine public'
   });
 
   let total = 0;

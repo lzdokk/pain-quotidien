@@ -49,7 +49,7 @@ export default function Shell({ day, readings, user, archive }: Props) {
         <h2 className="sect">Les lectures du jour</h2>
         <p className="sub">Touchez une lecture pour deplier le texte integral et son resume.</p>
         <div className="card">
-          {readings.map((r, i) => <Reading key={r.id} r={r} index={i} open={i === 0} />)}
+          {readings.map((r, i) => <Reading key={r.id} r={r} index={i} open={false} />)}
         </div>
 
         <div className="card verse">
