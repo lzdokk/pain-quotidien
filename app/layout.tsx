@@ -16,6 +16,8 @@ export const metadata: Metadata = {
     title: 'Le Pain quotidien', url: SITE
   },
   twitter: { card: 'summary_large_image' },
+  manifest: '/manifest.webmanifest',
+  appleWebApp: { capable: true, title: 'Pain quotidien', statusBarStyle: 'default' },
   other: { 'instagram:creator': `@${INSTA}` }
 };
 

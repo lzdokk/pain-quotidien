@@ -1,0 +1,15 @@
+{
+  "name": "Le Pain quotidien",
+  "short_name": "Pain quotidien",
+  "description": "La Parole chaque matin, une veillée chaque soir, un carnet de lecture biblique.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FBFBFC",
+  "theme_color": "#4E6A85",
+  "lang": "fr",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/logo.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}

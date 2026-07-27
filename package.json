@@ -9,6 +9,7 @@
     "lint": "next lint",
     "db:push": "supabase db push",
     "seed:bible": "tsx scripts/import-bible.ts",
+    "seed:strongs": "tsx scripts/import-strongs.ts",
     "prompt:week": "tsx scripts/prompt-week.ts",
     "import:week": "tsx scripts/import-week.ts",
     "seed:ref": "tsx scripts/seed-reference.ts"
@@ -17,7 +18,7 @@
     "@anthropic-ai/sdk": "^0.30.1",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.45.4",
-    "next": "^15.0.7",
+    "next": "15.0.7",
     "react": "19.0.0-rc-66855b96-20241106",
     "react-dom": "19.0.0-rc-66855b96-20241106",
     "resend": "^4.0.1",
