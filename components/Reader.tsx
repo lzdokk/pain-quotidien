@@ -194,7 +194,11 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
               </div>
             ) : null}
             <div className="share-grid" style={{ marginTop: 20 }}>
-              <button className="btn primary" onClick={() => { setBook(position.step.book); setChapter(position.chapter); }}>
+              <button className="btn primary" onClick={() => {
+                setBook(position.step.book); setChapter(position.chapter);
+                setTimeout(() => document.getElementById('lecteur')
+                  ?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
+              }}>
                 Ouvrir la lecture
               </button>
               <button className="btn" onClick={markRead}>J&rsquo;ai lu, chapitre suivant</button>
@@ -249,7 +253,7 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
         </div>
       </details>
 
-      <h2 className="sect">Le lecteur</h2>
+      <h2 className="sect" id="lecteur" style={{ scrollMarginTop: 70 }}>Le lecteur</h2>
       <p className="sub">Touchez le titre du chapitre pour son introduction, un verset pour le surligner ou l&rsquo;annoter.</p>
       <div className="card">
         <div style={{ padding: '24px 30px 4px' }}>
