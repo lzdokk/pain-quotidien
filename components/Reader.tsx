@@ -52,8 +52,8 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
   const load = useCallback(async () => {
     setLoading(true); setSel(null);
     const t = translations.find((x: any) => x.code === trad);
-    if (t?.source === 'apibible') {
-      // Traduction sous licence hebergee sur API.Bible, lue via notre route serveur.
+    if (t?.source === 'apibible' || t?.source === 'bolls') {
+      // Traduction sous licence lue a distance, jamais copiee dans notre base.
       const r = await fetch(`/api/bible/chapter?trans=${trad}&book=${book}&chapter=${chapter}`);
       const j = await r.json();
       setVerses(((j.verses ?? []) as Array<[number, string]>).map(v => ({ verse: v[0], text: v[1] })));
@@ -154,7 +154,7 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
     // Les traductions sous licence sont lues a distance, verset par verset :
     // la concordance porte donc sur le texte local (Segond 1910).
     const t = translations.find((x: any) => x.code === trad);
-    const searchIn = t?.source === 'apibible' ? 'FRLSG' : trad;
+    const searchIn = (t?.source === 'apibible' || t?.source === 'bolls') ? 'FRLSG' : trad;
     setSearchedIn(searchIn === trad ? null : 'Segond 1910');
     const { data } = await supabase.from('verses')
       .select('book, chapter, verse, text')

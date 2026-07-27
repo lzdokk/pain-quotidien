@@ -23,7 +23,26 @@ export async function GET(req: NextRequest) {
   const { data: t } = await admin.from('translations')
     .select('source, api_id').eq('code', trans).maybeSingle();
 
-  if (!t || t.source !== 'apibible' || !t.api_id) {
+  if (!t) return NextResponse.json({ verses: [] });
+
+  // ── Lecture directe chez bolls, le texte n'est jamais copie chez nous ──
+  if (t.source === 'bolls') {
+    try {
+      const r = await fetch(`https://bolls.life/get-chapter/${t.api_id ?? trans}/${book}/${chapter}/`,
+        { next: { revalidate: 86400 } });
+      if (!r.ok) throw new Error(`bolls ${r.status}`);
+      const rows = await r.json() as any[];
+      const verses = rows.map(v => [
+        v.verse,
+        String(v.text ?? '').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim()
+      ] as [number, string]).filter(v => v[1]);
+      return NextResponse.json({ verses });
+    } catch (e: any) {
+      return NextResponse.json({ verses: [], error: String(e?.message ?? e) }, { status: 502 });
+    }
+  }
+
+  if (t.source !== 'apibible' || !t.api_id) {
     return NextResponse.json({ verses: [] });
   }
   if (!process.env.BIBLE_API_KEY) {
