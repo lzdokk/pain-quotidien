@@ -29,6 +29,7 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
   const [myNotes, setMyNotes] = useState<any[]>(notes ?? []);
   const [results, setResults] = useState<any[] | null>(null);
   const [searching, setSearching] = useState(false);
+  const [searchedIn, setSearchedIn] = useState<string | null>(null);
 
   const bookName = books.find((b: any) => b.id === book)?.name ?? '';
   const chapters = books.find((b: any) => b.id === book)?.chapters ?? 1;
@@ -150,9 +151,14 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
     if (!q) { setResults(null); return; }
     if (/\S\s+\d/.test(q)) { go(q); setResults(null); return; }
     setSearching(true); setResults([]);
+    // Les traductions sous licence sont lues a distance, verset par verset :
+    // la concordance porte donc sur le texte local (Segond 1910).
+    const t = translations.find((x: any) => x.code === trad);
+    const searchIn = t?.source === 'apibible' ? 'FRLSG' : trad;
+    setSearchedIn(searchIn === trad ? null : 'Segond 1910');
     const { data } = await supabase.from('verses')
       .select('book, chapter, verse, text')
-      .eq('translation', trad).ilike('text', `%${q}%`)
+      .eq('translation', searchIn).ilike('text', `%${q}%`)
       .order('book').order('chapter').order('verse').limit(400);
     setResults(data ?? []); setSearching(false);
   };
@@ -336,7 +342,7 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
           <p className="sub">
             {searching ? 'Recherche en cours…'
               : results.length === 0 ? `Aucun verset ne contient « ${search} ».`
-              : `${results.length}${results.length === 400 ? '+ (400 premiers)' : ''} verset${results.length > 1 ? 's' : ''} contiennent « ${search} ».`}
+              : `${results.length}${results.length === 400 ? '+ (400 premiers)' : ''} verset${results.length > 1 ? 's' : ''} contiennent « ${search} »${searchedIn ? `, recherche faite dans la ${searchedIn}` : ''}.`}
             {' '}<a style={{ cursor: 'pointer', color: 'var(--accent)' }} onClick={() => { setResults(null); setSearch(''); }}>Effacer</a>
           </p>
           {!searching && results.length > 0 && (

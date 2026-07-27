@@ -39,11 +39,17 @@ export default function Lexique() {
           <h3 style={{ fontFamily: 'var(--serif)', fontSize: 30, marginTop: 6 }}>{entry.lemma}</h3>
           <p className="muted" style={{ fontSize: 16 }}>{entry.translit}</p>
 
-          {entry.definition_fr && (
+          {entry.definition_fr ? (
             <>
               <h4 style={{ marginTop: 20 }}>Le sens</h4>
               <p>{entry.definition_fr}</p>
             </>
+          ) : (
+            <p className="fine" style={{ marginTop: 16 }}>
+              La mise en français de cette entrée n&rsquo;a pas pu être produite
+              (limite quotidienne atteinte). La définition d&rsquo;origine reste
+              consultable ci-dessous, et le français sera ajouté au prochain passage.
+            </p>
           )}
           {entry.derivation && (
             <>
@@ -69,7 +75,15 @@ export default function Lexique() {
       {!entry && results !== null && (
         <div className="card pad" style={{ marginTop: 12 }}>
           {results.length === 0 ? (
-            <p className="empty">Aucune entrée ne correspond à « {q} ».</p>
+            <div>
+              <p className="empty">Aucune entrée ne correspond à « {q} ».</p>
+              <p className="fine" style={{ marginTop: 10 }}>
+                La concordance de Strong est rédigée en anglais à l&rsquo;origine. Cherchez
+                plutôt par le mot translittéré (<i>agape</i>, <i>hesed</i>, <i>logos</i>,
+                <i> shalom</i>, <i>pistis</i>) ou par son numéro (<i>G26</i>, <i>H2617</i>).
+                Le sens français est produit à l&rsquo;ouverture de la fiche.
+              </p>
+            </div>
           ) : results.map(r => (
             <div className="entry" key={r.code} style={{ cursor: 'pointer' }} onClick={() => open(r.code)}>
               <div className="eref">{r.lemma} · {r.translit} <span className="muted">({r.code}, {r.lang})</span></div>
