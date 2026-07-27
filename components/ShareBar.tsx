@@ -24,23 +24,47 @@ export default function ShareBar({ verse, ref_, title, lede, date }: P) {
     g.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = g; x.fillRect(0, 0, W, H);
 
     x.textAlign = 'center';
-    x.fillStyle = acc; x.font = '700 30px -apple-system,Helvetica,Arial';
-    x.fillText('LE PAIN QUOTIDIEN', W / 2, 300);
 
-    x.fillStyle = ink; x.font = '500 70px Georgia,serif';
-    const words = verse.split(' '); let line = ''; const lines: string[] = [];
-    words.forEach(w => {
-      const t = line ? `${line} ${w}` : w;
-      if (x.measureText(t).width > 820 && line) { lines.push(line); line = w; } else line = t;
-    });
-    lines.push(line);
-    let y = H / 2 - (lines.length - 1) * 52;
-    lines.forEach(l => { x.fillText(l, W / 2, y); y += 104; });
+    /** Decoupe un texte en lignes qui tiennent dans la largeur donnee. */
+    const wrap = (t: string, max: number) => {
+      const out: string[] = []; let line = '';
+      t.split(' ').forEach(w => {
+        const test = line ? `${line} ${w}` : w;
+        if (x.measureText(test).width > max && line) { out.push(line); line = w; } else line = test;
+      });
+      if (line) out.push(line);
+      return out;
+    };
+
+    x.fillStyle = acc; x.font = '700 30px -apple-system,Helvetica,Arial';
+    x.fillText('LE PAIN QUOTIDIEN', W / 2, 280);
+
+    // Le titre du jour, ce qui accroche le regard
+    const plainTitle = title.replace(/<br\s*\/?>/g, ' ').trim();
+    x.fillStyle = ink; x.font = '600 62px Georgia,serif';
+    const tLines = wrap(plainTitle, 840);
+    let ty = 420;
+    tLines.forEach(l => { x.fillText(l, W / 2, ty); ty += 76; });
+
+    // Le verset, au centre
+    x.fillStyle = ink; x.font = 'italic 500 64px Georgia,serif';
+    const vLines = wrap(`« ${verse} »`, 820);
+    let y = Math.max(ty + 180, H / 2 - (vLines.length - 1) * 48);
+    vLines.forEach(l => { x.fillText(l, W / 2, y); y += 96; });
 
     x.fillStyle = acc; x.font = '600 32px -apple-system,Helvetica,Arial';
-    x.fillText(`${ref_.toUpperCase()}  ·  SEGOND`, W / 2, y + 46);
+    x.fillText(`${ref_.toUpperCase()}  ·  SEGOND`, W / 2, y + 40);
+
+    // La phrase qui touche
+    if (lede) {
+      x.fillStyle = soir ? '#A9B6C4' : '#5A6673';
+      x.font = '400 38px -apple-system,Helvetica,Arial';
+      let ly = y + 150;
+      wrap(lede, 820).slice(0, 4).forEach(l => { x.fillText(l, W / 2, ly); ly += 54; });
+    }
+
     x.fillStyle = soir ? '#5E6A76' : '#8894A2'; x.font = '400 27px -apple-system,Helvetica,Arial';
-    x.fillText('painquotidien.app', W / 2, H - 250);
+    x.fillText(`@${process.env.NEXT_PUBLIC_INSTAGRAM ?? 'lepainquotidien'}`, W / 2, H - 250);
 
     c.toBlob(b => {
       const u = URL.createObjectURL(b!); const a = document.createElement('a');
