@@ -33,8 +33,11 @@ const ABBREV: Record<string, string> = {
 /** Reference "Michee 7.14-15,18-20" ou "Mt 5, 1-12" vers { name, chapter, verses[] } */
 export function parseRef(ref: string) {
   const cleaned = ref.replace(/ /g, ' ').trim();
-  // Psaume donne sans nom de livre par AELF : "33 (34), 2-3"
-  const c2 = /^\d/.test(cleaned) ? 'Psaumes ' + cleaned : cleaned;
+  // Psaume donne sans nom de livre par AELF : "33 (34), 2-3" ou "119, 1-8".
+  // Attention : ne jamais confondre avec "2 Co 4, 7-15" ou "1 S 3, 1-10",
+  // ou le chiffre initial fait partie du nom du livre. On exige donc que les
+  // chiffres soient suivis d'une virgule ou d'une parenthese, pas d'une lettre.
+  const c2 = /^\d+\s*(\(\d+\))?\s*[,.:]/.test(cleaned) ? 'Psaumes ' + cleaned : cleaned;
   // AELF numerote les psaumes a la grecque, l'hebreu est entre parentheses.
   // Segond 1910 suit l'hebreu : on prend le nombre entre parentheses s'il existe.
   const alt = c2.match(/\((\d+)\)/);

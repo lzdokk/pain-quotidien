@@ -58,6 +58,26 @@ html[data-mode="soir"] .icon-btn.avatar{color:#0E141A}
 /* Micro-interaction sur les boutons */
 .btn:active{transform:scale(.97)}
 
+/* Volets repliables (parcours de lecture) */
+details.volet > summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px;
+ font-size:15px;color:var(--ink);user-select:none}
+details.volet > summary::-webkit-details-marker{display:none}
+details.volet > summary::after{content:"›";margin-left:auto;font-size:20px;color:var(--ink-4);
+ transition:transform .3s var(--ease)}
+details.volet[open] > summary::after{transform:rotate(90deg)}
+
+/* Lecture sur mobile : on gagne de la largeur sans perdre le style */
+@media(max-width:700px){
+ .wrap{padding:0 12px}
+ .card.pad{padding:20px 16px 24px}
+ .card > div[style*="padding: 24px 30px"]{padding:16px 16px 4px!important}
+ .vlist{padding-left:16px;padding-right:16px}
+ .scripture{padding-left:14px;padding-right:14px}
+ .rd-toggle{padding-left:16px;padding-right:16px}
+ .rd-body{padding-left:16px;padding-right:16px}
+ h2.sect{font-size:25px}
+}
+
 /* Barre de chargement fine pendant la navigation */
 .route-loading{position:fixed;top:0;left:0;right:0;height:3px;z-index:100;background:transparent;overflow:hidden}
 .route-loading .rl-bar{height:100%;width:40%;background:var(--accent);border-radius:0 3px 3px 0;

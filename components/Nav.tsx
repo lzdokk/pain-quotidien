@@ -7,7 +7,7 @@ import Brand from './Brand';
 
 const TABS = [
   { href: '/',          label: 'Matin' },
-  { href: '/temoigner', label: 'Temoigner' },
+  { href: '/temoigner', label: 'Témoigner' },
   { href: '/soir',      label: 'Soir' },
   { href: '/lire',      label: 'Lire' },
   { href: '/questions', label: 'Questions' },

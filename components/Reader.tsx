@@ -12,9 +12,11 @@ const STYLES = [
 ] as const;
 
 export default function Reader({ books, translations, plans, steps, plan, notes, highlights, user }: any) {
-  const [trad, setTrad] = useState(translations[0]?.code ?? 'FRLSG');
-  const [book, setBook] = useState(44);
+  // Segond par defaut, sauf si une position a ete memorisee.
+  const [trad, setTrad] = useState('FRLSG');
+  const [book, setBook] = useState(43);
   const [chapter, setChapter] = useState(1);
+  const [recent, setRecent] = useState<Array<{ b: number; c: number }>>([]);
   const [verses, setVerses] = useState<V[]>([]);
   const [loading, setLoading] = useState(true);
   const [sel, setSel] = useState<number | null>(null);
@@ -63,6 +65,38 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
   }, [trad, book, chapter, translations]);
 
   useEffect(() => { load(); }, [load]);
+
+  // Reprise a l'endroit ou on s'etait arrete, et lien direct ?ref=Jean 15
+  useEffect(() => {
+    try {
+      const p = new URLSearchParams(location.search).get('ref');
+      if (p) {
+        const m = p.match(/^(.+?)\s+(\d+)/);
+        if (m) {
+          const norm = m[1].trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+          const b = books.find((x: any) =>
+            x.name.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').startsWith(norm));
+          if (b) { setBook(b.id); setChapter(Math.min(+m[2], b.chapters)); return; }
+        }
+      }
+      const saved = JSON.parse(localStorage.getItem('pq-pos') ?? 'null');
+      if (saved?.b) { setBook(saved.b); setChapter(saved.c ?? 1); if (saved.t) setTrad(saved.t); }
+      setRecent(JSON.parse(localStorage.getItem('pq-recent') ?? '[]'));
+    } catch {}
+  }, [books]);
+
+  // Memorisation de la position et de l'historique de lecture
+  useEffect(() => {
+    try {
+      localStorage.setItem('pq-pos', JSON.stringify({ b: book, c: chapter, t: trad }));
+      const prev: Array<{ b: number; c: number }> =
+        JSON.parse(localStorage.getItem('pq-recent') ?? '[]');
+      const next = [{ b: book, c: chapter },
+        ...prev.filter(x => !(x.b === book && x.c === chapter))].slice(0, 8);
+      localStorage.setItem('pq-recent', JSON.stringify(next));
+      setRecent(next);
+    } catch {}
+  }, [book, chapter, trad]);
 
   const key = (v: number) => `${book}-${chapter}-${v}`;
   const noteFor = (v: number) => myNotes.find(n => n.book === book && n.chapter === chapter && n.verse === v);
@@ -163,9 +197,9 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
         </div>
       )}
 
-      <h2 className="sect">Votre parcours</h2>
-      <p className="sub">Sept chemins. Prenez Le Fondement si vous debutez.</p>
-      <div className="card pad">
+      <details className="card pad volet">
+        <summary><b>Choisir un parcours de lecture</b><span className="muted"> · {plans.length} disponibles</span></summary>
+        <div style={{ marginTop: 14 }}>
         {STYLES.map(([sid, label]) => (
           <div key={sid}>
             <div className="grp" style={{ padding: '14px 0 4px' }}>{label}</div>
@@ -206,7 +240,8 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
             ))}
           </>
         )}
-      </div>
+        </div>
+      </details>
 
       <h2 className="sect">Le lecteur</h2>
       <p className="sub">Touchez le titre du chapitre pour son introduction, un verset pour le surligner ou l&rsquo;annoter.</p>
@@ -215,7 +250,18 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
           <input className="field" type="search" value={search}
                  onChange={e => setSearch(e.target.value)}
                  onKeyDown={e => { if (e.key === 'Enter') runSearch(); }}
-                 placeholder="Une reference (Jean 3) ou un mot a chercher (peur, grace...)" />
+                 placeholder="Une référence (Jean 3) ou un mot à chercher (peur, grâce...)" />
+
+          {recent.length > 1 && (
+            <div className="chips" style={{ marginTop: 10 }}>
+              <span className="muted" style={{ fontSize: 12, alignSelf: 'center', marginRight: 4 }}>Reprendre :</span>
+              {recent.slice(1, 6).map((r, i) => (
+                <button key={i} className="chip" onClick={() => { setBook(r.b); setChapter(r.c); }}>
+                  {books.find((b: any) => b.id === r.b)?.name} {r.c}
+                </button>
+              ))}
+            </div>
+          )}
           <div className="reader-bar">
             <select className="field" value={trad} onChange={e => setTrad(e.target.value)}>
               {translations.map((t: any) => <option key={t.code} value={t.code}>{t.name}</option>)}

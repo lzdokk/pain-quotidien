@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Nav from './Nav';
-import Reading from './Reading';
+import Readings from './Readings';
 import DayActions from './DayActions';
 
 type Props = { day: any; readings: any[]; user: any; archive?: boolean };
@@ -30,12 +30,12 @@ export default function Shell({ day, readings, user, archive }: Props) {
 
         <div style={{ textAlign: 'center', marginBottom: 8 }}>
           <Link href="/jours" className="back" style={{ display: 'inline-block' }}>
-            Parcourir les jours passes ›
+            Parcourir les jours passés ›
           </Link>
         </div>
 
         <div className="prayer opening">
-          <span className="kicker">Priere d&rsquo;ouverture</span>
+          <span className="kicker">Prière d&rsquo;ouverture</span>
           <p>{day.prayer_open}</p>
         </div>
 
@@ -47,10 +47,8 @@ export default function Shell({ day, readings, user, archive }: Props) {
         </div>
 
         <h2 className="sect">Les lectures du jour</h2>
-        <p className="sub">Touchez une lecture pour deplier le texte integral et son resume.</p>
-        <div className="card">
-          {readings.map((r, i) => <Reading key={r.id} r={r} index={i} open={false} />)}
-        </div>
+        <p className="sub">Touchez une lecture pour déplier le texte intégral et son résumé.</p>
+        <Readings readings={readings} />
 
         <div className="card verse">
           <blockquote>{day.verse_text}</blockquote>
@@ -58,12 +56,12 @@ export default function Shell({ day, readings, user, archive }: Props) {
         </div>
 
         <h2 className="sect">Le pain quotidien</h2>
-        <p className="sub">Ce que ce texte vient dire a votre journee.</p>
+        <p className="sub">Ce que ce texte vient dire à votre journée.</p>
         <div className="card pad pq">
           <p className="lead">{day.bread_lead}</p>
           <h3>Ce que dit le texte</h3>
           {(day.bread_says as string[]).map((p, i) => <p key={i} dangerouslySetInnerHTML={{ __html: p }} />)}
-          <h3>Ce que ca touche en nous</h3>
+          <h3>Ce que ça touche en nous</h3>
           {(day.bread_touches as string[]).map((p, i) => <p key={i} dangerouslySetInnerHTML={{ __html: p }} />)}
         </div>
 
