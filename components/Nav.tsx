@@ -10,7 +10,9 @@ const TABS = [
   { href: '/temoigner', label: 'Témoigner' },
   { href: '/soir',      label: 'Soir' },
   { href: '/lire',      label: 'Lire' },
-  { href: '/lexique',   label: 'Lexique' },
+  // Lexique masque tant que la mise en francais n'est pas complete.
+  // Pour le reactiver : remettre la ligne ci-dessous.
+  // { href: '/lexique',   label: 'Lexique' },
   { href: '/questions', label: 'Questions' },
   { href: '/cursus',    label: 'Cursus' }
 ];
