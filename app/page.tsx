@@ -21,7 +21,7 @@ export default async function Home() {
         <header className="hero">
           <div className="eyebrow">Le Pain quotidien</div>
           <h1>Le pain du jour<br />arrive bientot</h1>
-          <p className="lede">La generation hebdomadaire n'a pas encore tourne. Revenez dans un instant.</p>
+          <p className="lede">La génération hebdomadaire n'a pas encore tourne. Revenez dans un instant.</p>
         </header>
       </main>
     );

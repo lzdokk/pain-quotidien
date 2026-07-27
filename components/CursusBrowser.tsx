@@ -20,7 +20,7 @@ export default function CursusBrowser({ levels, groups, courses, done, user }: a
   return (
     <main className="wrap">
       <header className="hero">
-        <div className="eyebrow">Cursus theologique</div>
+        <div className="eyebrow">Cursus théologique</div>
         <h1>Un cursus complet,<br />dans l&rsquo;ordre</h1>
         <p className="lede">
           {total} cours, du niveau Base a l&rsquo;Approfondissement, plus le grec ancien.

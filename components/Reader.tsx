@@ -111,7 +111,7 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
   };
 
   const saveNote = async (v: number) => {
-    if (!user) return alert('Connectez-vous pour ecrire dans votre carnet.');
+    if (!user) return alert('Connectez-vous pour écrire dans votre carnet.');
     const reference = `${bookName} ${chapter}.${v}`;
     const verse_text = verses.find(x => x.verse === v)?.text ?? '';
     const existing = noteFor(v);
@@ -162,13 +162,13 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
       <header className="hero">
         <div className="eyebrow">Lire la Bible</div>
         <h1>Un chapitre<br />par jour</h1>
-        <p className="lede">Un parcours qui commence la ou il faut commencer, et un carnet qui garde tout ce que vous notez.</p>
+        <p className="lede">Un parcours qui commencé la ou il faut commencer, et un carnet qui garde tout ce que vous notez.</p>
       </header>
 
       {forgot && (
         <div className="banner">
           <span style={{ fontSize: 18 }}>🔔</span>
-          <div><b>Vous n&rsquo;avez pas encore lu aujourd&rsquo;hui.</b> Votre derniere lecture remonte au {plan.last_read_on}. Un chapitre prend sept minutes.</div>
+          <div><b>Vous n&rsquo;avez pas encore lu aujourd&rsquo;hui.</b> Votre dernière lecture remonte au {plan.last_read_on}. Un chapitre prend sept minutes.</div>
         </div>
       )}
 
@@ -178,7 +178,7 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
             <span className="kicker">Votre lecture du jour</span>
             <div className="big-ref">{position.step.label} {position.chapter}</div>
             <p style={{ color: 'var(--ink-2)', fontSize: 15.5 }}>
-              Jour {plan?.current_day ?? 1}{P.days ? ` sur ${P.days}` : ''} · Etape {position.index + 1} sur {mySteps.length}, {position.step.title}
+              Jour {plan?.current_day ?? 1}{P.days ? ` sur ${P.days}` : ''} · Étape {position.index + 1} sur {mySteps.length}, {position.step.title}
               {plan?.streak > 1 ? ` · ${plan.streak} jours d'affilee` : ''}
             </p>
             {P.days ? (
@@ -233,7 +233,7 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
                   <div className="sm">{e.title}</div>
                   <p>{e.description}</p>
                   {(e.key_passages as string[])?.length > 0 && (
-                    <div className="cles">{(e.key_passages as string[]).map(c => <span key={c}>{c}</span>)}</div>
+                    <div className="clés">{(e.key_passages as string[]).map(c => <span key={c}>{c}</span>)}</div>
                   )}
                 </div>
               </div>
@@ -374,7 +374,7 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
       {!user && (
         <div className="banner">
           <span>☁︎</span>
-          <div><b>Vos notes ne sont pas encore enregistrees.</b> Creez un compte pour les retrouver partout et ne rien perdre.</div>
+          <div><b>Vos notes ne sont pas encore enregistrées.</b> Creez un compte pour les retrouver partout et ne rien perdre.</div>
         </div>
       )}
 

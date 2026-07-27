@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'Le Pain quotidien',
     short_name: 'Pain quotidien',
-    description: "La Parole chaque matin, une veillee chaque soir, un carnet de lecture et un cursus complet.",
+    description: "La Parole chaque matin, une veillée chaque soir, un carnet de lecture et un cursus complet.",
     start_url: '/',
     display: 'standalone',
     background_color: '#FBFBFC',

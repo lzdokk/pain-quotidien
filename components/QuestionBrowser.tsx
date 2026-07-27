@@ -35,10 +35,10 @@ export default function QuestionBrowser({ faq, user, used }: any) {
     if (d.source === 'faq') {
       const f = d.answer;
       setLog(l => [...l, {
-        role: 'bot', src: 'Base de questions, reponse gratuite',
+        role: 'bot', src: 'Base de questions, réponse gratuite',
         html: `<b>${f.question}</b><br><br>${f.short_answer}<div class="par">${f.parable}</div>${f.body[0]}
                <br><br><span class="ref-inline">${f.verses.join(' · ')}</span>
-               <br><a href="/questions/${f.id}">Lire la reponse complete</a>`
+               <br><a href="/questions/${f.id}">Lire la réponse complète</a>`
       }]);
     } else if (d.source === 'none') {
       setLog(l => [...l, { role: 'bot', html: d.message, src: 'Question enregistree' }]);
@@ -60,7 +60,7 @@ export default function QuestionBrowser({ faq, user, used }: any) {
       <header className="hero">
         <div className="eyebrow">Questions</div>
         <h1>Les questions<br />que tout le monde<br />se pose</h1>
-        <p className="lede">{faq.length} reponses deja redigees, chacune avec une parabole. Et si la votre n&rsquo;y est pas, posez-la.</p>
+        <p className="lede">{faq.length} réponses déjà redigees, chacune avec une parabole. Et si la votre n&rsquo;y est pas, posez-la.</p>
       </header>
 
       <div className="card pad">
@@ -85,7 +85,7 @@ export default function QuestionBrowser({ faq, user, used }: any) {
       </div>
 
       <h2 className="sect">L&rsquo;assistant</h2>
-      <p className="sub">Pour une question qui n&rsquo;est pas dans la base, ou pour approfondir un verset precis.</p>
+      <p className="sub">Pour une question qui n&rsquo;est pas dans la base, ou pour approfondir un verset précis.</p>
 
       <div className="chatbox">
         <div className="quota">
@@ -105,13 +105,13 @@ export default function QuestionBrowser({ faq, user, used }: any) {
 
         <textarea className="field" style={{ marginTop: 14 }} value={input}
                   onChange={e => setInput(e.target.value)}
-                  placeholder="Votre question. Par exemple : je lis Jean 1.14, que veut dire « la Parole a ete faite chair » ?" />
+                  placeholder="Votre question. Par exemple : je lis Jean 1.14, que veut dire « la Parole a été faite chair » ?" />
         <div className="share-grid" style={{ marginTop: 10, gridTemplateColumns: '1fr auto' }}>
           <button className="btn primary" onClick={send} disabled={busy}>Envoyer</button>
         </div>
         <p style={{ fontSize: 12.5, color: 'var(--ink-4)', marginTop: 14, lineHeight: 1.6 }}>
           La base de questions est gratuite et illimitee. L&rsquo;assistant n&rsquo;est appele que si aucune
-          reponse ne correspond, ce qui garde le cout tres bas.
+          réponse ne correspond, ce qui garde le cout très bas.
         </p>
       </div>
     </main>

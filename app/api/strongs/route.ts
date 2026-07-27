@@ -9,7 +9,7 @@ export const maxDuration = 30;
 /**
  * Lexique Strong.
  *   ?q=agape        recherche par mot, translitteration ou definition
- *   ?code=G26       une entree precise
+ *   ?code=G26       une entree précise
  *
  * La definition francaise est produite une seule fois par entree puis
  * conservee en base : toutes les consultations suivantes sont gratuites.

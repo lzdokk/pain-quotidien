@@ -11,13 +11,13 @@ export const dynamic = 'force-dynamic';
 
 /**
  * Correction d'un devoir de cursus par l'IA.
- * L'etudiant rend sa reponse, le modele evalue et explique, le tout est
+ * L'etudiant rend sa réponse, le modèle evalue et explique, le tout est
  * enregistre dans course_submissions (isole par utilisateur via RLS).
  */
 export async function POST(req: NextRequest) {
   const { code, submission } = await req.json();
   if (!submission?.trim() || submission.trim().length < 20) {
-    return NextResponse.json({ error: 'Ecris ta reponse (au moins quelques phrases) avant d\'envoyer.' }, { status: 400 });
+    return NextResponse.json({ error: 'Ecris ta réponse (au moins quelques phrases) avant d\'envoyer.' }, { status: 400 });
   }
 
   const sb = await supabaseServer();

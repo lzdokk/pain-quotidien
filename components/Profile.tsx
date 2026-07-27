@@ -44,9 +44,9 @@ export default function Profile({ user, profile, plan, notes, highlights, conver
       <div className="card pad">
         <div className="mini"><strong>Parcours en cours</strong><span>{plan?.reading_plans?.name ?? 'Aucun parcours choisi'}</span></div>
         <div className="mini" style={{ marginTop: 10 }}><strong>Jour</strong><span>{plan?.current_day ?? 1}</span></div>
-        <div className="mini" style={{ marginTop: 10 }}><strong>Jours d&rsquo;affilee</strong><span>{plan?.streak ?? 0}</span></div>
-        <div className="mini" style={{ marginTop: 10 }}><strong>Notes enregistrees</strong><span>{notes.length}</span></div>
-        <div className="mini" style={{ marginTop: 10 }}><strong>Versets surlignes</strong><span>{highlights.length}</span></div>
+        <div className="mini" style={{ marginTop: 10 }}><strong>Jours d&rsquo;affilée</strong><span>{plan?.streak ?? 0}</span></div>
+        <div className="mini" style={{ marginTop: 10 }}><strong>Notes enregistrées</strong><span>{notes.length}</span></div>
+        <div className="mini" style={{ marginTop: 10 }}><strong>Versets surlignés</strong><span>{highlights.length}</span></div>
 
         <div className="mini" style={{ marginTop: 18, alignItems: 'center' }}>
           <strong>Rappel quotidien par email</strong>
@@ -58,7 +58,7 @@ export default function Profile({ user, profile, plan, notes, highlights, conver
           </button>
         </div>
         <p className="fine" style={{ marginTop: 6 }}>
-          Un message le soir si vous n&rsquo;avez pas encore lu, pour tenir votre serie.
+          Un message le soir si vous n&rsquo;avez pas encore lu, pour tenir votre série.
         </p>
 
         <button
@@ -66,16 +66,16 @@ export default function Profile({ user, profile, plan, notes, highlights, conver
           style={{ marginTop: 20 }}
           onClick={async () => { await supabase.auth.signOut(); location.href = '/'; }}
         >
-          Se deconnecter
+          Se déconnecter
         </button>
       </div>
 
       <h2 className="sect">Mon carnet de bord</h2>
-      <p className="sub">Recherchez dans vos notes, par reference ou par mot-cle.</p>
+      <p className="sub">Recherchez dans vos notes, par référence ou par mot-clé.</p>
       <div className="card" style={{ padding: '24px 30px' }}>
         <input className="field" type="search" value={search}
                onChange={e => setSearch(e.target.value)}
-               placeholder="Rechercher, par exemple grace, Jean 3, pardon…" />
+               placeholder="Rechercher, par exemple grâce, Jean 3, pardon…" />
       </div>
 
       <div className="card pad" style={{ marginTop: 12 }}>
@@ -99,7 +99,7 @@ export default function Profile({ user, profile, plan, notes, highlights, conver
       {questions.length > 0 && (
         <>
           <h2 className="sect">Mes questions</h2>
-          <p className="sub">L&rsquo;historique de ce que vous avez demande.</p>
+          <p className="sub">L&rsquo;historique de ce que vous avez demandé.</p>
           <div className="card pad">
             {questions.map((q: any) => {
               const rep = conversations.find((c: any) =>

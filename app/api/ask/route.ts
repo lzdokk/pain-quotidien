@@ -6,7 +6,7 @@ import { VOICE } from '@/lib/prompts/voice';
 
 export const maxDuration = 60;
 const DAILY_LIMIT = Number(process.env.AI_DAILY_LIMIT ?? 8);
-/** off = base de questions uniquement, aucun appel modele, cout garanti nul. */
+/** off = base de questions uniquement, aucun appel modèle, cout garanti nul. */
 const MODE = (process.env.AI_ASSISTANT ?? 'on') as 'on' | 'off';
 
 const normalize = (s: string) =>
@@ -16,7 +16,7 @@ const normalize = (s: string) =>
 /**
  * 1. Recherche dans la base de questions : gratuit, instantane.
  * 2. Sinon appel Claude, decompte du quota quotidien.
- * 3. La question est enregistree ; au bout de trois occurrences elle
+ * 3. La question est enregistrée ; au bout de trois occurrences elle
  *    est promue pour redaction et rejoint la base gratuite.
  */
 export async function POST(req: NextRequest) {
@@ -55,8 +55,8 @@ export async function POST(req: NextRequest) {
   if (MODE === 'off' || PROVIDER === 'none') {
     return NextResponse.json({
       source: 'none',
-      message: "Cette question n'est pas encore dans la base. Elle vient d'y etre ajoutee : "
-             + "les questions qui reviennent sont redigees puis publiees, et deviennent alors "
+      message: "Cette question n'est pas encore dans la base. Elle vient d'y être ajoutée : "
+             + "les questions qui reviennent sont redigees puis publiées, et deviennent alors "
              + "consultables gratuitement par tout le monde."
     });
   }
@@ -89,7 +89,7 @@ ${VOICE}
 FORMAT DE REPONSE
 Commence par une phrase de synthese. Puis une image concrete du quotidien.
 Puis deux paragraphes de developpement qui reconnaissent honnetement les
-objections serieuses. Termine par deux ou trois references bibliques.
+objections serieuses. Termine par deux ou trois références bibliques.
 Si la question touche a un point debattu entre chretiens, dis-le clairement.`,
     user: context ? `Contexte de lecture : ${context}\n\nQuestion : ${question}` : question,
     maxTokens: 1600

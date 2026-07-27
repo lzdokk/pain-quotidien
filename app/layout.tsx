@@ -9,7 +9,7 @@ const INSTA = process.env.NEXT_PUBLIC_INSTAGRAM ?? 'lepainquotidien';
 export const metadata: Metadata = {
   metadataBase: new URL(SITE),
   title: { default: 'Le Pain quotidien', template: '%s · Le Pain quotidien' },
-  description: "La Parole chaque matin, une veillee chaque soir, un carnet de lecture biblique et un cursus theologique complet.",
+  description: "La Parole chaque matin, une veillée chaque soir, un carnet de lecture biblique et un cursus théologique complet.",
   applicationName: 'Le Pain quotidien',
   openGraph: {
     type: 'website', locale: 'fr_FR', siteName: 'Le Pain quotidien',

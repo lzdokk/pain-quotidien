@@ -24,8 +24,8 @@ export default function Reading({ r, index, open }: { r: any; index: number; ope
         {r.canon_note && (
           <div className="note-canon">
             <b>Note de canon.</b> Le calendrier de lectures proposait ici un texte
-            deuterocanonique, absent du canon protestant de 66 livres. Il a ete
-            remplace par un passage de meme theme.
+            deuterocanonique, absent du canon protestant de 66 livres. Il a été
+            remplace par un passage de même thème.
           </div>
         )}
         <div className="rd-sum">

@@ -8,13 +8,13 @@ export const revalidate = 3600;
 export const metadata = { title: 'Temoigner' };
 
 const GOSPEL = [
-  ['Dieu', "Il n'est pas une force floue. Il est une personne, il cree, et il cree bon. Nous sommes voulus, pas produits par accident.", 'Genese 1.27 · Psaume 139.13-14'],
-  ['La rupture', "Quelque chose est casse, dans le monde et en nous. Ce n'est pas un defaut d'education, c'est une separation. Et personne ne s'en sort par ses propres moyens.", 'Romains 3.23 · Esaie 59.2'],
-  ['La croix', "Dieu n'a pas envoye un mode d'emploi, il est venu lui-meme. Jesus prend la place, meurt, et ressuscite. La dette n'est pas allegee : elle est payee.", 'Romains 5.8 · 1 Corinthiens 15.3-4'],
-  ['La reponse', "Rien a meriter, tout a recevoir. Se detourner de ce qui nous tenait, faire confiance a Christ. C'est la que commence la vie nouvelle, et l'entree dans la famille.", 'Ephesiens 2.8-9 · Jean 1.12']
+  ['Dieu', "Il n'est pas une force floue. Il est une personne, il créé, et il créé bon. Nous sommes voulus, pas produits par accident.", 'Genese 1.27 · Psaume 139.13-14'],
+  ['La rupture', "Quelque chose est casse, dans le monde et en nous. Ce n'est pas un defaut d'education, c'est une séparation. Et personne ne s'en sort par ses propres moyens.", 'Romains 3.23 · Ésaïe 59.2'],
+  ['La croix', "Dieu n'a pas envoye un mode d'emploi, il est venu lui-même. Jésus prend la place, meurt, et ressuscite. La dette n'est pas allegee : elle est payee.", 'Romains 5.8 · 1 Corinthiens 15.3-4'],
+  ['La reponse', "Rien a meriter, tout a recevoir. Se detourner de ce qui nous tenait, faire confiance a Christ. C'est la que commencé la vie nouvelle, et l'entree dans la famille.", 'Ephesiens 2.8-9 · Jean 1.12']
 ];
 
-export default async function Temoigner() {
+export default async function Témoigner() {
   const sb = await supabaseServer();
   const today = new Date().toISOString().slice(0, 10);
   const { data: day } = await sb.from('daily_bread')
@@ -29,7 +29,7 @@ export default async function Temoigner() {
       <Nav user={user} />
       <main className="wrap">
         <header className="hero">
-          <div className="eyebrow">Temoigner · chaque jour</div>
+          <div className="eyebrow">Témoigner · chaque jour</div>
           <h1>Ce texte est<br />pour quelqu&rsquo;un<br />d&rsquo;autre aussi</h1>
           <p className="lede">Pas une technique. Une phrase juste, au bon moment, a la bonne personne.</p>
         </header>
@@ -48,7 +48,7 @@ export default async function Temoigner() {
         )}
 
         <div className="card pad">
-          <span className="kicker">L&rsquo;Evangile en quatre mouvements</span>
+          <span className="kicker">L&rsquo;Évangile en quatre mouvements</span>
           <h3 style={{ marginTop: 6 }}>A savoir par coeur, a sortir en deux minutes</h3>
           <div className="gospel">
             {GOSPEL.map(([t, p, v], i) => (

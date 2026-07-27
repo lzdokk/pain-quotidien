@@ -7,7 +7,7 @@ import { VerseNoteSchema, VERSE_SYSTEM } from '@/lib/prompts/verse';
 export const maxDuration = 60;
 
 /**
- * Explication d'un verset, generee UNE SEULE FOIS puis mise en cache
+ * Explication d'un verset, générée UNE SEULE FOIS puis mise en cache
  * pour tous les lecteurs suivants. Le premier qui la demande declenche
  * l'appel, les autres la lisent gratuitement.
  */

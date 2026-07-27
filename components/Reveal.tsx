@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 
 /**
- * Apparition douce au defilement. Observe les blocs principaux et les revele
+ * Apparition douce au defilement. Observe les blocs principaux et les révélé
  * quand ils entrent dans le champ. Se relance a chaque changement de page.
  * Respecte prefers-reduced-motion via le CSS.
  */

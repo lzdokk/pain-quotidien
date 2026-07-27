@@ -15,9 +15,9 @@ const iso = (d: Date) => d.toISOString().slice(0, 10);
  * GENERATION HEBDOMADAIRE
  * Tourne le dimanche a 02h00 Paris. Produit les sept jours de la semaine
  * suivante, generes UN PAR UN pour garantir un JSON valide et court, et les
- * enregistre en base non publies. Un jour qui echoue n'annule pas les autres.
+ * enregistre en base non publies. Un jour qui échoué n'annule pas les autres.
  * La publication se fait ensuite jour par jour par le cron quotidien.
- * Avec ?from=today, la generation commence aujourd'hui au lieu de demain.
+ * Avec ?from=today, la génération commencé aujourd'hui au lieu de demain.
  */
 export async function GET(req: NextRequest) {
   if (req.headers.get('authorization') !== `Bearer ${process.env.CRON_SECRET}`) {

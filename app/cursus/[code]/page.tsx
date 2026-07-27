@@ -39,9 +39,9 @@ export default async function Fiche({ params }: { params: Promise<{ code: string
 
         {c.status !== 'reviewed' ? (
           <div className="card pad">
-            <span className="kicker">Fiche en preparation</span>
+            <span className="kicker">Fiche en préparation</span>
             <p style={{ marginTop: 10 }}>
-              Cette fiche est produite par la generation hebdomadaire. Elle suivra le
+              Cette fiche est produite par la génération hebdomadaire. Elle suivra le
               gabarit habituel : quatre objectifs, une parabole d&rsquo;entree, trois a quatre
               sections, un verset directeur, les lectures obligatoires et le travail a rendre.
             </p>

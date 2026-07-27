@@ -61,7 +61,7 @@ export default function CourseHomework({ code, user, last }: any) {
       <div className="card pad" style={{ marginTop: 12 }}>
         <span className="kicker">Rendre le devoir</span>
         <p className="muted" style={{ marginTop: 8 }}>
-          Connectez-vous pour rendre votre devoir et recevoir une correction detaillee.
+          Connectez-vous pour rendre votre devoir et recevoir une correction détaillée.
         </p>
       </div>
     );
@@ -89,12 +89,12 @@ export default function CourseHomework({ code, user, last }: any) {
       <span className="kicker">Rendre le devoir</span>
       {last && !text && (
         <p className="muted" style={{ marginTop: 8 }}>
-          Voici ta derniere correction. Tu peux rendre une nouvelle version ci-dessous.
+          Voici ta dernière correction. Tu peux rendre une nouvelle version ci-dessous.
         </p>
       )}
       <textarea className="field" style={{ marginTop: 10, minHeight: 170 }} value={text}
                 onChange={e => setText(e.target.value)}
-                placeholder="Redige ici ta reponse au travail demande..." />
+                placeholder="Rédige ici ta réponse au travail demandé..." />
       {error && <p className="muted" style={{ color: '#b3413a', marginTop: 8 }}>{error}</p>}
       <button className="btn primary" style={{ marginTop: 10 }} disabled={loading} onClick={submit}>
         {loading ? 'Correction en cours...' : 'Envoyer pour correction'}

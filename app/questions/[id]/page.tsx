@@ -5,7 +5,7 @@ import Nav from '@/components/Nav';
 
 export const revalidate = 86400;
 
-export default async function Reponse({ params }: { params: Promise<{ id: string }> }) {
+export default async function Réponse({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const sb = await supabaseServer();
   const { data: f } = await sb.from('faq').select('*').eq('id', Number(id)).eq('reviewed', true).maybeSingle();

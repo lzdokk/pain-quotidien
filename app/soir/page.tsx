@@ -3,7 +3,7 @@ import Nav from '@/components/Nav';
 import Checklist from '@/components/Checklist';
 
 export const revalidate = 3600;
-export const metadata = { title: 'La veillee du soir' };
+export const metadata = { title: 'La veillée du soir' };
 
 const fdate = (d: string) => {
   const [y, m, j] = d.split('-').map(Number);
@@ -19,16 +19,16 @@ export default async function Soir() {
     .select('*').eq('date', today).eq('published', true).maybeSingle();
   const { data: { user } } = await sb.auth.getUser();
 
-  if (!day) return <><Nav user={user} /><main className="wrap"><header className="hero"><h1>La veillee arrive</h1></header></main></>;
+  if (!day) return <><Nav user={user} /><main className="wrap"><header className="hero"><h1>La veillée arrive</h1></header></main></>;
 
   return (
     <>
       <Nav user={user} />
       <main className="wrap">
         <header className="hero">
-          <div className="eyebrow">La veillee du soir</div>
+          <div className="eyebrow">La veillée du soir</div>
           <div className="date">{fdate(day.date)} · 21h00</div>
-          <h1>Poser<br />la journee</h1>
+          <h1>Poser<br />la journée</h1>
           <p className="lede">Cinq minutes avant de dormir. Un verset, un silence, une relecture, une paix.</p>
         </header>
 
@@ -49,7 +49,7 @@ export default async function Soir() {
                    items={(day.evening_review as Array<{ title: string; body: string }>)} />
 
         <div className="prayer">
-          <span className="kicker">Priere avant le sommeil</span>
+          <span className="kicker">Prière avant le sommeil</span>
           <p>{day.prayer_night}</p>
         </div>
       </main>

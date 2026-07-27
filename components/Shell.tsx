@@ -68,7 +68,7 @@ export default function Shell({ day, readings, user, archive }: Props) {
         <DayActions date={day.date} actions={day.actions} user={user} />
 
         <div className="prayer">
-          <span className="kicker">Priere de fermeture</span>
+          <span className="kicker">Prière de fermeture</span>
           <p>{day.prayer_close}</p>
         </div>
       </main>

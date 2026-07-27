@@ -7,7 +7,7 @@ function messageErreur(code?: string) {
     case 'invalid_credentials':
       return 'Email ou mot de passe incorrect.';
     case 'user_already_exists':
-      return 'Un compte existe deja avec cet email. Connectez-vous plutot.';
+      return 'Un compte existe déjà avec cet email. Connectez-vous plutot.';
     case 'weak_password':
       return 'Le mot de passe doit contenir au moins 6 caracteres.';
     default:
@@ -24,6 +24,7 @@ export default function SignIn({ user }: { user?: any }) {
   const [loading, setLoading] = useState(false);
 
   if (user) {
+    const initial = user.email?.[0]?.toUpperCase() ?? '?';
     return (
       <div className="signin">
         <h3>Votre compte</h3>
@@ -33,7 +34,7 @@ export default function SignIn({ user }: { user?: any }) {
           style={{ marginTop: 12 }}
           onClick={async () => { await supabase.auth.signOut(); location.reload(); }}
         >
-          Se deconnecter
+          Se déconnecter
         </button>
       </div>
     );
@@ -61,12 +62,12 @@ export default function SignIn({ user }: { user?: any }) {
     <div className="signin">
       <h3>Votre carnet de bord</h3>
       <p className="muted">
-        Vos notes, vos surlignages et votre progression, retrouves sur tous vos appareils.
+        Vos notes, vos surlignages et votre progression, retrouvés sur tous vos appareils.
       </p>
 
       {sent ? (
         <p className="muted" style={{ marginTop: 16 }}>
-          Compte cree. Verifiez votre boite mail pour confirmer votre adresse, puis connectez-vous.
+          Compte créé. Verifiez votre boite mail pour confirmer votre adresse, puis connectez-vous.
         </p>
       ) : (
         <form onSubmit={submit} style={{ marginTop: 12 }}>

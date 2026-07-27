@@ -42,9 +42,10 @@ export default function Explain({ book, chapter, verse, bookName, text, onClose,
         {data === null && (
           <>
             <h3>{title}</h3>
-            <div className="msub">Fiche en preparation</div>
-            <p>Cette fiche n&rsquo;est pas encore redigee. Elle sera produite par la generation
-               hebdomadaire, puis mise en cache pour tous les lecteurs.</p>
+            <div className="msub">Fiche en préparation</div>
+            <p>Cette fiche n&rsquo;est pas encore écrite. Les versets des lectures du jour
+               sont préparés à l&rsquo;avance chaque nuit : réessayez demain, ou ouvrez un
+               verset du pain quotidien, ils sont déjà prêts.</p>
           </>
         )}
 
@@ -56,7 +57,7 @@ export default function Explain({ book, chapter, verse, bookName, text, onClose,
             <p dangerouslySetInnerHTML={{ __html: data.summary }} />
             <h4>Le decoupage</h4>
             <ul className="mlist">{(data.outline as string[]).map((x, i) => <li key={i}>{x}</li>)}</ul>
-            <h4>La cle de lecture</h4>
+            <h4>La clé de lecture</h4>
             <div className="par">{data.reading_key}</div>
             <h4>Pourquoi il est la</h4>
             <p dangerouslySetInnerHTML={{ __html: data.why_here }} />
@@ -66,7 +67,7 @@ export default function Explain({ book, chapter, verse, bookName, text, onClose,
         {data && verse !== undefined && (
           <>
             <h3>{title}</h3>
-            <div className="msub">Explication detaillee</div>
+            <div className="msub">Explication détaillée</div>
             <div className="quoted">{text}</div>
             {data.word_term && (
               <>

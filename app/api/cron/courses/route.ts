@@ -13,9 +13,9 @@ export const dynamic = 'force-dynamic';
  * attente, dans l'ordre du cursus, et les stocke en base une fois pour
  * toutes. On peut donc prendre de l'avance sur son parcours.
  *
- *   ?batch=5            genere les 5 prochaines fiches "planned" (defaut 5)
- *   ?codes=UBE01,UBE02  genere exactement ces fiches, meme ordre
- *   ?force=1            regenere meme les fiches deja produites
+ *   ?batch=5            généré les 5 prochaines fiches "planned" (defaut 5)
+ *   ?codes=UBE01,UBE02  généré exactement ces fiches, même ordre
+ *   ?force=1            regenere même les fiches déjà produites
  */
 export async function GET(req: NextRequest) {
   if (req.headers.get('authorization') !== `Bearer ${process.env.CRON_SECRET}`) {

@@ -6,9 +6,9 @@ export const dynamic = 'force-dynamic';
 
 /**
  * PUBLICATION QUOTIDIENNE
- * Publie la journee du jour, deja generee la semaine precedente,
+ * Publie la journée du jour, déjà générée la semaine precedente,
  * puis regenere les pages statiques. Filet de securite : si aucune
- * journee n'existe pour aujourd'hui, on declenche la generation
+ * journée n'existe pour aujourd'hui, on declenche la génération
  * hebdomadaire en urgence.
  */
 export async function GET(req: NextRequest) {

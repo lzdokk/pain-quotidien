@@ -29,8 +29,8 @@ export default async function Jours() {
       <main className="wrap">
         <header className="hero">
           <div className="eyebrow">Archive</div>
-          <h1>Les jours passes</h1>
-          <p className="lede">Chaque pain quotidien deja publie, jour apres jour.</p>
+          <h1>Les jours passés</h1>
+          <p className="lede">Chaque pain quotidien déjà publie, jour après jour.</p>
         </header>
 
         <Link href="/" className="back">‹ Revenir a aujourd&rsquo;hui</Link>
