@@ -221,6 +221,27 @@ details.volet > summary::after{position:absolute;right:0;top:2px;margin-left:0}
 .npl span{font-size:14px;color:var(--ink-3);line-height:1.55}
 @media(max-width:600px){.npl li{flex-direction:column;gap:3px}.npl b{width:auto}}
 
+/* PARABOLES */
+.pth{display:flex;align-items:center;gap:14px;padding:16px 30px;border-bottom:1px solid var(--line);
+ text-decoration:none;color:inherit}
+.pth:last-child{border-bottom:0}
+.pth-n{width:24px;height:24px;flex:none;border-radius:99px;border:1px solid var(--accent-line);color:var(--accent);
+ font-size:11px;font-weight:640;display:grid;place-items:center}
+.pth-t{flex:1;font-size:15.5px;font-weight:560;color:var(--ink)}
+.pth-c{font-size:12.5px;color:var(--ink-3);white-space:nowrap}
+.pth[aria-disabled="true"]{opacity:.5;pointer-events:none}
+@media(max-width:700px){.pth{padding:14px 16px}}
+
+.pep{display:flex;gap:16px;padding:20px 30px;border-bottom:1px solid var(--line);text-decoration:none;color:inherit}
+.pep:last-child{border-bottom:0}
+.pep-n{width:26px;height:26px;flex:none;border-radius:99px;background:var(--accent-soft);color:var(--accent);
+ font-size:11.5px;font-weight:660;display:grid;place-items:center;margin-top:2px}
+.pep-t{display:block;font-family:var(--serif);font-size:17px;font-weight:600;letter-spacing:-.015em;color:var(--ink)}
+.pep-h{display:block;margin-top:5px;font-size:14px;color:var(--ink-3);line-height:1.55}
+@media(max-width:700px){.pep{padding:16px}}
+
+.pnav{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:30px 0 10px}
+
 /* Le Notre Pere prie du jour */
 .npd{display:flex;gap:16px;padding:22px 30px;border-bottom:1px solid var(--line)}
 .npd:last-child{border-bottom:0}

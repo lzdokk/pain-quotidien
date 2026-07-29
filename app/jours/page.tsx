@@ -5,8 +5,8 @@ import Nav from '@/components/Nav';
 export const revalidate = 3600;
 export const metadata = { title: 'Les jours passes' };
 
-const MOIS = ['janvier', 'fevrier', 'mars', 'avril', 'mai', 'juin',
-  'juillet', 'aout', 'septembre', 'octobre', 'novembre', 'decembre'];
+const MOIS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin',
+  'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
 
 export default async function Jours() {
   const sb = await supabaseServer();
@@ -33,10 +33,10 @@ export default async function Jours() {
           <p className="lede">Chaque pain quotidien déjà publie, jour après jour.</p>
         </header>
 
-        <Link href="/" className="back">‹ Revenir a aujourd&rsquo;hui</Link>
+        <Link href="/" className="back">‹ Revenir à aujourd&rsquo;hui</Link>
 
         {(!days || days.length === 0) && (
-          <div className="card pad"><p className="empty">Aucun jour publie pour l&rsquo;instant.</p></div>
+          <div className="card pad"><p className="empty">Aucun jour publié pour l&rsquo;instant.</p></div>
         )}
 
         {[...groups.entries()].map(([ym, list]) => {

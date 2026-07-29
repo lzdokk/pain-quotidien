@@ -10,6 +10,7 @@ const TABS = [
   { href: '/priere',    label: 'Prière' },
   { href: '/soir',      label: 'Soir' },
   { href: '/lire',      label: 'Lire' },
+  { href: '/paraboles', label: 'Paraboles' },
   // Lexique masque tant que la mise en francais n'est pas complete.
   // Pour le reactiver : remettre la ligne ci-dessous.
   // { href: '/lexique',   label: 'Lexique' },
@@ -27,6 +28,7 @@ const ICONS: Record<string, JSX.Element> = {
   '/temoigner': <path d="M21 12a8 8 0 01-11.6 7.1L4 20l1-4.4A8 8 0 1121 12z" />,
   '/soir': <path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z" />,
   '/lire': <path d="M12 6.5C10.5 5 8 4.5 4 5v13c4-.5 6.5 0 8 1.5 1.5-1.5 4-2 8-1.5V5c-4-.5-6.5 0-8 1.5zM12 6.5V19" />,
+  '/paraboles': <path d="M6 4h9a3 3 0 013 3v10a3 3 0 01-3 3H6a2 2 0 01-2-2V6a2 2 0 012-2zM9 9h6M9 13h6M9 17h3" />,
   '/lexique': <path d="M4 19.5A2.5 2.5 0 016.5 17H20M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2zM9 7h7M9 11h5" />,
   '/questions': <path d="M9.1 9a3 3 0 015.8 1c0 2-3 3-3 3M12 17h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />,
   '/cursus': <path d="M22 10 12 5 2 10l10 5 10-5zM6 12v5c0 1 2.7 2.5 6 2.5s6-1.5 6-2.5v-5" />
