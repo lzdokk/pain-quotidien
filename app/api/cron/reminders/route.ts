@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { admin } from '@/lib/supabase/admin';
+import { parisDate, parisHour } from '@/lib/date';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,14 +19,22 @@ export async function GET(req: NextRequest) {
 
   const { Resend } = await import('resend');
   const resend = new Resend(process.env.RESEND_API_KEY);
-  const today = new Date().toISOString().slice(0, 10);
+  const now = new Date();
+  const today = parisDate(now);
+
+  // ?hour=20 force une heure precise, pratique pour tester.
+  const forced = new URL(req.url).searchParams.get('hour');
+  const hour = forced !== null ? Number(forced) : parisHour(now);
 
   const { data } = await admin
     .from('user_plan')
-    .select('user_id, current_day, streak, last_read_on, profiles!inner(email, display_name, wants_reading_reminder)')
+    .select('user_id, current_day, streak, last_read_on, profiles!inner(email, display_name, wants_reading_reminder, reminder_hour)')
     .neq('last_read_on', today);
 
-  const targets = (data ?? []).filter((r: any) => r.profiles?.wants_reading_reminder && r.profiles?.email);
+  const targets = (data ?? []).filter((r: any) =>
+    r.profiles?.wants_reading_reminder &&
+    r.profiles?.email &&
+    (r.profiles?.reminder_hour ?? 18) === hour);
   let sent = 0;
 
   for (const r of targets as any[]) {
@@ -42,5 +51,5 @@ export async function GET(req: NextRequest) {
     });
     sent++;
   }
-  return NextResponse.json({ ok: true, sent });
+  return NextResponse.json({ ok: true, sent, hour });
 }

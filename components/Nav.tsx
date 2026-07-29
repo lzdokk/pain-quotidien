@@ -7,7 +7,7 @@ import Brand from './Brand';
 
 const TABS = [
   { href: '/',          label: 'Matin' },
-  { href: '/temoigner', label: 'Témoigner' },
+  { href: '/priere',    label: 'Prière' },
   { href: '/soir',      label: 'Soir' },
   { href: '/lire',      label: 'Lire' },
   // Lexique masque tant que la mise en francais n'est pas complete.
@@ -15,11 +15,15 @@ const TABS = [
   // { href: '/lexique',   label: 'Lexique' },
   { href: '/questions', label: 'Questions' },
   { href: '/cursus',    label: 'Cursus' }
+  // Temoigner masque de la navigation (l'objection du jour a rejoint le pain
+  // quotidien, en bas de la page d'accueil). La page /temoigner reste
+  // accessible directement si besoin de la reactiver.
 ];
 
 /* Icones de la barre mobile, une par onglet. */
 const ICONS: Record<string, JSX.Element> = {
   '/': <path d="M12 3v2M5 12H3m18 0h-2M6 6 4.5 4.5M18 6l1.5-1.5M12 8a4 4 0 100 8 4 4 0 000-8zM4 20h16" />,
+  '/priere': <path d="M12 3c-1.6 2.8-4.2 4.7-4.2 8a4.2 4.2 0 008.4 0c0-3.3-2.6-5.2-4.2-8z" />,
   '/temoigner': <path d="M21 12a8 8 0 01-11.6 7.1L4 20l1-4.4A8 8 0 1121 12z" />,
   '/soir': <path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z" />,
   '/lire': <path d="M12 6.5C10.5 5 8 4.5 4 5v13c4-.5 6.5 0 8 1.5 1.5-1.5 4-2 8-1.5V5c-4-.5-6.5 0-8 1.5zM12 6.5V19" />,

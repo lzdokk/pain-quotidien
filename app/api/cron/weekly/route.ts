@@ -82,7 +82,7 @@ export async function GET(req: NextRequest) {
             }))
           }),
           responseSchema: DAY_GEMINI_SCHEMA,
-          maxTokens: 16000
+          maxTokens: 24000
         });
         totalIn += usage.input; totalOut += usage.output;
 
@@ -113,6 +113,9 @@ export async function GET(req: NextRequest) {
           witness_openers: day.witness.openers,
           objection_q: day.witness.objection_q,
           objection_a: day.witness.objection_a,
+          prayer_intro: day.prayers.intro,
+          prayer_moments: day.prayers.moments,
+          spirit_invitation: day.prayers.spirit_invitation,
           model: `${PROVIDER}/${modelName()}`,
           published: false
         });

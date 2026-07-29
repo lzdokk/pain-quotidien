@@ -1,6 +1,7 @@
 import { supabaseServer } from '@/lib/supabase/server';
 import Nav from '@/components/Nav';
 import Checklist from '@/components/Checklist';
+import { parisDate } from '@/lib/date';
 
 export const revalidate = 3600;
 export const metadata = { title: 'La veillée du soir' };
@@ -14,7 +15,7 @@ const fdate = (d: string) => {
 
 export default async function Soir() {
   const sb = await supabaseServer();
-  const today = new Date().toISOString().slice(0, 10);
+  const today = parisDate();
   const { data: day } = await sb.from('daily_bread')
     .select('*').eq('date', today).eq('published', true).maybeSingle();
   const { data: { user } } = await sb.auth.getUser();

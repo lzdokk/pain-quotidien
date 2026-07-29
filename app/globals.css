@@ -183,6 +183,17 @@ html[data-mode="soir"] .tick svg{color:#0E141A}
 @keyframes breathe{0%,100%{transform:scale(.86);opacity:.62}50%{transform:scale(1.1);opacity:1}}
 @media (prefers-reduced-motion:reduce){.orb{animation:none}}
 
+/* PRIERE */
+.moment-n{font-size:11px;font-weight:640;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3);margin-bottom:4px;display:block}
+.pray-tip{margin-top:16px;font-size:13.5px;color:var(--ink-3);line-height:1.6;background:var(--surface-2);border-radius:10px;padding:12px 14px}
+.pray-tip b{color:var(--ink-2);font-weight:600}
+.pray-word{margin-top:14px;border:1px solid var(--accent-line);border-radius:var(--r-sm);padding:18px 20px}
+.pray-word .wlabel{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+.pray-word .wterm{font-family:var(--serif);font-size:19px;font-weight:600;color:var(--ink);font-style:italic}
+.pray-word .wlang{font-size:10.5px;font-weight:640;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);
+ border:1px solid var(--accent-line);border-radius:99px;padding:2px 10px}
+.pray-word p{font-size:14.5px;color:var(--ink-2);line-height:1.65}
+
 /* CURSUS */
 .progress-wrap{display:flex;align-items:center;gap:14px;margin-top:20px}
 .bar{flex:1;height:6px;border-radius:99px;background:var(--surface-2);overflow:hidden}

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
 import { admin } from '@/lib/supabase/admin';
+import { parisDate } from '@/lib/date';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,7 +16,7 @@ export async function GET(req: NextRequest) {
   if (req.headers.get('authorization') !== `Bearer ${process.env.CRON_SECRET}`) {
     return new NextResponse('Unauthorized', { status: 401 });
   }
-  const today = new Date().toISOString().slice(0, 10);
+  const today = parisDate();
 
   const { data } = await admin.from('daily_bread')
     .select('date, published').eq('date', today).maybeSingle();

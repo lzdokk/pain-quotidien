@@ -71,6 +71,15 @@ export default function Shell({ day, readings, user, archive }: Props) {
           <span className="kicker">Prière de fermeture</span>
           <p>{day.prayer_close}</p>
         </div>
+
+        {day.objection_q && (
+          <div className="card pad" style={{ marginTop: 12 }}>
+            <span className="kicker">L&rsquo;objection du jour</span>
+            <h3 style={{ marginTop: 6 }}>{day.objection_q}</h3>
+            {(day.objection_a as string[]).map((p, i) =>
+              <p key={i} style={{ marginTop: 12 }} dangerouslySetInnerHTML={{ __html: p }} />)}
+          </div>
+        )}
       </main>
     </>
   );

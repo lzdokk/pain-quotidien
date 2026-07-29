@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { admin } from '@/lib/supabase/admin';
 import { callJSON } from '@/lib/llm';
 import { VerseNoteSchema, VERSE_SYSTEM } from '@/lib/prompts/verse';
+import { parisDate } from '@/lib/date';
 
 export const maxDuration = 300;
 export const dynamic = 'force-dynamic';
@@ -25,7 +26,7 @@ export async function GET(req: NextRequest) {
 
   const params = new URL(req.url).searchParams;
   const limit = Math.min(Math.max(1, Number(params.get('n') ?? 8)), 20);
-  const date = params.get('date') ?? new Date().toISOString().slice(0, 10);
+  const date = params.get('date') ?? parisDate();
 
   const { data: readings } = await admin.from('readings')
     .select('reference, verses').eq('date', date).order('position');

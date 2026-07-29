@@ -3,6 +3,7 @@ import Nav from '@/components/Nav';
 import Openers from '@/components/Openers';
 import Intercession from '@/components/Intercession';
 import ShareBar from '@/components/ShareBar';
+import { parisDate } from '@/lib/date';
 
 export const revalidate = 3600;
 export const metadata = { title: 'Temoigner' };
@@ -16,7 +17,7 @@ const GOSPEL = [
 
 export default async function Témoigner() {
   const sb = await supabaseServer();
-  const today = new Date().toISOString().slice(0, 10);
+  const today = parisDate();
   const { data: day } = await sb.from('daily_bread')
     .select('*').eq('date', today).eq('published', true).maybeSingle();
   const { data: { user } } = await sb.auth.getUser();
@@ -60,14 +61,9 @@ export default async function Témoigner() {
           </div>
         </div>
 
-        {day && (
-          <div className="card pad">
-            <span className="kicker">L&rsquo;objection du jour</span>
-            <h3 style={{ marginTop: 6 }}>{day.objection_q}</h3>
-            {(day.objection_a as string[]).map((p, i) =>
-              <p key={i} style={{ marginTop: 12 }} dangerouslySetInnerHTML={{ __html: p }} />)}
-          </div>
-        )}
+        <p className="fine" style={{ marginTop: 4 }}>
+          L&rsquo;objection du jour a rejoint le pain quotidien, tout en bas de la page d&rsquo;accueil.
+        </p>
 
         <Intercession user={user} initial={profile?.intercession_name ?? ''} />
 
