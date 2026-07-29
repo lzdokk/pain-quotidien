@@ -114,7 +114,10 @@ export async function GET(req: NextRequest) {
           objection_q: day.witness.objection_q,
           objection_a: day.witness.objection_a,
           prayer_intro: day.prayers.intro,
-          prayer_moments: day.prayers.moments,
+          prayer_axes: day.prayers.axes,
+          prayer_notre_pere: day.prayers.notre_pere,
+          prayer_confession: day.prayers.confession,
+          prayer_supplication: day.prayers.supplication,
           spirit_invitation: day.prayers.spirit_invitation,
           model: `${PROVIDER}/${modelName()}`,
           published: false

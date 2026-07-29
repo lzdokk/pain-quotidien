@@ -185,6 +185,50 @@ html[data-mode="soir"] .tick svg{color:#0E141A}
 
 /* PRIERE */
 .moment-n{font-size:11px;font-weight:640;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3);margin-bottom:4px;display:block}
+.axline{font-size:13.5px;color:var(--ink-3);margin:-4px 0 16px;line-height:1.5}
+.axline i{font-family:var(--serif);font-size:16px;font-style:italic;color:var(--ink-2)}
+.axline b{color:var(--accent);font-weight:600}
+
+/* Volet d'enseignement sur la priere */
+details.volet > summary > .kicker + h3{margin-top:6px}
+details.volet > summary{align-items:flex-start;flex-direction:column;gap:0;position:relative;padding-right:26px}
+details.volet > summary::after{position:absolute;right:0;top:2px;margin-left:0}
+.teach{margin-top:24px;border-top:1px solid var(--line);padding-top:22px}
+.teach section{margin-bottom:26px}
+.teach-h{font-family:var(--serif);font-size:22px;font-weight:600;letter-spacing:-.02em;
+ margin:34px 0 16px;padding-bottom:9px;border-bottom:1px solid var(--line)}
+.teach-h:first-child{margin-top:0}
+.teach h5{font-size:15.5px;font-weight:620;letter-spacing:-.012em;color:var(--ink);margin-bottom:9px}
+.teach p{font-size:15.5px;line-height:1.72;color:var(--ink-2)}
+.teach p + p{margin-top:12px}
+.tq{font-family:var(--serif);font-size:16px;font-style:italic;line-height:1.7;color:var(--ink-2);
+ border-left:2.5px solid var(--accent-line);padding-left:18px;margin-top:13px}
+.tq cite{display:block;margin-top:8px;font-style:normal;font-family:var(--sans);font-size:12px;
+ color:var(--accent);font-weight:600;letter-spacing:.04em}
+.axgrid{display:grid;gap:12px;margin:18px 0 22px}
+.axcard{border:1px solid var(--accent-line);border-radius:var(--r-sm);padding:20px 22px;position:relative}
+.axn{position:absolute;top:18px;right:20px;width:24px;height:24px;border-radius:99px;
+ background:var(--accent-soft);color:var(--accent);font-size:12px;font-weight:660;display:grid;place-items:center}
+.axcard h5{margin-bottom:3px}
+.axgk{font-size:13px;color:var(--ink-3);margin-bottom:7px}
+.axgk i{font-family:var(--serif);font-size:16px;color:var(--ink-2)}
+.axobj{display:inline-block;font-size:11px;font-weight:640;letter-spacing:.06em;text-transform:uppercase;
+ color:var(--accent);border:1px solid var(--accent-line);border-radius:99px;padding:3px 10px;margin-bottom:11px}
+.npl{list-style:none;margin:18px 0 4px}
+.npl li{display:flex;gap:14px;align-items:baseline;padding:11px 0;border-bottom:1px solid var(--line)}
+.npl li:last-child{border-bottom:0}
+.npl b{flex:none;width:44%;font-size:15px;font-weight:600;color:var(--ink);font-family:var(--serif)}
+.npl span{font-size:14px;color:var(--ink-3);line-height:1.55}
+@media(max-width:600px){.npl li{flex-direction:column;gap:3px}.npl b{width:auto}}
+
+/* Le Notre Pere prie du jour */
+.npd{display:flex;gap:16px;padding:22px 30px;border-bottom:1px solid var(--line)}
+.npd:last-child{border-bottom:0}
+.npn{width:26px;height:26px;flex:none;border-radius:99px;border:1px solid var(--accent-line);color:var(--accent);
+ font-size:11.5px;font-weight:640;display:grid;place-items:center;margin-top:3px}
+.npd h4{font-family:var(--serif);font-size:17px;font-weight:600;letter-spacing:-.015em;margin-bottom:8px;color:var(--ink)}
+.npd p{font-size:15.5px;line-height:1.7;color:var(--ink-2)}
+@media(max-width:700px){.npd{padding:18px 16px}}
 .pray-tip{margin-top:16px;font-size:13.5px;color:var(--ink-3);line-height:1.6;background:var(--surface-2);border-radius:10px;padding:12px 14px}
 .pray-tip b{color:var(--ink-2);font-weight:600}
 .pray-word{margin-top:14px;border:1px solid var(--accent-line);border-radius:var(--r-sm);padding:18px 20px}
