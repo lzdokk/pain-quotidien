@@ -9,11 +9,12 @@ export default async function Lire() {
   const sb = await supabaseServer();
   const { data: { user } } = await sb.auth.getUser();
 
-  const [{ data: books }, { data: trans }, { data: plans }, { data: steps }] = await Promise.all([
+  const [{ data: books }, { data: trans }, { data: plans }, { data: steps }, { data: intros }] = await Promise.all([
     sb.from('books').select('id, name, chapters').order('id'),
     sb.from('translations').select('code, name, notice, enabled, source, api_id').eq('enabled', true).order('code'),
     sb.from('reading_plans').select('*').order('order_index'),
-    sb.from('plan_steps').select('*').order('position')
+    sb.from('plan_steps').select('*').order('position'),
+    sb.from('book_intros').select('book, name, testament, section, title, situ, who, why, christ, key_verse')
   ]);
 
   const { data: plan } = user ? await sb.from('user_plan').select('*').single() : { data: null };
@@ -26,7 +27,8 @@ export default async function Lire() {
     <>
       <Nav user={user} />
       <Reader books={books ?? []} translations={trans ?? []} plans={plans ?? []}
-              steps={steps ?? []} plan={plan} notes={notes ?? []} highlights={hls ?? []} user={user} />
+              steps={steps ?? []} plan={plan} notes={notes ?? []} highlights={hls ?? []}
+              intros={intros ?? []} user={user} />
     </>
   );
 }

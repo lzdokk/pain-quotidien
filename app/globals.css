@@ -316,6 +316,50 @@ html[data-mode="soir"] .af-btn.on{background:var(--surface)}
     max-height:min(480px,calc(100vh - 210px))}
 }
 
+/* Intro de livre dans le lecteur (« Où sommes-nous ? ») */
+.bookintro{margin:0 18px 8px;border:1px solid var(--accent-line);border-radius:16px;
+  background:var(--accent-soft);overflow:hidden}
+.bookintro>summary{list-style:none;cursor:pointer;padding:14px 18px;display:flex;flex-direction:column;gap:2px}
+.bookintro>summary::-webkit-details-marker{display:none}
+.bookintro .bi-sec{font-size:11px;font-weight:640;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.bookintro .bi-title{font-family:var(--serif);font-size:17px;color:var(--ink)}
+.bookintro .bi-hint{font-size:12px;color:var(--ink-3)}
+.bookintro[open] .bi-hint{display:none}
+.bi-body{padding:2px 18px 18px}
+.bi-situ{font-family:var(--serif);font-size:15.5px;line-height:1.65;color:var(--ink-2);margin-bottom:14px}
+.bi-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:14px}
+.bi-grid p{font-size:14px;line-height:1.6;color:var(--ink-2);margin-top:4px}
+.bi-christ{border-top:1px solid var(--accent-line);padding-top:12px;margin-bottom:14px}
+.bi-christ p{font-size:14.5px;line-height:1.65;color:var(--ink);margin-top:4px}
+@media(max-width:560px){.bi-grid{grid-template-columns:1fr;gap:12px}}
+
+/* Base des mots hebreu / grec (/mots) */
+.word{border-top:1px solid var(--line)}
+.word:first-child{border-top:0}
+.word-head{width:100%;display:flex;align-items:center;gap:16px;padding:16px 22px;background:none;border:0;
+  cursor:pointer;font:inherit;text-align:left;transition:background .2s var(--ease)}
+.word-head:hover{background:var(--surface-2)}
+.word .wterm{flex:none;font-size:22px;line-height:1;min-width:66px;color:var(--ink)}
+.word .wterm.gr{font-style:italic}
+.word-id{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.word-tr{font-weight:640;font-size:15.5px;color:var(--ink)}
+.word-gl{font-size:13.5px;color:var(--ink-3)}
+.word .wlang{flex:none;font-size:11px;font-weight:620;letter-spacing:.04em;text-transform:uppercase;
+  padding:3px 9px;border-radius:99px;background:var(--surface-2);color:var(--ink-3)}
+.word .wlang.he{background:#e8f0fe;color:#2a5bd7}
+.word .wlang.gr{background:#e9f6ec;color:#1f8a4c}
+.word .wlang.ar{background:#fbeee6;color:#b5651d}
+html[data-mode="soir"] .word .wlang.he{background:#1b2740;color:#8fb0ff}
+html[data-mode="soir"] .word .wlang.gr{background:#16281c;color:#77d59a}
+html[data-mode="soir"] .word .wlang.ar{background:#2a1f16;color:#e0a877}
+.word-body{padding:0 22px 20px}
+.word-body>p{font-size:15px;line-height:1.7;color:var(--ink-2)}
+.word-christ{margin-top:14px;border-left:2.5px solid var(--accent-line);padding-left:16px}
+.word-christ p{font-family:var(--serif);font-size:15px;line-height:1.65;color:var(--ink);margin-top:6px}
+.word-refs{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.word-refs span{font-size:12.5px;font-weight:560;color:var(--accent);background:var(--accent-soft);
+  padding:4px 11px;border-radius:99px}
+
 .day-pills{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:center;margin-bottom:20px}
 .day-pill{width:34px;height:34px;border-radius:99px;display:grid;place-items:center;text-decoration:none;
   background:var(--surface);border:1px solid var(--line);color:var(--ink-2);font-size:13px;font-weight:620;

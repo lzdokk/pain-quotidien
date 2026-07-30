@@ -26,7 +26,7 @@ function describeTranslation(t: any): string {
   return '';
 }
 
-export default function Reader({ books, translations, plans, steps, plan, notes, highlights, user }: any) {
+export default function Reader({ books, translations, plans, steps, plan, notes, highlights, intros, user }: any) {
   // Bible du Semeur (BDS) par defaut, sauf si une position a ete memorisee.
   const [trad, setTrad] = useState('FRLSG');
   const [book, setBook] = useState(43);
@@ -49,6 +49,10 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
   const bookName = books.find((b: any) => b.id === book)?.name ?? '';
   const chapters = books.find((b: any) => b.id === book)?.chapters ?? 1;
   const visibleTranslations = useMemo(() => translations.filter((t: any) => !HIDDEN_TRAD(t)), [translations]);
+  const intro = useMemo(
+    () => (intros ?? []).find((x: any) => x.book === book) ?? null,
+    [intros, book]
+  );
 
   const planId = plan?.plan_id ?? 'fondement';
   const P = plans.find((p: any) => p.id === planId) ?? plans[0];
@@ -278,6 +282,7 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
 
       <h2 className="sect" id="lecteur" style={{ scrollMarginTop: 70 }}>Le lecteur</h2>
       <p className="sub">Touchez le titre du chapitre pour son introduction, un verset pour le surligner ou l&rsquo;annoter.</p>
+
       <div className="card">
         <div style={{ padding: '24px 30px 4px' }}>
           <input className="field" type="search" value={search}
@@ -340,6 +345,32 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
           </span>
           <button className="nav-day" onClick={() => chapter < chapters ? setChapter(chapter + 1) : book < 66 && (setBook(book + 1), setChapter(1))} aria-label="Suivant">›</button>
         </div>
+
+        {intro && (
+          <details className="bookintro">
+            <summary>
+              <span className="bi-sec">{intro.section}</span>
+              <span className="bi-title">{intro.name} — {intro.title}</span>
+              <span className="bi-hint">Où sommes-nous&nbsp;?</span>
+            </summary>
+            <div className="bi-body">
+              <p className="bi-situ">{intro.situ}</p>
+              <div className="bi-grid">
+                <div><span className="kicker">C&rsquo;est qui</span><p>{intro.who}</p></div>
+                <div><span className="kicker">Pourquoi ce livre</span><p>{intro.why}</p></div>
+              </div>
+              <div className="bi-christ">
+                <span className="kicker">Le fil vers Jésus</span>
+                <p>{intro.christ}</p>
+              </div>
+              {intro.key_verse && (
+                <button className="btn sm" onClick={() => go(intro.key_verse)}>
+                  Aller à {intro.key_verse} ›
+                </button>
+              )}
+            </div>
+          </details>
+        )}
 
         <div className="vlist">
           {loading ? <p className="empty">Chargement…</p> :
