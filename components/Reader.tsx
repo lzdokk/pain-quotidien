@@ -45,6 +45,7 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
   const [results, setResults] = useState<any[] | null>(null);
   const [searching, setSearching] = useState(false);
   const [searchedIn, setSearchedIn] = useState<string | null>(null);
+  const [famous, setFamous] = useState<Record<number, string>>({});
 
   const bookName = books.find((b: any) => b.id === book)?.name ?? '';
   const chapters = books.find((b: any) => b.id === book)?.chapters ?? 1;
@@ -86,6 +87,21 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
   }, [trad, book, chapter, translations]);
 
   useEffect(() => { load(); }, [load]);
+
+  // Versets celebres du chapitre courant : une petite etoile dans la marge.
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      const { data } = await supabase.from('famous_verses')
+        .select('verse_start, verse_end, title').eq('book', book).eq('chapter', chapter);
+      const map: Record<number, string> = {};
+      for (const f of (data ?? []) as any[]) {
+        for (let n = f.verse_start; n <= f.verse_end; n++) map[n] = f.title;
+      }
+      if (alive) setFamous(map);
+    })();
+    return () => { alive = false; };
+  }, [book, chapter]);
 
   // Reprise a l'endroit ou on s'etait arrete, et lien direct ?ref=Jean 15
   useEffect(() => {
@@ -378,8 +394,9 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
            verses.map(v => {
              const c = hl[key(v.verse)];
              return (
-               <span key={v.verse} className={`vs${c ? ` h${c}` : ''}${sel === v.verse ? ' sel' : ''}`}
+               <span key={v.verse} className={`vs${c ? ` h${c}` : ''}${sel === v.verse ? ' sel' : ''}${famous[v.verse] ? ' famous' : ''}`}
                      onClick={() => { setSel(sel === v.verse ? null : v.verse); setEditing(false); setNoteText(noteFor(v.verse)?.body ?? ''); }}>
+                 {famous[v.verse] && <span className="vstar" title={`Verset connu · ${famous[v.verse]}`}>★</span>}
                  <span className="vn">{v.verse}</span>{v.text}
                  {noteFor(v.verse) && <span className="noteflag">note</span>}
                </span>

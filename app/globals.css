@@ -360,6 +360,28 @@ html[data-mode="soir"] .word .wlang.ar{background:#2a1f16;color:#e0a877}
 .word-refs span{font-size:12.5px;font-weight:560;color:var(--accent);background:var(--accent-soft);
   padding:4px 11px;border-radius:99px}
 
+/* Les versets a connaitre (/versets), memes principes que .word */
+.fverse{border-top:1px solid var(--line)}
+.fverse:first-child{border-top:0}
+.fv-head{width:100%;display:flex;align-items:center;gap:14px;padding:16px 22px;background:none;border:0;
+  cursor:pointer;font:inherit;text-align:left;transition:background .2s var(--ease)}
+.fv-head:hover{background:var(--surface-2)}
+.fv-star{flex:none;color:var(--accent);font-size:16px;line-height:1}
+.fv-id{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.fv-ref{font-weight:680;font-size:15.5px;color:var(--ink);font-variant-numeric:tabular-nums}
+.fv-title{font-size:13.5px;color:var(--ink-3)}
+.fv-theme{flex:none;font-size:11px;font-weight:620;letter-spacing:.03em;color:var(--ink-3);
+  background:var(--surface-2);padding:3px 10px;border-radius:99px;max-width:180px;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.fv-body{padding:0 22px 20px}
+.fv-text{font-family:var(--serif);font-size:17px;line-height:1.7;color:var(--ink);
+  border-left:2.5px solid var(--accent-line);padding-left:18px;margin:0 0 12px}
+.fv-blurb{font-size:14.5px;line-height:1.65;color:var(--ink-2);margin-bottom:14px}
+
+/* Petite etoile sur les versets celebres dans le lecteur */
+.vs .vstar{color:var(--accent);font-size:12px;margin-right:5px;vertical-align:2px;opacity:.85}
+.vs.famous{background:linear-gradient(transparent 62%, var(--accent-soft) 62%)}
+
 .day-pills{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:center;margin-bottom:20px}
 .day-pill{width:34px;height:34px;border-radius:99px;display:grid;place-items:center;text-decoration:none;
   background:var(--surface);border:1px solid var(--line);color:var(--ink-2);font-size:13px;font-weight:620;
