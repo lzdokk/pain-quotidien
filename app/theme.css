@@ -1,0 +1,58 @@
+/* ══════════════════════════════════════════════════════════════════
+   IDENTITE VISUELLE, LE PAIN QUOTIDIEN
+   Palette calee sur le logo : bleu ardoise sur blanc.
+   Un seul bloc a modifier, le reste se recalcule automatiquement.
+   ══════════════════════════════════════════════════════════════════ */
+:root{
+  /* ── MARQUE ───────────────────────────────────────────────────── */
+  --brand:        #4E6A85;   /* le bleu ardoise du logo */
+  --brand-deep:   #3A5266;   /* le meme, plus fonce, survols et pressions */
+  --brand-night:  #8FA9C4;   /* la declinaison claire du mode soir */
+  --paper:        #FBFBFC;   /* le fond clair, blanc tres legerement bleute */
+  --paper-night:  #0E141A;   /* le fond du mode soir, ardoise profonde */
+  --ink-base:     #1A222B;   /* le texte, charbon bleute */
+
+  /* ── Derives ──────────────────────────────────────────────────── */
+  --accent: var(--brand);
+  --accent-soft: color-mix(in srgb, var(--brand) 9%, transparent);
+  --accent-line: color-mix(in srgb, var(--brand) 26%, transparent);
+  --bg: var(--paper);
+  --surface: #FFFFFF;
+  --surface-2: color-mix(in srgb, var(--brand) 6%, var(--paper));
+  --ink: var(--ink-base);
+  --ink-2: color-mix(in srgb, var(--ink-base) 76%, var(--paper));
+  --ink-3: color-mix(in srgb, var(--ink-base) 54%, var(--paper));
+  --ink-4: color-mix(in srgb, var(--ink-base) 34%, var(--paper));
+  --line:   color-mix(in srgb, var(--brand) 11%, transparent);
+  --line-2: color-mix(in srgb, var(--brand) 22%, transparent);
+
+  /* Surlignages du carnet, accordes au bleu */
+  --hl1: rgba(240,196,110,.42);
+  --hl2: rgba(126,196,166,.36);
+  --hl3: rgba(140,172,214,.40);
+  --hl4: rgba(226,150,160,.36);
+
+  --shadow: 0 1px 2px rgba(26,34,43,.05), 0 8px 28px -12px rgba(26,34,43,.14);
+  --shadow-lg: 0 2px 6px rgba(26,34,43,.06), 0 30px 70px -30px rgba(26,34,43,.30);
+  --r: 22px; --r-sm: 14px;
+  --serif: "New York","Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --sans: -apple-system,BlinkMacSystemFont,"SF Pro Text","Inter","Helvetica Neue",Arial,sans-serif;
+  --ease: cubic-bezier(.22,1,.36,1);
+  --maxw: 780px;
+}
+
+html[data-mode="soir"]{
+  --accent: var(--brand-night);
+  --accent-soft: color-mix(in srgb, var(--brand-night) 11%, transparent);
+  --accent-line: color-mix(in srgb, var(--brand-night) 28%, transparent);
+  --bg: var(--paper-night);
+  --surface: color-mix(in srgb, #FFFFFF 6%, var(--paper-night));
+  --surface-2: color-mix(in srgb, #FFFFFF 10%, var(--paper-night));
+  --ink: #EDF1F5;
+  --ink-2: #C0CBD6; --ink-3: #8E9BA8; --ink-4: #5E6A76;
+  --line: rgba(255,255,255,.08); --line-2: rgba(255,255,255,.16);
+  --hl1: rgba(240,196,110,.24); --hl2: rgba(126,196,166,.20);
+  --hl3: rgba(140,172,214,.26); --hl4: rgba(226,150,160,.20);
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 28px -12px rgba(0,0,0,.6);
+  --shadow-lg: 0 2px 6px rgba(0,0,0,.5), 0 30px 70px -30px rgba(0,0,0,.8);
+}

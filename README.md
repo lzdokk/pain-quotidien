@@ -28,10 +28,22 @@ Ensuite, place-toi dans le dossier du projet et installe les dépendances :
 
 ```bash
 cd ~/Downloads/pain-quotidien     # adapte le chemin
-npm install
+npm install --include=dev
 ```
 
-**Vérification** : un dossier `node_modules` est apparu, sans message rouge.
+Le `--include=dev` est important : il installe `tsx`, l'outil qui exécute les
+scripts de chargement. Sans lui, sur certaines machines, tu obtiendras plus loin
+un `tsx: command not found`. N'installe pas `tsx` en global avec `npm install -g`,
+cela crée des conflits de résolution de modules.
+
+**Vérification** : un dossier `node_modules` est apparu, sans message rouge. Puis :
+
+```bash
+ls node_modules/.bin/tsx
+```
+
+Cette commande doit afficher le chemin sans erreur. Si elle répond
+`No such file`, relance `npm install --include=dev`.
 
 ---
 
@@ -398,6 +410,8 @@ Crée trois tâches qui appellent tes trois URL, avec l'en-tête
 | Symptôme | Cause | Correction |
 |---|---|---|
 | Build Vercel en échec, `Missing environment variable` | Une variable oubliée | Settings → Environment Variables, ajoute-la, puis Redeploy |
+| `tsx: command not found` | Les devDependencies ont été sautées à l'install | `npm install --include=dev` |
+| `Cannot find module '@supabase/supabase-js'` alors que le module existe | Un `tsx` installé en global masque le local | `npm uninstall -g tsx` puis `npm install --include=dev` |
 | `Error: supabaseUrl is required` | Le script ne trouve pas `.env.local` | Lance `npx tsx scripts/load-env.ts` pour voir ce qui manque. Vérifie avec `pwd` que tu es dans le dossier du projet |
 | `Invalid URL` ou clé refusée | Une clé `eyJ...` coupée sur deux lignes | Recopie-la, elle doit tenir sur une seule ligne |
 | Le lecteur reste vide | La Bible n'est pas importée | Relance `npm run seed:bible FRLSG` |
@@ -587,6 +601,20 @@ npx sharp-cli -i public/icon.svg -o public/icon-512.png resize 512 512
   reste désactivée dans `translations` (`enabled = false`).
 - **RGPD** : mentions légales et politique de confidentialité obligatoires dès
   la collecte d'e-mails. Aucun traceur tiers dans le projet.
+
+---
+
+## Après le premier déploiement
+
+Une fois le site en ligne, une mise à jour de sécurité en une commande, sans
+urgence mais recommandée :
+
+```bash
+npm install next@latest
+git add package.json package-lock.json && git commit -m "Mise à jour Next.js" && git push
+```
+
+Vercel redéploie tout seul au push.
 
 ---
 
