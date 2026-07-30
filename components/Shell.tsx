@@ -3,7 +3,7 @@ import Nav from './Nav';
 import Readings from './Readings';
 import DayActions from './DayActions';
 
-type Props = { day: any; readings: any[]; user: any; archive?: boolean };
+type Props = { day: any; readings: any[]; user: any; archive?: boolean; recentDays?: string[] };
 
 const fdate = (d: string) => {
   const [y, m, j] = d.split('-').map(Number);
@@ -12,27 +12,29 @@ const fdate = (d: string) => {
   return s[0].toUpperCase() + s.slice(1);
 };
 
-export default function Shell({ day, readings, user, archive }: Props) {
+export default function Shell({ day, readings, user, archive, recentDays }: Props) {
   return (
     <>
       <Nav user={user} />
       <main className="wrap">
         <header className="hero">
-          <div className="eyebrow">Le pain du matin</div>
+          <div className="eyebrow">Le pain du matin{archive ? ' · archive' : ''}</div>
           <div className="date">{fdate(day.date)}</div>
           <h1 dangerouslySetInnerHTML={{ __html: day.theme_title }} />
           <p className="lede">{day.theme_lede}</p>
-          <div className="liturgy">
-            <span className="dot" /> {day.liturgical_week ?? 'Plan de lecture'} · Bible Segond
-            {archive ? ' · archive' : ''}
-          </div>
         </header>
 
-        <div style={{ textAlign: 'center', marginBottom: 8 }}>
-          <Link href="/jours" className="back" style={{ display: 'inline-block' }}>
-            Parcourir les jours passés ›
-          </Link>
-        </div>
+        {recentDays && recentDays.length > 0 && (
+          <div className="day-pills">
+            {recentDays.map(d => (
+              <Link key={d} href={`/jour/${d}`} className={`day-pill${d === day.date ? ' active' : ''}`}
+                    title={d}>
+                {+d.slice(8, 10)}
+              </Link>
+            ))}
+            <Link href="/jours" className="day-pill more" title="Tous les jours">›</Link>
+          </div>
+        )}
 
         <div className="prayer opening">
           <span className="kicker">Prière d&rsquo;ouverture</span>
@@ -48,7 +50,7 @@ export default function Shell({ day, readings, user, archive }: Props) {
 
         <h2 className="sect">Les lectures du jour</h2>
         <p className="sub">Touchez une lecture pour déplier le texte intégral et son résumé.</p>
-        <Readings readings={readings} />
+        <Readings readings={readings} user={user} />
 
         <div className="card verse">
           <blockquote>{day.verse_text}</blockquote>

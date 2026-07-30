@@ -1,0 +1,18 @@
+name: Base des fiches de versets (systematique)
+
+# Vercel Hobby limite les crons natifs a une fois par jour : ce workflow
+# appelle /api/cron/verse-notes plusieurs fois par jour pour avancer, verset
+# apres verset, dans toute la Bible, jusqu'a couverture complete.
+on:
+  schedule:
+    - cron: '20 */2 * * *'
+  workflow_dispatch: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Appeler /api/cron/verse-notes
+        run: |
+          curl -sf -X GET "${{ secrets.SITE_URL }}/api/cron/verse-notes?n=40" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"

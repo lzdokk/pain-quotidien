@@ -4,6 +4,7 @@
     { "path": "/api/cron/daily",     "schedule": "15 23 * * *" },
     { "path": "/api/cron/prefetch",  "schedule": "35 23 * * *" },
     { "path": "/api/cron/reminders", "schedule": "0 18 * * *" },
-    { "path": "/api/cron/parables",  "schedule": "0 6 * * 2,5" }
+    { "path": "/api/cron/parables",  "schedule": "0 6 * * 2,5" },
+    { "path": "/api/cron/verse-notes", "schedule": "10 4 * * *" }
   ]
 }

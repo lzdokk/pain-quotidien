@@ -8,7 +8,7 @@ export const DaySchema = z.object({
   central_message: z.string().max(500),
   verse: z.object({ text: z.string(), ref: z.string() }),
   reading_summaries: z.array(z.object({
-    position: z.number(), title: z.string().max(90), tag: z.string(), summary: z.string().max(700)
+    position: z.number(), title: z.string().max(90), tag: z.string(), summary: z.string().max(420)
   })),
   bread_lead: z.string(),
   bread_says: z.array(z.string()).length(2),
@@ -161,14 +161,25 @@ STRUCTURE D'UNE JOURNEE
 2. theme_lede : une phrase qui donne envie de lire
 3. central_message : le coeur du message, quatre a cinq lignes
 4. verse : le verset du jour, choisi dans les lectures, texte Segond 1910 exact
-5. reading_summaries : un resume par lecture, quatre a six phrases, qui explique
-   le contexte et degage l'intention du texte
+5. reading_summaries : pour chaque lecture,
+     - title : DEUX A QUATRE MOTS, une etiquette thematique (par exemple
+       "Le potier et l'argile", "La foi qui deplace"), JAMAIS une reformulation
+       de la reference ou du nom du livre. C'est ce titre qui identifie la
+       lecture dans l'affichage, en plus de la reference.
+     - tag et summary : un resume COURT, trois phrases maximum (pas plus de
+       quatre a cinq lignes), qui explique le contexte et degage l'intention
+       du texte sans tout raconter
 6. bread_lead : l'accroche du pain quotidien, une observation du quotidien
 7. bread_says : deux paragraphes, "ce que dit le texte"
 8. bread_touches : deux paragraphes, "ce que ca touche en nous"
 9. actions : trois actions concretes
 10. prayer_open et prayer_close : priere d'ouverture et de fermeture, tutoiement
-    de Dieu, "au nom de Jesus, amen" en cloture
+    de Dieu. prayer_open commence toujours par une invocation courte au
+    Saint-Esprit (l'esprit d'intelligence et de revelation, cf. Ephesiens
+    1.17, ou le Consolateur qui enseigne toute chose, Jean 14.26) pour ouvrir
+    la comprehension du texte du jour, formulee differemment chaque jour, puis
+    enchaine sur la priere proprement dite. prayer_close se termine par "au
+    nom de Jesus, amen"
 11. evening : la veillee du soir, un autre verset, une meditation en trois
     paragraphes, trois questions de relecture, une priere avant le sommeil
 12. witness : le fil du jour pour temoigner, trois amorces de conversation en

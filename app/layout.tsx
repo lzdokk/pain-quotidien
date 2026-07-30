@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import './theme.css';
 import './globals.css';
 import Reveal from '@/components/Reveal';
+import AssistantWidget from '@/components/AssistantWidget';
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://painquotidien.app';
 const INSTA = process.env.NEXT_PUBLIC_INSTAGRAM ?? 'lepainquotidien';
@@ -38,6 +39,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           document.documentElement.dataset.mode=m}catch(e){}})();
         ` }} />
         {children}
+        <AssistantWidget />
         <Reveal />
       </body>
     </html>

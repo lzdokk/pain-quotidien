@@ -66,7 +66,9 @@ export async function GET(req: NextRequest) {
             text: passage.verses.map(v => `${v.verse}. ${v.text}`).join('\n'),
             substituted: r.deuterocanonical ? r.reference : undefined,
             canonNote: r.deuterocanonical,
-            verses: passage.verses.map(v => [v.verse, v.text] as [number, string])
+            verses: passage.verses.map(v => [v.verse, v.text] as [number, string]),
+            book: passage.book,
+            chapter: passage.chapter
           });
         }
         if (readings.length === 0) { errors.push(`${date} : aucune lecture exploitable`); continue; }
@@ -130,7 +132,8 @@ export async function GET(req: NextRequest) {
           return {
             date, position: r.position, reference: r.reference,
             title: sum?.title ?? r.title, tag: sum?.tag ?? '',
-            verses: r.verses, summary: sum?.summary ?? '', canon_note: r.canonNote
+            verses: r.verses, summary: sum?.summary ?? '', canon_note: r.canonNote,
+            book: r.book, chapter: r.chapter
           };
         }));
         created++;

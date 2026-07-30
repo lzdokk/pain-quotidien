@@ -16,6 +16,11 @@ export default async function Home() {
 
   const { data: { user } } = await sb.auth.getUser();
 
+  const { data: recent } = await sb.from('daily_bread')
+    .select('date').eq('published', true).lte('date', today)
+    .order('date', { ascending: false }).limit(10);
+  const recentDays = (recent ?? []).map(d => d.date).reverse();
+
   if (!day) {
     return (
       <main className="wrap">
@@ -27,5 +32,5 @@ export default async function Home() {
       </main>
     );
   }
-  return <Shell day={day} readings={readings ?? []} user={user} />;
+  return <Shell day={day} readings={readings ?? []} user={user} recentDays={recentDays} />;
 }

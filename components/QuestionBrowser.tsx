@@ -109,10 +109,6 @@ export default function QuestionBrowser({ faq, user, used }: any) {
         <div className="share-grid" style={{ marginTop: 10, gridTemplateColumns: '1fr auto' }}>
           <button className="btn primary" onClick={send} disabled={busy}>Envoyer</button>
         </div>
-        <p style={{ fontSize: 12.5, color: 'var(--ink-4)', marginTop: 14, lineHeight: 1.6 }}>
-          La base de questions est gratuite et illimitee. L&rsquo;assistant n&rsquo;est appele que si aucune
-          réponse ne correspond, ce qui garde le cout très bas.
-        </p>
       </div>
     </main>
   );

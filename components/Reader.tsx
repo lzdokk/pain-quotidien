@@ -11,8 +11,23 @@ const STYLES = [
   ['libre', 'Libre, a votre main']
 ] as const;
 
+// Traductions volontairement masquees de la liste (doublon avec la BDS).
+const HIDDEN_TRAD = (t: any) => /segond\s*21|^s21$|^frs21$/i.test(`${t.code} ${t.name}`);
+
+// Mini-explication affichee sous le choix de traduction, pour aider a choisir
+// suivant l'objectif de lecture.
+function describeTranslation(t: any): string {
+  const s = `${t.code} ${t.name}`.toLowerCase();
+  if (/semeur|bds/.test(s)) return 'Pour la lecture suivie : avancez vite et saisissez l’idée globale, sans effort.';
+  if (/nouvelle bible segond|\bnbs\b/.test(s)) return 'Pour décortiquer un verset au mot près : au plus proche de la structure du texte grec ou hébreu d’origine.';
+  if (/1910|\blsg\b/.test(s)) return 'Pour retrouver une référence classique ou un verset connu dans son phrasé traditionnel.';
+  if (/darby/.test(s)) return 'Traduction littérale, très proche du texte original, pour l’étude mot à mot.';
+  if (/parole de vie|\bpdv\b/.test(s)) return 'Français très simple et immédiat, idéal pour une première lecture ou pour partager.';
+  return '';
+}
+
 export default function Reader({ books, translations, plans, steps, plan, notes, highlights, user }: any) {
-  // Segond par defaut, sauf si une position a ete memorisee.
+  // Bible du Semeur (BDS) par defaut, sauf si une position a ete memorisee.
   const [trad, setTrad] = useState('FRLSG');
   const [book, setBook] = useState(43);
   const [chapter, setChapter] = useState(1);
@@ -33,6 +48,7 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
 
   const bookName = books.find((b: any) => b.id === book)?.name ?? '';
   const chapters = books.find((b: any) => b.id === book)?.chapters ?? 1;
+  const visibleTranslations = useMemo(() => translations.filter((t: any) => !HIDDEN_TRAD(t)), [translations]);
 
   const planId = plan?.plan_id ?? 'fondement';
   const P = plans.find((p: any) => p.id === planId) ?? plans[0];
@@ -81,10 +97,17 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
         }
       }
       const saved = JSON.parse(localStorage.getItem('pq-pos') ?? 'null');
-      if (saved?.b) { setBook(saved.b); setChapter(saved.c ?? 1); if (saved.t) setTrad(saved.t); }
+      const bds = translations.find((t: any) => !HIDDEN_TRAD(t) && /semeur|\bbds\b/i.test(`${t.code} ${t.name}`));
+      if (saved?.b) {
+        setBook(saved.b); setChapter(saved.c ?? 1);
+        if (saved.t && !HIDDEN_TRAD({ code: saved.t, name: '' })) setTrad(saved.t);
+        else if (bds) setTrad(bds.code);
+      } else if (bds) {
+        setTrad(bds.code);
+      }
       setRecent(JSON.parse(localStorage.getItem('pq-recent') ?? '[]'));
     } catch {}
-  }, [books]);
+  }, [books, translations]);
 
   // Memorisation de la position et de l'historique de lecture
   useEffect(() => {
@@ -262,19 +285,36 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
                  onKeyDown={e => { if (e.key === 'Enter') runSearch(); }}
                  placeholder="Une référence (Jean 3) ou un mot à chercher (peur, grâce...)" />
 
+          {results !== null && (
+            <button className="btn sm" style={{ marginTop: 10 }}
+                    onClick={() => document.getElementById('resultats')
+                      ?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>
+              Voir les résultats ↓
+            </button>
+          )}
+
           {recent.length > 1 && (
             <div className="chips" style={{ marginTop: 10 }}>
               <span className="muted" style={{ fontSize: 12, alignSelf: 'center', marginRight: 4 }}>Reprendre :</span>
               {recent.slice(1, 6).map((r, i) => (
-                <button key={i} className="chip" onClick={() => { setBook(r.b); setChapter(r.c); }}>
-                  {books.find((b: any) => b.id === r.b)?.name} {r.c}
-                </button>
+                <span key={i} className="chip" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
+                  <span onClick={() => { setBook(r.b); setChapter(r.c); }}>
+                    {books.find((b: any) => b.id === r.b)?.name} {r.c}
+                  </span>
+                  <span aria-label="Retirer" style={{ opacity: .55, fontSize: 13, lineHeight: 1 }}
+                        onClick={e => {
+                          e.stopPropagation();
+                          const next = recent.filter(x => !(x.b === r.b && x.c === r.c));
+                          setRecent(next);
+                          try { localStorage.setItem('pq-recent', JSON.stringify(next)); } catch {}
+                        }}>×</span>
+                </span>
               ))}
             </div>
           )}
           <div className="reader-bar">
             <select className="field" value={trad} onChange={e => setTrad(e.target.value)}>
-              {translations.map((t: any) => <option key={t.code} value={t.code}>{t.name}</option>)}
+              {visibleTranslations.map((t: any) => <option key={t.code} value={t.code}>{t.name}</option>)}
             </select>
             <select className="field" value={book} onChange={e => { setBook(+e.target.value); setChapter(1); }}>
               {books.map((b: any) => <option key={b.id} value={b.id}>{b.name}</option>)}
@@ -283,7 +323,12 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
               {Array.from({ length: chapters }, (_, i) => <option key={i} value={i + 1}>{i + 1}</option>)}
             </select>
           </div>
-          <p style={{ fontSize: 12.5, color: 'var(--ink-4)', marginTop: 10 }}>
+          {describeTranslation(translations.find((t: any) => t.code === trad) ?? {}) && (
+            <p style={{ fontSize: 12.5, color: 'var(--ink-3)', marginTop: 10 }}>
+              {describeTranslation(translations.find((t: any) => t.code === trad) ?? {})}
+            </p>
+          )}
+          <p style={{ fontSize: 12.5, color: 'var(--ink-4)', marginTop: 4 }}>
             {translations.find((t: any) => t.code === trad)?.notice}
           </p>
         </div>
@@ -342,7 +387,7 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
 
       {results !== null && (
         <>
-          <h2 className="sect">Recherche</h2>
+          <h2 className="sect" id="resultats" style={{ scrollMarginTop: 70 }}>Recherche</h2>
           <p className="sub">
             {searching ? 'Recherche en cours…'
               : results.length === 0 ? `Aucun verset ne contient « ${search} ».`

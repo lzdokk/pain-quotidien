@@ -22,5 +22,10 @@ export default async function Jour({ params }: { params: Promise<{ date: string 
   const { data: readings } = await sb.from('readings').select('*').eq('date', date).order('position');
   const { data: { user } } = await sb.auth.getUser();
 
-  return <Shell day={day} readings={readings ?? []} user={user} archive />;
+  const { data: recent } = await sb.from('daily_bread')
+    .select('date').eq('published', true).lte('date', date)
+    .order('date', { ascending: false }).limit(10);
+  const recentDays = (recent ?? []).map(d => d.date).reverse();
+
+  return <Shell day={day} readings={readings ?? []} user={user} archive recentDays={recentDays} />;
 }

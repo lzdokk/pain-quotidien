@@ -1,9 +1,9 @@
 'use client';
 import { useState } from 'react';
-import Link from 'next/link';
+import VerseActions from './VerseActions';
 
 /** Les lectures du jour. Un seul volet ouvert a la fois. */
-export default function Readings({ readings }: { readings: any[] }) {
+export default function Readings({ readings, user }: { readings: any[]; user?: any }) {
   const [open, setOpen] = useState<number | null>(null);
 
   return (
@@ -25,14 +25,9 @@ export default function Readings({ readings }: { readings: any[] }) {
             </button>
 
             <div className="rd-body">
-              <div className="scripture">
-                {verses.map(([n, t]) => <p key={n}><span className="v">{n}</span>{t}</p>)}
-              </div>
-
-              <Link href={`/lire?ref=${encodeURIComponent(r.reference)}`} className="btn sm"
-                    style={{ marginTop: 4, display: 'inline-block' }}>
-                Ouvrir dans le lecteur, pour surligner et annoter
-              </Link>
+              <VerseActions book={r.book ?? null} chapter={r.chapter ?? null}
+                            bookName={(r.reference.match(/^(.*?)\s+\d+/) ?? [null, r.reference])[1]}
+                            verses={verses} user={user} />
 
               {r.canon_note && (
                 <div className="note-canon">
