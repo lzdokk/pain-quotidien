@@ -32,17 +32,17 @@ export const THEMES = [
 ] as const;
 
 export const ParableSchema = z.object({
-  title: z.string().max(80),
-  hook: z.string().max(160),
-  story: z.array(z.string()).min(3).max(6),
+  title: z.string().max(120),
+  hook: z.string().max(240),
+  story: z.array(z.string()).min(3).max(7),
   unpacking: z.array(z.object({
     h: z.string(),
-    p: z.array(z.string()).min(2).max(4)
-  })).min(2).max(3),
+    p: z.array(z.string()).min(1).max(5)
+  })).min(2).max(4),
   key_verse: z.string(),
   key_verse_ref: z.string(),
-  questions: z.array(z.string()).length(3),
-  refs: z.array(z.string()).min(3).max(5)
+  questions: z.array(z.string()).min(2).max(4),
+  refs: z.array(z.string()).min(2).max(6)
 });
 export type GeneratedParable = z.infer<typeof ParableSchema>;
 

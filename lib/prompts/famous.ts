@@ -39,8 +39,8 @@ export const FamousBatchSchema = z.object({
     verse_start: z.number().int().positive(),
     verse_end: z.number().int().positive(),
     theme: z.string(),
-    title: z.string().max(70),
-    blurb: z.string().max(320)
+    title: z.string().max(110),
+    blurb: z.string().max(460)
   }))
 });
 export type FamousBatch = z.infer<typeof FamousBatchSchema>;

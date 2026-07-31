@@ -11,22 +11,26 @@ export const DaySchema = z.object({
     position: z.number(), title: z.string().max(90), tag: z.string(), summary: z.string().max(420)
   })),
   bread_lead: z.string(),
-  bread_says: z.array(z.string()).length(2),
-  bread_touches: z.array(z.string()).length(2),
-  actions: z.array(z.object({ title: z.string().max(60), body: z.string() })).length(3),
+  // Bornes tolerantes (et non des tailles exactes) : les modeles rapides comme
+  // mistral-small ne produisent pas toujours le compte pile, et l'affichage
+  // parcourt simplement les tableaux. On garde les intentions (≈2, ≈3, ≈7…)
+  // via le prompt, sans faire echouer une sortie a un element pres.
+  bread_says: z.array(z.string()).min(1).max(4),
+  bread_touches: z.array(z.string()).min(1).max(4),
+  actions: z.array(z.object({ title: z.string().max(60), body: z.string() })).min(2).max(4),
   prayer_open: z.string(),
   prayer_close: z.string(),
   evening: z.object({
     verse: z.string(), verse_ref: z.string(), title: z.string(),
-    meditation: z.array(z.string()).length(3),
-    review: z.array(z.object({ title: z.string(), body: z.string() })).length(3),
+    meditation: z.array(z.string()).min(2).max(4),
+    review: z.array(z.object({ title: z.string(), body: z.string() })).min(2).max(4),
     prayer: z.string()
   }),
   witness: z.object({
-    thread: z.array(z.string()).length(2),
-    openers: z.array(z.string()).length(3),
+    thread: z.array(z.string()).min(1).max(3),
+    openers: z.array(z.string()).min(2).max(4),
     objection_q: z.string(),
-    objection_a: z.array(z.string()).length(2)
+    objection_a: z.array(z.string()).min(1).max(3)
   }),
   prayers: z.object({
     intro: z.string(),
@@ -37,11 +41,11 @@ export const DaySchema = z.object({
       word: z.string(),
       word_lang: z.string(),
       word_meaning: z.string()
-    })).length(3),
+    })).min(2).max(4),
     notre_pere: z.array(z.object({
       demande: z.string(),
       prayer: z.string()
-    })).length(7),
+    })).min(5).max(8),
     confession: z.string(),
     supplication: z.string(),
     spirit_invitation: z.string()
