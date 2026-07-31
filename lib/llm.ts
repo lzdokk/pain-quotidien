@@ -72,14 +72,41 @@ const OPENAI_LIKE: Partial<Record<Provider, { url: string; key: string }>> = {
   cerebras: { url: 'https://api.cerebras.ai/v1/chat/completions',       key: 'CEREBRAS_API_KEY' }
 };
 
+/**
+ * Convertit un schema Gemini (types en MAJUSCULES : OBJECT, STRING, ARRAY…)
+ * en JSON Schema standard (minuscules), pour les fournisseurs compatibles
+ * OpenAI. Sans cela, Mistral ne recoit aucune contrainte de structure et
+ * renvoie parfois des champs mal nommes (ex. `unpacking[].h` manquant), ce qui
+ * fait echouer la validation. Avec le schema, la sortie est fiable.
+ */
+function geminiToJsonSchema(s: any): any {
+  if (!s || typeof s !== 'object') return s;
+  const type = typeof s.type === 'string' ? s.type.toLowerCase() : undefined;
+  const out: any = {};
+  if (type) out.type = type;
+  if (s.enum) out.enum = s.enum;
+  if (s.properties) {
+    out.properties = {};
+    for (const k of Object.keys(s.properties)) out.properties[k] = geminiToJsonSchema(s.properties[k]);
+    out.required = Array.isArray(s.required) ? [...s.required] : Object.keys(s.properties);
+    out.additionalProperties = false;
+  }
+  if (s.items) out.items = geminiToJsonSchema(s.items);
+  return out;
+}
+
 async function openaiLike(p: Provider, c: Call): Promise<Raw> {
   const cfg = OPENAI_LIKE[p]!;
+  const jsonSchema = c.responseSchema ? geminiToJsonSchema(c.responseSchema) : null;
+  const responseFormat = jsonSchema
+    ? { type: 'json_schema', json_schema: { name: 'result', schema: jsonSchema, strict: true } }
+    : { type: 'json_object' };
   const r = await fetch(cfg.url, {
     method: 'POST',
     headers: { 'content-type': 'application/json', authorization: `Bearer ${process.env[cfg.key]}` },
     body: JSON.stringify({
       model: MODELS[p],
-      response_format: { type: 'json_object' },
+      response_format: responseFormat,
       max_tokens: c.maxTokens ?? 16000,
       temperature: c.temperature ?? 0.7,
       messages: [{ role: 'system', content: c.system }, { role: 'user', content: c.user }]
