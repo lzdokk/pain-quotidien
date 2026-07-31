@@ -222,6 +222,11 @@ Champs a produire :
 - intro : cinq a huit lignes pour entrer en priere. Le secret, la sobriete,
   se rendre disponible, sans multiplier les paroles. Relie discretement au
   theme du jour sans le devoiler entierement.
+  IMPORTANT : cette priere se prie a TOUT moment de la journee. Ne la situe
+  jamais dans le temps ("ce matin", "ce soir", "avant de dormir", "au reveil")
+  et n'emprunte PAS le rituel de la veillee du soir (respiration, fermer les
+  yeux, poser la journee) : cela appartient au champ evening, pas ici. Reste
+  intemporel : on entre en presence de Dieu, tout simplement.
 - axes : exactement trois objets, dans l'ordre Adoration, Louange,
   Intercession. Pour chacun :
     - axis : exactement "Adoration", "Louange" ou "Intercession"
