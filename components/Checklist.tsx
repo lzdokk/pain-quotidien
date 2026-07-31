@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import { rich } from '@/lib/rich';
 
 const Tick = () => (
   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -24,7 +25,7 @@ export default function Checklist({ title, items, onToggle, initial = [] }:
         {items.map((a, i) => (
           <li key={i} className={done.has(i) ? 'done' : ''}>
             <button className="tick" aria-pressed={done.has(i)} onClick={() => toggle(i)} aria-label="Fait"><Tick /></button>
-            <span className="st-txt"><b>{a.title}</b> {a.body}</span>
+            <span className="st-txt"><b>{a.title}</b> <span dangerouslySetInnerHTML={{ __html: rich(a.body) }} /></span>
           </li>
         ))}
       </ul>

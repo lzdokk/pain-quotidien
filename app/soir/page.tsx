@@ -2,6 +2,7 @@ import { supabaseServer } from '@/lib/supabase/server';
 import Nav from '@/components/Nav';
 import Checklist from '@/components/Checklist';
 import { parisDate } from '@/lib/date';
+import { rich } from '@/lib/rich';
 
 export const revalidate = 3600;
 export const metadata = { title: 'La veillée du soir' };
@@ -43,7 +44,7 @@ export default async function Soir() {
           <span className="kicker">Meditation du soir</span>
           <h3 style={{ marginTop: 6 }}>{day.evening_title}</h3>
           {(day.evening_meditation as string[]).map((p, i) =>
-            <p key={i} dangerouslySetInnerHTML={{ __html: p }} />)}
+            <p key={i} dangerouslySetInnerHTML={{ __html: rich(p) }} />)}
         </div>
 
         <Checklist title="Relecture, trois questions"
@@ -51,7 +52,7 @@ export default async function Soir() {
 
         <div className="prayer">
           <span className="kicker">Prière avant le sommeil</span>
-          <p>{day.prayer_night}</p>
+          <p dangerouslySetInnerHTML={{ __html: rich(day.prayer_night) }} />
         </div>
       </main>
     </>

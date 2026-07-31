@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { supabaseServer } from '@/lib/supabase/server';
 import Nav from '@/components/Nav';
+import { rich } from '@/lib/rich';
 
 export const revalidate = 86400;
 
@@ -25,7 +26,7 @@ export default async function Episode({ params }: { params: Promise<{ slug: stri
         <header className="hero">
           <div className="eyebrow">{p.theme} · épisode {p.episode}</div>
           <h1>{p.title}</h1>
-          <p className="lede">{p.hook}</p>
+          <p className="lede" dangerouslySetInnerHTML={{ __html: rich(p.hook) }} />
         </header>
 
         <Link href="/paraboles" className="back">‹ Tous les épisodes</Link>
@@ -33,14 +34,14 @@ export default async function Episode({ params }: { params: Promise<{ slug: stri
         <div className="card pad pq">
           <span className="kicker">La parabole</span>
           {(p.story as string[]).map((par, i) => (
-            <p key={i} className={i === 0 ? 'lead' : ''}>{par}</p>
+            <p key={i} className={i === 0 ? 'lead' : ''} dangerouslySetInnerHTML={{ __html: rich(par) }} />
           ))}
         </div>
 
         {(p.unpacking as Array<{ h: string; p: string[] }>).map((sec, i) => (
           <div className="card pad pq" key={i}>
             <span className="kicker">{sec.h}</span>
-            {sec.p.map((x, j) => <p key={j} dangerouslySetInnerHTML={{ __html: x }} />)}
+            {sec.p.map((x, j) => <p key={j} dangerouslySetInnerHTML={{ __html: rich(x) }} />)}
           </div>
         ))}
 
@@ -53,7 +54,7 @@ export default async function Episode({ params }: { params: Promise<{ slug: stri
           <span className="kicker">Pour se situer</span>
           <ul className="steps">
             {(p.questions as string[]).map((q, i) => (
-              <li key={i}><span className="st-txt">{q}</span></li>
+              <li key={i}><span className="st-txt" dangerouslySetInnerHTML={{ __html: rich(q) }} /></li>
             ))}
           </ul>
         </div>

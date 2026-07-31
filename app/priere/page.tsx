@@ -1,6 +1,7 @@
 import { supabaseServer } from '@/lib/supabase/server';
 import Nav from '@/components/Nav';
 import { parisDate } from '@/lib/date';
+import { rich } from '@/lib/rich';
 import {
   POURQUOI, COMMENT, AXES, AXES_NOTE,
   NOTRE_PERE_INTRO, NOTRE_PERE_DEMANDES, THEMES, SOURCE_NOTE
@@ -26,7 +27,7 @@ function Priere({ texte }: { texte?: string | null }) {
         <p key={i} style={{
           fontFamily: 'var(--serif)', fontSize: 17.5, lineHeight: 1.76,
           fontStyle: 'italic', color: 'var(--ink-2)'
-        }}>{p}</p>
+        }} dangerouslySetInnerHTML={{ __html: rich(p) }} />
       ))}
     </>
   );
@@ -142,7 +143,7 @@ export default async function Priere_() {
           <>
             <div className="prayer opening">
               <span className="kicker">Entrer en prière</span>
-              <p>{day!.prayer_intro}</p>
+              <p dangerouslySetInnerHTML={{ __html: rich(day!.prayer_intro) }} />
             </div>
 
             <h2 className="sect">Les trois axes, aujourd&rsquo;hui</h2>
@@ -165,7 +166,8 @@ export default async function Priere_() {
                   <Priere texte={a.prayer} />
 
                   <div className="pray-tip">
-                    <b>Prier cet axe avec le texte du jour</b><br />{a.tip}
+                    <b>Prier cet axe avec le texte du jour</b><br />
+                    <span dangerouslySetInnerHTML={{ __html: rich(a.tip) }} />
                   </div>
 
                   <div className="pray-word">
@@ -173,7 +175,7 @@ export default async function Priere_() {
                       <span className="wterm">{a.word}</span>
                       <span className="wlang">{a.word_lang}</span>
                     </div>
-                    <p>{a.word_meaning}</p>
+                    <p dangerouslySetInnerHTML={{ __html: rich(a.word_meaning) }} />
                   </div>
                 </div>
               );
@@ -191,7 +193,7 @@ export default async function Priere_() {
                       <span className="npn">{i + 1}</span>
                       <div>
                         <h4>{d.demande}</h4>
-                        <p>{d.prayer}</p>
+                        <p dangerouslySetInnerHTML={{ __html: rich(d.prayer) }} />
                       </div>
                     </div>
                   ))}
@@ -225,7 +227,7 @@ export default async function Priere_() {
 
             <div className="prayer">
               <span className="kicker">Communion avec le Saint-Esprit</span>
-              <p>{day!.spirit_invitation}</p>
+              <p dangerouslySetInnerHTML={{ __html: rich(day!.spirit_invitation) }} />
             </div>
           </>
         )}

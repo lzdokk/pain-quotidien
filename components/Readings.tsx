@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import VerseActions from './VerseActions';
+import { rich } from '@/lib/rich';
 
 /** Les lectures du jour. Un seul volet ouvert a la fois. */
 export default function Readings({ readings, user, translationName }:
@@ -43,7 +44,7 @@ export default function Readings({ readings, user, translationName }:
 
               <div className="rd-sum">
                 <strong>Le résumé</strong>
-                <p dangerouslySetInnerHTML={{ __html: r.summary }} />
+                <p dangerouslySetInnerHTML={{ __html: rich(r.summary) }} />
                 <span className="tag">{r.tag}</span>
               </div>
             </div>

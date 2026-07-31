@@ -5,6 +5,7 @@ import Nav from '@/components/Nav';
 import ValidateCourse from '@/components/ValidateCourse';
 import CourseHomework from '@/components/CourseHomework';
 import ReadingLinks from '@/components/ReadingLinks';
+import { rich } from '@/lib/rich';
 
 export const revalidate = 86400;
 const KIND: Record<string, string> = { E: 'Exegese', D: 'Doctrine', P: 'Pratique', G: 'Langue' };
@@ -63,7 +64,7 @@ export default async function Fiche({ params }: { params: Promise<{ code: string
               <div className="card pad pq" key={i}>
                 <span className="kicker">{sec.h}</span>
                 {sec.p.map((x, j) =>
-                  <p key={j} className={j === 0 ? 'lead' : ''} dangerouslySetInnerHTML={{ __html: x }} />)}
+                  <p key={j} className={j === 0 ? 'lead' : ''} dangerouslySetInnerHTML={{ __html: rich(x) }} />)}
               </div>
             ))}
 
