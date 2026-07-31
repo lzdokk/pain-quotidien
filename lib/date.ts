@@ -16,3 +16,14 @@ export function parisHour(d: Date = new Date()): number {
     timeZone: 'Europe/Paris', hour: '2-digit', hour12: false
   }).format(d));
 }
+
+/**
+ * Jour "spirituel" du lecteur : il ne bascule pas a minuit mais a 3h du matin
+ * (heure de Paris). Ainsi, celui qui lit sa veillee a minuit ou 00h30 voit
+ * encore le jour qu'il vient de vivre, et non « le pain de demain arrive
+ * bientot ». Le nouveau jour n'apparait qu'a partir de 3h. A utiliser pour
+ * l'affichage lecteur (matin, soir, priere) et la publication quotidienne.
+ */
+export function contentDate(d: Date = new Date()): string {
+  return parisDate(new Date(d.getTime() - 3 * 60 * 60 * 1000));
+}

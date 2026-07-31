@@ -33,7 +33,7 @@ export default async function Jours() {
           <p className="lede">Chaque pain quotidien déjà publie, jour après jour.</p>
         </header>
 
-        <Link href="/" className="back">‹ Revenir à aujourd&rsquo;hui</Link>
+        <Link href="/pain" className="back">‹ Revenir à aujourd&rsquo;hui</Link>
 
         {(!days || days.length === 0) && (
           <div className="card pad"><p className="empty">Aucun jour publié pour l&rsquo;instant.</p></div>

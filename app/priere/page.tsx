@@ -1,6 +1,7 @@
+import Link from 'next/link';
 import { supabaseServer } from '@/lib/supabase/server';
 import Nav from '@/components/Nav';
-import { parisDate } from '@/lib/date';
+import { contentDate } from '@/lib/date';
 import { rich } from '@/lib/rich';
 import {
   POURQUOI, COMMENT, AXES, AXES_NOTE,
@@ -35,7 +36,7 @@ function Priere({ texte }: { texte?: string | null }) {
 
 export default async function Priere_() {
   const sb = await supabaseServer();
-  const today = parisDate();
+  const today = contentDate();
   const { data: day } = await sb.from('daily_bread')
     .select('date, theme_title, prayer_intro, prayer_axes, prayer_notre_pere, prayer_confession, prayer_supplication, spirit_invitation')
     .eq('date', today).eq('published', true).maybeSingle();
@@ -231,6 +232,11 @@ export default async function Priere_() {
             </div>
           </>
         )}
+
+        <Link href="/pain" className="to-pain">
+          <span className="tp-k">Le pain quotidien</span>
+          <span className="tp-t">Lire la méditation du jour ›</span>
+        </Link>
       </main>
     </>
   );

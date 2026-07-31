@@ -383,6 +383,14 @@ html[data-mode="soir"] .word .wlang.ar{background:#2a1f16;color:#e0a877}
 .vs .vstar{color:var(--accent);font-size:12px;margin-right:5px;vertical-align:2px;opacity:.85}
 .vs.famous{background:linear-gradient(transparent 62%, var(--accent-soft) 62%)}
 
+/* Bouton vers le pain quotidien, en bas de la page Priere */
+.to-pain{display:flex;flex-direction:column;gap:4px;margin-top:30px;padding:22px 26px;
+ border:1px solid var(--line);border-radius:var(--r-sm);background:var(--surface-2);
+ text-decoration:none;transition:.28s var(--ease)}
+.to-pain:hover{border-color:var(--accent-line);background:var(--accent-soft)}
+.tp-k{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);font-weight:640}
+.tp-t{font-family:var(--serif);font-size:19px;font-weight:600;letter-spacing:-.015em;color:var(--ink)}
+
 /* Navigation des jours par mois / annee */
 .daynav{margin-bottom:20px}
 .dn-months{display:flex;gap:7px;flex-wrap:wrap;justify-content:center;margin-bottom:14px}

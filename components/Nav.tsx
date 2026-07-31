@@ -6,7 +6,7 @@ import SignIn from './SignIn';
 import Brand from './Brand';
 
 const TABS = [
-  { href: '/',          label: 'Matin' },
+  { href: '/pain',      label: 'Matin' },
   { href: '/priere',    label: 'Prière' },
   { href: '/soir',      label: 'Soir' },
   { href: '/lire',      label: 'Lire' },
@@ -22,7 +22,7 @@ const TABS = [
 
 /* Icones de la barre mobile, une par onglet. */
 const ICONS: Record<string, JSX.Element> = {
-  '/': <path d="M12 3v2M5 12H3m18 0h-2M6 6 4.5 4.5M18 6l1.5-1.5M12 8a4 4 0 100 8 4 4 0 000-8zM4 20h16" />,
+  '/pain': <path d="M12 3v2M5 12H3m18 0h-2M6 6 4.5 4.5M18 6l1.5-1.5M12 8a4 4 0 100 8 4 4 0 000-8zM4 20h16" />,
   '/priere': <path d="M12 3c-1.6 2.8-4.2 4.7-4.2 8a4.2 4.2 0 008.4 0c0-3.3-2.6-5.2-4.2-8z" />,
   '/temoigner': <path d="M21 12a8 8 0 01-11.6 7.1L4 20l1-4.4A8 8 0 1121 12z" />,
   '/soir': <path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z" />,
