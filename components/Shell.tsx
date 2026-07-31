@@ -1,9 +1,12 @@
-import Link from 'next/link';
 import Nav from './Nav';
 import Readings from './Readings';
 import DayActions from './DayActions';
+import DayNav from './DayNav';
 
-type Props = { day: any; readings: any[]; user: any; archive?: boolean; recentDays?: string[] };
+type Props = {
+  day: any; readings: any[]; user: any; archive?: boolean;
+  recentDays?: string[]; translationName?: string;
+};
 
 const fdate = (d: string) => {
   const [y, m, j] = d.split('-').map(Number);
@@ -12,7 +15,7 @@ const fdate = (d: string) => {
   return s[0].toUpperCase() + s.slice(1);
 };
 
-export default function Shell({ day, readings, user, archive, recentDays }: Props) {
+export default function Shell({ day, readings, user, archive, recentDays, translationName }: Props) {
   return (
     <>
       <Nav user={user} />
@@ -25,15 +28,7 @@ export default function Shell({ day, readings, user, archive, recentDays }: Prop
         </header>
 
         {recentDays && recentDays.length > 0 && (
-          <div className="day-pills">
-            {recentDays.map(d => (
-              <Link key={d} href={`/jour/${d}`} className={`day-pill${d === day.date ? ' active' : ''}`}
-                    title={d}>
-                {+d.slice(8, 10)}
-              </Link>
-            ))}
-            <Link href="/jours" className="day-pill more" title="Tous les jours">›</Link>
-          </div>
+          <DayNav days={recentDays} current={day.date} />
         )}
 
         <div className="prayer opening">
@@ -50,7 +45,7 @@ export default function Shell({ day, readings, user, archive, recentDays }: Prop
 
         <h2 className="sect">Les lectures du jour</h2>
         <p className="sub">Touchez une lecture pour déplier le texte intégral et son résumé.</p>
-        <Readings readings={readings} user={user} />
+        <Readings readings={readings} user={user} translationName={translationName} />
 
         <div className="card verse">
           <blockquote>{day.verse_text}</blockquote>

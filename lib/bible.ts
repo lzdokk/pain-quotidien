@@ -72,6 +72,34 @@ export async function getVerses(translation: string, book: number, chapter: numb
   return (data ?? []) as Verse[];
 }
 
+/** Traduction Bible du Semeur (BDS), avec repli sur Segond 1910. */
+export async function bdsTranslation(): Promise<{ code: string; name: string }> {
+  const { data } = await admin.from('translations').select('code, name').eq('enabled', true);
+  const bds = (data ?? []).find((t: any) => /semeur|\bbds\b/i.test(`${t.code} ${t.name}`));
+  return bds ?? { code: 'FRLSG', name: 'Segond 1910' };
+}
+
+/**
+ * Recharge le texte des lectures du jour dans une traduction donnee (BDS par
+ * defaut), en (re)calculant book/chapter au passage. Sans cela, les lectures
+ * generees avant l'ajout de book/chapter n'affichaient aucun verset. Repli
+ * silencieux sur le texte deja stocke si la reference ne se resout pas.
+ */
+export async function readingsWithTranslation(readings: any[], translation: string) {
+  return Promise.all((readings ?? []).map(async (r: any) => {
+    try {
+      const p = await getPassage(r.reference, translation);
+      if (p && p.verses.length) {
+        return {
+          ...r, book: p.book, chapter: p.chapter,
+          verses: p.verses.map(v => [v.verse, v.text] as [number, string])
+        };
+      }
+    } catch { /* repli ci-dessous */ }
+    return r;
+  }));
+}
+
 /** Recupere le texte d'une reference complete, dans la traduction demandee. */
 export async function getPassage(ref: string, translation = 'FRLSG') {
   const parsed = parseRef(ref);

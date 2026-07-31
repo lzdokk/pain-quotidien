@@ -1,6 +1,7 @@
 import { supabaseServer } from '@/lib/supabase/server';
 import Shell from '@/components/Shell';
 import { parisDate } from '@/lib/date';
+import { bdsTranslation, readingsWithTranslation } from '@/lib/bible';
 
 export const revalidate = 3600;
 
@@ -14,11 +15,14 @@ export default async function Home() {
   const { data: readings } = await sb.from('readings')
     .select('*').eq('date', today).order('position');
 
+  const bds = await bdsTranslation();
+  const readingsBds = await readingsWithTranslation(readings ?? [], bds.code);
+
   const { data: { user } } = await sb.auth.getUser();
 
   const { data: recent } = await sb.from('daily_bread')
     .select('date').eq('published', true).lte('date', today)
-    .order('date', { ascending: false }).limit(10);
+    .order('date', { ascending: false }).limit(62);
   const recentDays = (recent ?? []).map(d => d.date).reverse();
 
   if (!day) {
@@ -32,5 +36,6 @@ export default async function Home() {
       </main>
     );
   }
-  return <Shell day={day} readings={readings ?? []} user={user} recentDays={recentDays} />;
+  return <Shell day={day} readings={readingsBds} user={user} recentDays={recentDays}
+                translationName={bds.name} />;
 }

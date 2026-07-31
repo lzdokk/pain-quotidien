@@ -6,7 +6,8 @@ import { usePathname } from 'next/navigation';
 const SUBTABS = [
   { href: '/paraboles', label: 'Paraboles' },
   { href: '/mots', label: 'Mots' },
-  { href: '/versets', label: 'Versets' }
+  { href: '/versets', label: 'Versets' },
+  { href: '/questions', label: 'Questions' }
 ];
 
 export default function LearnTabs() {

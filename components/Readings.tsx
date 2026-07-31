@@ -3,7 +3,8 @@ import { useState } from 'react';
 import VerseActions from './VerseActions';
 
 /** Les lectures du jour. Un seul volet ouvert a la fois. */
-export default function Readings({ readings, user }: { readings: any[]; user?: any }) {
+export default function Readings({ readings, user, translationName }:
+  { readings: any[]; user?: any; translationName?: string }) {
   const [open, setOpen] = useState<number | null>(null);
 
   return (
@@ -25,6 +26,9 @@ export default function Readings({ readings, user }: { readings: any[]; user?: a
             </button>
 
             <div className="rd-body">
+              {verses.length > 0 && (
+                <div className="rd-trad">{r.reference.toUpperCase()} · {translationName ?? 'Bible du Semeur'}</div>
+              )}
               <VerseActions book={r.book ?? null} chapter={r.chapter ?? null}
                             bookName={(r.reference.match(/^(.*?)\s+\d+/) ?? [null, r.reference])[1]}
                             verses={verses} user={user} />

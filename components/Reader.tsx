@@ -318,7 +318,7 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
       <p className="sub">Touchez le titre du chapitre pour son introduction, un verset pour le surligner ou l&rsquo;annoter.</p>
 
       <div className="card">
-        <div style={{ padding: '24px 30px 4px' }}>
+        <div style={{ padding: '24px 30px 26px' }}>
           <input className="field" type="search" value={search}
                  onChange={e => setSearch(e.target.value)}
                  onKeyDown={e => { if (e.key === 'Enter') runSearch(); }}

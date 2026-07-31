@@ -1,6 +1,7 @@
 'use client';
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
+import LearnTabs from './LearnTabs';
 
 const LIMIT = 8;
 
@@ -57,8 +58,9 @@ export default function QuestionBrowser({ faq, user, used }: any) {
 
   return (
     <main className="wrap">
+      <LearnTabs />
       <header className="hero">
-        <div className="eyebrow">Questions</div>
+        <div className="eyebrow">Apprendre · Questions</div>
         <h1>Les questions<br />que tout le monde<br />se pose</h1>
         <p className="lede">{faq.length} réponses déjà redigees, chacune avec une parabole. Et si la votre n&rsquo;y est pas, posez-la.</p>
       </header>

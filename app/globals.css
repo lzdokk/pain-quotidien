@@ -148,6 +148,7 @@ h3{font-size:18px;font-weight:600;letter-spacing:-.017em;line-height:1.35}
 .scripture p{font-family:var(--serif);font-size:17.5px;line-height:1.85;color:var(--ink);margin:0}
 .scripture p + p{margin-top:13px}
 .scripture .v{font-family:var(--sans);font-size:10.5px;font-weight:660;color:var(--accent);vertical-align:.5em;margin-right:4px;letter-spacing:0}
+.rd-trad{font-size:11px;font-weight:640;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-bottom:12px}
 .rd-sum{margin-top:22px;background:var(--surface-2);border-radius:var(--r-sm);padding:20px 22px}
 .rd-sum strong{display:block;font-size:11px;font-weight:640;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin-bottom:9px}
 .rd-sum p{font-size:15.5px;line-height:1.68;color:var(--ink-2)}
@@ -381,6 +382,18 @@ html[data-mode="soir"] .word .wlang.ar{background:#2a1f16;color:#e0a877}
 /* Petite etoile sur les versets celebres dans le lecteur */
 .vs .vstar{color:var(--accent);font-size:12px;margin-right:5px;vertical-align:2px;opacity:.85}
 .vs.famous{background:linear-gradient(transparent 62%, var(--accent-soft) 62%)}
+
+/* Navigation des jours par mois / annee */
+.daynav{margin-bottom:20px}
+.dn-months{display:flex;gap:7px;flex-wrap:wrap;justify-content:center;margin-bottom:14px}
+.dn-month{border:1px solid var(--line-2);background:transparent;color:var(--ink-2);font:inherit;
+ font-size:13px;font-weight:560;padding:7px 15px;border-radius:99px;cursor:pointer;transition:.26s var(--ease)}
+.dn-month:hover{border-color:var(--accent-line);color:var(--ink)}
+.dn-month[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+html[data-mode="soir"] .dn-month[aria-selected="true"]{color:#0E141A}
+.dn-title{text-align:center;font-family:var(--serif);font-size:16px;font-weight:600;letter-spacing:-.01em;
+ color:var(--ink-2);margin-bottom:13px}
+.daynav .day-pills{margin-bottom:0}
 
 .day-pills{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:center;margin-bottom:20px}
 .day-pill{width:34px;height:34px;border-radius:99px;display:grid;place-items:center;text-decoration:none;
