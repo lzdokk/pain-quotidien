@@ -1,0 +1,18 @@
+name: Paraboles (catalogue Apprendre)
+
+# Remplit le catalogue de paraboles theme par theme (vagues). Le palier
+# gratuit Gemini limite a ~20 requetes/minute : on avance par petits paquets,
+# plusieurs fois par jour, jusqu'a un catalogue complet.
+on:
+  schedule:
+    - cron: '10 */3 * * *'
+  workflow_dispatch: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Appeler /api/cron/parables
+        run: |
+          curl -sf -X GET "${{ secrets.SITE_URL }}/api/cron/parables?batch=3" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"
