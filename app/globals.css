@@ -390,6 +390,32 @@ html[data-mode="soir"] .word .wlang.ar{background:#2a1f16;color:#e0a877}
 .day-pill.active{background:var(--accent);border-color:var(--accent);color:#fff}
 .day-pill.more{background:var(--accent-soft);color:var(--accent);font-size:16px}
 
+/* Chapitres cliquables dans les lectures du cursus */
+.rlink{color:var(--accent);font-weight:640;text-decoration:none;border-bottom:1px solid var(--accent-line);
+ padding:0 1px;transition:.2s var(--ease)}
+.rlink:hover{border-bottom-color:var(--accent);background:var(--accent-soft)}
+
+/* Sous-onglets de la section Apprendre */
+.learn-tabs{display:flex;gap:6px;margin:0 0 26px;padding:5px;background:var(--surface-2);
+ border:1px solid var(--line);border-radius:99px;width:fit-content;max-width:100%;flex-wrap:wrap}
+.learn-tab{flex:none;padding:9px 20px;border-radius:99px;font-size:14px;font-weight:560;letter-spacing:-.01em;
+ color:var(--ink-2);text-decoration:none;transition:.28s var(--ease);white-space:nowrap}
+.learn-tab:hover{color:var(--ink)}
+.learn-tab[aria-selected="true"]{background:var(--accent);color:#fff}
+html[data-mode="soir"] .learn-tab[aria-selected="true"]{color:#0E141A}
+@media(max-width:560px){.learn-tabs{width:100%;justify-content:center}}
+
+/* Navigation chapitre en bas du lecteur */
+.chap-foot{display:flex;gap:12px;margin-top:30px;padding-top:24px;border-top:1px solid var(--line)}
+.chap-move{flex:1;display:flex;flex-direction:column;gap:4px;padding:16px 20px;border:1px solid var(--line-2);
+ border-radius:var(--r-sm);background:transparent;cursor:pointer;text-align:left;transition:.28s var(--ease)}
+.chap-move.next{align-items:flex-end;text-align:right}
+.chap-move:hover:not(:disabled){border-color:var(--accent-line);background:var(--surface-2)}
+.chap-move:disabled{opacity:.35;cursor:default}
+.cm-dir{font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3);font-weight:640}
+.cm-ref{font-family:var(--serif);font-size:16px;font-weight:600;letter-spacing:-.015em;color:var(--ink)}
+@media(max-width:560px){.chap-move{padding:13px 15px}}
+
 .chips{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 4px}
 .chip{border:1px solid var(--line-2);background:transparent;color:var(--ink-2);font:inherit;font-size:13px;font-weight:520;
  padding:7px 15px;border-radius:99px;cursor:pointer;transition:.28s var(--ease)}

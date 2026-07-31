@@ -1,5 +1,6 @@
 'use client';
 import { useMemo, useState } from 'react';
+import LearnTabs from './LearnTabs';
 
 /**
  * Base des mots importants (hebreu / arameen / grec), tiree des livrets de
@@ -27,6 +28,7 @@ export default function WordsBrowser({ words }: { words: any[] }) {
 
   return (
     <main className="wrap">
+      <LearnTabs />
       <header className="hero">
         <div className="eyebrow">Les mots</div>
         <h1>Le sens profond<br />des mots d&rsquo;origine</h1>

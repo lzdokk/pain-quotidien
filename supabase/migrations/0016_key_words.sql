@@ -1,3 +1,0 @@
--- (Volontairement vide.) La base des mots existe deja : voir 0016_bible_words.sql
--- et la page /mots. L'enrichissement des Noms de Dieu se fait dans
--- 0017_bible_words_noms.sql. Ce fichier n'est ni livre ni execute.

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { supabaseServer } from '@/lib/supabase/server';
 import Nav from '@/components/Nav';
+import LearnTabs from '@/components/LearnTabs';
 import { THEMES } from '@/lib/prompts/parable';
 
 export const revalidate = 3600;
@@ -23,8 +24,9 @@ export default async function Paraboles() {
     <>
       <Nav user={user} />
       <main className="wrap">
+        <LearnTabs />
         <header className="hero">
-          <div className="eyebrow">Paraboles</div>
+          <div className="eyebrow">Apprendre · Paraboles</div>
           <h1>La théologie<br />racontée</h1>
           <p className="lede">
             Un point à la fois, une histoire pour le faire sentir avant de l&rsquo;expliquer.

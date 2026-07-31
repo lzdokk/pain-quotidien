@@ -10,9 +10,7 @@ const TABS = [
   { href: '/priere',    label: 'Prière' },
   { href: '/soir',      label: 'Soir' },
   { href: '/lire',      label: 'Lire' },
-  { href: '/mots',      label: 'Mots' },
-  { href: '/versets',   label: 'Versets' },
-  { href: '/paraboles', label: 'Paraboles' },
+  { href: '/paraboles', label: 'Apprendre', match: ['/paraboles', '/mots', '/versets'] },
   // Lexique masque tant que la mise en francais n'est pas complete.
   // Pour le reactiver : remettre la ligne ci-dessous.
   // { href: '/lexique',   label: 'Lexique' },
@@ -42,7 +40,10 @@ export default function Nav({ user }: { user: any }) {
   const [sheet, setSheet] = useState(false);
   const path = usePathname();
   const initial = user?.user_metadata?.full_name?.[0] ?? user?.email?.[0] ?? '';
-  const active = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
+  const isActive = (t: { href: string; match?: string[] }) => {
+    if (t.match) return t.match.some(m => path === m || path.startsWith(m + '/') || path.startsWith(m));
+    return t.href === '/' ? path === '/' : path.startsWith(t.href);
+  };
 
   const toggleMode = () => {
     const el = document.documentElement;
@@ -62,7 +63,7 @@ export default function Nav({ user }: { user: any }) {
 
           <div className="tabs" role="tablist">
             {TABS.map(t => (
-              <Link key={t.href} href={t.href} className="tab" aria-selected={active(t.href)}>{t.label}</Link>
+              <Link key={t.href} href={t.href} className="tab" aria-selected={isActive(t)}>{t.label}</Link>
             ))}
           </div>
 
@@ -88,7 +89,7 @@ export default function Nav({ user }: { user: any }) {
       {/* Barre d'onglets mobile, en bas comme une application */}
       <nav className="tabbar">
         {TABS.map(t => (
-          <Link key={t.href} href={t.href} aria-current={active(t.href)}>
+          <Link key={t.href} href={t.href} aria-current={isActive(t)}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"
                  strokeLinecap="round" strokeLinejoin="round">{ICONS[t.href]}</svg>
             <span>{t.label}</span>

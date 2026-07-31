@@ -4,6 +4,7 @@ import { supabaseServer } from '@/lib/supabase/server';
 import Nav from '@/components/Nav';
 import ValidateCourse from '@/components/ValidateCourse';
 import CourseHomework from '@/components/CourseHomework';
+import ReadingLinks from '@/components/ReadingLinks';
 
 export const revalidate = 86400;
 const KIND: Record<string, string> = { E: 'Exegese', D: 'Doctrine', P: 'Pratique', G: 'Langue' };
@@ -72,7 +73,7 @@ export default async function Fiche({ params }: { params: Promise<{ code: string
                 <p>{c.key_verse}<br /><span className="ref-inline">{c.key_verse_ref}</span></p>
               </div>
               <h3 style={{ marginTop: 26 }}>Lectures obligatoires</h3>
-              <ul className="mlist">{(c.readings as string[]).map((r, i) => <li key={i}>{r}</li>)}</ul>
+              <ul className="mlist">{(c.readings as string[]).map((r, i) => <li key={i}><ReadingLinks text={r} /></li>)}</ul>
               <h3 style={{ marginTop: 22 }}>Travail a rendre</h3>
               <p style={{ marginTop: 8 }}>{c.assignment}</p>
               <ValidateCourse code={c.code} user={user} initial={Boolean(prog)} />
