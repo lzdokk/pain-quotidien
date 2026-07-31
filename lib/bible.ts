@@ -47,12 +47,17 @@ export function parseRef(ref: string) {
   const chapter = alt ? +alt[1] : +m[2];
   const rest = c2.replace(/\(\d+\)/, '').replace(/^.+?\s+\d+[.,:]?/, '');
   const verses: number[] = [];
+  // AELF decoupe parfois un verset en sous-parties (« 5AB », « 5CD ») : on
+  // tolere donc des lettres apres le chiffre pour ne PAS perdre le verset.
   rest.split(/[.,;]/).forEach(part => {
-    const range = part.trim().match(/^(\d+)\s*-\s*(\d+)$/);
+    const t = part.trim();
+    const range = t.match(/^(\d+)[a-z]*\s*-\s*(\d+)[a-z]*$/i);
+    const single = t.match(/^(\d+)[a-z]*$/i);
     if (range) { for (let v = +range[1]; v <= +range[2]; v++) verses.push(v); }
-    else if (/^\d+$/.test(part.trim())) verses.push(+part.trim());
+    else if (single) verses.push(+single[1]);
   });
-  return { name, chapter, verses };
+  // Dedoublonne (5AB + 5CD → 5 une seule fois) et remet dans l'ordre.
+  return { name, chapter, verses: [...new Set(verses)].sort((a, b) => a - b) };
 }
 
 export async function bookIdByName(name: string) {
