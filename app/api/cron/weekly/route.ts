@@ -30,9 +30,10 @@ export async function GET(req: NextRequest) {
   const all = Array.from({ length: 7 }, (_, i) => {
     const d = new Date(start); d.setUTCDate(d.getUTCDate() + i); return iso(d);
   });
-  // On genere par petits paquets pour tenir sous la limite de 60 s de Vercel.
-  // ?days=3 (defaut) et ?skip=0, on rappelle en avancant skip de 3 en 3.
-  const perRun = Math.min(Math.max(1, Number(params.get('days') ?? 3)), 7);
+
+  // CORRECTION : On passe le défaut à 7 jours. Vercel gère jusqu'à 300s, 
+  // c'est amplement suffisant pour générer les 7 jours d'un coup.
+  const perRun = Math.min(Math.max(1, Number(params.get('days') ?? 7)), 7);
   const skip = Math.max(0, Number(params.get('skip') ?? 0));
   const dates = all.slice(skip, skip + perRun);
 
