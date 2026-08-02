@@ -50,24 +50,6 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
   const bookName = books.find((b: any) => b.id === book)?.name ?? '';
   const chapters = books.find((b: any) => b.id === book)?.chapters ?? 1;
   const visibleTranslations = useMemo(() => translations.filter((t: any) => !HIDDEN_TRAD(t)), [translations]);
-
-  // Navigation chapitre : ou aller quand on arrive en bas.
-  const prevBook = books.find((b: any) => b.id === book - 1);
-  const nextBook = books.find((b: any) => b.id === book + 1);
-  const prevLabel = chapter > 1 ? `${bookName} ${chapter - 1}`
-    : prevBook ? `${prevBook.name} ${prevBook.chapters}` : null;
-  const nextLabel = chapter < chapters ? `${bookName} ${chapter + 1}`
-    : nextBook ? `${nextBook.name} 1` : null;
-  const goPrev = () => {
-    if (chapter > 1) setChapter(chapter - 1);
-    else if (prevBook) { setBook(prevBook.id); setChapter(prevBook.chapters); }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-  const goNext = () => {
-    if (chapter < chapters) setChapter(chapter + 1);
-    else if (nextBook) { setBook(nextBook.id); setChapter(1); }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
   const intro = useMemo(
     () => (intros ?? []).find((x: any) => x.book === book) ?? null,
     [intros, book]
@@ -318,7 +300,7 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
       <p className="sub">Touchez le titre du chapitre pour son introduction, un verset pour le surligner ou l&rsquo;annoter.</p>
 
       <div className="card">
-        <div style={{ padding: '24px 30px 26px' }}>
+        <div style={{ padding: '24px 30px 4px' }}>
           <input className="field" type="search" value={search}
                  onChange={e => setSearch(e.target.value)}
                  onKeyDown={e => { if (e.key === 'Enter') runSearch(); }}
@@ -447,19 +429,6 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
                 </div>
               </div>
             )}
-          </div>
-        )}
-
-        {!loading && verses.length > 0 && (
-          <div className="chap-foot">
-            <button className="chap-move" disabled={!prevLabel} onClick={goPrev}>
-              <span className="cm-dir">‹ Précédent</span>
-              {prevLabel && <span className="cm-ref">{prevLabel}</span>}
-            </button>
-            <button className="chap-move next" disabled={!nextLabel} onClick={goNext}>
-              <span className="cm-dir">Suivant ›</span>
-              {nextLabel && <span className="cm-ref">{nextLabel}</span>}
-            </button>
           </div>
         )}
       </div>

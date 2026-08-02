@@ -1,7 +1,6 @@
 'use client';
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
-import LearnTabs from './LearnTabs';
 
 /**
  * Les versets les plus connus et importants du christianisme. Recherche +
@@ -26,7 +25,6 @@ export default function VersesBrowser({ verses }: { verses: any[] }) {
 
   return (
     <main className="wrap">
-      <LearnTabs />
       <header className="hero">
         <div className="eyebrow">Les versets</div>
         <h1>Les versets<br />à connaître</h1>
