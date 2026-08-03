@@ -1,12 +1,15 @@
 /* ══════════════════════════════════════════════════════════════════
-   COUCHE MODELE, INTERCHANGEABLE
-   Le fournisseur se choisit dans .env avec LLM_PROVIDER.
-     gemini    → Google AI Studio, palier gratuit, 1500 requetes/jour
-     groq      → Groq, gratuit, 1000 requetes/jour
-     mistral   → Mistral, gratuit, environ 1 milliard de tokens/mois
-     cerebras  → Cerebras, gratuit, environ 1 million de tokens/jour
-     anthropic → Claude, payant, la meilleure qualite
-     none      → aucun appel, le contenu vient d'un import manuel
+   COUCHE MODELE, INTERCHANGEABLE + POOL MULTI-CLES
+   -----------------------------------------------------------------
+   Mode simple  : LLM_PROVIDER = mistral|gemini|groq|cerebras|anthropic
+   Mode pool    : LLM_POOL = "mistral, gemini, groq, cerebras"
+                  Chaque appel pioche a tour de role (round-robin) ; si une
+                  cle renvoie 429/erreur, on bascule AUTOMATIQUEMENT sur la
+                  suivante. Chaque fournisseur a son propre quota gratuit :
+                  on additionne les reserves et on n'est quasi jamais bloque.
+
+   Plusieurs cles d'un meme fournisseur : "gemini, gemini:GOOGLE_AI_KEY2"
+   (la 2e utilise la variable d'env GOOGLE_AI_KEY2).
    ══════════════════════════════════════════════════════════════════ */
 import { z } from 'zod';
 
@@ -16,68 +19,71 @@ export const PROVIDER = (process.env.LLM_PROVIDER ?? 'gemini') as Provider;
 type Call = { system: string; user: string; maxTokens?: number; temperature?: number; responseSchema?: any };
 type Raw = { text: string; input: number; output: number };
 
-/* Tarifs en dollars par million de tokens. Zero pour les paliers gratuits. */
+/* Variable d'env de la cle, par fournisseur (valeur par defaut). */
+const KEY_ENV: Record<Provider, string> = {
+  gemini: 'GOOGLE_AI_KEY', groq: 'GROQ_API_KEY', mistral: 'MISTRAL_API_KEY',
+  cerebras: 'CEREBRAS_API_KEY', anthropic: 'ANTHROPIC_API_KEY', none: ''
+};
+
+/* Modele par fournisseur : rapide et compatible palier gratuit / Vercel Hobby.
+   Surchageable par variable d'env dediee (ex. MISTRAL_MODEL). */
+const MODEL_ENV: Record<Provider, string> = {
+  gemini: 'GEMINI_MODEL', groq: 'GROQ_MODEL', mistral: 'MISTRAL_MODEL',
+  cerebras: 'CEREBRAS_MODEL', anthropic: 'ANTHROPIC_MODEL', none: ''
+};
+const MODEL_DEFAULT: Record<Provider, string> = {
+  gemini: 'gemini-flash-latest',
+  groq: 'llama-3.3-70b-versatile',
+  mistral: 'mistral-small-latest',
+  cerebras: 'llama-3.3-70b',
+  anthropic: 'claude-sonnet-5',
+  none: 'aucun'
+};
+const modelFor = (p: Provider) => process.env[MODEL_ENV[p]] || MODEL_DEFAULT[p];
+
+/* Tarifs $/million de tokens. Zero pour les paliers gratuits. */
 const PRICING: Record<Provider, [number, number]> = {
   gemini: [0, 0], groq: [0, 0], mistral: [0, 0], cerebras: [0, 0],
   anthropic: [3, 15], none: [0, 0]
 };
 
-const MODELS: Record<Provider, string> = {
-  gemini:   process.env.LLM_MODEL ?? 'gemini-2.5-flash',
-  groq:     process.env.LLM_MODEL ?? 'llama-3.3-70b-versatile',
-  mistral:  process.env.LLM_MODEL ?? 'mistral-large-latest',
-  cerebras: process.env.LLM_MODEL ?? 'llama-3.3-70b',
-  anthropic: process.env.LLM_MODEL ?? 'claude-sonnet-5',
-  none: 'aucun'
-};
+/* ── Le pool ──────────────────────────────────────────────────────── */
+type PoolEntry = { provider: Provider; keyEnv: string };
 
-export const modelName = () => MODELS[PROVIDER];
+function parsePool(): PoolEntry[] {
+  const raw = process.env.LLM_POOL;
+  if (!raw) return [];
+  return raw.split(',').map(s => s.trim()).filter(Boolean).map(tok => {
+    const [prov, keyEnv] = tok.split(':').map(x => x.trim());
+    const provider = prov as Provider;
+    return { provider, keyEnv: keyEnv || KEY_ENV[provider] };
+  }).filter(e => KEY_ENV[e.provider] && process.env[e.keyEnv]); // n'garde que les cles reellement presentes
+}
+const POOL = parsePool();
+
+export const modelName = () =>
+  POOL.length ? `pool(${POOL.map(e => e.provider).join('+')})` : modelFor(PROVIDER);
 export const cost = (i: number, o: number) => {
-  const [pi, po] = PRICING[PROVIDER];
+  // Cout base sur le fournisseur primaire (les paliers gratuits sont a 0).
+  const [pi, po] = PRICING[POOL[0]?.provider ?? PROVIDER];
   return (i / 1e6) * pi + (o / 1e6) * po;
 };
 
-/* ── Google AI Studio, palier gratuit ─────────────────────────────
-   1 500 requetes par jour, aucune carte bancaire.
-   Depuis l'Union europeenne, les donnees ne servent pas a l'entrainement. */
-async function gemini(c: Call): Promise<Raw> {
-  const r = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${MODELS.gemini}:generateContent?key=${process.env.GOOGLE_AI_KEY}`,
-    {
-      method: 'POST', headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({
-        system_instruction: { parts: [{ text: c.system }] },
-        contents: [{ role: 'user', parts: [{ text: c.user }] }],
-        generationConfig: {
-          responseMimeType: 'application/json',
-          ...(c.responseSchema ? { responseSchema: c.responseSchema } : {}),
-          maxOutputTokens: c.maxTokens ?? 32000,
-          temperature: c.temperature ?? 0.7
-        }
-      })
-    });
-  if (!r.ok) throw new Error(`Gemini ${r.status} : ${await r.text()}`);
-  const j = await r.json();
-  return {
-    text: j.candidates?.[0]?.content?.parts?.map((p: any) => p.text).join('') ?? '',
-    input: j.usageMetadata?.promptTokenCount ?? 0,
-    output: j.usageMetadata?.candidatesTokenCount ?? 0
-  };
+/* Erreur avec code HTTP, pour decider s'il faut basculer de cle. */
+class LLMError extends Error {
+  status: number;
+  constructor(status: number, message: string) { super(message); this.status = status; }
 }
-
-/* ── Groq, Mistral, Cerebras : API compatible OpenAI ─────────────── */
-const OPENAI_LIKE: Partial<Record<Provider, { url: string; key: string }>> = {
-  groq:     { url: 'https://api.groq.com/openai/v1/chat/completions',   key: 'GROQ_API_KEY' },
-  mistral:  { url: 'https://api.mistral.ai/v1/chat/completions',        key: 'MISTRAL_API_KEY' },
-  cerebras: { url: 'https://api.cerebras.ai/v1/chat/completions',       key: 'CEREBRAS_API_KEY' }
+/* On bascule sur la cle suivante en cas de quota (429), panne serveur (5xx),
+   ou probleme d'authentification/format (401/403/400 : cle ou API differente). */
+const isRetryable = (e: any) => {
+  const s = e instanceof LLMError ? e.status : 0;
+  return s === 0 || s === 429 || s === 400 || s === 401 || s === 403 || (s >= 500 && s < 600);
 };
 
 /**
- * Convertit un schema Gemini (types en MAJUSCULES : OBJECT, STRING, ARRAY…)
- * en JSON Schema standard (minuscules), pour les fournisseurs compatibles
- * OpenAI. Sans cela, Mistral ne recoit aucune contrainte de structure et
- * renvoie parfois des champs mal nommes (ex. `unpacking[].h` manquant), ce qui
- * fait echouer la validation. Avec le schema, la sortie est fiable.
+ * Convertit un schema Gemini (types MAJUSCULES) en JSON Schema standard, pour
+ * les fournisseurs compatibles OpenAI qui savent contraindre la sortie.
  */
 function geminiToJsonSchema(s: any): any {
   if (!s || typeof s !== 'object') return s;
@@ -95,24 +101,58 @@ function geminiToJsonSchema(s: any): any {
   return out;
 }
 
-async function openaiLike(p: Provider, c: Call): Promise<Raw> {
-  const cfg = OPENAI_LIKE[p]!;
-  const jsonSchema = c.responseSchema ? geminiToJsonSchema(c.responseSchema) : null;
-  const responseFormat = jsonSchema
-    ? { type: 'json_schema', json_schema: { name: 'result', schema: jsonSchema, strict: true } }
+/* ── Google AI Studio ─────────────────────────────────────────────── */
+async function gemini(c: Call, key: string, model: string): Promise<Raw> {
+  const r = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`,
+    {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        system_instruction: { parts: [{ text: c.system }] },
+        contents: [{ role: 'user', parts: [{ text: c.user }] }],
+        generationConfig: {
+          responseMimeType: 'application/json',
+          ...(c.responseSchema ? { responseSchema: c.responseSchema } : {}),
+          maxOutputTokens: c.maxTokens ?? 32000,
+          temperature: c.temperature ?? 0.7
+        }
+      })
+    });
+  if (!r.ok) throw new LLMError(r.status, `gemini ${r.status} : ${(await r.text()).slice(0, 200)}`);
+  const j = await r.json();
+  return {
+    text: j.candidates?.[0]?.content?.parts?.map((p: any) => p.text).join('') ?? '',
+    input: j.usageMetadata?.promptTokenCount ?? 0,
+    output: j.usageMetadata?.candidatesTokenCount ?? 0
+  };
+}
+
+/* ── Groq, Mistral, Cerebras : API compatible OpenAI ─────────────── */
+const OPENAI_URL: Partial<Record<Provider, string>> = {
+  groq: 'https://api.groq.com/openai/v1/chat/completions',
+  mistral: 'https://api.mistral.ai/v1/chat/completions',
+  cerebras: 'https://api.cerebras.ai/v1/chat/completions'
+};
+
+async function openaiLike(p: Provider, c: Call, key: string, model: string): Promise<Raw> {
+  // Seul Mistral applique de facon fiable un json_schema strict ; pour Groq et
+  // Cerebras on reste en json_object (le schema est decrit dans le prompt).
+  const useSchema = p === 'mistral' && c.responseSchema;
+  const responseFormat = useSchema
+    ? { type: 'json_schema', json_schema: { name: 'result', schema: geminiToJsonSchema(c.responseSchema), strict: true } }
     : { type: 'json_object' };
-  const r = await fetch(cfg.url, {
+  const r = await fetch(OPENAI_URL[p]!, {
     method: 'POST',
-    headers: { 'content-type': 'application/json', authorization: `Bearer ${process.env[cfg.key]}` },
+    headers: { 'content-type': 'application/json', authorization: `Bearer ${key}` },
     body: JSON.stringify({
-      model: MODELS[p],
+      model,
       response_format: responseFormat,
       max_tokens: c.maxTokens ?? 16000,
       temperature: c.temperature ?? 0.7,
       messages: [{ role: 'system', content: c.system }, { role: 'user', content: c.user }]
     })
   });
-  if (!r.ok) throw new Error(`${p} ${r.status} : ${await r.text()}`);
+  if (!r.ok) throw new LLMError(r.status, `${p} ${r.status} : ${(await r.text()).slice(0, 200)}`);
   const j = await r.json();
   return {
     text: j.choices?.[0]?.message?.content ?? '',
@@ -122,11 +162,11 @@ async function openaiLike(p: Provider, c: Call): Promise<Raw> {
 }
 
 /* ── Claude, payant ───────────────────────────────────────────────── */
-async function anthropic(c: Call): Promise<Raw> {
+async function anthropic(c: Call, key: string, model: string): Promise<Raw> {
   const { default: Anthropic } = await import('@anthropic-ai/sdk');
-  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! });
+  const client = new Anthropic({ apiKey: key });
   const res = await client.messages.create({
-    model: MODELS.anthropic, max_tokens: c.maxTokens ?? 8000,
+    model, max_tokens: c.maxTokens ?? 8000,
     temperature: c.temperature ?? 0.7, system: c.system,
     messages: [{ role: 'user', content: c.user }]
   });
@@ -137,17 +177,44 @@ async function anthropic(c: Call): Promise<Raw> {
   };
 }
 
-async function raw(c: Call): Promise<Raw> {
-  switch (PROVIDER) {
-    case 'gemini': return gemini(c);
-    case 'groq': case 'mistral': case 'cerebras': return openaiLike(PROVIDER, c);
-    case 'anthropic': return anthropic(c);
-    case 'none':
-      throw new Error(
-        "LLM_PROVIDER vaut 'none'. Aucun appel automatique n'est fait. " +
-        "Utilise npm run prompt:week puis npm run import:week."
-      );
+function callProvider(provider: Provider, c: Call, keyEnv: string): Promise<Raw> {
+  const key = process.env[keyEnv] ?? '';
+  const model = modelFor(provider);
+  switch (provider) {
+    case 'gemini': return gemini(c, key, model);
+    case 'groq': case 'mistral': case 'cerebras': return openaiLike(provider, c, key, model);
+    case 'anthropic': return anthropic(c, key, model);
+    default: throw new Error("Aucun fournisseur configure (LLM_PROVIDER='none').");
   }
+}
+
+/* Round-robin persistant dans l'instance serverless (repart a 0 au cold start). */
+let cursor = 0;
+
+async function raw(c: Call): Promise<Raw> {
+  // Mode simple : un seul fournisseur.
+  if (POOL.length === 0) {
+    if (PROVIDER === 'none') {
+      throw new Error("LLM_PROVIDER vaut 'none'. Configure un fournisseur ou LLM_POOL.");
+    }
+    return callProvider(PROVIDER, c, KEY_ENV[PROVIDER]);
+  }
+  // Mode pool : on part de la position courante puis on bascule en cas d'echec.
+  const n = POOL.length;
+  const start = cursor % n;
+  cursor = (cursor + 1) % n;
+  let lastErr: any;
+  for (let i = 0; i < n; i++) {
+    const entry = POOL[(start + i) % n];
+    try {
+      return await callProvider(entry.provider, c, entry.keyEnv);
+    } catch (e: any) {
+      lastErr = e;
+      if (!isRetryable(e)) throw e;
+      // sinon : on tente la cle suivante du pool
+    }
+  }
+  throw lastErr;
 }
 
 /** Texte libre. */
