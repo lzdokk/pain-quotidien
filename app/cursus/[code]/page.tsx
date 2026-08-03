@@ -27,6 +27,11 @@ export default async function Fiche({ params }: { params: Promise<{ code: string
         .order('created_at', { ascending: false }).limit(1).maybeSingle()
     : { data: null };
 
+  // Cours suivant du cursus (par ordre), pour enchainer apres validation.
+  const { data: nextC } = await sb.from('courses')
+    .select('code, title').gt('order_index', c.order_index)
+    .order('order_index').limit(1).maybeSingle();
+
   return (
     <>
       <Nav user={user} />
@@ -77,10 +82,11 @@ export default async function Fiche({ params }: { params: Promise<{ code: string
               <ul className="mlist">{(c.readings as string[]).map((r, i) => <li key={i}><ReadingLinks text={r} /></li>)}</ul>
               <h3 style={{ marginTop: 22 }}>Travail a rendre</h3>
               <p style={{ marginTop: 8 }}>{c.assignment}</p>
-              <ValidateCourse code={c.code} user={user} initial={Boolean(prog)} />
+              <ValidateCourse code={c.code} user={user} initial={Boolean(prog)}
+                              next={nextC ?? null} />
             </div>
 
-            <CourseHomework code={c.code} user={user} last={last} />
+            <CourseHomework code={c.code} user={user} last={last} title={c.title} />
           </>
         )}
       </main>

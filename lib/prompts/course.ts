@@ -1,13 +1,16 @@
 import { z } from 'zod';
 import { VOICE } from './voice';
 
+// Bornes tolerantes (et non des tailles exactes) : mistral-small ne produit
+// pas toujours le compte pile, et l'affichage parcourt simplement les
+// tableaux. Le prompt continue de demander ~4 objectifs, 3-4 sections, etc.
 export const CourseSchema = z.object({
-  objectives: z.array(z.string()).length(4),
+  objectives: z.array(z.string()).min(3).max(6),
   parable: z.string(),
-  body: z.array(z.object({ h: z.string(), p: z.array(z.string()).min(2).max(4) })).min(3).max(4),
+  body: z.array(z.object({ h: z.string(), p: z.array(z.string()).min(1).max(6) })).min(2).max(6),
   key_verse: z.string(),
   key_verse_ref: z.string(),
-  readings: z.array(z.string()).min(2).max(4),
+  readings: z.array(z.string()).min(1).max(6),
   assignment: z.string()
 });
 

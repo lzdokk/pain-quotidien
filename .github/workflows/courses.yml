@@ -1,0 +1,18 @@
+name: Génération du cursus (fiches de cours)
+
+# Remplit d'avance toutes les fiches de cours "planned" pour qu'aucun cours ne
+# reste en « Fiche en preparation ». Appelle /api/cron/courses plusieurs fois
+# par jour jusqu'a ce que tout le cursus soit genere.
+on:
+  schedule:
+    - cron: '25 */4 * * *'
+  workflow_dispatch: {}
+
+jobs:
+  gen:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Appeler /api/cron/courses
+        run: |
+          curl -sf -X GET "${{ secrets.SITE_URL }}/api/cron/courses?batch=4" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"

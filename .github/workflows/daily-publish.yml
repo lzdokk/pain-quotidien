@@ -1,0 +1,24 @@
+name: Publication quotidienne (filet GitHub)
+
+# Les crons Vercel Hobby ne se declenchent pas de facon fiable. Ce workflow
+# appelle /api/cron/daily plusieurs fois tot le matin (heure de Paris) pour
+# GARANTIR la publication du jour des que le nouveau jour a bascule (3h).
+# /api/cron/daily est idempotent : publier deux fois ne fait rien de mal, et
+# s'il manque un jour il le regenere immediatement (from=today).
+on:
+  schedule:
+    # 01:00 a 05:00 UTC = 02:00/03:00 -> 06:00/07:00 Paris selon la saison.
+    - cron: '5 1 * * *'
+    - cron: '5 2 * * *'
+    - cron: '5 3 * * *'
+    - cron: '5 4 * * *'
+  workflow_dispatch: {}
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Appeler /api/cron/daily
+        run: |
+          curl -sf -X GET "${{ secrets.SITE_URL }}/api/cron/daily" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"
