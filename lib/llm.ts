@@ -74,17 +74,14 @@ export const cost = (i: number, o: number) => {
   return (i / 1e6) * pi + (o / 1e6) * po;
 };
 
-/* Erreur avec code HTTP, pour decider s'il faut basculer de cle. */
+/* Erreur avec code HTTP (utile pour le journal). En mode pool, on bascule
+   sur la cle suivante quelle que soit l'erreur : quota (429), panne (5xx),
+   mauvaise cle (401/403), modele absent (404), requete refusee (400)… Une
+   cle qui echoue ne doit jamais bloquer tout le pool. */
 class LLMError extends Error {
   status: number;
   constructor(status: number, message: string) { super(message); this.status = status; }
 }
-/* On bascule sur la cle suivante en cas de quota (429), panne serveur (5xx),
-   ou probleme d'authentification/format (401/403/400 : cle ou API differente). */
-const isRetryable = (e: any) => {
-  const s = e instanceof LLMError ? e.status : 0;
-  return s === 0 || s === 429 || s === 400 || s === 401 || s === 403 || (s >= 500 && s < 600);
-};
 
 /**
  * Convertit un schema Gemini (types MAJUSCULES) en JSON Schema standard, pour
@@ -218,8 +215,7 @@ async function raw(c: Call): Promise<Raw> {
       return await callProvider(entry.provider, c, entry.keyEnv);
     } catch (e: any) {
       lastErr = e;
-      if (!isRetryable(e)) throw e;
-      // sinon : on tente la cle suivante du pool
+      // on tente toujours la cle suivante : une cle KO ne bloque pas le pool
     }
   }
   throw lastErr;
