@@ -13,7 +13,8 @@
    ══════════════════════════════════════════════════════════════════ */
 import { z } from 'zod';
 
-export type Provider = 'gemini' | 'groq' | 'mistral' | 'cerebras' | 'anthropic' | 'none';
+export type Provider = 'gemini' | 'groq' | 'mistral' | 'cerebras'
+  | 'nvidia' | 'openrouter' | 'anthropic' | 'none';
 export const PROVIDER = (process.env.LLM_PROVIDER ?? 'gemini') as Provider;
 
 type Call = { system: string; user: string; maxTokens?: number; temperature?: number; responseSchema?: any };
@@ -22,20 +23,24 @@ type Raw = { text: string; input: number; output: number };
 /* Variable d'env de la cle, par fournisseur (valeur par defaut). */
 const KEY_ENV: Record<Provider, string> = {
   gemini: 'GOOGLE_AI_KEY', groq: 'GROQ_API_KEY', mistral: 'MISTRAL_API_KEY',
-  cerebras: 'CEREBRAS_API_KEY', anthropic: 'ANTHROPIC_API_KEY', none: ''
+  cerebras: 'CEREBRAS_API_KEY', nvidia: 'NVIDIA_API_KEY', openrouter: 'OPENROUTER_API_KEY',
+  anthropic: 'ANTHROPIC_API_KEY', none: ''
 };
 
 /* Modele par fournisseur : rapide et compatible palier gratuit / Vercel Hobby.
    Surchageable par variable d'env dediee (ex. MISTRAL_MODEL). */
 const MODEL_ENV: Record<Provider, string> = {
   gemini: 'GEMINI_MODEL', groq: 'GROQ_MODEL', mistral: 'MISTRAL_MODEL',
-  cerebras: 'CEREBRAS_MODEL', anthropic: 'ANTHROPIC_MODEL', none: ''
+  cerebras: 'CEREBRAS_MODEL', nvidia: 'NVIDIA_MODEL', openrouter: 'OPENROUTER_MODEL',
+  anthropic: 'ANTHROPIC_MODEL', none: ''
 };
 const MODEL_DEFAULT: Record<Provider, string> = {
   gemini: 'gemini-flash-latest',
   groq: 'llama-3.3-70b-versatile',
   mistral: 'mistral-small-latest',
   cerebras: 'llama-3.3-70b',
+  nvidia: 'meta/llama-3.3-70b-instruct',
+  openrouter: 'meta-llama/llama-3.3-70b-instruct:free',
   anthropic: 'claude-sonnet-5',
   none: 'aucun'
 };
@@ -44,7 +49,7 @@ const modelFor = (p: Provider) => process.env[MODEL_ENV[p]] || MODEL_DEFAULT[p];
 /* Tarifs $/million de tokens. Zero pour les paliers gratuits. */
 const PRICING: Record<Provider, [number, number]> = {
   gemini: [0, 0], groq: [0, 0], mistral: [0, 0], cerebras: [0, 0],
-  anthropic: [3, 15], none: [0, 0]
+  nvidia: [0, 0], openrouter: [0, 0], anthropic: [3, 15], none: [0, 0]
 };
 
 /* ── Le pool ──────────────────────────────────────────────────────── */
@@ -131,7 +136,9 @@ async function gemini(c: Call, key: string, model: string): Promise<Raw> {
 const OPENAI_URL: Partial<Record<Provider, string>> = {
   groq: 'https://api.groq.com/openai/v1/chat/completions',
   mistral: 'https://api.mistral.ai/v1/chat/completions',
-  cerebras: 'https://api.cerebras.ai/v1/chat/completions'
+  cerebras: 'https://api.cerebras.ai/v1/chat/completions',
+  nvidia: 'https://integrate.api.nvidia.com/v1/chat/completions',
+  openrouter: 'https://openrouter.ai/api/v1/chat/completions'
 };
 
 async function openaiLike(p: Provider, c: Call, key: string, model: string): Promise<Raw> {
@@ -182,7 +189,8 @@ function callProvider(provider: Provider, c: Call, keyEnv: string): Promise<Raw>
   const model = modelFor(provider);
   switch (provider) {
     case 'gemini': return gemini(c, key, model);
-    case 'groq': case 'mistral': case 'cerebras': return openaiLike(provider, c, key, model);
+    case 'groq': case 'mistral': case 'cerebras': case 'nvidia': case 'openrouter':
+      return openaiLike(provider, c, key, model);
     case 'anthropic': return anthropic(c, key, model);
     default: throw new Error("Aucun fournisseur configure (LLM_PROVIDER='none').");
   }
