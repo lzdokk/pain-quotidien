@@ -6,17 +6,14 @@ import SignIn from './SignIn';
 import Brand from './Brand';
 
 const TABS = [
-  { href: '/',          label: 'Matin' },
+  { href: '/pain',      label: 'Matin' },
   { href: '/priere',    label: 'Prière' },
   { href: '/soir',      label: 'Soir' },
   { href: '/lire',      label: 'Lire' },
-  { href: '/mots',      label: 'Mots' },
-  { href: '/versets',   label: 'Versets' },
-  { href: '/paraboles', label: 'Paraboles' },
+  { href: '/paraboles', label: 'Apprendre', match: ['/paraboles', '/mots', '/versets', '/questions'] },
   // Lexique masque tant que la mise en francais n'est pas complete.
   // Pour le reactiver : remettre la ligne ci-dessous.
   // { href: '/lexique',   label: 'Lexique' },
-  { href: '/questions', label: 'Questions' },
   { href: '/cursus',    label: 'Cursus' }
   // Temoigner masque de la navigation (l'objection du jour a rejoint le pain
   // quotidien, en bas de la page d'accueil). La page /temoigner reste
@@ -25,7 +22,7 @@ const TABS = [
 
 /* Icones de la barre mobile, une par onglet. */
 const ICONS: Record<string, JSX.Element> = {
-  '/': <path d="M12 3v2M5 12H3m18 0h-2M6 6 4.5 4.5M18 6l1.5-1.5M12 8a4 4 0 100 8 4 4 0 000-8zM4 20h16" />,
+  '/pain': <path d="M12 3v2M5 12H3m18 0h-2M6 6 4.5 4.5M18 6l1.5-1.5M12 8a4 4 0 100 8 4 4 0 000-8zM4 20h16" />,
   '/priere': <path d="M12 3c-1.6 2.8-4.2 4.7-4.2 8a4.2 4.2 0 008.4 0c0-3.3-2.6-5.2-4.2-8z" />,
   '/temoigner': <path d="M21 12a8 8 0 01-11.6 7.1L4 20l1-4.4A8 8 0 1121 12z" />,
   '/soir': <path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z" />,
@@ -42,7 +39,10 @@ export default function Nav({ user }: { user: any }) {
   const [sheet, setSheet] = useState(false);
   const path = usePathname();
   const initial = user?.user_metadata?.full_name?.[0] ?? user?.email?.[0] ?? '';
-  const active = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
+  const isActive = (t: { href: string; match?: string[] }) => {
+    if (t.match) return t.match.some(m => path === m || path.startsWith(m + '/') || path.startsWith(m));
+    return t.href === '/' ? path === '/' : path.startsWith(t.href);
+  };
 
   const toggleMode = () => {
     const el = document.documentElement;
@@ -62,7 +62,7 @@ export default function Nav({ user }: { user: any }) {
 
           <div className="tabs" role="tablist">
             {TABS.map(t => (
-              <Link key={t.href} href={t.href} className="tab" aria-selected={active(t.href)}>{t.label}</Link>
+              <Link key={t.href} href={t.href} className="tab" aria-selected={isActive(t)}>{t.label}</Link>
             ))}
           </div>
 
@@ -88,7 +88,7 @@ export default function Nav({ user }: { user: any }) {
       {/* Barre d'onglets mobile, en bas comme une application */}
       <nav className="tabbar">
         {TABS.map(t => (
-          <Link key={t.href} href={t.href} aria-current={active(t.href)}>
+          <Link key={t.href} href={t.href} aria-current={isActive(t)}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"
                  strokeLinecap="round" strokeLinejoin="round">{ICONS[t.href]}</svg>
             <span>{t.label}</span>

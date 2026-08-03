@@ -8,7 +8,7 @@ import {
   NOTRE_PERE_INTRO, NOTRE_PERE_DEMANDES, THEMES, SOURCE_NOTE
 } from '@/lib/prayer-teaching';
 
-export const revalidate = 3600;
+export const dynamic = 'force-dynamic'; // toujours le jour courant, jamais du cache
 export const metadata = { title: 'Prière' };
 
 type Axe = {

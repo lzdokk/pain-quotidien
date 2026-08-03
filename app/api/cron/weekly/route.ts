@@ -25,17 +25,25 @@ export async function GET(req: NextRequest) {
   }
 
   const params = new URL(req.url).searchParams;
-  const start = new Date();
-  if (params.get('from') !== 'today') start.setUTCDate(start.getUTCDate() + 1);
-  const all = Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(start); d.setUTCDate(d.getUTCDate() + i); return iso(d);
-  });
 
-  // CORRECTION : On passe le défaut à 7 jours. Vercel gère jusqu'à 300s, 
-  // c'est amplement suffisant pour générer les 7 jours d'un coup.
-  const perRun = Math.min(Math.max(1, Number(params.get('days') ?? 7)), 7);
-  const skip = Math.max(0, Number(params.get('skip') ?? 0));
-  const dates = all.slice(skip, skip + perRun);
+  // ?date=AAAA-MM-JJ : regenere UNE journee precise (reparation d'un jour
+  // casse, passe ou futur). Prioritaire sur la logique de semaine.
+  const one = params.get('date');
+  let dates: string[];
+  if (one && /^\d{4}-\d{2}-\d{2}$/.test(one)) {
+    dates = [one];
+  } else {
+    const start = new Date();
+    if (params.get('from') !== 'today') start.setUTCDate(start.getUTCDate() + 1);
+    const all = Array.from({ length: 7 }, (_, i) => {
+      const d = new Date(start); d.setUTCDate(d.getUTCDate() + i); return iso(d);
+    });
+    // On genere par petits paquets pour tenir sous la limite de 60 s de Vercel.
+    // ?days=3 (defaut) et ?skip=0, on rappelle en avancant skip de 3 en 3.
+    const perRun = Math.min(Math.max(1, Number(params.get('days') ?? 3)), 7);
+    const skip = Math.max(0, Number(params.get('skip') ?? 0));
+    dates = all.slice(skip, skip + perRun);
+  }
 
   const { data: run } = await admin.from('generation_runs')
     .insert({ kind: 'week', period_start: dates[0], period_end: dates[dates.length - 1] })

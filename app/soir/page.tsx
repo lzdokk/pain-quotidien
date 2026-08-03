@@ -4,7 +4,7 @@ import Checklist from '@/components/Checklist';
 import { contentDate } from '@/lib/date';
 import { rich } from '@/lib/rich';
 
-export const revalidate = 3600;
+export const dynamic = 'force-dynamic'; // toujours le jour courant, jamais du cache
 export const metadata = { title: 'La veillée du soir' };
 
 const fdate = (d: string) => {

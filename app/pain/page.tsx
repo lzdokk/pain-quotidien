@@ -3,7 +3,9 @@ import Shell from '@/components/Shell';
 import { contentDate } from '@/lib/date';
 import { bdsTranslation, readingsWithTranslation } from '@/lib/bible';
 
-export const revalidate = 3600;
+// Toujours frais : le jour affiche depend de l'heure (contentDate), donc on
+// ne met jamais cette page en cache — sinon elle peut montrer la veille.
+export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Le pain du matin' };
 
 export default async function Pain() {
