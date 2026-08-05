@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { supabaseServer } from '@/lib/supabase/server';
 import Nav from '@/components/Nav';
 import Profile from '@/components/Profile';
+import NotifyButton from '@/components/NotifyButton';
 
 export const metadata = { title: 'Mon profil' };
 export const dynamic = 'force-dynamic';
@@ -23,6 +24,9 @@ export default async function Compte() {
   return (
     <>
       <Nav user={user} />
+      <div className="wrap" style={{ marginTop: 20 }}>
+        <NotifyButton />
+      </div>
       <Profile
         user={user}
         profile={profile}

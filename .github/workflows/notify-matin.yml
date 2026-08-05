@@ -1,0 +1,16 @@
+name: Push — Pain du matin
+
+# 05:00 UTC ≈ 07:00 Paris (été) / 06:00 (hiver).
+on:
+  schedule:
+    - cron: '0 5 * * *'
+  workflow_dispatch: {}
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Envoyer la notification du matin
+        run: |
+          curl -sf -X GET "${{ secrets.SITE_URL }}/api/cron/notify?slot=matin" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"

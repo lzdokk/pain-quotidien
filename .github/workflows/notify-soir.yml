@@ -1,0 +1,16 @@
+name: Push — Veillée du soir
+
+# 18:00 UTC ≈ 20:00 Paris (été) / 19:00 (hiver).
+on:
+  schedule:
+    - cron: '0 18 * * *'
+  workflow_dispatch: {}
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Envoyer la notification du soir
+        run: |
+          curl -sf -X GET "${{ secrets.SITE_URL }}/api/cron/notify?slot=soir" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"
