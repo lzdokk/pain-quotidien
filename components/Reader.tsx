@@ -47,6 +47,7 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
   const [backTo, setBackTo] = useState<string | null>(null); // retour (ex. parabole)
   const [searchedIn, setSearchedIn] = useState<string | null>(null);
   const [famous, setFamous] = useState<Record<number, string>>({});
+  const [jesusV, setJesusV] = useState<Set<number>>(new Set()); // paroles de Jésus (red-letter)
 
   const bookName = books.find((b: any) => b.id === book)?.name ?? '';
   const chapters = books.find((b: any) => b.id === book)?.chapters ?? 1;
@@ -118,6 +119,17 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
         for (let n = f.verse_start; n <= f.verse_end; n++) map[n] = f.title;
       }
       if (alive) setFamous(map);
+    })();
+    return () => { alive = false; };
+  }, [book, chapter]);
+
+  // Paroles de Jésus du chapitre courant : surlignage dans la couleur du thème.
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      const { data } = await supabase.from('jesus_verses')
+        .select('verse').eq('book', book).eq('chapter', chapter);
+      if (alive) setJesusV(new Set((data ?? []).map((r: any) => r.verse)));
     })();
     return () => { alive = false; };
   }, [book, chapter]);
@@ -419,7 +431,7 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
            verses.map(v => {
              const c = hl[key(v.verse)];
              return (
-               <span key={v.verse} className={`vs${c ? ` h${c}` : ''}${sel === v.verse ? ' sel' : ''}${famous[v.verse] ? ' famous' : ''}`}
+               <span key={v.verse} className={`vs${c ? ` h${c}` : ''}${sel === v.verse ? ' sel' : ''}${famous[v.verse] ? ' famous' : ''}${jesusV.has(v.verse) ? ' jesus' : ''}`}
                      onClick={() => { setSel(sel === v.verse ? null : v.verse); setEditing(false); setNoteText(noteFor(v.verse)?.body ?? ''); }}>
                  {famous[v.verse] && <span className="vstar" title={`Verset connu · ${famous[v.verse]}`}>★</span>}
                  <span className="vn">{v.verse}</span>{v.text}

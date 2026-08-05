@@ -17,7 +17,7 @@ export type Provider = 'gemini' | 'groq' | 'mistral' | 'cerebras'
   | 'nvidia' | 'openrouter' | 'anthropic' | 'none';
 export const PROVIDER = (process.env.LLM_PROVIDER ?? 'gemini') as Provider;
 
-type Call = { system: string; user: string; maxTokens?: number; temperature?: number; responseSchema?: any };
+type Call = { system: string; user: string; maxTokens?: number; temperature?: number; responseSchema?: any; json?: boolean };
 type Raw = { text: string; input: number; output: number };
 
 /* Variable d'env de la cle, par fournisseur (valeur par defaut). */
@@ -113,8 +113,10 @@ async function gemini(c: Call, key: string, model: string): Promise<Raw> {
         system_instruction: { parts: [{ text: c.system }] },
         contents: [{ role: 'user', parts: [{ text: c.user }] }],
         generationConfig: {
-          responseMimeType: 'application/json',
-          ...(c.responseSchema ? { responseSchema: c.responseSchema } : {}),
+          // JSON force uniquement quand on attend du JSON (callJSON). Le texte
+          // libre (assistant, callText) reste en texte naturel.
+          ...(c.json ? { responseMimeType: 'application/json' } : {}),
+          ...(c.json && c.responseSchema ? { responseSchema: c.responseSchema } : {}),
           maxOutputTokens: c.maxTokens ?? 32000,
           temperature: c.temperature ?? 0.7
         }
@@ -150,7 +152,9 @@ async function openaiLike(p: Provider, c: Call, key: string, model: string): Pro
     headers: { 'content-type': 'application/json', authorization: `Bearer ${key}` },
     body: JSON.stringify({
       model,
-      response_format: responseFormat,
+      // response_format seulement quand on attend du JSON (callJSON) ; le texte
+      // libre (assistant) reste du texte naturel.
+      ...(c.json ? { response_format: responseFormat } : {}),
       max_tokens: c.maxTokens ?? 16000,
       temperature: c.temperature ?? 0.7,
       messages: [{ role: 'system', content: c.system }, { role: 'user', content: c.user }]
@@ -235,6 +239,7 @@ export async function callJSON<T>(schema: z.ZodType<T>, c: Call): Promise<{
   for (let attempt = 0; attempt < 2; attempt++) {
     const r = await raw({
       ...c,
+      json: true,
       user: attempt === 0 ? c.user
         : `${c.user}\n\nTa reponse precedente etait invalide : ${last}\nRenvoie uniquement le JSON, sans texte autour.`
     });
