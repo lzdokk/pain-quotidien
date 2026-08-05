@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { supabaseServer } from '@/lib/supabase/server';
 import Nav from '@/components/Nav';
 import { rich } from '@/lib/rich';
+import ReadingLinks from '@/components/ReadingLinks';
 
 export const revalidate = 86400;
 
@@ -62,7 +63,7 @@ export default async function Episode({ params }: { params: Promise<{ slug: stri
         <div className="card pad">
           <span className="kicker">Pour aller plus loin</span>
           <ul className="mlist">
-            {(p.refs as string[]).map((r, i) => <li key={i}>{r}</li>)}
+            {(p.refs as string[]).map((r, i) => <li key={i}><ReadingLinks text={r} /></li>)}
           </ul>
         </div>
 

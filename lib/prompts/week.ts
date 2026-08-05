@@ -174,8 +174,10 @@ STRUCTURE D'UNE JOURNEE
        quatre a cinq lignes), qui explique le contexte et degage l'intention
        du texte sans tout raconter
 6. bread_lead : l'accroche du pain quotidien, une observation du quotidien
-7. bread_says : deux paragraphes, "ce que dit le texte"
-8. bread_touches : deux paragraphes, "ce que ca touche en nous"
+7. bread_says : deux paragraphes COURTS (3-4 phrases chacun), "ce que dit le texte"
+8. bread_touches : deux paragraphes COURTS (3-4 phrases chacun), "ce que ca touche en nous"
+   (le lecteur doit pouvoir lire tout le pain quotidien en 2-3 minutes : va a
+   l'essentiel, dense mais bref, sans delayer)
 9. actions : trois actions concretes
 10. prayer_open et prayer_close : priere d'ouverture et de fermeture, tutoiement
     de Dieu. prayer_open commence toujours par une invocation courte au
@@ -231,7 +233,8 @@ Champs a produire :
   Intercession. Pour chacun :
     - axis : exactement "Adoration", "Louange" ou "Intercession"
     - prayer : la priere elle-meme, premiere personne, tutoiement de Dieu,
-      DOUZE A DIX-HUIT lignes, du souffle et du rythme, ancree dans le texte
+      HUIT A DOUZE lignes (assez pour respirer, sans s'etirer), du souffle et
+      du rythme, ancree dans le texte
       du jour. Respecte scrupuleusement l'objet de l'axe : rien de demande
       dans l'adoration, des actes remercies dans la louange, autrui porte
       dans l'intercession.

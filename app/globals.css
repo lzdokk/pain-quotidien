@@ -501,8 +501,19 @@ html[data-mode="soir"] .btn.primary{color:#0E141A}
 .vbar{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);width:min(560px,92vw);margin:0;background:var(--surface);border:1px solid var(--line-2);border-radius:16px;
  box-shadow:var(--shadow-lg);padding:12px 14px;display:none;animation:fade .3s var(--ease);z-index:80}
 .vbar.on{display:block}
-/* Sur mobile, la barre d'action passe au-dessus de la navigation du bas */
-@media(max-width:700px){.vbar{bottom:calc(76px + env(safe-area-inset-bottom))}}
+/* Sur mobile : pleine largeur (plus de debordement lateral), au-dessus de la
+   navigation du bas, defilable si haute, et toutes les pastilles/boutons
+   accessibles (on annule le margin-left:auto qui poussait un bouton hors ecran). */
+@media(max-width:700px){
+  .vbar{
+    left:10px; right:10px; width:auto; transform:none;
+    bottom:calc(72px + env(safe-area-inset-bottom));
+    max-height:64vh; overflow-y:auto; padding:14px;
+  }
+  .vbar-row{gap:10px}
+  .vbar-row .btn{margin-left:0 !important}
+  .vbar .swatch{width:32px;height:32px}
+}
 .vbar .vref{font-size:12px;color:var(--ink-3);margin-bottom:10px}
 .vbar-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .swatch{width:26px;height:26px;border-radius:8px;border:1px solid var(--line-2);cursor:pointer;transition:.2s var(--ease)}
