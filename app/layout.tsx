@@ -3,6 +3,7 @@ import './theme.css';
 import './globals.css';
 import Reveal from '@/components/Reveal';
 import AssistantWidget from '@/components/AssistantWidget';
+import NativeInit from '@/components/NativeInit';
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://painquotidien.app';
 const INSTA = process.env.NEXT_PUBLIC_INSTAGRAM ?? 'lepainquotidien';
@@ -23,6 +24,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
+  viewportFit: 'cover', // les encoches / barre home (safe-area-inset) dans l'app native
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: '#FBFBFC' },
     { media: '(prefers-color-scheme: dark)',  color: '#0E141A' }
@@ -40,6 +42,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         ` }} />
         {children}
         <AssistantWidget />
+        <NativeInit />
         <Reveal />
       </body>
     </html>
