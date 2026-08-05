@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { supabaseServer } from '@/lib/supabase/server';
 import Nav from '@/components/Nav';
 import LearnTabs from '@/components/LearnTabs';
+import { ParableReadMarks } from '@/components/ParableRead';
 import { THEMES } from '@/lib/prompts/parable';
 
 export const revalidate = 3600;
@@ -24,6 +25,7 @@ export default async function Paraboles() {
     <>
       <Nav user={user} />
       <main className="wrap">
+        <ParableReadMarks />
         <LearnTabs />
         <header className="hero">
           <div className="eyebrow">Apprendre · Paraboles</div>
@@ -65,7 +67,7 @@ export default async function Paraboles() {
                   <h2 className="sect" style={{ margin: '0 0 14px' }}>{t}</h2>
                   <div className="card">
                     {list.map(p => (
-                      <Link key={p.slug} href={`/paraboles/${p.slug}`} className="pep">
+                      <Link key={p.slug} href={`/paraboles/${p.slug}`} className="pep" data-parable={p.slug}>
                         <span className="pep-n">{p.episode}</span>
                         <div>
                           <span className="pep-t">{p.title}</span>

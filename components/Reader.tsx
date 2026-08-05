@@ -44,6 +44,7 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
   const [myNotes, setMyNotes] = useState<any[]>(notes ?? []);
   const [results, setResults] = useState<any[] | null>(null);
   const [searching, setSearching] = useState(false);
+  const [backTo, setBackTo] = useState<string | null>(null); // retour (ex. parabole)
   const [searchedIn, setSearchedIn] = useState<string | null>(null);
   const [famous, setFamous] = useState<Record<number, string>>({});
 
@@ -124,7 +125,10 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
   // Reprise a l'endroit ou on s'etait arrete, et lien direct ?ref=Jean 15
   useEffect(() => {
     try {
-      const p = new URLSearchParams(location.search).get('ref');
+      const qs = new URLSearchParams(location.search);
+      const f = qs.get('from');
+      if (f && f.startsWith('/')) setBackTo(f); // retour interne uniquement (securite)
+      const p = qs.get('ref');
       if (p) {
         const m = p.match(/^(.+?)\s+(\d+)/);
         if (m) {
@@ -314,6 +318,9 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
         </div>
       </details>
 
+      {backTo && (
+        <a href={backTo} className="back-parable">‹ Revenir à la parabole</a>
+      )}
       <h2 className="sect" id="lecteur" style={{ scrollMarginTop: 70 }}>Le lecteur</h2>
       <p className="sub">Touchez le titre du chapitre pour son introduction, un verset pour le surligner ou l&rsquo;annoter.</p>
 

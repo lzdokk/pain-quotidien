@@ -4,6 +4,8 @@ import { supabaseServer } from '@/lib/supabase/server';
 import Nav from '@/components/Nav';
 import { rich } from '@/lib/rich';
 import ReadingLinks from '@/components/ReadingLinks';
+import ShareButton from '@/components/ShareButton';
+import { MarkParableRead } from '@/components/ParableRead';
 
 export const revalidate = 86400;
 
@@ -30,7 +32,11 @@ export default async function Episode({ params }: { params: Promise<{ slug: stri
           <p className="lede" dangerouslySetInnerHTML={{ __html: rich(p.hook) }} />
         </header>
 
-        <Link href="/paraboles" className="back">‹ Tous les épisodes</Link>
+        <MarkParableRead slug={slug} />
+        <div className="pep-top">
+          <Link href="/paraboles" className="back">‹ Tous les épisodes</Link>
+          <ShareButton title={p.title} text={`${p.title} — ${p.hook}`} />
+        </div>
 
         <div className="card pad pq">
           <span className="kicker">La parabole</span>
@@ -63,7 +69,7 @@ export default async function Episode({ params }: { params: Promise<{ slug: stri
         <div className="card pad">
           <span className="kicker">Pour aller plus loin</span>
           <ul className="mlist">
-            {(p.refs as string[]).map((r, i) => <li key={i}><ReadingLinks text={r} /></li>)}
+            {(p.refs as string[]).map((r, i) => <li key={i}><ReadingLinks text={r} from={`/paraboles/${slug}`} /></li>)}
           </ul>
         </div>
 

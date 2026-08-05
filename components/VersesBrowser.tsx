@@ -2,6 +2,7 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import LearnTabs from './LearnTabs';
+import ShareButton from './ShareButton';
 
 /**
  * Les versets les plus connus et importants du christianisme. Recherche +
@@ -69,9 +70,13 @@ export default function VersesBrowser({ verses }: { verses: any[] }) {
                 <div className="fv-body">
                   <blockquote className="fv-text">{v.verse_text}</blockquote>
                   <p className="fv-blurb">{v.blurb}</p>
-                  <Link className="btn sm" href={`/lire?ref=${encodeURIComponent(v.reference)}`}>
-                    Ouvrir dans le lecteur ›
-                  </Link>
+                  <div className="fv-actions">
+                    <Link className="btn sm" href={`/lire?ref=${encodeURIComponent(v.reference)}`}>
+                      Ouvrir dans le lecteur ›
+                    </Link>
+                    <ShareButton title={v.reference}
+                      text={`« ${v.verse_text} »\n${v.reference}`} />
+                  </div>
                 </div>
               )}
             </article>

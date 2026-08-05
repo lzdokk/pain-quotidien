@@ -34,15 +34,17 @@ const CONT_RE = /^(\s*(?:à|a|et|–|-|,)\s*)(\d+(?:[.:]\d+(?:-\d+)?)?)/i;
 // Un chiffre qui demarre un livre numerote ("1 Pierre") n'est pas une suite.
 const BOOK_AT = new RegExp('^(?:' + ALT + ')\\s+\\d', 'i');
 
-function refLink(book: string, chap: string, key: string): ReactNode {
+function refLink(book: string, chap: string, key: string, from?: string): ReactNode {
+  const suffix = from ? `&from=${encodeURIComponent(from)}` : '';
   return (
-    <Link key={key} href={`/lire?ref=${encodeURIComponent(`${book} ${chap}`)}`} className="rlink">
+    <Link key={key} href={`/lire?ref=${encodeURIComponent(`${book} ${chap}`)}${suffix}`} className="rlink">
       {chap}
     </Link>
   );
 }
 
-export default function ReadingLinks({ text }: { text: string }) {
+/** `from` : chemin de retour affiche dans le lecteur (ex. la parabole d'origine). */
+export default function ReadingLinks({ text, from }: { text: string; from?: string }) {
   const out: ReactNode[] = [];
   let last = 0;
   let m: RegExpExecArray | null;
@@ -52,7 +54,7 @@ export default function ReadingLinks({ text }: { text: string }) {
     const [, book, chap] = m;
     if (m.index > last) out.push(<Fragment key={`t${last}`}>{text.slice(last, m.index)}</Fragment>);
     out.push(<Fragment key={`b${m.index}`}>{book} </Fragment>);
-    out.push(refLink(book, chap, `r${m.index}`));
+    out.push(refLink(book, chap, `r${m.index}`, from));
     let pos = m.index + m[0].length;
 
     // Chapitres additionnels du meme livre : "15 et 22", "1 a 5"
@@ -60,7 +62,7 @@ export default function ReadingLinks({ text }: { text: string }) {
     while ((cont = text.slice(pos).match(CONT_RE)) !== null) {
       if (BOOK_AT.test(text.slice(pos + cont[1].length))) break;
       out.push(<Fragment key={`c${pos}`}>{cont[1]}</Fragment>);
-      out.push(refLink(book, cont[2], `rc${pos}`));
+      out.push(refLink(book, cont[2], `rc${pos}`, from));
       pos += cont[0].length;
     }
     last = pos;

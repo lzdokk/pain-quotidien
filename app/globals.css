@@ -383,6 +383,14 @@ html[data-mode="soir"] .word .wlang.ar{background:#2a1f16;color:#e0a877}
 .vs .vstar{color:var(--accent);font-size:12px;margin-right:5px;vertical-align:2px;opacity:.85}
 .vs.famous{background:linear-gradient(transparent 62%, var(--accent-soft) 62%)}
 
+/* Paraboles : ligne du haut (retour + partage), episodes lus, retour lecteur */
+.pep-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px}
+.back-parable{display:inline-block;margin:0 0 16px;color:var(--accent);text-decoration:none;font-weight:560;font-size:14px}
+.back-parable:hover{text-decoration:underline}
+.pep.read .pep-n{background:var(--accent);color:#fff}
+.pep.read .pep-t::after{content:" ✓";color:var(--accent);font-weight:700}
+.fv-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px}
+
 /* Bouton vers le pain quotidien, en bas de la page Priere */
 .to-pain{display:flex;flex-direction:column;gap:4px;margin-top:30px;padding:22px 26px;
  border:1px solid var(--line);border-radius:var(--r-sm);background:var(--surface-2);
