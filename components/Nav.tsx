@@ -57,7 +57,7 @@ export default function Nav({ user }: { user: any }) {
         <div className="nav-in">
           <Link href="/" className="brandmark">
             <Brand />
-            <span>Le Pain quotidien</span>
+            <span>Pain de Vie</span>
           </Link>
 
           <div className="tabs" role="tablist">

@@ -2,8 +2,8 @@ import type { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'Le Pain quotidien',
-    short_name: 'Pain quotidien',
+    name: 'Pain de Vie',
+    short_name: 'Pain de Vie',
     description: "La Parole chaque matin, une veillée chaque soir, un carnet de lecture et un cursus complet.",
     start_url: '/',
     display: 'standalone',

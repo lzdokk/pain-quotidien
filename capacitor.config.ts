@@ -11,7 +11,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
  */
 const config: CapacitorConfig = {
   appId: 'fr.painquotidien.app',
-  appName: 'Le Pain quotidien',
+  appName: 'Pain de Vie',
   webDir: 'www',
   server: {
     // Ta production. Change-la si tu branches un domaine personnalise.
@@ -20,7 +20,9 @@ const config: CapacitorConfig = {
   },
   backgroundColor: '#0E141A',
   ios: {
-    contentInset: 'always'
+    // Bord a bord : la webview occupe tout l'ecran (sous l'encoche), et le CSS
+    // (env(safe-area-inset-*)) gere les marges. Rendu plus propre et natif.
+    contentInset: 'never'
   },
   plugins: {
     SplashScreen: {

@@ -1,6 +1,6 @@
 {
-  "name": "Le Pain quotidien",
-  "short_name": "Pain quotidien",
+  "name": "Pain de Vie",
+  "short_name": "Pain de Vie",
   "description": "La Parole chaque matin, une veillée chaque soir, un carnet de lecture biblique.",
   "start_url": "/",
   "display": "standalone",

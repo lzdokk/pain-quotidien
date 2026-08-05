@@ -10,16 +10,16 @@ const INSTA = process.env.NEXT_PUBLIC_INSTAGRAM ?? 'lepainquotidien';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE),
-  title: { default: 'Le Pain quotidien', template: '%s · Le Pain quotidien' },
+  title: { default: 'Pain de Vie', template: '%s · Pain de Vie' },
   description: "La Parole chaque matin, une veillée chaque soir, un carnet de lecture biblique et un cursus théologique complet.",
-  applicationName: 'Le Pain quotidien',
+  applicationName: 'Pain de Vie',
   openGraph: {
-    type: 'website', locale: 'fr_FR', siteName: 'Le Pain quotidien',
-    title: 'Le Pain quotidien', url: SITE
+    type: 'website', locale: 'fr_FR', siteName: 'Pain de Vie',
+    title: 'Pain de Vie', url: SITE
   },
   twitter: { card: 'summary_large_image' },
   manifest: '/manifest.webmanifest',
-  appleWebApp: { capable: true, title: 'Pain quotidien', statusBarStyle: 'default' },
+  appleWebApp: { capable: true, title: 'Pain de Vie', statusBarStyle: 'default' },
   other: { 'instagram:creator': `@${INSTA}` }
 };
 

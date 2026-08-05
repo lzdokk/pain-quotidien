@@ -23,12 +23,11 @@ export default function NativeInit() {
 
         const mode = document.documentElement.dataset.mode; // 'matin' | 'soir'
         try {
-          await StatusBar.setOverlaysWebView({ overlay: false });
+          // Bord a bord : la barre de statut se superpose, le CSS gere l'espace
+          // sous l'encoche (env(safe-area-inset-top)).
+          await StatusBar.setOverlaysWebView({ overlay: true });
           // Style.Dark = texte clair (fond sombre) ; Style.Light = texte foncé.
           await StatusBar.setStyle({ style: mode === 'soir' ? Style.Dark : Style.Light });
-          if (Capacitor.getPlatform() === 'android') {
-            await StatusBar.setBackgroundColor({ color: mode === 'soir' ? '#0E141A' : '#FBFBFC' });
-          }
         } catch { /* statut non dispo */ }
 
         try { await SplashScreen.hide(); } catch { /* pas de splash */ }
