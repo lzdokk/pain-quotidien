@@ -5,6 +5,7 @@ import Reveal from '@/components/Reveal';
 import AssistantWidget from '@/components/AssistantWidget';
 import NativeInit from '@/components/NativeInit';
 import OneSignalInit from '@/components/OneSignalInit';
+import InstallPrompt from '@/components/InstallPrompt';
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://painquotidien.app';
 const INSTA = process.env.NEXT_PUBLIC_INSTAGRAM ?? 'lepainquotidien';
@@ -45,6 +46,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <AssistantWidget />
         <NativeInit />
         <OneSignalInit />
+        <InstallPrompt />
         <Reveal />
       </body>
     </html>

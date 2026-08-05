@@ -507,6 +507,47 @@ html[data-mode="soir"] .btn.primary{color:#0E141A}
 .notify-txt span{font-size:13px;color:var(--ink-3)}
 .notify-on{font-size:13px;font-weight:600;color:var(--accent)}
 .notify-off{font-size:12.5px;color:var(--ink-3);max-width:340px;text-align:right}
+
+/* ── Guide d'installation ─────────────────────────────────────────── */
+.ig{font-family:var(--sans)}
+.ig-head{display:flex;align-items:center;gap:8px;font-weight:700;font-size:15px;margin-bottom:10px}
+.ig-badge{width:9px;height:9px;border-radius:99px;background:var(--accent);display:inline-block}
+.ig-sub{font-size:13px;font-weight:600;color:var(--ink-2);margin:14px 0 6px}
+.ig-lead{font-size:14px;margin-bottom:12px}
+.ig-steps{margin:0 0 6px;padding-left:20px;display:flex;flex-direction:column;gap:8px}
+.ig-steps li{font-size:14px;line-height:1.5}
+.ig-ic{display:inline-block;padding:0 4px}
+.ig-dl{display:inline-block;padding:9px 16px;border-radius:99px;background:var(--accent-soft);
+ color:var(--accent);font-weight:600;text-decoration:none;font-size:13px}
+.ig-ok{font-size:13.5px;font-weight:600;color:var(--accent);margin-top:10px}
+.ig-note{font-size:13px;color:var(--ink-3);margin-top:10px}
+
+/* Popup d'installation */
+.install-ov{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.5);
+ display:flex;align-items:flex-end;justify-content:center;padding:0;
+ backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);animation:igfade .25s var(--ease)}
+@keyframes igfade{from{opacity:0}to{opacity:1}}
+.install-modal{position:relative;width:100%;max-width:520px;background:var(--bg);
+ border:1px solid var(--line);border-radius:22px 22px 0 0;padding:26px 22px calc(24px + env(safe-area-inset-bottom));
+ box-shadow:var(--shadow-lg);animation:igslide .3s var(--ease)}
+@keyframes igslide{from{transform:translateY(24px)}to{transform:translateY(0)}}
+@media(min-width:560px){.install-ov{align-items:center;padding:20px}
+ .install-modal{border-radius:22px}}
+.install-x{position:absolute;top:12px;right:14px;border:0;background:transparent;
+ font-size:26px;line-height:1;color:var(--ink-3);cursor:pointer}
+.install-title{font-family:var(--serif);font-size:21px;font-weight:600;letter-spacing:-.01em}
+.install-lead{font-size:13.5px;color:var(--ink-3);margin:6px 0 16px}
+.install-later{margin-top:16px;border:0;background:transparent;color:var(--ink-3);
+ font-size:13px;cursor:pointer;text-decoration:underline;padding:4px}
+
+/* Page /installer */
+.installer-page{padding-top:34px;padding-bottom:60px;max-width:640px}
+.installer-back{font-size:13px;color:var(--ink-3);text-decoration:none}
+.installer-h1{font-family:var(--serif);font-size:30px;font-weight:600;letter-spacing:-.02em;margin:14px 0 8px}
+.installer-intro{font-size:15px;line-height:1.6;color:var(--ink-2);margin-bottom:22px}
+.installer-card{border:1px solid var(--line);border-radius:var(--r);background:var(--surface);padding:22px}
+.installer-share{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:22px}
+.installer-share span{font-size:14px;color:var(--ink-2)}
 .preview{margin-top:26px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--surface-2);padding:22px 24px;
  font-size:14.5px;color:var(--ink-3);line-height:1.7;white-space:pre-wrap}
 
