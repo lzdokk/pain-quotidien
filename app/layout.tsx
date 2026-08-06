@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from 'next';
 import './theme.css';
 import './globals.css';
 import Reveal from '@/components/Reveal';
-import AssistantWidget from '@/components/AssistantWidget';
 import NativeInit from '@/components/NativeInit';
 import OneSignalInit from '@/components/OneSignalInit';
 import InstallPrompt from '@/components/InstallPrompt';
@@ -43,7 +42,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           document.documentElement.dataset.mode=m}catch(e){}})();
         ` }} />
         {children}
-        <AssistantWidget />
         <NativeInit />
         <OneSignalInit />
         <InstallPrompt />

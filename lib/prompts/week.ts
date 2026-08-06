@@ -164,7 +164,13 @@ STRUCTURE D'UNE JOURNEE
 1. theme_title : le titre du jour, huit mots maximum, une image forte
 2. theme_lede : une phrase qui donne envie de lire
 3. central_message : le coeur du message, quatre a cinq lignes
-4. verse : le verset du jour, choisi dans les lectures, texte Segond 1910 exact
+4. verse : le verset du jour. REGLE ABSOLUE, non negociable : ce verset DOIT
+   etre l'un des versets contenus dans les lectures du jour fournies ci-dessous
+   (meme livre, meme chapitre, et un numero de verset compris dans la plage de
+   l'une des lectures). Choisis le verset le plus fort/central de ces lectures.
+   verse.ref doit pointer vers ce verset precis (ex "Jean 1.14"), et verse.text
+   doit etre son texte Segond 1910 exact. N'invente JAMAIS un verset d'un autre
+   passage : s'il ne fait pas partie des lectures du jour, il est refuse.
 5. reading_summaries : pour chaque lecture,
      - title : DEUX A QUATRE MOTS, une etiquette thematique (par exemple
        "Le potier et l'argile", "La foi qui deplace"), JAMAIS une reformulation

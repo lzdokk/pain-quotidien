@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { admin } from '@/lib/supabase/admin';
+import { contentDate } from '@/lib/date';
 
 export const dynamic = 'force-dynamic';
+
+/** Coupe proprement un verset trop long pour une notification. */
+function clip(s: string, n = 140) {
+  const t = (s || '').trim();
+  return t.length <= n ? t : t.slice(0, n - 1).trimEnd() + '…';
+}
 
 /**
  * Envoie une notification push a tous les abonnes via l'API OneSignal.
@@ -29,18 +37,41 @@ export async function GET(req: NextRequest) {
   }
 
   const slot = req.nextUrl.searchParams.get('slot') === 'soir' ? 'soir' : 'matin';
-  const msg =
-    slot === 'soir'
-      ? {
-          title: 'La veillée du soir 🌙',
-          body: 'Un temps de silence avec la Parole avant la nuit.',
-          url: `${SITE}/soir`
-        }
-      : {
-          title: 'Le Pain du matin ☀️',
-          body: "Ta portion de ce jour t'attend. Viens la recevoir.",
-          url: `${SITE}/`
-        };
+
+  // On va chercher la journée publiée pour composer un message vivant :
+  // le thème du jour en titre, le verset du jour en corps.
+  let day: {
+    theme_title?: string; verse_text?: string; verse_ref?: string;
+    evening_title?: string; evening_verse?: string; evening_verse_ref?: string;
+  } | null = null;
+  try {
+    const { data } = await admin
+      .from('daily_bread')
+      .select('theme_title,verse_text,verse_ref,evening_title,evening_verse,evening_verse_ref')
+      .eq('date', contentDate())
+      .eq('published', true)
+      .maybeSingle();
+    day = data;
+  } catch { /* si la lecture échoue, on garde un message générique */ }
+
+  let msg: { title: string; body: string; url: string };
+  if (slot === 'soir') {
+    const verse = day?.evening_verse ? `« ${clip(day.evening_verse)} »` : '';
+    const ref = day?.evening_verse_ref ? ` — ${day.evening_verse_ref}` : '';
+    msg = {
+      title: `🌙 ${day?.evening_title || 'La veillée du soir'}`,
+      body: verse ? `${verse}${ref}` : 'Un temps de paix avec la Parole avant la nuit.',
+      url: `${SITE}/soir`
+    };
+  } else {
+    const verse = day?.verse_text ? `« ${clip(day.verse_text)} »` : '';
+    const ref = day?.verse_ref ? ` — ${day.verse_ref}` : '';
+    msg = {
+      title: `☀️ ${day?.theme_title || 'Le Pain du matin'}`,
+      body: verse ? `${verse}${ref}` : 'Ta méditation du jour est prête.',
+      url: `${SITE}/`
+    };
+  }
 
   const res = await fetch('https://api.onesignal.com/notifications', {
     method: 'POST',

@@ -1,5 +1,5 @@
 'use client';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
 import { supabase } from '@/lib/supabase/client';
 import Explain from './Explain';
 
@@ -430,13 +430,20 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
            verses.length === 0 ? <p className="empty">Ce chapitre n&rsquo;est pas encore importe dans cette traduction.</p> :
            verses.map(v => {
              const c = hl[key(v.verse)];
+             const showExplain = explain?.kind === 'v' && explain.verse === v.verse;
              return (
-               <span key={v.verse} className={`vs${c ? ` h${c}` : ''}${sel === v.verse ? ' sel' : ''}${famous[v.verse] ? ' famous' : ''}${jesusV.has(v.verse) ? ' jesus' : ''}`}
-                     onClick={() => { setSel(sel === v.verse ? null : v.verse); setEditing(false); setNoteText(noteFor(v.verse)?.body ?? ''); }}>
-                 {famous[v.verse] && <span className="vstar" title={`Verset connu · ${famous[v.verse]}`}>★</span>}
-                 <span className="vn">{v.verse}</span>{v.text}
-                 {noteFor(v.verse) && <span className="noteflag">note</span>}
-               </span>
+               <Fragment key={v.verse}>
+                 <span className={`vs${c ? ` h${c}` : ''}${sel === v.verse ? ' sel' : ''}${famous[v.verse] ? ' famous' : ''}${jesusV.has(v.verse) ? ' jesus' : ''}`}
+                       onClick={() => { setSel(sel === v.verse ? null : v.verse); setEditing(false); setNoteText(noteFor(v.verse)?.body ?? ''); }}>
+                   {famous[v.verse] && <span className="vstar" title={`Verset connu · ${famous[v.verse]}`}>★</span>}
+                   <span className="vn">{v.verse}</span>{v.text}
+                   {noteFor(v.verse) && <span className="noteflag">note</span>}
+                 </span>
+                 {showExplain && (
+                   <Explain book={book} chapter={chapter} verse={v.verse} bookName={bookName}
+                            text={v.text} inline onClose={() => setExplain(null)} onGoto={go} />
+                 )}
+               </Fragment>
              );
            })}
         </div>
@@ -531,9 +538,9 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
         </div>
       )}
 
-      {explain && (
-        <Explain book={book} chapter={chapter} verse={explain.verse}
-                 bookName={bookName} text={verses.find(v => v.verse === explain.verse)?.text ?? ''}
+      {explain?.kind === 'ch' && (
+        <Explain book={book} chapter={chapter} verse={undefined}
+                 bookName={bookName} text=""
                  onClose={() => setExplain(null)} onGoto={go} />
       )}
     </main>
