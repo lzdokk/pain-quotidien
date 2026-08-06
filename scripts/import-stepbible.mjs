@@ -53,7 +53,7 @@ function canonStrong(code) {
   return m ? m[1].toUpperCase() + m[2] : null;
 }
 function cleanGloss(raw) {
-  return (raw || '').split('_§')[0].split('@')[0].split('|')[0].replace(/_/g, ' ').trim();
+  return (raw || '').split('_§')[0].split('§')[0].split('@')[0].split('|')[0].replace(/_/g, ' ').trim();
 }
 // Extrait { strong, gloss, lang } du champ "extended strongs".
 function parseStrongs(field) {
@@ -91,30 +91,46 @@ async function importFile(path) {
   for await (const line of rl) {
     const cols = line.split('\t');
     if (cols.length < 3) continue;
-    const ref = cols[0].trim();
-    const m = ref.match(REF_RE);
-    if (!m) continue; // en-tête / licence / ligne non-donnée
+    const raw0 = cols[0].trim();
+    // Ignore en-têtes, licences, séparateurs, blocs interlinéaires « # … ».
+    if (!raw0 || raw0.startsWith('#') || raw0.startsWith('=')) continue;
+    // Grec : la réf est préfixée du numéro de livre (« 45_Act.001.001 »).
+    const refStr = raw0.replace(/^\d+_/, '');
+    const m = refStr.match(REF_RE);
+    if (!m) continue;
     const bookId = BOOKS[m[1]];
     if (!bookId) { skippedNoBook.add(m[1]); continue; }
     const chapter = +m[2], verse = +m[3];
 
-    const strongsCol = cols.find(c => STRONGS_FIELD.test(c));
-    // Mot d'origine : 1er champ non-ASCII (hébreu/grec) sans découpage « / ».
-    const wordCol = cols.find(c => c !== strongsCol && (HEB.test(c) || GRC.test(c)) && !c.includes('/'))
-                 || cols.find(c => c !== strongsCol && (HEB.test(c) || GRC.test(c)));
-    if (!wordCol) continue;
+    let word, strong = null, gloss = null, lang;
 
-    const info = strongsCol ? parseStrongs(strongsCol) : null;
+    // Hébreu (TAHOT) : strong + glose embarqués « Hxxxx=mot=glose » dans un champ.
+    const embedded = cols.find(c => STRONGS_FIELD.test(c));
+    if (embedded) {
+      const info = parseStrongs(embedded);
+      strong = info?.strong ?? null; gloss = info?.gloss ?? null; lang = info?.lang ?? 'hebreu';
+      word = cols.find(c => c !== embedded && (HEB.test(c) || GRC.test(c)) && !c.includes('/'))
+          || cols.find(c => c !== embedded && (HEB.test(c) || GRC.test(c)));
+    } else {
+      // Grec (TAGNT) : colonne Strong autonome « Gxxxx » ; glose = 3 colonnes après.
+      const si = cols.findIndex(c => /^[HG]\d{1,4}[a-z]?$/.test(c.trim()));
+      if (si < 0) continue;
+      strong = canonStrong(cols[si].trim());
+      lang = strong && strong[0] === 'H' ? 'hebreu' : 'grec';
+      gloss = si + 3 < cols.length ? cleanGloss(cols[si + 3]) : null;
+      word = cols.find(c => (HEB.test(c) || GRC.test(c)) && !c.includes('/'))
+          || cols.find(c => (HEB.test(c) || GRC.test(c)));
+    }
+    if (!word) continue;
+
     const k = `${bookId}.${chapter}.${verse}`;
     const position = (counters.get(k) ?? 0) + 1;
     counters.set(k, position);
 
     rows.push({
       book: bookId, chapter, verse, position,
-      lang: info?.lang ?? (HEB.test(wordCol) ? 'hebreu' : 'grec'),
-      word: wordCol.trim(),
-      strong: info?.strong ?? null,
-      gloss: info?.gloss ?? null
+      lang: lang ?? (HEB.test(word) ? 'hebreu' : 'grec'),
+      word: word.trim(), strong, gloss
     });
     totalParsed++;
     await flush(false);

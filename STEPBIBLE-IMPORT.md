@@ -30,9 +30,8 @@ node scripts/import-stepbible.mjs \
 Le script affiche l'avancement (« X mots importés… ») et est **ré-exécutable
 sans risque**. Compte quelques minutes (~400 000 mots).
 
-> ⚠️ Le parser est confirmé pour l'**hébreu (TAHOT)**. Pour le **grec (TAGNT)**,
-> les colonnes peuvent différer : envoie-moi ~20 lignes d'un fichier TAGNT avant
-> de l'importer, je confirme/ajuste en 2 minutes. Tu peux déjà importer l'hébreu.
+> ✅ Le parser est validé pour l'**hébreu (TAHOT)** ET le **grec (TAGNT)** —
+> les deux formats sont gérés automatiquement. Tu peux tout importer d'un coup.
 
 ## 4. Ensuite
 Une fois des mots en base, je te livre l'**affichage mot-à-mot dans le lecteur**
