@@ -5,7 +5,7 @@ name: Paraboles (catalogue Apprendre)
 # plusieurs fois par jour, jusqu'a un catalogue complet.
 on:
   schedule:
-    - cron: '10 */3 * * *'
+    - cron: '24 */3 * * *'
   workflow_dispatch: {}
 
 jobs:

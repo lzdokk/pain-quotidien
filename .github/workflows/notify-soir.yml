@@ -1,9 +1,9 @@
 name: Push — Veillée du soir
 
-# 18:00 UTC ≈ 20:00 Paris (été) / 19:00 (hiver).
+# Envoi géré par cron-job.org (20:00 Europe/Paris, fiable + fuseau correct).
+# Planification GitHub désactivée pour éviter les doublons ; garde le
+# déclenchement manuel (Run workflow) pour les tests.
 on:
-  schedule:
-    - cron: '0 18 * * *'
   workflow_dispatch: {}
 
 jobs:

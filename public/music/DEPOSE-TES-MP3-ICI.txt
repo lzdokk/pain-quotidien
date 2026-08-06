@@ -1,0 +1,8 @@
+Depose ici tes fichiers MP3 instrumentaux, par exemple :
+  paix.mp3
+  adoration.mp3
+  contemplation.mp3
+
+Le bouton musique (en bas a gauche de l'app) apparaitra automatiquement
+des qu'au moins un fichier est en ligne. Puis :
+  git add public/music && git commit -m "Musique" && git push

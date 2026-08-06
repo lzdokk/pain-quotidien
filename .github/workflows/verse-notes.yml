@@ -5,7 +5,7 @@ name: Base des fiches de versets (systematique)
 # apres verset, dans toute la Bible, jusqu'a couverture complete.
 on:
   schedule:
-    - cron: '20 */2 * * *'
+    - cron: '18 */2 * * *'
   workflow_dispatch: {}
 
 jobs:

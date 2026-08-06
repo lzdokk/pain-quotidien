@@ -5,7 +5,7 @@ name: Versets importants (~10% de la Bible)
 # jour jusqu'a couverture complete des 1189 chapitres.
 on:
   schedule:
-    - cron: '50 */2 * * *'
+    - cron: '42 */2 * * *'
   workflow_dispatch: {}
 
 jobs:
