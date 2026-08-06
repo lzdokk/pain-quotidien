@@ -36,7 +36,8 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'ONESIGNAL_REST_KEY manquant' }, { status: 500 });
   }
 
-  const slot = req.nextUrl.searchParams.get('slot') === 'soir' ? 'soir' : 'matin';
+  const raw = req.nextUrl.searchParams.get('slot');
+  const slot = raw === 'soir' ? 'soir' : raw === 'lecture' ? 'lecture' : 'matin';
 
   // On va chercher la journée publiée pour composer un message vivant :
   // le thème du jour en titre, le verset du jour en corps.
@@ -55,7 +56,13 @@ export async function GET(req: NextRequest) {
   } catch { /* si la lecture échoue, on garde un message générique */ }
 
   let msg: { title: string; body: string; url: string };
-  if (slot === 'soir') {
+  if (slot === 'lecture') {
+    msg = {
+      title: '📖 Ta lecture du jour',
+      body: "As-tu lu ta portion aujourd'hui ? Quelques minutes avec la Parole avant la nuit.",
+      url: `${SITE}/lire`
+    };
+  } else if (slot === 'soir') {
     const verse = day?.evening_verse ? `« ${clip(day.evening_verse)} »` : '';
     const ref = day?.evening_verse_ref ? ` — ${day.evening_verse_ref}` : '';
     msg = {
