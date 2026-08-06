@@ -16,6 +16,9 @@
   --accent: var(--brand);
   --accent-soft: color-mix(in srgb, var(--brand) 9%, transparent);
   --accent-line: color-mix(in srgb, var(--brand) 26%, transparent);
+  /* Paroles de Jesus : un bleu franc et lisible pour un verset entier
+     (plus sature/contraste que --accent, pense pour de la lecture). */
+  --jesus: #1F5FA6;
   --bg: var(--paper);
   --surface: #FFFFFF;
   --surface-2: color-mix(in srgb, var(--brand) 6%, var(--paper));
@@ -45,6 +48,8 @@ html[data-mode="soir"]{
   --accent: var(--brand-night);
   --accent-soft: color-mix(in srgb, var(--brand-night) 11%, transparent);
   --accent-line: color-mix(in srgb, var(--brand-night) 28%, transparent);
+  /* En mode soir, un bleu clair lumineux, bien lisible sur fond sombre. */
+  --jesus: #9CC4EE;
   --bg: var(--paper-night);
   --surface: color-mix(in srgb, #FFFFFF 6%, var(--paper-night));
   --surface-2: color-mix(in srgb, #FFFFFF 10%, var(--paper-night));

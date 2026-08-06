@@ -580,7 +580,8 @@ html[data-mode="soir"] .btn.primary{color:#0E141A}
 .vs.h1{background:var(--hl1)}.vs.h2{background:var(--hl2)}.vs.h3{background:var(--hl3)}.vs.h4{background:var(--hl4)}
 /* Paroles de Jésus (red-letter) : dans la couleur du thème. Le numero de
    verset garde sa couleur d'accent, seul le texte prend la teinte. */
-.vs.jesus{color:var(--accent)}
+.vs.jesus{color:var(--jesus)}
+.vs.jesus .vn{color:var(--jesus)}
 .vs.sel{box-shadow:0 0 0 2px var(--accent)}
 .vs .noteflag{display:inline-block;margin-left:6px;font-family:var(--sans);font-size:10px;font-weight:660;color:var(--accent);
  border:1px solid var(--accent-line);border-radius:5px;padding:0 5px;vertical-align:2px}
