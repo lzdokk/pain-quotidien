@@ -1,0 +1,17 @@
+name: Lexique Strong en français
+
+# Pré-remplit la définition française des entrées du lexique Strong,
+# petit à petit, jusqu'à ce que tout le lexique soit en français.
+on:
+  schedule:
+    - cron: '45 */3 * * *'
+  workflow_dispatch: {}
+
+jobs:
+  translate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Appeler /api/cron/strongs-fr
+        run: |
+          curl -sf -X GET "${{ secrets.SITE_URL }}/api/cron/strongs-fr?n=20" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"
