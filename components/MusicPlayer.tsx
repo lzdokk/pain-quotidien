@@ -40,8 +40,12 @@ export default function MusicPlayer() {
     let alive = true;
     Promise.all(CANDIDATES.map(async b => {
       const src = `/music/${b}.mp3`;
-      try { const r = await fetch(src, { method: 'HEAD' }); return r.ok ? { src, name: label(b) } : null; }
-      catch { return null; }
+      try {
+        const r = await fetch(src, { method: 'HEAD' });
+        // On vérifie que c'est bien un fichier audio (et non la page 404 en HTML).
+        const ct = (r.headers.get('content-type') || '').toLowerCase();
+        return (r.ok && /(audio|mpeg|octet-stream)/.test(ct)) ? { src, name: label(b) } : null;
+      } catch { return null; }
     })).then(list => { if (alive) setTracks(list.filter(Boolean) as Track[]); });
     return () => { alive = false; };
   }, []);

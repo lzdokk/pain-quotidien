@@ -59,7 +59,7 @@ export async function GET(req: NextRequest) {
   if (slot === 'lecture') {
     msg = {
       title: '📖 Ton plan de lecture',
-      body: "As-tu avancé dans ton plan de lecture aujourd'hui ? Prends quelques minutes avec la Parole 🙏",
+      body: "As-tu lu aujourd'hui? Prends quelques minutes avec la Parole vivante de Dieu 🙏",
       url: `${SITE}/lire`
     };
   } else if (slot === 'soir') {

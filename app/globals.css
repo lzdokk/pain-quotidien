@@ -544,6 +544,13 @@ html[data-mode="soir"] .btn.primary{color:#0E141A}
 .music-track:hover{border-color:var(--accent-line);color:var(--accent)}
 .music-track.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:560}
 
+/* Aperçu PDF (plein écran, avec Fermer + Télécharger — pas de fenêtre piège) */
+.pdfmodal{position:fixed;inset:0;z-index:300;background:var(--bg);display:flex;flex-direction:column;animation:igfade .2s var(--ease)}
+.pdfmodal-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;
+ padding:calc(10px + env(safe-area-inset-top)) 14px 10px;border-bottom:1px solid var(--line);background:var(--surface)}
+.pdfmodal-title{font-size:13px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pdfmodal-frame{flex:1;width:100%;border:0;background:#fff}
+
 /* ── Guide d'installation ─────────────────────────────────────────── */
 .ig{font-family:var(--sans)}
 .ig-head{display:flex;align-items:center;gap:8px;font-weight:700;font-size:15px;margin-bottom:10px}
