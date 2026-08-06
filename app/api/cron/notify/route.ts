@@ -50,7 +50,7 @@ export async function GET(req: NextRequest) {
     },
     body: JSON.stringify({
       app_id: APP_ID,
-      included_segments: ['Subscribed Users'],
+      included_segments: ['Total Subscriptions'],
       target_channel: 'push',
       headings: { en: msg.title, fr: msg.title },
       contents: { en: msg.body, fr: msg.body },
