@@ -449,7 +449,7 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
                        <button className="vbar-x" onClick={() => { setSel(null); setEditing(false); }} aria-label="Fermer">✕</button>
                      </div>
                      <div className="vbar-row">
-                       {[1, 2, 3, 4].map(c => <span key={c} className={`swatch s${c}`} title={themeOf(c)?.label} onClick={() => setColor(v.verse, c)} />)}
+                       {[1, 2, 3, 4, 5, 6, 7].map(c => <span key={c} className={`swatch s${c}`} title={themeOf(c)?.label} onClick={() => setColor(v.verse, c)} />)}
                        <span className="swatch s0" title="Retirer le surlignage" onClick={() => setColor(v.verse, 0)} />
                        <button className="btn sm" style={{ marginLeft: 'auto' }} onClick={() => setEditing(true)}>
                          {noteFor(v.verse) ? 'Modifier la note' : 'Ajouter une note'}

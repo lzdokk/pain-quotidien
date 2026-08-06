@@ -14,7 +14,7 @@ export default async function Surlignes() {
 
   const { data: hls } = await sb.from('highlights')
     .select('book, chapter, verse, color').order('book').order('chapter').order('verse');
-  const highlights = (hls ?? []).filter((h: any) => h.color >= 1 && h.color <= 4);
+  const highlights = (hls ?? []).filter((h: any) => h.color >= 1 && h.color <= 7);
 
   // Noms de livres
   const books = [...new Set(highlights.map((h: any) => h.book))];

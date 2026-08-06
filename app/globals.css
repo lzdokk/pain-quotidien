@@ -578,6 +578,7 @@ html[data-mode="soir"] .btn.primary{color:#0E141A}
 .vs:hover{background:var(--surface-2)}
 .vs .vn{font-family:var(--sans);font-size:10.5px;font-weight:660;color:var(--accent);vertical-align:.5em;margin-right:5px}
 .vs.h1{background:var(--hl1)}.vs.h2{background:var(--hl2)}.vs.h3{background:var(--hl3)}.vs.h4{background:var(--hl4)}
+.vs.h5{background:var(--hl5)}.vs.h6{background:var(--hl6)}.vs.h7{background:var(--hl7)}
 /* Paroles de Jésus (red-letter) : dans la couleur du thème. Le numero de
    verset garde sa couleur d'accent, seul le texte prend la teinte. */
 .vs.jesus{color:var(--jesus)}
@@ -606,6 +607,7 @@ html[data-mode="soir"] .btn.primary{color:#0E141A}
 .swatch{width:26px;height:26px;border-radius:8px;border:1px solid var(--line-2);cursor:pointer;transition:.2s var(--ease)}
 .swatch:hover{transform:scale(1.12)}
 .swatch.s1{background:var(--hl1)}.swatch.s2{background:var(--hl2)}.swatch.s3{background:var(--hl3)}.swatch.s4{background:var(--hl4)}
+.swatch.s5{background:var(--hl5)}.swatch.s6{background:var(--hl6)}.swatch.s7{background:var(--hl7)}
 .swatch.s0{background:transparent;position:relative}
 .swatch.s0::after{content:"";position:absolute;inset:6px;border-top:1.5px solid var(--ink-3);transform:rotate(-45deg)}
 
