@@ -2,6 +2,7 @@
 import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
 import { supabase } from '@/lib/supabase/client';
 import Explain from './Explain';
+import WordByWord from './WordByWord';
 
 type V = { verse: number; text: string };
 const iso = (d: Date) => d.toISOString().slice(0, 10);
@@ -38,6 +39,7 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
   const [noteText, setNoteText] = useState('');
   const [editing, setEditing] = useState(false);
   const [explain, setExplain] = useState<{ kind: 'ch' | 'v'; verse?: number } | null>(null);
+  const [wbw, setWbw] = useState<number | null>(null);
   const [search, setSearch] = useState('');
   const [hl, setHl] = useState<Record<string, number>>(
     Object.fromEntries((highlights ?? []).map((h: any) => [`${h.book}-${h.chapter}-${h.verse}`, h.color])));
@@ -218,7 +220,7 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
     if (!m) return;
     const norm = m[1].trim().toLowerCase();
     const b = books.find((x: any) => x.name.toLowerCase().startsWith(norm));
-    if (b) { setBook(b.id); setChapter(Math.min(+m[2], b.chapters)); setExplain(null); }
+    if (b) { setBook(b.id); setChapter(Math.min(+m[2], b.chapters)); setExplain(null); setWbw(null); }
   };
 
   // Recherche : une reference (nom + chiffre) ouvre le passage ;
@@ -443,6 +445,9 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
                    <Explain book={book} chapter={chapter} verse={v.verse} bookName={bookName}
                             text={v.text} inline onClose={() => setExplain(null)} onGoto={go} />
                  )}
+                 {wbw === v.verse && (
+                   <WordByWord book={book} chapter={chapter} verse={v.verse} onClose={() => setWbw(null)} />
+                 )}
                </Fragment>
              );
            })}
@@ -458,6 +463,7 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
                 {noteFor(sel) ? 'Modifier la note' : 'Ajouter une note'}
               </button>
               <button className="btn sm" onClick={() => setExplain({ kind: 'v', verse: sel })}>Expliquer</button>
+              <button className="btn sm" onClick={() => setWbw(wbw === sel ? null : sel)}>Mot à mot</button>
               <button className="btn sm" onClick={() =>
                 navigator.clipboard?.writeText(`« ${verses.find(v => v.verse === sel)?.text} » ${bookName} ${chapter}.${sel}`)}>
                 Copier

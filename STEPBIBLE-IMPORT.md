@@ -13,22 +13,17 @@ Dépôt `github.com/STEPBible/STEPBible-Data` (Code → Download ZIP). Tu as bes
 - **Grec (NT)** : les 2 fichiers `TAGNT …` (Mat-Jhn, Act-Rev)
 
 ## 3. Lancer l'import (depuis la racine du projet)
-Récupère tes clés Supabase (les mêmes que dans Vercel) et lance :
+Mets les 6 fichiers dans `stepbible/`, puis :
 
 ```bash
-NEXT_PUBLIC_SUPABASE_URL="https://XXXX.supabase.co" \
-SUPABASE_SERVICE_ROLE_KEY="eyJ...(clé service_role)" \
-node scripts/import-stepbible.mjs \
-  "TAHOT Gen-Deu - Translators Amalgamated Hebrew OT - STEPBible.org CC BY.txt" \
-  "TAHOT Jos-Est - Translators Amalgamated Hebrew OT - STEPBible.org CC BY.txt" \
-  "TAHOT Job-Sng - Translators Amalgamated Hebrew OT - STEPBible.org CC BY.txt" \
-  "TAHOT Isa-Mal - Translators Amalgamated Hebrew OT - STEPBible.org CC BY.txt" \
-  "TAGNT Mat-Jhn - Translators Amalgamated Greek NT - STEPBible.org CC BY.txt" \
-  "TAGNT Act-Rev - Translators Amalgamated Greek NT - STEPBible.org CC BY.txt"
+export NEXT_PUBLIC_SUPABASE_URL="https://XXXX.supabase.co"
+export SUPABASE_SERVICE_ROLE_KEY="eyJ...(clé service_role)"
+node scripts/import-stepbible.mjs stepbible/TAHOT*.txt stepbible/TAGNT*.txt
 ```
 
-Le script affiche l'avancement (« X mots importés… ») et est **ré-exécutable
-sans risque**. Compte quelques minutes (~400 000 mots).
+Le `*` attrape tous les fichiers (peu importe le suffixe exact). Le script
+affiche l'avancement (« X mots importés… ») et est **ré-exécutable sans
+risque**. Compte quelques minutes (~400 000 mots).
 
 > ✅ Le parser est validé pour l'**hébreu (TAHOT)** ET le **grec (TAGNT)** —
 > les deux formats sont gérés automatiquement. Tu peux tout importer d'un coup.
