@@ -1,5 +1,7 @@
 'use client';
 import { useState } from 'react';
+import { relabelCode } from '@/lib/cursus-code';
+import { courseTitle } from '@/lib/course-titles';
 
 const LEVEL_COLOR: Record<string, string> = {
   'Acquis': '#2f8f5b',
@@ -7,34 +9,61 @@ const LEVEL_COLOR: Record<string, string> = {
   'Non acquis': '#b3413a'
 };
 
-/** Ouvre une version imprimable propre du résultat : l'utilisateur choisit
- *  « Enregistrer en PDF » dans la boite d'impression. Aucune dépendance. */
+/** Ouvre une version imprimable soignée et branchée du résultat : l'utilisateur
+ *  choisit « Enregistrer en PDF » dans la boite d'impression. Aucune dépendance. */
 function exportPdf(r: any, code: string, title?: string) {
   const esc = (s: any) => String(s ?? '').replace(/[<>&]/g, m => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' }[m]!));
   const li = (a: string[]) => (a || []).map(x => `<li>${esc(x)}</li>`).join('');
   const corr = (r.corrections || []).map((c: any) =>
     `<p><b>${esc(c.point)}</b><br>${esc(c.explanation)}</p>`).join('');
   const date = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+  const lvlColor = LEVEL_COLOR[r.level] ?? '#4E6A85';
+  const displayTitle = esc(courseTitle(code, title || ''));
   const html = `<!doctype html><html lang="fr"><head><meta charset="utf-8">
-<title>Correction ${esc(code)}</title>
+<title>Correction — ${esc(relabelCode(code))}</title>
 <style>
-  body{font-family:Georgia,'Times New Roman',serif;max-width:720px;margin:44px auto;padding:0 26px;color:#161616;line-height:1.62}
-  h1{font-size:25px;margin:0 0 2px} .sub{color:#777;margin:0 0 8px}
-  h2{font-size:12px;text-transform:uppercase;letter-spacing:.09em;color:#7a7a7a;margin:26px 0 8px;font-family:Arial,sans-serif}
-  .lvl{font-weight:700;font-size:16px} .verdict{font-size:18px;font-style:italic}
-  ul{padding-left:20px;margin:6px 0} li{margin:4px 0}
-  .foot{margin-top:34px;color:#999;font-size:12px;font-family:Arial,sans-serif}
+  @page { size: A4; margin: 15mm; }
+  *{ box-sizing:border-box; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  body{ margin:0; color:#1b2229; background:#fff;
+        font-family:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif; line-height:1.62; }
+  .sans{ font-family:-apple-system,'Helvetica Neue',Arial,sans-serif; }
+  .band{ background:linear-gradient(120deg,#4E6A85,#33485c); color:#fff;
+         border-radius:16px; padding:26px 30px; margin-bottom:26px; }
+  .brand{ font-family:-apple-system,'Helvetica Neue',Arial,sans-serif; font-weight:700;
+          letter-spacing:.16em; text-transform:uppercase; font-size:11px; opacity:.85; }
+  .band h1{ font-size:25px; font-weight:600; margin:12px 0 5px; line-height:1.2; }
+  .band .meta{ font-family:-apple-system,'Helvetica Neue',Arial,sans-serif; font-size:12.5px; opacity:.82; }
+  .lbl{ font-family:-apple-system,'Helvetica Neue',Arial,sans-serif; font-size:11px; font-weight:700;
+        letter-spacing:.12em; text-transform:uppercase; color:#4E6A85; margin:22px 0 8px; }
+  .card{ border:1px solid #e7eaef; border-left:3px solid #4E6A85; border-radius:12px;
+         padding:15px 20px; background:#fbfbfc; break-inside:avoid; }
+  .badge{ display:inline-block; font-family:-apple-system,'Helvetica Neue',Arial,sans-serif;
+          font-weight:700; font-size:12px; padding:5px 13px; border-radius:99px; color:#fff; }
+  .verdict{ font-size:18px; font-style:italic; line-height:1.5; margin:12px 0 0; }
+  ul{ padding-left:18px; margin:2px 0; } li{ margin:5px 0; }
+  .corr p{ margin:2px 0 13px; } .corr b{ color:#33485c; }
+  .foot{ margin-top:34px; padding-top:14px; border-top:1px solid #e7eaef;
+         font-family:-apple-system,'Helvetica Neue',Arial,sans-serif; font-size:11px; color:#9aa4ad;
+         display:flex; justify-content:space-between; }
 </style></head><body>
-  <h1>Correction — ${esc(code)}</h1>
-  <p class="sub">${esc(title || '')}${title ? ' · ' : ''}${date}</p>
-  <h2>Évaluation</h2>
-  <p class="lvl">${esc(r.level)}</p>
-  <p class="verdict">${esc(r.verdict)}</p>
-  ${r.strengths?.length ? `<h2>Points forts</h2><ul>${li(r.strengths)}</ul>` : ''}
-  ${r.gaps?.length ? `<h2>À corriger</h2><ul>${li(r.gaps)}</ul>` : ''}
-  ${corr ? `<h2>Explications</h2>${corr}` : ''}
-  <h2>Pour progresser</h2><p>${esc(r.next_step)}</p>
-  <p class="foot">Le Pain quotidien · Cursus théologique</p>
+  <div class="band">
+    <div class="brand">Pain de Vie · Cursus théologique</div>
+    <h1>${displayTitle || 'Correction du devoir'}</h1>
+    <div class="meta">${esc(relabelCode(code))} · Correction du devoir · ${date}</div>
+  </div>
+
+  <p class="lbl">Évaluation</p>
+  <div class="card">
+    <span class="badge" style="background:${lvlColor}">${esc(r.level)}</span>
+    <p class="verdict">${esc(r.verdict)}</p>
+  </div>
+
+  ${r.strengths?.length ? `<p class="lbl">Points forts</p><div class="card"><ul>${li(r.strengths)}</ul></div>` : ''}
+  ${r.gaps?.length ? `<p class="lbl">À corriger</p><div class="card"><ul>${li(r.gaps)}</ul></div>` : ''}
+  ${corr ? `<p class="lbl">Explications</p><div class="card corr">${corr}</div>` : ''}
+  <p class="lbl">Pour progresser</p><div class="card">${esc(r.next_step)}</div>
+
+  <div class="foot"><span>Pain de Vie — Cursus théologique</span><span>${date}</span></div>
 </body></html>`;
   const w = window.open('', '_blank');
   if (!w) { alert('Autorisez les fenêtres pop-up pour télécharger le PDF.'); return; }

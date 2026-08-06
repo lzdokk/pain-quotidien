@@ -510,19 +510,39 @@ html[data-mode="soir"] .btn.primary{color:#0E141A}
 
 /* ── Musique de fond ──────────────────────────────────────────────── */
 .music{position:fixed;left:16px;bottom:calc(16px + env(safe-area-inset-bottom));z-index:90;
- display:flex;align-items:center;gap:8px}
+ display:flex;align-items:flex-end;gap:10px}
 @media(max-width:700px){.music{bottom:calc(72px + env(safe-area-inset-bottom))}}
-.music-fab{width:46px;height:46px;border-radius:99px;border:1px solid var(--line);
+.music-fab{width:46px;height:46px;border-radius:99px;border:1px solid var(--line);flex:none;
  background:var(--surface);color:var(--ink-2);font-size:16px;cursor:pointer;box-shadow:var(--shadow);
  display:grid;place-items:center;transition:.25s var(--ease)}
 .music-fab:hover{color:var(--accent);border-color:var(--accent-line)}
 .music.open .music-fab{color:var(--accent)}
-.music-panel{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);
- border-radius:99px;padding:6px 8px 6px 14px;box-shadow:var(--shadow);animation:igfade .2s var(--ease)}
-.music-name{font-size:13px;color:var(--ink-2);white-space:nowrap}
-.music-next,.music-x{width:26px;height:26px;border-radius:99px;border:0;background:var(--surface-2);
- color:var(--ink-2);cursor:pointer;font-size:15px;line-height:1;display:grid;place-items:center}
-.music-next:hover,.music-x:hover{color:var(--accent)}
+
+.music-panel{width:min(280px,74vw);background:var(--surface);border:1px solid var(--line);
+ border-radius:16px;padding:12px 14px 14px;box-shadow:var(--shadow-lg);animation:igfade .22s var(--ease)}
+.music-top{display:flex;align-items:center;gap:10px}
+.music-play{width:30px;height:30px;flex:none;border-radius:99px;border:0;background:var(--accent-soft);
+ color:var(--accent);cursor:pointer;font-size:12px;line-height:1;display:grid;place-items:center}
+.music-name{flex:1;min-width:0;font-size:13.5px;font-weight:560;color:var(--ink);white-space:nowrap;
+ overflow:hidden;text-overflow:ellipsis}
+.music-x{width:26px;height:26px;flex:none;border-radius:99px;border:0;background:var(--surface-2);
+ color:var(--ink-3);cursor:pointer;font-size:15px;line-height:1;display:grid;place-items:center}
+.music-x:hover{color:var(--accent)}
+
+.music-seek{margin-top:12px}
+.music-seek input[type=range]{width:100%;-webkit-appearance:none;appearance:none;height:4px;border-radius:99px;
+ background:var(--line-2);cursor:pointer}
+.music-seek input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:14px;height:14px;
+ border-radius:99px;background:var(--accent);border:2px solid var(--surface);box-shadow:var(--shadow)}
+.music-seek input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:99px;background:var(--accent);border:2px solid var(--surface)}
+.music-time{display:flex;justify-content:space-between;margin-top:5px;font-family:var(--sans);
+ font-size:11px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+
+.music-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.music-track{border:1px solid var(--line);background:transparent;color:var(--ink-2);font:inherit;font-size:12px;
+ padding:5px 11px;border-radius:99px;cursor:pointer;transition:.2s var(--ease)}
+.music-track:hover{border-color:var(--accent-line);color:var(--accent)}
+.music-track.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:560}
 
 /* ── Guide d'installation ─────────────────────────────────────────── */
 .ig{font-family:var(--sans)}

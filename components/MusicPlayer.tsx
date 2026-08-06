@@ -2,34 +2,39 @@
 import { useEffect, useRef, useState } from 'react';
 
 /**
- * Musique de fond instrumentale (on/off), persistante d'une page à l'autre.
- * Placé dans le layout : l'audio continue pendant la navigation. La lecture
- * ne démarre qu'au clic (règle des navigateurs), donc pas de son surprise.
- *
- * Détection tolérante : on teste une liste de noms de fichiers courants dans
- * public/music/ et on garde ceux qui existent réellement. Nomme simplement ton
- * MP3 avec l'un de ces noms (paix.mp3, adoration.mp3, louange.mp3, 1.mp3…).
+ * Musique de fond instrumentale, persistante d'une page à l'autre (placé dans
+ * le layout). Lecture au clic (pas de son surprise). Choix du titre + curseur
+ * de temps (utile pour les longues pistes). Détection tolérante des fichiers
+ * présents dans public/music/.
  */
 const CANDIDATES = [
   'paix', 'adoration', 'contemplation', 'louange', 'priere', 'meditation',
-  'worship', 'instrumental', 'musique', 'ambiance', 'fond', '1', '2', '3'
+  'worship', 'instrumental', 'musique', 'ambiance', 'fond', '1', '2', '3', '4', '5'
 ];
 const NICE: Record<string, string> = {
   paix: 'Paix', adoration: 'Adoration', contemplation: 'Contemplation',
   louange: 'Louange', priere: 'Prière', meditation: 'Méditation',
   worship: 'Worship', instrumental: 'Instrumental', musique: 'Musique',
-  ambiance: 'Ambiance', fond: 'Ambiance', '1': 'Piste 1', '2': 'Piste 2', '3': 'Piste 3'
+  ambiance: 'Ambiance', fond: 'Ambiance'
 };
-const label = (b: string) => NICE[b] ?? (b.charAt(0).toUpperCase() + b.slice(1));
+const label = (b: string) => NICE[b] ?? (/^\d+$/.test(b) ? `Piste ${b}` : b.charAt(0).toUpperCase() + b.slice(1));
+const fmt = (s: number) => {
+  s = Math.max(0, Math.floor(s || 0));
+  const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+  const mm = h ? String(m).padStart(2, '0') : String(m);
+  return `${h ? h + ':' : ''}${mm}:${String(sec).padStart(2, '0')}`;
+};
 
 type Track = { src: string; name: string };
 
 export default function MusicPlayer() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [tracks, setTracks] = useState<Track[] | null>(null); // null = on teste
+  const [tracks, setTracks] = useState<Track[] | null>(null);
   const [playing, setPlaying] = useState(false);
   const [i, setI] = useState(0);
   const [open, setOpen] = useState(false);
+  const [cur, setCur] = useState(0);
+  const [dur, setDur] = useState(0);
 
   useEffect(() => {
     let alive = true;
@@ -41,16 +46,17 @@ export default function MusicPlayer() {
     return () => { alive = false; };
   }, []);
 
+  // Change de piste : recharge la source, remet le temps à 0, joue si en lecture.
   useEffect(() => {
     const a = audioRef.current;
     if (!a || !tracks || !tracks[i]) return;
     a.src = tracks[i].src;
-    a.loop = true; a.volume = 0.35;
+    a.loop = true; a.volume = 0.4;
+    setCur(0); setDur(0);
     if (playing) a.play().catch(() => setPlaying(false));
   }, [i, tracks]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (tracks !== null && tracks.length === 0) return null; // aucun fichier en ligne
-  if (tracks === null) return null; // en cours de test : on n'affiche encore rien
+  if (tracks === null || tracks.length === 0) return null;
 
   const toggle = () => {
     const a = audioRef.current;
@@ -58,27 +64,55 @@ export default function MusicPlayer() {
     if (playing) { a.pause(); setPlaying(false); }
     else {
       a.src = a.src || tracks[i].src;
-      a.loop = true; a.volume = 0.35;
+      a.loop = true; a.volume = 0.4;
       a.play().then(() => { setPlaying(true); setOpen(true); }).catch(() => setPlaying(false));
     }
   };
-  const next = () => setI(v => (v + 1) % tracks.length);
+  const choose = (idx: number) => {
+    if (idx === i) { setOpen(true); return; }
+    setPlaying(true); setI(idx); setOpen(true);
+  };
+  const seek = (t: number) => {
+    const a = audioRef.current;
+    if (a) { a.currentTime = t; setCur(t); }
+  };
 
   return (
     <div className={`music${open ? ' open' : ''}`}>
-      <audio ref={audioRef} preload="none" />
-      <button className="music-fab" onClick={toggle}
-              aria-label={playing ? 'Couper la musique' : 'Musique de fond'}
-              title={playing ? 'Couper la musique' : 'Musique de fond'}>
+      <audio ref={audioRef} preload="metadata"
+             onTimeUpdate={e => setCur(e.currentTarget.currentTime)}
+             onLoadedMetadata={e => setDur(e.currentTarget.duration || 0)} />
+
+      <button className="music-fab" onClick={() => (open ? toggle() : setOpen(true))}
+              aria-label="Musique de fond" title="Musique de fond">
         {playing ? '❚❚' : '♪'}
       </button>
+
       {open && (
         <div className="music-panel">
-          <span className="music-name">{playing ? '♪ ' : ''}{tracks[i].name}</span>
+          <div className="music-top">
+            <button className="music-play" onClick={toggle} aria-label={playing ? 'Pause' : 'Lecture'}>
+              {playing ? '❚❚' : '►'}
+            </button>
+            <span className="music-name">{tracks[i].name}</span>
+            <button className="music-x" onClick={() => setOpen(false)} aria-label="Réduire">×</button>
+          </div>
+
+          <div className="music-seek">
+            <input type="range" min={0} max={dur || 0} step={1} value={Math.min(cur, dur || 0)}
+                   onChange={e => seek(+e.target.value)} aria-label="Position dans la piste" />
+            <div className="music-time"><span>{fmt(cur)}</span><span>{dur ? fmt(dur) : '—'}</span></div>
+          </div>
+
           {tracks.length > 1 && (
-            <button className="music-next" onClick={next} aria-label="Piste suivante" title="Piste suivante">›</button>
+            <div className="music-list">
+              {tracks.map((t, idx) => (
+                <button key={t.src} className={`music-track${idx === i ? ' on' : ''}`} onClick={() => choose(idx)}>
+                  {t.name}
+                </button>
+              ))}
+            </div>
           )}
-          <button className="music-x" onClick={() => setOpen(false)} aria-label="Réduire">×</button>
         </div>
       )}
     </div>
