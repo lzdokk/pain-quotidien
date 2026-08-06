@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { relabelCode } from '@/lib/cursus-code';
+import { courseTitle } from '@/lib/course-titles';
 
 const KIND: Record<string, string> = { E: 'Exegese', D: 'Doctrine', P: 'Pratique', G: 'Langue' };
 
@@ -72,7 +73,7 @@ export default function CursusBrowser({ levels, groups, courses, done, user }: a
                       className={`course${ok ? ' done' : ''}${ready ? ' ready' : ''}`}>
                   <span className="code">{ok ? '✓' : relabelCode(c.code)}</span>
                   <span style={{ flex: 1, minWidth: 0 }}>
-                    <span className="ct">{c.title}</span>
+                    <span className="ct">{courseTitle(c.code, c.title)}</span>
                     <span className="cp">{c.hook}{ready ? '' : ' · fiche a venir'}</span>
                   </span>
                   <span className="ctype">{KIND[c.kind]} · {c.hours} h</span>
