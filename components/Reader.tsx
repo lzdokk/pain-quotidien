@@ -251,13 +251,6 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
         <p className="lede">Un parcours qui commencé la ou il faut commencer, et un carnet qui garde tout ce que vous notez.</p>
       </header>
 
-      {forgot && (
-        <div className="banner">
-          <span style={{ fontSize: 18 }}>🔔</span>
-          <div><b>Vous n&rsquo;avez pas encore lu aujourd&rsquo;hui.</b> Votre dernière lecture remonte au {plan.last_read_on}. Un chapitre prend sept minutes.</div>
-        </div>
-      )}
-
       {P && position.step && (
         <div className="card">
           <div className="today-read">
