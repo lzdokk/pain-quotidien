@@ -441,6 +441,37 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
                    <span className="vn">{v.verse}</span>{v.text}
                    {noteFor(v.verse) && <span className="noteflag">note</span>}
                  </span>
+                 {sel === v.verse && (
+                   <div className="vbar-inline">
+                     <div className="vbar-head">
+                       <span className="vref">{bookName} {chapter}.{v.verse}</span>
+                       <button className="vbar-x" onClick={() => { setSel(null); setEditing(false); }} aria-label="Fermer">✕</button>
+                     </div>
+                     <div className="vbar-row">
+                       {[1, 2, 3, 4].map(c => <span key={c} className={`swatch s${c}`} onClick={() => setColor(v.verse, c)} />)}
+                       <span className="swatch s0" onClick={() => setColor(v.verse, 0)} />
+                       <button className="btn sm" style={{ marginLeft: 'auto' }} onClick={() => setEditing(true)}>
+                         {noteFor(v.verse) ? 'Modifier la note' : 'Ajouter une note'}
+                       </button>
+                       <button className="btn sm" onClick={() => setExplain({ kind: 'v', verse: v.verse })}>Expliquer</button>
+                       <button className="btn sm" onClick={() => setWbw(wbw === v.verse ? null : v.verse)}>Mot à mot</button>
+                       <button className="btn sm" onClick={() =>
+                         navigator.clipboard?.writeText(`« ${v.text} » ${bookName} ${chapter}.${v.verse}`)}>
+                         Copier
+                       </button>
+                     </div>
+                     {editing && (
+                       <div>
+                         <textarea className="field" style={{ marginTop: 12 }} autoFocus value={noteText}
+                                   onChange={e => setNoteText(e.target.value)}
+                                   placeholder="Ce que ce verset vous dit, une question, un lien avec votre vie…" />
+                         <div className="share-grid" style={{ marginTop: 10 }}>
+                           <button className="btn primary" onClick={() => saveNote(v.verse)}>Enregistrer dans mon carnet</button>
+                         </div>
+                       </div>
+                     )}
+                   </div>
+                 )}
                  {showExplain && (
                    <Explain book={book} chapter={chapter} verse={v.verse} bookName={bookName}
                             text={v.text} inline onClose={() => setExplain(null)} onGoto={go} />
@@ -452,35 +483,6 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
              );
            })}
         </div>
-
-        {sel !== null && (
-          <div className="vbar on">
-            <div className="vref">{bookName} {chapter}.{sel}</div>
-            <div className="vbar-row">
-              {[1, 2, 3, 4].map(c => <span key={c} className={`swatch s${c}`} onClick={() => setColor(sel, c)} />)}
-              <span className="swatch s0" onClick={() => setColor(sel, 0)} />
-              <button className="btn sm" style={{ marginLeft: 'auto' }} onClick={() => setEditing(true)}>
-                {noteFor(sel) ? 'Modifier la note' : 'Ajouter une note'}
-              </button>
-              <button className="btn sm" onClick={() => setExplain({ kind: 'v', verse: sel })}>Expliquer</button>
-              <button className="btn sm" onClick={() => setWbw(wbw === sel ? null : sel)}>Mot à mot</button>
-              <button className="btn sm" onClick={() =>
-                navigator.clipboard?.writeText(`« ${verses.find(v => v.verse === sel)?.text} » ${bookName} ${chapter}.${sel}`)}>
-                Copier
-              </button>
-            </div>
-            {editing && (
-              <div>
-                <textarea className="field" style={{ marginTop: 12 }} autoFocus value={noteText}
-                          onChange={e => setNoteText(e.target.value)}
-                          placeholder="Ce que ce verset vous dit, une question, un lien avec votre vie…" />
-                <div className="share-grid" style={{ marginTop: 10 }}>
-                  <button className="btn primary" onClick={() => saveNote(sel)}>Enregistrer dans mon carnet</button>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
 
         {!loading && verses.length > 0 && (
           <div className="chap-foot">

@@ -713,11 +713,20 @@ html[data-mode="soir"] .msg.me{color:#0E141A}
 /* Volet d'explication affiché SOUS le verset (dans le flux du chapitre),
    au lieu d'une fenêtre centrée. Réutilise la typo de .modal-in. */
 .vexplain{display:block;position:static;width:auto;max-width:none;max-height:none;
- overflow:visible;border-radius:16px;margin:16px 0 10px;padding:20px 22px 24px;
- box-shadow:var(--shadow);animation:vexpand .3s var(--ease)}
-@media(min-width:700px){.vexplain{border-radius:16px}}
-@keyframes vexpand{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+ overflow:visible;border-radius:18px;margin:14px 0 10px;padding:20px 22px 24px;
+ box-shadow:var(--shadow-lg);transform-origin:top center;animation:vexpand .34s var(--ease)}
+@media(min-width:700px){.vexplain{border-radius:18px}}
+@keyframes vexpand{from{opacity:0;transform:translateY(-10px) scale(.975)}to{opacity:1;transform:none}}
 .vexplain .mclose{background:var(--surface-2)}
+
+/* Volet d'action du verset, affiché juste SOUS le verset (plus de barre fixe). */
+.vbar-inline{margin:12px 0 10px;padding:14px 16px 16px;border:1px solid var(--line);border-radius:18px;
+ background:var(--surface);box-shadow:var(--shadow-lg);transform-origin:top center;animation:vexpand .3s var(--ease)}
+.vbar-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.vbar-head .vref{font-family:var(--sans);font-size:12.5px;font-weight:640;letter-spacing:.02em;color:var(--accent)}
+.vbar-x{border:0;background:var(--surface-2);color:var(--ink-3);width:28px;height:28px;border-radius:99px;
+ cursor:pointer;font-size:14px;line-height:1;display:grid;place-items:center;transition:.2s var(--ease)}
+.vbar-x:hover{color:var(--accent);background:var(--accent-soft)}
 
 /* Mot-à-mot (interlinéaire) */
 .wbw-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
