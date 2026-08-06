@@ -4,6 +4,7 @@ import './globals.css';
 import Reveal from '@/components/Reveal';
 import NativeInit from '@/components/NativeInit';
 import OneSignalInit from '@/components/OneSignalInit';
+import MusicPlayer from '@/components/MusicPlayer';
 import InstallPrompt from '@/components/InstallPrompt';
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://painquotidien.app';
@@ -44,6 +45,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {children}
         <NativeInit />
         <OneSignalInit />
+        <MusicPlayer />
         <InstallPrompt />
         <Reveal />
       </body>

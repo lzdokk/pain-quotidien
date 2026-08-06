@@ -508,6 +508,22 @@ html[data-mode="soir"] .btn.primary{color:#0E141A}
 .notify-on{font-size:13px;font-weight:600;color:var(--accent)}
 .notify-off{font-size:12.5px;color:var(--ink-3);max-width:340px;text-align:right}
 
+/* ── Musique de fond ──────────────────────────────────────────────── */
+.music{position:fixed;left:16px;bottom:calc(16px + env(safe-area-inset-bottom));z-index:90;
+ display:flex;align-items:center;gap:8px}
+@media(max-width:700px){.music{bottom:calc(72px + env(safe-area-inset-bottom))}}
+.music-fab{width:46px;height:46px;border-radius:99px;border:1px solid var(--line);
+ background:var(--surface);color:var(--ink-2);font-size:16px;cursor:pointer;box-shadow:var(--shadow);
+ display:grid;place-items:center;transition:.25s var(--ease)}
+.music-fab:hover{color:var(--accent);border-color:var(--accent-line)}
+.music.open .music-fab{color:var(--accent)}
+.music-panel{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);
+ border-radius:99px;padding:6px 8px 6px 14px;box-shadow:var(--shadow);animation:igfade .2s var(--ease)}
+.music-name{font-size:13px;color:var(--ink-2);white-space:nowrap}
+.music-next,.music-x{width:26px;height:26px;border-radius:99px;border:0;background:var(--surface-2);
+ color:var(--ink-2);cursor:pointer;font-size:15px;line-height:1;display:grid;place-items:center}
+.music-next:hover,.music-x:hover{color:var(--accent)}
+
 /* ── Guide d'installation ─────────────────────────────────────────── */
 .ig{font-family:var(--sans)}
 .ig-head{display:flex;align-items:center;gap:8px;font-weight:700;font-size:15px;margin-bottom:10px}
