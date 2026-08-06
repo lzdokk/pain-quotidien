@@ -21,6 +21,10 @@ export async function GET(req: NextRequest) {
     return new NextResponse('Unauthorized', { status: 401 });
   }
   const chapters = Math.min(Math.max(1, Number(new URL(req.url).searchParams.get('c') ?? 4)), 8);
+  // Budget-temps : on s'arrete AVANT la coupure de Vercel (~55 s) en
+  // sauvegardant la progression, plutot que de timeouter (erreur 504/22).
+  const started = Date.now();
+  const BUDGET_MS = 50_000;
 
   const { data: prog } = await admin.from('jesus_progress').select('*').eq('id', 1).maybeSingle();
   if (prog?.done) {
@@ -60,6 +64,7 @@ export async function GET(req: NextRequest) {
   const done: string[] = [];
 
   for (const ch of todo) {
+    if (Date.now() - started > BUDGET_MS) break; // on rend la main avant le timeout
     try {
       if (!booksCache.has(ch.book)) {
         const { data: b } = await admin.from('books').select('name').eq('id', ch.book).single();

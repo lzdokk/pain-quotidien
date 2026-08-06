@@ -13,5 +13,5 @@ jobs:
     steps:
       - name: Appeler /api/cron/redletter
         run: |
-          curl -sf -X GET "${{ secrets.SITE_URL }}/api/cron/redletter?c=5" \
+          curl -sf -X GET "${{ secrets.SITE_URL }}/api/cron/redletter?c=3" \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"
