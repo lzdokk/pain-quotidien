@@ -1,0 +1,17 @@
+name: Fiches versets connus (★)
+
+# Pre-genere en priorite les fiches des versets marques d'une etoile
+# (les fameux 10%), pour un clic instantane a la lecture.
+on:
+  schedule:
+    - cron: '30 */6 * * *'
+  workflow_dispatch: {}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Appeler /api/cron/verse-notes-famous
+        run: |
+          curl -sf -X GET "${{ secrets.SITE_URL }}/api/cron/verse-notes-famous?n=25" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"

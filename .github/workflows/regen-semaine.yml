@@ -1,0 +1,29 @@
+name: Régénérer la semaine (manuel)
+
+# À lancer à la main (Run workflow) pour régénérer les 7 jours à partir
+# d'aujourd'hui avec les règles à jour (dont "verset dans les lectures"),
+# puis republier la journée du jour. Par paquets de 3 pour tenir sous la
+# limite de temps de Vercel.
+on:
+  workflow_dispatch: {}
+
+jobs:
+  regen:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Jours 1 à 3
+        run: |
+          curl -sf "${{ secrets.SITE_URL }}/api/cron/weekly?from=today&days=3&skip=0" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"
+      - name: Jours 4 à 6
+        run: |
+          curl -sf "${{ secrets.SITE_URL }}/api/cron/weekly?from=today&days=3&skip=3" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"
+      - name: Jour 7
+        run: |
+          curl -sf "${{ secrets.SITE_URL }}/api/cron/weekly?from=today&days=3&skip=6" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"
+      - name: Republier aujourd'hui
+        run: |
+          curl -sf "${{ secrets.SITE_URL }}/api/cron/daily" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"
