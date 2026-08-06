@@ -27,6 +27,9 @@ export default async function Compte() {
       <div className="wrap" style={{ marginTop: 20 }}>
         <NotifyButton />
         <p style={{ marginTop: 12, fontSize: 13 }}>
+          <a href="/surlignes">Versets surlignés{(highlights?.length ?? 0) ? ` (${highlights!.length})` : ''} — classés par thème ›</a>
+        </p>
+        <p style={{ marginTop: 8, fontSize: 13 }}>
           <a href="/installer">Installer l'app / la partager à un proche ›</a>
         </p>
       </div>

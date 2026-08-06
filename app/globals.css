@@ -728,6 +728,19 @@ html[data-mode="soir"] .msg.me{color:#0E141A}
  cursor:pointer;font-size:14px;line-height:1;display:grid;place-items:center;transition:.2s var(--ease)}
 .vbar-x:hover{color:var(--accent);background:var(--accent-soft)}
 
+/* Page Versets surlignés (classés par thème) */
+.sl-th{display:flex;align-items:center;gap:12px}
+.sl-th .swatch{width:22px;height:22px;border-radius:7px;flex:none}
+.sl-th-txt{display:flex;flex-direction:column;flex:1;min-width:0}
+.sl-th-txt strong{font-size:15px}
+.sl-hint{font-size:12.5px;color:var(--ink-3)}
+.sl-count{font-family:var(--sans);font-size:13px;font-weight:640;color:var(--accent)}
+.sl-list{display:flex;flex-direction:column;gap:2px;margin-top:12px}
+.sl-item{display:block;padding:10px 12px;border-radius:12px;text-decoration:none;transition:.2s var(--ease)}
+.sl-item:hover{background:var(--surface-2)}
+.sl-ref{display:block;font-family:var(--sans);font-size:12px;font-weight:640;color:var(--accent)}
+.sl-text{display:block;font-family:var(--serif);font-size:15px;line-height:1.55;color:var(--ink-2);margin-top:2px}
+
 /* Mot-à-mot (interlinéaire) */
 .wbw-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
 .wbw-list.rtl{direction:rtl}

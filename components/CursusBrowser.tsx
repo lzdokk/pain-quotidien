@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
+import { relabelCode } from '@/lib/cursus-code';
 
 const KIND: Record<string, string> = { E: 'Exegese', D: 'Doctrine', P: 'Pratique', G: 'Langue' };
 
@@ -69,7 +70,7 @@ export default function CursusBrowser({ levels, groups, courses, done, user }: a
               return (
                 <Link key={c.code} href={`/cursus/${c.code}`}
                       className={`course${ok ? ' done' : ''}${ready ? ' ready' : ''}`}>
-                  <span className="code">{ok ? '✓' : c.code}</span>
+                  <span className="code">{ok ? '✓' : relabelCode(c.code)}</span>
                   <span style={{ flex: 1, minWidth: 0 }}>
                     <span className="ct">{c.title}</span>
                     <span className="cp">{c.hook}{ready ? '' : ' · fiche a venir'}</span>

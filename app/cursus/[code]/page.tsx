@@ -6,6 +6,7 @@ import ValidateCourse from '@/components/ValidateCourse';
 import CourseHomework from '@/components/CourseHomework';
 import ReadingLinks from '@/components/ReadingLinks';
 import { rich } from '@/lib/rich';
+import { relabelCode } from '@/lib/cursus-code';
 
 export const revalidate = 86400;
 const KIND: Record<string, string> = { E: 'Exegese', D: 'Doctrine', P: 'Pratique', G: 'Langue' };
@@ -37,7 +38,7 @@ export default async function Fiche({ params }: { params: Promise<{ code: string
       <Nav user={user} />
       <main className="wrap">
         <header className="hero">
-          <div className="eyebrow">{lvl?.name} · {c.code}</div>
+          <div className="eyebrow">{lvl?.name} · {relabelCode(c.code)}</div>
           <h1>{c.title}</h1>
           <p className="lede">{KIND[c.kind]} · {c.hours} heures · {c.hook}</p>
         </header>
