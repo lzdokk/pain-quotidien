@@ -767,8 +767,22 @@ html[data-mode="soir"] .msg.me{color:#0E141A}
 .sl-hint{font-size:12.5px;color:var(--ink-3)}
 .sl-count{font-family:var(--sans);font-size:13px;font-weight:640;color:var(--accent)}
 .sl-list{display:flex;flex-direction:column;gap:2px;margin-top:12px}
-.sl-item{display:block;padding:10px 12px;border-radius:12px;text-decoration:none;transition:.2s var(--ease)}
+.sl-item{display:block;width:100%;text-align:left;background:transparent;border:0;font:inherit;color:inherit;
+ padding:10px 12px;border-radius:12px;text-decoration:none;cursor:pointer;transition:.2s var(--ease)}
 .sl-item:hover{background:var(--surface-2)}
+.sl-item-wrap.open>.sl-item{background:var(--surface-2)}
+.sl-panel{padding:8px 12px 12px}
+.sl-panel .swatch.cur{outline:2px solid var(--accent);outline-offset:2px}
+
+/* Thème écrit sous les couleurs (lecteur) */
+.vbar-theme{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:13px;color:var(--ink-2)}
+.vbar-theme .swatch{width:18px;height:18px}
+.vbar-theme.muted{color:var(--ink-3);font-size:12.5px}
+
+/* Spinner de transition de page */
+.route-loading{min-height:62vh;display:grid;place-items:center}
+.route-spin{animation:routeSpin .8s linear infinite}
+@keyframes routeSpin{to{transform:rotate(360deg)}}
 .sl-ref{display:block;font-family:var(--sans);font-size:12px;font-weight:640;color:var(--accent)}
 .sl-text{display:block;font-family:var(--serif);font-size:15px;line-height:1.55;color:var(--ink-2);margin-top:2px}
 

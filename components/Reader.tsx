@@ -185,7 +185,7 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
   const setColor = async (v: number, color: number) => {
     const k = key(v);
     const next = { ...hl }; color ? next[k] = color : delete next[k];
-    setHl(next); setSel(null);
+    setHl(next); // on garde le volet ouvert pour voir le thème appliqué
     if (!user) return;
     if (color) await supabase.from('highlights').upsert({ user_id: user.id, book, chapter, verse: v, color });
     else await supabase.from('highlights').delete().eq('book', book).eq('chapter', chapter).eq('verse', v);
@@ -454,6 +454,14 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
                          Copier
                        </button>
                      </div>
+                     {hl[key(v.verse)] ? (
+                       <div className="vbar-theme">
+                         <span className={`swatch s${hl[key(v.verse)]}`} />
+                         Thème : <strong>{themeOf(hl[key(v.verse)])?.label}</strong>
+                       </div>
+                     ) : (
+                       <div className="vbar-theme muted">Chaque couleur correspond à un thème — survole pour le voir.</div>
+                     )}
                      {editing && (
                        <div>
                          <textarea className="field" style={{ marginTop: 12 }} autoFocus value={noteText}

@@ -34,10 +34,9 @@ export default async function Surlignes() {
   const items = highlights.map((h: any) => {
     const bn = bookName.get(h.book) ?? `Livre ${h.book}`;
     return {
-      color: h.color,
+      color: h.color, book: h.book, chapter: h.chapter, verse: h.verse, bookName: bn,
       ref: `${bn} ${h.chapter}.${h.verse}`,
-      text: textMap.get(`${h.book}-${h.chapter}-${h.verse}`) ?? '',
-      href: `/lire?ref=${encodeURIComponent(`${bn} ${h.chapter}.${h.verse}`)}`
+      text: textMap.get(`${h.book}-${h.chapter}-${h.verse}`) ?? ''
     };
   });
 
@@ -55,7 +54,7 @@ export default async function Surlignes() {
         </header>
         <Link href="/compte" className="back">‹ Retour au profil</Link>
 
-        <SurlignesView items={items} />
+        <SurlignesView items={items} userId={user.id} />
       </main>
     </>
   );
