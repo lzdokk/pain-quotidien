@@ -31,6 +31,10 @@ export async function GET(req: NextRequest) {
 
   const params = new URL(req.url).searchParams;
   const limit = Math.min(Math.max(1, Number(params.get('n') ?? 40)), 80);
+  // Budget-temps : on s'arrete AVANT la coupure de Vercel (300 s), en
+  // sauvegardant la progression, plutot que de timeouter.
+  const started = Date.now();
+  const BUDGET_MS = 240_000;
 
   const { data: progress } = await admin.from('verse_notes_progress')
     .select('*').eq('id', 1).maybeSingle();
@@ -68,6 +72,7 @@ export async function GET(req: NextRequest) {
   let stopped = false;
 
   for (const w of batch) {
+    if (Date.now() - started > BUDGET_MS) { stopped = true; break; } // on rend la main avant le timeout
     const wk = `${w.book}-${w.chapter}-${w.verse}`;
     if (has.has(wk)) { skipped++; last = { book: w.book, chapter: w.chapter, verse: w.verse }; continue; }
 

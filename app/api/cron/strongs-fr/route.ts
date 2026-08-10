@@ -32,6 +32,8 @@ export async function GET(req: NextRequest) {
     return new NextResponse('Unauthorized', { status: 401 });
   }
   const limit = Math.min(Math.max(1, Number(new URL(req.url).searchParams.get('n') ?? 20)), 50);
+  const started = Date.now();
+  const BUDGET_MS = 240_000; // on rend la main avant la coupure Vercel (300 s)
 
   const { data: rows } = await admin.from('strongs')
     .select('code, lang, lemma, translit, definition_en, derivation, kjv_def')
@@ -49,6 +51,7 @@ export async function GET(req: NextRequest) {
   let stopped = false;
 
   for (const d of rows) {
+    if (Date.now() - started > BUDGET_MS) { stopped = true; break; }
     try {
       const { text } = await callText({
         system: SYSTEM,

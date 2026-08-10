@@ -3,9 +3,12 @@ import { supabaseServer } from '@/lib/supabase/server';
 import Nav from '@/components/Nav';
 import Profile from '@/components/Profile';
 import NotifyButton from '@/components/NotifyButton';
+import ShareButton from '@/components/ShareButton';
 
 export const metadata = { title: 'Mon profil' };
 export const dynamic = 'force-dynamic';
+
+const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://pain-quotidien-france.vercel.app';
 
 export default async function Compte() {
   const sb = await supabaseServer();
@@ -26,12 +29,15 @@ export default async function Compte() {
       <Nav user={user} />
       <div className="wrap" style={{ marginTop: 20 }}>
         <NotifyButton />
-        <p style={{ marginTop: 12, fontSize: 13 }}>
-          <a href="/surlignes">Versets surlignés{(highlights?.length ?? 0) ? ` (${highlights!.length})` : ''} — classés par thème ›</a>
-        </p>
-        <p style={{ marginTop: 8, fontSize: 13 }}>
-          <a href="/installer">Installer l'app / la partager à un proche ›</a>
-        </p>
+        <div className="profile-actions">
+          <a className="btn" href="/surlignes">
+            Versets surlignés{(highlights?.length ?? 0) ? ` · ${highlights!.length}` : ''}
+          </a>
+          <ShareButton title="Pain de Vie"
+                       text="Je te partage Pain de Vie — un temps avec la Parole chaque jour. Voici comment l'installer :"
+                       url={`${SITE}/installer`}
+                       label="Partager l'application" className="btn" />
+        </div>
       </div>
       <Profile
         user={user}
