@@ -3,7 +3,7 @@ import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
 import { supabase } from '@/lib/supabase/client';
 import Explain from './Explain';
 import WordByWord from './WordByWord';
-import { themeOf, suggestTheme } from '@/lib/highlight-themes';
+import { themeOf, suggestTheme, matchThemeQuery } from '@/lib/highlight-themes';
 
 type V = { verse: number; text: string };
 const iso = (d: Date) => d.toISOString().slice(0, 10);
@@ -49,6 +49,7 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
   const [searching, setSearching] = useState(false);
   const [backTo, setBackTo] = useState<string | null>(null); // retour (ex. parabole)
   const [searchedIn, setSearchedIn] = useState<string | null>(null);
+  const [themeMode, setThemeMode] = useState(false);
   const [famous, setFamous] = useState<Record<number, string>>({});
   const [jesusV, setJesusV] = useState<Set<number>>(new Set()); // paroles de Jésus (red-letter)
 
@@ -226,9 +227,32 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
 
   // Recherche : une reference (nom + chiffre) ouvre le passage ;
   // un simple mot lance une concordance sur toute la traduction.
+  const searchTheme = async (color: number) => {
+    setThemeMode(true); setSearching(true); setResults([]);
+    setSearchedIn(themeOf(color)?.label ?? null);
+    const { data: hls } = await supabase.from('highlights')
+      .select('book, chapter, verse').eq('color', color)
+      .order('book').order('chapter').order('verse');
+    const rows = hls ?? [];
+    if (rows.length === 0) { setResults([]); setSearching(false); return; }
+    const or = rows.slice(0, 400)
+      .map((h: any) => `and(book.eq.${h.book},chapter.eq.${h.chapter},verse.eq.${h.verse})`).join(',');
+    const { data: vs } = await supabase.from('verses')
+      .select('book, chapter, verse, text').eq('translation', 'FRLSG').or(or);
+    const tmap = new Map((vs ?? []).map((v: any) => [`${v.book}-${v.chapter}-${v.verse}`, v.text]));
+    setResults(rows.map((h: any) => ({
+      book: h.book, chapter: h.chapter, verse: h.verse,
+      text: tmap.get(`${h.book}-${h.chapter}-${h.verse}`) ?? ''
+    })));
+    setSearching(false);
+  };
+
   const runSearch = async () => {
     const q = search.trim();
     if (!q) { setResults(null); return; }
+    const themeColor = matchThemeQuery(q);
+    if (themeColor) { searchTheme(themeColor); return; }
+    setThemeMode(false);
     if (/\S\s+\d/.test(q)) { go(q); setResults(null); return; }
     setSearching(true); setResults([]);
     // Les traductions sous licence sont lues a distance, verset par verset :
@@ -337,7 +361,7 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
           <input className="field" type="search" value={search}
                  onChange={e => setSearch(e.target.value)}
                  onKeyDown={e => { if (e.key === 'Enter') runSearch(); }}
-                 placeholder="Une référence (Jean 3) ou un mot à chercher (peur, grâce...)" />
+                 placeholder="Référence (Jean 3), un mot (grâce…), ou un thème / une couleur (foi, bleu…)" />
 
           {results !== null && (
             <button className="btn sm" style={{ marginTop: 10 }}
@@ -513,9 +537,12 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
           <h2 className="sect" id="resultats" style={{ scrollMarginTop: 70 }}>Recherche</h2>
           <p className="sub">
             {searching ? 'Recherche en cours…'
+              : themeMode ? (results.length === 0
+                  ? `Aucun verset surligné dans le thème « ${searchedIn} ».`
+                  : `${results.length} verset${results.length > 1 ? 's' : ''} surligné${results.length > 1 ? 's' : ''} dans le thème « ${searchedIn} ».`)
               : results.length === 0 ? `Aucun verset ne contient « ${search} ».`
               : `${results.length}${results.length === 400 ? '+ (400 premiers)' : ''} verset${results.length > 1 ? 's' : ''} contiennent « ${search} »${searchedIn ? `, recherche faite dans la ${searchedIn}` : ''}.`}
-            {' '}<a style={{ cursor: 'pointer', color: 'var(--accent)' }} onClick={() => { setResults(null); setSearch(''); }}>Effacer</a>
+            {' '}<a style={{ cursor: 'pointer', color: 'var(--accent)' }} onClick={() => { setResults(null); setSearch(''); setThemeMode(false); }}>Effacer</a>
           </p>
           {!searching && results.length > 0 && (
             <div className="card pad">

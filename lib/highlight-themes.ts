@@ -19,7 +19,9 @@ export const themeOf = (color: number) => HL_THEMES.find(t => t.color === color)
 // Mots-clés (sans accents) par thème, pour suggérer un classement instantané.
 const THEME_KEYWORDS: Record<number, string[]> = {
   1: ['promesse', 'promet', 'alliance', 'fidel', 'fidelite', 'jure', 'serment', 'beni', 'benir',
-      'benediction', 'heritage', 'accompli', 'tiendra', 'abandonnera', 'garde', 'eternel amour', 'certain'],
+      'benediction', 'heritage', 'accompli', 'tiendra', 'abandonnera', 'garde', 'eternel amour', 'certain',
+      'presence', 'refuge', 'protege', 'protection', 'rocher', 'secours', 'delivr', 'soutien', 'main',
+      'ne crains', 'crainte', 'tenebres', 'lumiere', 'entoure', 'sonde', 'veille'],
   2: ['sagesse', 'sage', 'obeir', 'obeis', 'commandement', 'loi', 'instruit', 'discipline', 'ecoute',
       'pratiqu', 'chemin', 'march', 'oeuvre', 'fruit', 'prudent', 'conseil', 'craint'],
   3: ['foi', 'croi', 'confiance', 'priere', 'prie', 'demandez', 'invoqu', 'esperance', 'espere', 'attend'],
@@ -46,7 +48,26 @@ export function suggestTheme(text: string): { color: number; label: string } | n
     for (const kw of kws) if (t.includes(kw)) score++;
     if (score > bestScore) { bestScore = score; best = +color; }
   }
-  if (!best) return null;
+  if (!best) best = 1; // repli : on suggère toujours un thème (modifiable au clic)
   const th = themeOf(best);
   return th ? { color: best, label: th.label } : null;
+}
+
+// Recherche par couleur ou par nom de thème (barre du lecteur).
+const COLOR_WORDS: Record<string, number> = {
+  jaune: 1, or: 1, dore: 1, vert: 2, verte: 2, bleu: 3, bleue: 3, rose: 4,
+  violet: 5, violette: 5, mauve: 5, rouge: 6, turquoise: 7, cyan: 7
+};
+
+/** Renvoie la couleur (1..7) si la requête désigne une couleur ou un thème. */
+export function matchThemeQuery(q: string): number | null {
+  const s = strip(q).trim();
+  if (s.length < 3) return null;
+  if (COLOR_WORDS[s] != null) return COLOR_WORDS[s];
+  for (const t of HL_THEMES) {
+    const lab = strip(t.label).replace(/[^a-z ]/g, ' ');
+    const words = lab.split(/\s+/).filter(w => w.length > 2);
+    if (words.includes(s) || lab.includes(s)) return t.color;
+  }
+  return null;
 }
