@@ -15,3 +15,38 @@ export const HL_THEMES = [
 ] as const;
 
 export const themeOf = (color: number) => HL_THEMES.find(t => t.color === color);
+
+// Mots-clés (sans accents) par thème, pour suggérer un classement instantané.
+const THEME_KEYWORDS: Record<number, string[]> = {
+  1: ['promesse', 'promet', 'alliance', 'fidel', 'fidelite', 'jure', 'serment', 'beni', 'benir',
+      'benediction', 'heritage', 'accompli', 'tiendra', 'abandonnera', 'garde', 'eternel amour', 'certain'],
+  2: ['sagesse', 'sage', 'obeir', 'obeis', 'commandement', 'loi', 'instruit', 'discipline', 'ecoute',
+      'pratiqu', 'chemin', 'march', 'oeuvre', 'fruit', 'prudent', 'conseil', 'craint'],
+  3: ['foi', 'croi', 'confiance', 'priere', 'prie', 'demandez', 'invoqu', 'esperance', 'espere', 'attend'],
+  4: ['amour', 'aime', 'grace', 'salut', 'sauv', 'croix', 'sang', 'sacrifice', 'pardon', 'misericorde',
+      'compassion', 'don', 'gratuit', 'redempt', 'rachet'],
+  5: ['prophet', 'prophetie', 'accompli', 'annonc', 'messie', 'christ', 'oint', 'viendra', 'signe',
+      'vision', 'jour du seigneur', 'venir'],
+  6: ['peche', 'pecheur', 'iniquite', 'faute', 'transgress', 'repent', 'converti', 'detourn', 'confess',
+      'coupable', 'egare', 'mal', 'impie'],
+  7: ['en christ', 'nouvelle creature', 'ne de nouveau', 'enfant de dieu', 'esprit', 'temple', 'membre',
+      'corps de christ', 'heritier', 'adoption', 'demeure en moi', 'nouvelle vie', 'regenere']
+};
+
+const strip = (s: string) =>
+  (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+
+/** Devine le thème (couleur 1..7) le plus adapté au texte du verset, ou null. */
+export function suggestTheme(text: string): { color: number; label: string } | null {
+  const t = strip(text);
+  if (!t) return null;
+  let best = 0, bestScore = 0;
+  for (const [color, kws] of Object.entries(THEME_KEYWORDS)) {
+    let score = 0;
+    for (const kw of kws) if (t.includes(kw)) score++;
+    if (score > bestScore) { bestScore = score; best = +color; }
+  }
+  if (!best) return null;
+  const th = themeOf(best);
+  return th ? { color: best, label: th.label } : null;
+}

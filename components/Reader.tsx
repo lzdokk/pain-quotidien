@@ -3,7 +3,7 @@ import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
 import { supabase } from '@/lib/supabase/client';
 import Explain from './Explain';
 import WordByWord from './WordByWord';
-import { themeOf } from '@/lib/highlight-themes';
+import { themeOf, suggestTheme } from '@/lib/highlight-themes';
 
 type V = { verse: number; text: string };
 const iso = (d: Date) => d.toISOString().slice(0, 10);
@@ -441,6 +441,14 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
                        <span className="vref">{bookName} {chapter}.{v.verse}</span>
                        <button className="vbar-x" onClick={() => { setSel(null); setEditing(false); }} aria-label="Fermer">✕</button>
                      </div>
+                     {(() => {
+                       const sug = suggestTheme(v.text);
+                       return sug && hl[key(v.verse)] !== sug.color ? (
+                         <button className="btn sm suggest" onClick={() => setColor(v.verse, sug.color)}>
+                           ✨ Classer en « {sug.label} »
+                         </button>
+                       ) : null;
+                     })()}
                      <div className="vbar-row">
                        {[1, 2, 3, 4, 5, 6, 7].map(c => <span key={c} className={`swatch s${c}`} title={themeOf(c)?.label} onClick={() => setColor(v.verse, c)} />)}
                        <span className="swatch s0" title="Retirer le surlignage" onClick={() => setColor(v.verse, 0)} />

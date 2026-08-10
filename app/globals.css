@@ -779,6 +779,11 @@ html[data-mode="soir"] .msg.me{color:#0E141A}
 .vbar-theme .swatch{width:18px;height:18px}
 .vbar-theme.muted{color:var(--ink-3);font-size:12.5px}
 
+/* Bouton de suggestion de thème */
+.btn.suggest{width:100%;justify-content:center;margin-bottom:12px;
+ background:var(--accent-soft);border:1px solid var(--accent-line);color:var(--accent);font-weight:560}
+.btn.suggest:hover{background:color-mix(in srgb,var(--accent) 15%,transparent)}
+
 /* Spinner de transition de page */
 .route-loading{min-height:62vh;display:grid;place-items:center}
 .route-spin{animation:routeSpin .8s linear infinite}
