@@ -29,6 +29,12 @@ function describeTranslation(t: any): string {
   return '';
 }
 
+const LANG_LABELS: Record<string, string> = {
+  fr: 'Français', en: 'English', he: 'עברית · Hébreu', el: 'Ελληνικά · Grec',
+  la: 'Latina · Latin', de: 'Deutsch', ru: 'Русский', pl: 'Polski', ar: 'العربية', zh: '中文'
+};
+const LANG_ORDER = ['fr', 'en', 'he', 'el', 'la', 'de', 'ru', 'pl', 'ar', 'zh'];
+
 export default function Reader({ books, translations, plans, steps, plan, notes, highlights, intros, user }: any) {
   // Bible du Semeur (BDS) par defaut, sauf si une position a ete memorisee.
   const [trad, setTrad] = useState('FRLSG');
@@ -58,6 +64,19 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
   const bookName = books.find((b: any) => b.id === book)?.name ?? '';
   const chapters = books.find((b: any) => b.id === book)?.chapters ?? 1;
   const visibleTranslations = useMemo(() => translations.filter((t: any) => !HIDDEN_TRAD(t)), [translations]);
+  const [lang, setLang] = useState('fr');
+  const languages = useMemo(() => {
+    const set = new Set(visibleTranslations.map((t: any) => t.language ?? 'fr'));
+    return [...LANG_ORDER.filter(l => set.has(l)), ...[...set].filter((l: any) => !LANG_ORDER.includes(l))];
+  }, [visibleTranslations]);
+  const langTranslations = useMemo(
+    () => visibleTranslations.filter((t: any) => (t.language ?? 'fr') === lang),
+    [visibleTranslations, lang]);
+  const changeLang = (l: string) => {
+    setLang(l);
+    const inLang = visibleTranslations.filter((t: any) => (t.language ?? 'fr') === l);
+    if (!inLang.some((t: any) => t.code === trad) && inLang[0]) setTrad(inLang[0].code);
+  };
 
   // Navigation chapitre : ou aller quand on arrive en bas.
   const prevBook = books.find((b: any) => b.id === book - 1);
@@ -420,9 +439,15 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
               ))}
             </div>
           )}
+          {languages.length > 1 && (
+            <select className="field" value={lang} onChange={e => changeLang(e.target.value)}
+                    style={{ marginBottom: 10 }} aria-label="Langue">
+              {languages.map((l: any) => <option key={l} value={l}>{LANG_LABELS[l] ?? l}</option>)}
+            </select>
+          )}
           <div className="reader-bar">
             <select className="field" value={trad} onChange={e => setTrad(e.target.value)}>
-              {visibleTranslations.map((t: any) => <option key={t.code} value={t.code}>{t.name}</option>)}
+              {langTranslations.map((t: any) => <option key={t.code} value={t.code}>{t.name}</option>)}
             </select>
             <select className="field" value={book} onChange={e => { setBook(+e.target.value); setChapter(1); }}>
               {books.map((b: any) => <option key={b.id} value={b.id}>{b.name}</option>)}

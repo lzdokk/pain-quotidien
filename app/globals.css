@@ -789,6 +789,11 @@ html[data-mode="soir"] .msg.me{color:#0E141A}
 .cmp-row{border-left:2px solid var(--accent-line);padding-left:14px}
 .cmp-name{font-family:var(--sans);font-size:11px;font-weight:640;letter-spacing:.05em;text-transform:uppercase;color:var(--accent)}
 .cmp-text{font-family:var(--serif);font-size:16px;line-height:1.6;color:var(--ink);margin-top:3px}
+.cmp-filter{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 14px}
+.cmp-chip{border:1px solid var(--line);background:transparent;color:var(--ink-2);font:inherit;font-size:12px;
+ padding:5px 11px;border-radius:99px;cursor:pointer;transition:.2s var(--ease)}
+.cmp-chip:hover{border-color:var(--accent-line);color:var(--accent)}
+.cmp-chip.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:560}
 
 /* Filtre couleurs / ★ à côté de la recherche */
 .filter-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px}
