@@ -3,6 +3,7 @@ import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
 import { supabase } from '@/lib/supabase/client';
 import Explain from './Explain';
 import WordByWord from './WordByWord';
+import Compare from './Compare';
 import { themeOf, suggestTheme, matchThemeQuery } from '@/lib/highlight-themes';
 
 type V = { verse: number; text: string };
@@ -41,6 +42,7 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
   const [editing, setEditing] = useState(false);
   const [explain, setExplain] = useState<{ kind: 'ch' | 'v'; verse?: number } | null>(null);
   const [wbw, setWbw] = useState<number | null>(null);
+  const [cmp, setCmp] = useState<number | null>(null);
   const [search, setSearch] = useState('');
   const [hl, setHl] = useState<Record<string, number>>(
     Object.fromEntries((highlights ?? []).map((h: any) => [`${h.book}-${h.chapter}-${h.verse}`, h.color])));
@@ -222,7 +224,7 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
     if (!m) return;
     const norm = m[1].trim().toLowerCase();
     const b = books.find((x: any) => x.name.toLowerCase().startsWith(norm));
-    if (b) { setBook(b.id); setChapter(Math.min(+m[2], b.chapters)); setExplain(null); setWbw(null); }
+    if (b) { setBook(b.id); setChapter(Math.min(+m[2], b.chapters)); setExplain(null); setWbw(null); setCmp(null); }
   };
 
   // Recherche : une reference (nom + chiffre) ouvre le passage ;
@@ -243,6 +245,24 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
     setResults(rows.map((h: any) => ({
       book: h.book, chapter: h.chapter, verse: h.verse,
       text: tmap.get(`${h.book}-${h.chapter}-${h.verse}`) ?? ''
+    })));
+    setSearching(false);
+  };
+
+  const searchFamous = async () => {
+    setThemeMode(true); setSearching(true); setResults([]); setSearchedIn('★ versets connus');
+    const { data: fam } = await supabase.from('famous_verses')
+      .select('book, chapter, verse_start, title').order('book').order('chapter').limit(400);
+    const rows = fam ?? [];
+    if (rows.length === 0) { setResults([]); setSearching(false); return; }
+    const or = rows.slice(0, 400)
+      .map((h: any) => `and(book.eq.${h.book},chapter.eq.${h.chapter},verse.eq.${h.verse_start})`).join(',');
+    const { data: vs } = await supabase.from('verses')
+      .select('book, chapter, verse, text').eq('translation', 'FRLSG').or(or);
+    const tmap = new Map((vs ?? []).map((v: any) => [`${v.book}-${v.chapter}-${v.verse}`, v.text]));
+    setResults(rows.map((h: any) => ({
+      book: h.book, chapter: h.chapter, verse: h.verse_start,
+      text: tmap.get(`${h.book}-${h.chapter}-${h.verse_start}`) ?? h.title
     })));
     setSearching(false);
   };
@@ -363,6 +383,16 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
                  onKeyDown={e => { if (e.key === 'Enter') runSearch(); }}
                  placeholder="Référence (Jean 3), un mot (grâce…), ou un thème / une couleur (foi, bleu…)" />
 
+          <div className="filter-row">
+            <span className="filter-label">Aller à :</span>
+            {[1, 2, 3, 4, 5, 6, 7].map(c => (
+              <button key={c} className={`swatch s${c}`} title={themeOf(c)?.label}
+                      onClick={() => { setSearch(themeOf(c)?.label ?? ''); searchTheme(c); }} />
+            ))}
+            <button className="filter-star" title="Versets connus (★)"
+                    onClick={() => { setSearch('★ versets connus'); searchFamous(); }}>★</button>
+          </div>
+
           {results !== null && (
             <button className="btn sm" style={{ marginTop: 10 }}
                     onClick={() => document.getElementById('resultats')
@@ -481,6 +511,7 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
                        </button>
                        <button className="btn sm" onClick={() => setExplain({ kind: 'v', verse: v.verse })}>Expliquer</button>
                        <button className="btn sm" onClick={() => setWbw(wbw === v.verse ? null : v.verse)}>Mot à mot</button>
+                       <button className="btn sm" onClick={() => setCmp(cmp === v.verse ? null : v.verse)}>Comparer</button>
                        <button className="btn sm" onClick={() =>
                          navigator.clipboard?.writeText(`« ${v.text} » ${bookName} ${chapter}.${v.verse}`)}>
                          Copier
@@ -513,6 +544,10 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
                  {wbw === v.verse && (
                    <WordByWord book={book} chapter={chapter} verse={v.verse} onClose={() => setWbw(null)} />
                  )}
+                 {cmp === v.verse && (
+                   <Compare book={book} chapter={chapter} verse={v.verse}
+                            refLabel={`${bookName} ${chapter}.${v.verse}`} onClose={() => setCmp(null)} />
+                 )}
                </Fragment>
              );
            })}
@@ -538,8 +573,8 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
           <p className="sub">
             {searching ? 'Recherche en cours…'
               : themeMode ? (results.length === 0
-                  ? `Aucun verset surligné dans le thème « ${searchedIn} ».`
-                  : `${results.length} verset${results.length > 1 ? 's' : ''} surligné${results.length > 1 ? 's' : ''} dans le thème « ${searchedIn} ».`)
+                  ? `Rien à afficher pour « ${searchedIn} ».`
+                  : `${results.length} verset${results.length > 1 ? 's' : ''} — « ${searchedIn} ».`)
               : results.length === 0 ? `Aucun verset ne contient « ${search} ».`
               : `${results.length}${results.length === 400 ? '+ (400 premiers)' : ''} verset${results.length > 1 ? 's' : ''} contiennent « ${search} »${searchedIn ? `, recherche faite dans la ${searchedIn}` : ''}.`}
             {' '}<a style={{ cursor: 'pointer', color: 'var(--accent)' }} onClick={() => { setResults(null); setSearch(''); setThemeMode(false); }}>Effacer</a>

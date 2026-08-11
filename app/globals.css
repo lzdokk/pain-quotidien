@@ -784,6 +784,20 @@ html[data-mode="soir"] .msg.me{color:#0E141A}
  background:var(--accent-soft);border:1px solid var(--accent-line);color:var(--accent);font-weight:560}
 .btn.suggest:hover{background:color-mix(in srgb,var(--accent) 15%,transparent)}
 
+/* Comparaison des traductions */
+.cmp-list{display:flex;flex-direction:column;gap:14px;margin-top:8px}
+.cmp-row{border-left:2px solid var(--accent-line);padding-left:14px}
+.cmp-name{font-family:var(--sans);font-size:11px;font-weight:640;letter-spacing:.05em;text-transform:uppercase;color:var(--accent)}
+.cmp-text{font-family:var(--serif);font-size:16px;line-height:1.6;color:var(--ink);margin-top:3px}
+
+/* Filtre couleurs / ★ à côté de la recherche */
+.filter-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px}
+.filter-label{font-size:12.5px;color:var(--ink-3)}
+.filter-row .swatch{padding:0}
+.filter-star{width:26px;height:26px;border-radius:8px;border:1px solid var(--line-2);background:var(--surface-2);
+ color:var(--accent);cursor:pointer;font-size:14px;line-height:1;display:grid;place-items:center;transition:.2s var(--ease)}
+.filter-star:hover{transform:scale(1.12)}
+
 /* Spinner de transition de page */
 .route-loading{min-height:62vh;display:grid;place-items:center}
 .route-spin{animation:routeSpin .8s linear infinite}

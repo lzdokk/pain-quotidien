@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { supabase } from '@/lib/supabase/client';
 import Explain from './Explain';
 import WordByWord from './WordByWord';
+import Compare from './Compare';
 import { HL_THEMES, themeOf } from '@/lib/highlight-themes';
 
 type Item = {
@@ -15,6 +16,7 @@ export default function SurlignesView({ items, userId }: { items: Item[]; userId
   const [list, setList] = useState<Item[]>(items);
   const [openKey, setOpenKey] = useState<string | null>(null);
   const [wbwOpen, setWbwOpen] = useState(false);
+  const [cmpOpen, setCmpOpen] = useState(false);
   const [noteOpen, setNoteOpen] = useState(false);
   const [noteText, setNoteText] = useState('');
   const [noteSaved, setNoteSaved] = useState(false);
@@ -26,7 +28,7 @@ export default function SurlignesView({ items, userId }: { items: Item[]; userId
   const toggle = (it: Item) => {
     const k = keyOf(it);
     if (openKey === k) { setOpenKey(null); return; }
-    setOpenKey(k); setWbwOpen(false); setNoteOpen(false); setNoteText(''); setNoteSaved(false);
+    setOpenKey(k); setWbwOpen(false); setCmpOpen(false); setNoteOpen(false); setNoteText(''); setNoteSaved(false);
   };
 
   const changeColor = async (it: Item, color: number) => {
@@ -91,6 +93,8 @@ export default function SurlignesView({ items, userId }: { items: Item[]; userId
                                   title={themeOf(c)?.label} onClick={() => changeColor(it, c)} />)}
                           <button className="btn sm" onClick={() => setNoteOpen(o => !o)}>Note</button>
                           <button className="btn sm" onClick={() => setWbwOpen(o => !o)}>Mot à mot</button>
+                          <button className="btn sm" onClick={() => setCmpOpen(o => !o)}>Comparer</button>
+                          <button className="btn sm" onClick={() => goto(it.ref)}>Ouvrir dans le lecteur ›</button>
                           <button className="btn sm" onClick={() => changeColor(it, 0)}>Retirer</button>
                         </div>
 
@@ -113,6 +117,10 @@ export default function SurlignesView({ items, userId }: { items: Item[]; userId
                         {wbwOpen && (
                           <WordByWord book={it.book} chapter={it.chapter} verse={it.verse}
                                       onClose={() => setWbwOpen(false)} />
+                        )}
+                        {cmpOpen && (
+                          <Compare book={it.book} chapter={it.chapter} verse={it.verse}
+                                   refLabel={it.ref} onClose={() => setCmpOpen(false)} />
                         )}
                       </div>
                     )}
