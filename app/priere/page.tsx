@@ -4,6 +4,7 @@ import Nav from '@/components/Nav';
 import { contentDate } from '@/lib/date';
 import { rich } from '@/lib/rich';
 import { AXES } from '@/lib/prayer-teaching';
+import ResumeReading from '@/components/ResumeReading';
 
 export const dynamic = 'force-dynamic'; // toujours le jour courant, jamais du cache
 export const metadata = { title: 'Prière' };
@@ -55,6 +56,8 @@ export default async function Priere_() {
             Trois axes, une prière-modèle, et le texte du jour pour la nourrir.
           </p>
         </header>
+
+        <ResumeReading />
 
         {!duJour && (
           <div className="card pad">

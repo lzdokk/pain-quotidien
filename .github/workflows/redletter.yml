@@ -4,7 +4,7 @@ name: Paroles de Jésus (red-letter, Évangiles)
 # Quelques passages par jour jusqu'a couverture complete (~89 chapitres).
 on:
   schedule:
-    - cron: '36 5,17 * * *'
+    - cron: '36 */3 * * *'
   workflow_dispatch: {}
 
 jobs:

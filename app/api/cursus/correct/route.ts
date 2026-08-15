@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
   if (!user) return NextResponse.json({ error: 'Connexion requise' }, { status: 401 });
 
   const { data: allowed } = await admin.rpc('consume_ai_quota', {
-    p_user: user.id, p_limit: Number(process.env.AI_DAILY_LIMIT ?? 8)
+    p_user: user.id, p_limit: Number(process.env.AI_DAILY_LIMIT ?? 50)
   });
   if (!allowed) {
     return NextResponse.json({ error: 'Tu as atteint ta limite de corrections du jour. Le compteur repart demain.' }, { status: 429 });

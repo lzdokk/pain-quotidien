@@ -8,7 +8,7 @@ name: Rappel de lecture (horaire)
 
 on:
   schedule:
-    - cron: '12 6,18 * * *'
+    - cron: '12 6,12,18 * * *'
   workflow_dispatch: {}
 
 jobs:

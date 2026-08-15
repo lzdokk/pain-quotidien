@@ -4,8 +4,7 @@ name: Mots bibliques (enrichissement quotidien)
 # les doublons. Deux passages par jour pour viser ~5-8 mots quotidiens.
 on:
   schedule:
-    - cron: '9 6 * * *'
-    - cron: '9 18 * * *'
+    - cron: '9 */3 * * *'
   workflow_dispatch: {}
 
 jobs:

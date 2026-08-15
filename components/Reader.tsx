@@ -192,6 +192,7 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
   useEffect(() => {
     try {
       localStorage.setItem('pq-pos', JSON.stringify({ b: book, c: chapter, t: trad }));
+      localStorage.setItem('pq-pos-ref', `${bookName} ${chapter}`);
       const prev: Array<{ b: number; c: number }> =
         JSON.parse(localStorage.getItem('pq-recent') ?? '[]');
       const next = [{ b: book, c: chapter },
@@ -346,6 +347,12 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
       <details className="card pad volet">
         <summary><b>Choisir un parcours de lecture</b><span className="muted"> · {plans.length} disponibles</span></summary>
         <div style={{ marginTop: 14 }}>
+        <p style={{ color: 'var(--ink-2)', fontSize: 14.5, lineHeight: 1.6, marginBottom: 4 }}>
+          Un <b>parcours</b> vous dit <b>quoi lire chaque jour</b> : il découpe la Bible en étapes et
+          avance tout seul. Choisissez-en un ci-dessous ; ensuite, la carte «&nbsp;Votre lecture du jour&nbsp;»
+          en haut vous indique le passage exact du jour et le bouton «&nbsp;Ouvrir la lecture&nbsp;» vous
+          y emmène. Quand vous avez lu, touchez «&nbsp;J&rsquo;ai lu&nbsp;» pour passer au suivant.
+        </p>
         {STYLES.map(([sid, label]) => (
           <div key={sid}>
             <div className="grp" style={{ padding: '14px 0 4px' }}>{label}</div>
@@ -468,8 +475,8 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
 
         <div className="chap-nav">
           <button className="nav-day" onClick={() => chapter > 1 ? setChapter(chapter - 1) : book > 1 && (setBook(book - 1), setChapter(1))} aria-label="Precedent">‹</button>
-          <span className="chap-title" style={{ cursor: 'pointer' }} onClick={() => setExplain({ kind: 'ch' })}>
-            {bookName} {chapter} <span style={{ fontSize: 13, color: 'var(--accent)', verticalAlign: 3 }}>ⓘ</span>
+          <span className="chap-title">
+            {bookName} {chapter}
           </span>
           <button className="nav-day" onClick={() => chapter < chapters ? setChapter(chapter + 1) : book < 66 && (setBook(book + 1), setChapter(1))} aria-label="Suivant">›</button>
         </div>

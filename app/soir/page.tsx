@@ -1,6 +1,7 @@
 import { supabaseServer } from '@/lib/supabase/server';
 import Nav from '@/components/Nav';
 import Checklist from '@/components/Checklist';
+import ResumeReading from '@/components/ResumeReading';
 import { contentDate } from '@/lib/date';
 import { rich } from '@/lib/rich';
 
@@ -33,6 +34,8 @@ export default async function Soir() {
           <h1>Poser<br />la journée</h1>
           <p className="lede">Cinq minutes avant de dormir. Un verset, un silence, une relecture, une paix.</p>
         </header>
+
+        <ResumeReading />
 
         <div className="card verse">
           <div className="breathe"><div className="orb"><span>Respirez</span></div></div>

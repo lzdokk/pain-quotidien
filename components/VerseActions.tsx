@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase/client';
+import { themeOf } from '@/lib/highlight-themes';
 import Explain from './Explain';
 
 type Props = {
@@ -42,7 +43,7 @@ export default function VerseActions({ book, chapter, bookName, verses, user }: 
 
   const setColor = async (v: number, color: number) => {
     const next = { ...hl }; color ? next[v] = color : delete next[v];
-    setHl(next); setSel(null);
+    setHl(next); // on garde le volet ouvert pour voir le thème appliqué
     if (!user) return;
     if (color) await supabase.from('highlights').upsert({ user_id: user.id, book, chapter, verse: v, color });
     else await supabase.from('highlights').delete().eq('user_id', user.id).eq('book', book).eq('chapter', chapter).eq('verse', v);
@@ -86,8 +87,11 @@ export default function VerseActions({ book, chapter, bookName, verses, user }: 
         <div className="vbar on" style={{ position: 'static', marginTop: 16 }}>
           <div className="vref">{bookName} {chapter}.{sel}</div>
           <div className="vbar-row">
-            {[1, 2, 3, 4].map(c => <span key={c} className={`swatch s${c}`} onClick={() => setColor(sel, c)} />)}
-            <span className="swatch s0" onClick={() => setColor(sel, 0)} />
+            {[1, 2, 3, 4, 5, 6, 7].map(c => (
+              <span key={c} className={`swatch s${c}${hl[sel] === c ? ' on' : ''}`}
+                    title={themeOf(c)?.label} onClick={() => setColor(sel, c)} />
+            ))}
+            <span className="swatch s0" title="Retirer" onClick={() => setColor(sel, 0)} />
             <button className="btn sm" style={{ marginLeft: 'auto' }} onClick={() => setEditing(true)}>
               {noteFor(sel) ? 'Modifier la note' : 'Ajouter une note'}
             </button>
@@ -96,6 +100,11 @@ export default function VerseActions({ book, chapter, bookName, verses, user }: 
               navigator.clipboard?.writeText(`« ${verses.find(([n]) => n === sel)?.[1]} » ${bookName} ${chapter}.${sel}`)}>
               Copier
             </button>
+          </div>
+          <div className="vbar-theme">
+            {hl[sel]
+              ? <>Thème : <b>{themeOf(hl[sel])?.label}</b></>
+              : <span className="muted">Chaque couleur correspond à un thème — survole une pastille pour le voir.</span>}
           </div>
           {editing && (
             <div>

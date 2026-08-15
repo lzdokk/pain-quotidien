@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
+import Link from 'next/link';
 import VerseActions from './VerseActions';
-import { rich } from '@/lib/rich';
 
 /** Les lectures du jour. Un seul volet ouvert a la fois. */
 export default function Readings({ readings, user, translationName }:
@@ -15,16 +15,22 @@ export default function Readings({ readings, user, translationName }:
         const on = open === i;
         return (
           <article className={`rd${on ? ' open' : ''}`} key={r.id ?? i}>
-            <button className="rd-toggle" onClick={() => setOpen(on ? null : i)}>
-              <span className="num">{i + 1}</span>
-              <span>
-                <span className="rd-ref">{r.reference.toUpperCase()}</span>
-                <span className="rd-title">{r.title}</span>
-                <span className="rd-teaser">{r.tag} · {verses.length} versets</span>
-              </span>
-              <svg className="chev" width="15" height="15" viewBox="0 0 24 24" fill="none"
-                   stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M6 9l6 6 6-6" /></svg>
-            </button>
+            <div className="rd-head">
+              <button className="rd-toggle" onClick={() => setOpen(on ? null : i)}>
+                <span className="num">{i + 1}</span>
+                <span>
+                  <span className="rd-ref">{r.reference.toUpperCase()}</span>
+                  <span className="rd-title">{r.title}</span>
+                  <span className="rd-teaser">{r.tag} · {verses.length} versets</span>
+                </span>
+                <svg className="chev" width="15" height="15" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M6 9l6 6 6-6" /></svg>
+              </button>
+              <Link className="rd-open" href={`/lire?ref=${encodeURIComponent(r.reference)}&from=/pain`}
+                    title="Ouvrir dans le lecteur">
+                Lire ›
+              </Link>
+            </div>
 
             <div className="rd-body">
               {verses.length > 0 && (
@@ -41,12 +47,6 @@ export default function Readings({ readings, user, translationName }:
                   remplacé par un passage de même thème.
                 </div>
               )}
-
-              <div className="rd-sum">
-                <strong>Le résumé</strong>
-                <p dangerouslySetInnerHTML={{ __html: rich(r.summary) }} />
-                <span className="tag">{r.tag}</span>
-              </div>
             </div>
           </article>
         );
