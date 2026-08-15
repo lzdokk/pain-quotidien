@@ -672,6 +672,9 @@ html[data-mode="soir"] .step.done .step-n{color:#0E141A}
 .today-read{background:linear-gradient(180deg,var(--accent-soft),transparent);border:1px solid var(--accent-line);
  border-radius:var(--r);padding:28px 30px}
 .big-ref{font-family:var(--serif);font-size:32px;font-weight:600;letter-spacing:-.022em;margin:6px 0 4px}
+.meditip-steps{margin:14px 0 4px;padding-left:20px;display:flex;flex-direction:column;gap:9px}
+.meditip-steps li{font-size:14.5px;line-height:1.55;color:var(--ink-2)}
+.meditip-steps li b{color:var(--ink)}
 .tr-flex{display:flex;gap:26px;align-items:stretch}
 .tr-main{flex:1;min-width:0}
 .tr-side{flex:none;width:210px;display:flex;flex-direction:column;gap:8px;

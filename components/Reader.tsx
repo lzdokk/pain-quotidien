@@ -420,6 +420,26 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
       <h2 className="sect" id="lecteur" style={{ scrollMarginTop: 70 }}>Le lecteur</h2>
       <p className="sub">Touchez le titre du chapitre pour son introduction, un verset pour le surligner ou l&rsquo;annoter.</p>
 
+      <details className="card pad volet meditip">
+        <summary><b>Avant de lire : méditer, pas seulement lire</b></summary>
+        <div style={{ marginTop: 14 }}>
+          <p style={{ color: 'var(--ink-2)', fontSize: 14.5, lineHeight: 1.6 }}>
+            Méditer, ce n&rsquo;est pas <b>vider</b> l&rsquo;esprit mais le <b>remplir</b> de la Parole (Josué 1.8).
+            Avancez lentement en cinq mouvements&nbsp;:
+          </p>
+          <ol className="meditip-steps">
+            <li><b>Prier</b> — «&nbsp;Ouvre mes yeux&nbsp;» (Ps 119.18). On dépend de l&rsquo;Esprit.</li>
+            <li><b>Observer</b> — qui parle&nbsp;? à qui&nbsp;? quoi avant, quoi après&nbsp;?</li>
+            <li><b>Comprendre</b> — le sens voulu, dans son contexte, et ce qu&rsquo;il dit de Dieu et de Christ.</li>
+            <li><b>Appliquer</b> — une vérité à croire, un ordre à suivre, <b>une</b> action pour aujourd&rsquo;hui.</li>
+            <li><b>Répondre</b> — reprendre le texte dans la prière&nbsp;: adoration, confession, requête.</li>
+          </ol>
+          <a href="/cursus/PMED01" className="btn sm" style={{ marginTop: 6 }}>
+            Le cours complet : Méditer la Bible ›
+          </a>
+        </div>
+      </details>
+
       <div className="card">
         <div style={{ padding: '24px 30px 26px' }}>
           <input className="field" type="search" value={search}
