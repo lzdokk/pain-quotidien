@@ -317,29 +317,47 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
 
       {P && position.step && (
         <div className="card">
-          <div className="today-read">
-            <span className="kicker">Votre lecture du jour</span>
-            <div className="big-ref">{position.step.label} {position.chapter}</div>
-            <p style={{ color: 'var(--ink-2)', fontSize: 15.5 }}>
-              Jour {plan?.current_day ?? 1}{P.days ? ` sur ${P.days}` : ''} · Étape {position.index + 1} sur {mySteps.length}, {position.step.title}
-              {plan?.streak > 1 ? ` · ${plan.streak} jours d'affilee` : ''}
-            </p>
-            {P.days ? (
-              <div className="progress-wrap">
-                <div className="bar"><i style={{ width: `${Math.min(100, Math.round((plan?.current_day ?? 1) / P.days * 100))}%` }} /></div>
-                <span className="pct">{Math.min(100, Math.round((plan?.current_day ?? 1) / P.days * 100))} %</span>
+          <div className="today-read tr-flex">
+            <div className="tr-main">
+              <span className="kicker">Votre lecture du jour</span>
+              <div className="big-ref">{position.step.label} {position.chapter}</div>
+              <p style={{ color: 'var(--ink-2)', fontSize: 15.5 }}>
+                Jour {plan?.current_day ?? 1}{P.days ? ` sur ${P.days}` : ''} · Étape {position.index + 1} sur {mySteps.length}, {position.step.title}
+                {plan?.streak > 1 ? ` · ${plan.streak} jours d'affilee` : ''}
+              </p>
+              {P.days ? (
+                <div className="progress-wrap">
+                  <div className="bar"><i style={{ width: `${Math.min(100, Math.round((plan?.current_day ?? 1) / P.days * 100))}%` }} /></div>
+                  <span className="pct">{Math.min(100, Math.round((plan?.current_day ?? 1) / P.days * 100))} %</span>
+                </div>
+              ) : null}
+              <div className="share-grid" style={{ marginTop: 20 }}>
+                <button className="btn primary" onClick={() => {
+                  setBook(position.step.book); setChapter(position.chapter);
+                  setTimeout(() => document.getElementById('lecteur')
+                    ?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
+                }}>
+                  Ouvrir la lecture
+                </button>
+                <button className="btn" onClick={markRead}>J&rsquo;ai lu, chapitre suivant</button>
               </div>
-            ) : null}
-            <div className="share-grid" style={{ marginTop: 20 }}>
-              <button className="btn primary" onClick={() => {
-                setBook(position.step.book); setChapter(position.chapter);
-                setTimeout(() => document.getElementById('lecteur')
-                  ?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
-              }}>
-                Ouvrir la lecture
-              </button>
-              <button className="btn" onClick={markRead}>J&rsquo;ai lu, chapitre suivant</button>
             </div>
+
+            {(position.step.key_passages as string[])?.length > 0 && (
+              <div className="tr-side">
+                <span className="tr-side-t">Accès direct aux lectures</span>
+                {(position.step.key_passages as string[]).map((ref) => (
+                  <button key={ref} className="tr-jump" onClick={() => {
+                    go(ref);
+                    setTimeout(() => document.getElementById('lecteur')
+                      ?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
+                  }}>
+                    <span>{ref}</span>
+                    <span className="tr-jump-go">›</span>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}

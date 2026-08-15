@@ -672,6 +672,20 @@ html[data-mode="soir"] .step.done .step-n{color:#0E141A}
 .today-read{background:linear-gradient(180deg,var(--accent-soft),transparent);border:1px solid var(--accent-line);
  border-radius:var(--r);padding:28px 30px}
 .big-ref{font-family:var(--serif);font-size:32px;font-weight:600;letter-spacing:-.022em;margin:6px 0 4px}
+.tr-flex{display:flex;gap:26px;align-items:stretch}
+.tr-main{flex:1;min-width:0}
+.tr-side{flex:none;width:210px;display:flex;flex-direction:column;gap:8px;
+ border-left:1px solid var(--accent-line);padding-left:24px}
+.tr-side-t{font-size:11px;font-weight:640;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);margin-bottom:4px}
+.tr-jump{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;
+ background:var(--surface);border:1px solid var(--line-2);border-radius:11px;padding:11px 14px;
+ font:inherit;font-size:15px;font-weight:560;color:var(--ink);text-align:left;cursor:pointer;transition:.18s var(--ease)}
+.tr-jump:hover{border-color:var(--accent);background:var(--surface-2)}
+.tr-jump-go{color:var(--accent);font-size:18px;font-weight:700;flex:none}
+@media(max-width:640px){
+ .tr-flex{flex-direction:column;gap:22px}
+ .tr-side{width:auto;border-left:0;border-top:1px solid var(--accent-line);padding-left:0;padding-top:20px}
+}
 
 /* FAQ / chat */
 .faq-item{border-bottom:1px solid var(--line)}
