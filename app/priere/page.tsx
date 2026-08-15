@@ -3,10 +3,7 @@ import { supabaseServer } from '@/lib/supabase/server';
 import Nav from '@/components/Nav';
 import { contentDate } from '@/lib/date';
 import { rich } from '@/lib/rich';
-import {
-  POURQUOI, COMMENT, AXES, AXES_NOTE,
-  NOTRE_PERE_INTRO, NOTRE_PERE_DEMANDES, THEMES, SOURCE_NOTE
-} from '@/lib/prayer-teaching';
+import { AXES } from '@/lib/prayer-teaching';
 
 export const dynamic = 'force-dynamic'; // toujours le jour courant, jamais du cache
 export const metadata = { title: 'Prière' };
@@ -58,78 +55,6 @@ export default async function Priere_() {
             Trois axes, une prière-modèle, et le texte du jour pour la nourrir.
           </p>
         </header>
-
-        {/* ── L'enseignement, replie par defaut ─────────────────────── */}
-        <details className="card pad volet">
-          <summary>
-            <span className="kicker" style={{ marginBottom: 0 }}>Comprendre la prière</span>
-            <h3 style={{ marginTop: 6 }}>Pourquoi prier, comment prier, et selon quelle structure</h3>
-          </summary>
-
-          <div className="teach">
-            <h4 className="teach-h">Pourquoi prier</h4>
-            {POURQUOI.map((b, i) => (
-              <section key={i}>
-                <h5>{b.titre}</h5>
-                {b.corps.map((p, j) => <p key={j}>{p}</p>)}
-                {b.verset && (
-                  <blockquote className="tq">
-                    {b.verset}<cite>{b.ref}</cite>
-                  </blockquote>
-                )}
-              </section>
-            ))}
-
-            <h4 className="teach-h">Comment prier</h4>
-            {COMMENT.map((b, i) => (
-              <section key={i}>
-                <h5>{b.titre}</h5>
-                {b.corps.map((p, j) => <p key={j}>{p}</p>)}
-                {b.verset && (
-                  <blockquote className="tq">
-                    {b.verset}<cite>{b.ref}</cite>
-                  </blockquote>
-                )}
-              </section>
-            ))}
-
-            <h4 className="teach-h">Les trois axes</h4>
-            <div className="axgrid">
-              {AXES.map((a, i) => (
-                <div className="axcard" key={i}>
-                  <span className="axn">{i + 1}</span>
-                  <h5>{a.nom}</h5>
-                  <div className="axgk"><i>{a.grec}</i> · {a.grec_sens}</div>
-                  <div className="axobj">{a.objet}</div>
-                  <p>{a.texte}</p>
-                  <blockquote className="tq">{a.verset}<cite>{a.ref}</cite></blockquote>
-                </div>
-              ))}
-            </div>
-            {AXES_NOTE.map((p, i) => <p key={i}>{p}</p>)}
-
-            <h4 className="teach-h">Le Notre Père, prière-modèle</h4>
-            {NOTRE_PERE_INTRO.map((p, i) => <p key={i}>{p}</p>)}
-            <ul className="npl">
-              {NOTRE_PERE_DEMANDES.map(([d, v], i) => (
-                <li key={i}><b>{d}</b><span>{v}</span></li>
-              ))}
-            </ul>
-
-            <h4 className="teach-h">Les autres registres</h4>
-            {THEMES.map((b, i) => (
-              <section key={i}>
-                <h5>{b.titre}</h5>
-                {b.corps.map((p, j) => <p key={j}>{p}</p>)}
-                {b.verset && (
-                  <blockquote className="tq">{b.verset}<cite>{b.ref}</cite></blockquote>
-                )}
-              </section>
-            ))}
-
-            <p className="fine" style={{ marginTop: 22 }}>{SOURCE_NOTE}</p>
-          </div>
-        </details>
 
         {!duJour && (
           <div className="card pad">

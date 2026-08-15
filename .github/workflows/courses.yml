@@ -5,7 +5,7 @@ name: Génération du cursus (fiches de cours)
 # par jour jusqu'a ce que tout le cursus soit genere.
 on:
   schedule:
-    - cron: '31 */4 * * *'
+    - cron: '31 10 * * *'
   workflow_dispatch: {}
 
 jobs:
