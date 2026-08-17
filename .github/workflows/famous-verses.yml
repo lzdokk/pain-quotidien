@@ -14,5 +14,5 @@ jobs:
     steps:
       - name: Appeler /api/cron/famous-verses
         run: |
-          curl -sf -X GET "${{ secrets.SITE_URL }}/api/cron/famous-verses?c=4" \
+          curl -sf -X GET "${{ secrets.SITE_URL }}/api/cron/famous-verses?c=2" \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"

@@ -33,7 +33,7 @@ export async function GET(req: NextRequest) {
   }
   const limit = Math.min(Math.max(1, Number(new URL(req.url).searchParams.get('n') ?? 20)), 50);
   const started = Date.now();
-  const BUDGET_MS = 240_000; // on rend la main avant la coupure Vercel (300 s)
+  const BUDGET_MS = 200_000; // on rend la main avant la coupure Vercel (300 s)
 
   const { data: rows } = await admin.from('strongs')
     .select('code, lang, lemma, translit, definition_en, derivation, kjv_def')

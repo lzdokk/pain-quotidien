@@ -83,6 +83,26 @@ class LLMError extends Error {
   constructor(status: number, message: string) { super(message); this.status = status; }
 }
 
+/* Delai maximum d'UN appel a un fournisseur. Sans plafond, un fournisseur qui
+   ne repond pas fait tourner la fonction jusqu'a la coupure de Vercel (timeout).
+   Avec ce plafond, on abandonne vite ce fournisseur et le pool bascule sur le
+   suivant. Reglable par LLM_TIMEOUT_MS (defaut 30 s). */
+const CALL_TIMEOUT_MS = Math.max(5000, Number(process.env.LLM_TIMEOUT_MS ?? 30_000));
+
+/** fetch avec abandon automatique passe le delai imparti. */
+async function fetchT(url: string, init: RequestInit): Promise<Response> {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), CALL_TIMEOUT_MS);
+  try {
+    return await fetch(url, { ...init, signal: ctrl.signal });
+  } catch (e: any) {
+    if (e?.name === 'AbortError') throw new LLMError(504, `timeout ${CALL_TIMEOUT_MS} ms`);
+    throw e;
+  } finally {
+    clearTimeout(t);
+  }
+}
+
 /**
  * Convertit un schema Gemini (types MAJUSCULES) en JSON Schema standard, pour
  * les fournisseurs compatibles OpenAI qui savent contraindre la sortie.
@@ -105,7 +125,7 @@ function geminiToJsonSchema(s: any): any {
 
 /* ── Google AI Studio ─────────────────────────────────────────────── */
 async function gemini(c: Call, key: string, model: string): Promise<Raw> {
-  const r = await fetch(
+  const r = await fetchT(
     `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`,
     {
       method: 'POST', headers: { 'content-type': 'application/json' },
@@ -147,7 +167,7 @@ async function openaiLike(p: Provider, c: Call, key: string, model: string): Pro
   const responseFormat = useSchema
     ? { type: 'json_schema', json_schema: { name: 'result', schema: geminiToJsonSchema(c.responseSchema), strict: true } }
     : { type: 'json_object' };
-  const r = await fetch(OPENAI_URL[p]!, {
+  const r = await fetchT(OPENAI_URL[p]!, {
     method: 'POST',
     headers: { 'content-type': 'application/json', authorization: `Bearer ${key}` },
     body: JSON.stringify({
@@ -172,7 +192,7 @@ async function openaiLike(p: Provider, c: Call, key: string, model: string): Pro
 /* ── Claude, payant ───────────────────────────────────────────────── */
 async function anthropic(c: Call, key: string, model: string): Promise<Raw> {
   const { default: Anthropic } = await import('@anthropic-ai/sdk');
-  const client = new Anthropic({ apiKey: key });
+  const client = new Anthropic({ apiKey: key, timeout: CALL_TIMEOUT_MS, maxRetries: 0 });
   const res = await client.messages.create({
     model, max_tokens: c.maxTokens ?? 8000,
     temperature: c.temperature ?? 0.7, system: c.system,
@@ -200,6 +220,12 @@ function callProvider(provider: Provider, c: Call, keyEnv: string): Promise<Raw>
 /* Round-robin persistant dans l'instance serverless (repart a 0 au cold start). */
 let cursor = 0;
 
+/* Plafond global d'UN appel logique (avec toutes les bascules du pool). Meme si
+   plusieurs cles rament, on ne depasse jamais ce budget : la fonction Vercel
+   (300 s) n'est jamais bloquee par une seule generation. Reglable via
+   LLM_OVERALL_MS (defaut 120 s). */
+const OVERALL_MS = Math.max(CALL_TIMEOUT_MS, Number(process.env.LLM_OVERALL_MS ?? 120_000));
+
 async function raw(c: Call): Promise<Raw> {
   // Mode simple : un seul fournisseur.
   if (POOL.length === 0) {
@@ -212,8 +238,10 @@ async function raw(c: Call): Promise<Raw> {
   const n = POOL.length;
   const start = cursor % n;
   cursor = (cursor + 1) % n;
+  const deadline = Date.now() + OVERALL_MS;
   let lastErr: any;
   for (let i = 0; i < n; i++) {
+    if (Date.now() > deadline) break; // on n'enchaine pas les bascules a l'infini
     const entry = POOL[(start + i) % n];
     try {
       return await callProvider(entry.provider, c, entry.keyEnv);
@@ -222,7 +250,7 @@ async function raw(c: Call): Promise<Raw> {
       // on tente toujours la cle suivante : une cle KO ne bloque pas le pool
     }
   }
-  throw lastErr;
+  throw lastErr ?? new LLMError(504, `budget global depasse (${OVERALL_MS} ms)`);
 }
 
 /** Texte libre. */

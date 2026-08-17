@@ -30,6 +30,8 @@ export async function GET(req: NextRequest) {
   }
   const params = new URL(req.url).searchParams;
   const limit = Math.min(Math.max(1, Number(params.get('n') ?? 25)), 60);
+  const started = Date.now();
+  const BUDGET_MS = 200_000; // on rend la main avant la coupure Vercel (300 s)
 
   const { data: prog } = await admin.from('verse_notes_famous_progress')
     .select('*').eq('id', 1).maybeSingle();
@@ -63,7 +65,7 @@ export async function GET(req: NextRequest) {
     for (let vn = f.verse_start; vn <= f.verse_end; vn++) {
       const wk = `${f.book}-${f.chapter}-${vn}`;
       if (has.has(wk)) { skipped++; continue; }
-      if (created >= limit) { rowComplete = false; stopped = true; break; }
+      if (created >= limit || Date.now() - started > BUDGET_MS) { rowComplete = false; stopped = true; break; }
       try {
         if (!bookName.has(f.book)) {
           const { data: b } = await admin.from('books').select('name').eq('id', f.book).single();

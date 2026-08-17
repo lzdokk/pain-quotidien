@@ -34,7 +34,7 @@ export async function GET(req: NextRequest) {
   // Budget-temps : on s'arrete AVANT la coupure de Vercel (300 s), en
   // sauvegardant la progression, plutot que de timeouter.
   const started = Date.now();
-  const BUDGET_MS = 240_000;
+  const BUDGET_MS = 200_000;
 
   const { data: progress } = await admin.from('verse_notes_progress')
     .select('*').eq('id', 1).maybeSingle();
