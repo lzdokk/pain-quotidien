@@ -6,6 +6,8 @@ import NativeInit from '@/components/NativeInit';
 import OneSignalInit from '@/components/OneSignalInit';
 import MusicPlayer from '@/components/MusicPlayer';
 import InstallPrompt from '@/components/InstallPrompt';
+import RouteMemory from '@/components/RouteMemory';
+import Onboarding from '@/components/Onboarding';
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://painquotidien.app';
 const INSTA = process.env.NEXT_PUBLIC_INSTAGRAM ?? 'lepainquotidien';
@@ -43,6 +45,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           document.documentElement.dataset.mode=m}catch(e){}})();
         ` }} />
         {children}
+        <RouteMemory />
+        <Onboarding />
         <NativeInit />
         <OneSignalInit />
         <MusicPlayer />

@@ -163,7 +163,7 @@ ${VOICE}
 STRUCTURE D'UNE JOURNEE
 1. theme_title : le titre du jour, huit mots maximum, une image forte
 2. theme_lede : une phrase qui donne envie de lire
-3. central_message : le coeur du message, quatre a cinq lignes
+3. central_message : le coeur du message, trois a quatre lignes, resserre
 4. verse : le verset du jour. REGLE ABSOLUE, non negociable : ce verset DOIT
    etre l'un des versets contenus dans les lectures du jour fournies ci-dessous
    (meme livre, meme chapitre, et un numero de verset compris dans la plage de
@@ -180,10 +180,10 @@ STRUCTURE D'UNE JOURNEE
        quatre a cinq lignes), qui explique le contexte et degage l'intention
        du texte sans tout raconter
 6. bread_lead : l'accroche du pain quotidien, une observation du quotidien
-7. bread_says : deux paragraphes COURTS (3-4 phrases chacun), "ce que dit le texte"
-8. bread_touches : deux paragraphes COURTS (3-4 phrases chacun), "ce que ca touche en nous"
-   (le lecteur doit pouvoir lire tout le pain quotidien en 2-3 minutes : va a
-   l'essentiel, dense mais bref, sans delayer)
+7. bread_says : deux paragraphes TRES COURTS (2-3 phrases chacun), "ce que dit le texte"
+8. bread_touches : deux paragraphes TRES COURTS (2-3 phrases chacun), "ce que ca touche en nous"
+   (le lecteur doit pouvoir lire tout le pain quotidien en moins de 2 minutes :
+   va droit a l'essentiel, dense et bref, sans jamais delayer ni repeter)
 9. actions : trois actions concretes
 10. prayer_open et prayer_close : priere d'ouverture et de fermeture, tutoiement
     de Dieu. prayer_open commence toujours par une invocation courte au

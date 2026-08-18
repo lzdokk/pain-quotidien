@@ -10,7 +10,7 @@ const TABS = [
   { href: '/priere',    label: 'Prière' },
   { href: '/soir',      label: 'Soir' },
   { href: '/lire',      label: 'Lire' },
-  { href: '/paraboles', label: 'Apprendre', match: ['/paraboles', '/mots', '/versets', '/questions'] },
+  { href: '/paraboles', label: 'Apprendre', match: ['/paraboles', '/fondements', '/mots', '/versets', '/questions'] },
   // Lexique masque tant que la mise en francais n'est pas complete.
   // Pour le reactiver : remettre la ligne ci-dessous.
   // { href: '/lexique',   label: 'Lexique' },

@@ -672,6 +672,39 @@ html[data-mode="soir"] .step.done .step-n{color:#0E141A}
 .today-read{background:linear-gradient(180deg,var(--accent-soft),transparent);border:1px solid var(--accent-line);
  border-radius:var(--r);padding:28px 30px}
 .big-ref{font-family:var(--serif);font-size:32px;font-weight:600;letter-spacing:-.022em;margin:6px 0 4px}
+/* ---------- TOUR D'ACCUEIL ---------- */
+.ob{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;
+ background:color-mix(in srgb,var(--bg) 45%,rgba(0,0,0,.6));animation:fade .3s var(--ease)}
+.ob-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r,18px);
+ width:100%;max-width:480px;max-height:90vh;overflow:auto;padding:26px 28px 22px;position:relative;
+ box-shadow:0 30px 80px rgba(0,0,0,.28)}
+.ob-skip{position:absolute;top:16px;right:18px;background:none;border:0;font:inherit;font-size:13px;
+ color:var(--ink-3);cursor:pointer;padding:4px 6px}
+.ob-skip:hover{color:var(--ink)}
+.ob-title{font-family:var(--serif);font-size:26px;font-weight:600;letter-spacing:-.02em;margin:6px 0 14px;line-height:1.15}
+.ob-text p{font-size:15.5px;line-height:1.7;color:var(--ink-2);margin-bottom:12px}
+.ob-text b{color:var(--ink);font-weight:640}
+.ob-signin{margin-top:18px;border-top:1px solid var(--line);padding-top:16px}
+.ob-dots{display:flex;gap:7px;justify-content:center;margin:22px 0 16px}
+.ob-dot{width:7px;height:7px;border-radius:99px;background:var(--line-2);transition:.25s var(--ease)}
+.ob-dot.on{background:var(--accent);width:22px}
+.ob-nav{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.ob-nav .btn{min-width:130px}
+@media(max-width:480px){.ob-nav .btn{min-width:0;flex:1}}
+.sola-list{display:flex;flex-direction:column;gap:16px}
+.sola-top{display:flex;align-items:center;gap:16px;margin-bottom:14px}
+.sola-n{width:40px;height:40px;flex:none;border-radius:99px;border:1px solid var(--accent-line);color:var(--accent);
+ font-family:var(--serif);font-size:19px;font-weight:600;display:grid;place-items:center;background:var(--accent-soft)}
+.sola-latin{font-family:var(--serif);font-size:22px;font-weight:600;letter-spacing:-.01em;color:var(--ink)}
+.sola-fr{font-size:14px;color:var(--ink-3);margin-top:2px}
+.sola-role{color:var(--accent);font-weight:600}
+.sola-desc{font-size:15.5px;line-height:1.68;color:var(--ink-2)}
+.sola-parable{margin-top:16px;background:var(--surface-2);border-radius:var(--r-sm,12px);padding:16px 18px}
+.sola-parable p{font-family:var(--serif);font-size:15.5px;line-height:1.7;color:var(--ink-2);margin-top:8px;font-style:italic}
+.sola-verse{margin:16px 0 0;border-left:2.5px solid var(--accent-line);padding-left:18px;
+ font-family:var(--serif);font-size:15.5px;line-height:1.65;color:var(--ink)}
+.sola-verse cite{display:block;margin-top:8px;font-family:var(--sans);font-style:normal;font-size:11.5px;
+ font-weight:640;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
 .meditip-steps{margin:14px 0 4px;padding-left:20px;display:flex;flex-direction:column;gap:9px}
 .meditip-steps li{font-size:14.5px;line-height:1.55;color:var(--ink-2)}
 .meditip-steps li b{color:var(--ink)}
