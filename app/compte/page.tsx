@@ -4,6 +4,7 @@ import Nav from '@/components/Nav';
 import Profile from '@/components/Profile';
 import NotifyButton from '@/components/NotifyButton';
 import ShareButton from '@/components/ShareButton';
+import SharePitch from '@/components/SharePitch';
 
 export const metadata = { title: 'Mon profil' };
 export const dynamic = 'force-dynamic';
@@ -36,8 +37,9 @@ export default async function Compte() {
           <ShareButton title="Pain de Vie"
                        text="Je te partage Pain de Vie — un temps avec la Parole chaque jour. Voici comment l'installer :"
                        url={`${SITE}/installer`}
-                       label="Partager l'application" className="btn" />
+                       label="Partage rapide" className="btn" />
         </div>
+        <SharePitch url={`${SITE}/installer`} />
       </div>
       <Profile
         user={user}
