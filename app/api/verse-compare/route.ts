@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
     .select('code, name, language, source, api_id').eq('enabled', true);
   const list = trans ?? [];
 
-  const localCodes = list.filter(t => t.source !== 'bolls' && t.source !== 'apibible').map(t => t.code);
+  const localCodes = list.filter(t => t.source !== 'bolls' && t.source !== 'apibible' && t.source !== 'getbible').map(t => t.code);
   const localText = new Map<string, string>();
   if (localCodes.length) {
     const { data } = await admin.from('verses').select('translation, text')
@@ -34,6 +34,16 @@ export async function GET(req: NextRequest) {
         if (r.ok) {
           const j = await r.json();
           text = String(j?.text ?? '').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+        }
+      } catch { /* traduction indisponible : ignorée */ }
+    } else if (t.source === 'getbible') {
+      try {
+        const r = await fetch(`https://api.getbible.net/v2/${t.api_id ?? t.code}/${book}/${chapter}.json`,
+          { next: { revalidate: 86400 } });
+        if (r.ok) {
+          const j = await r.json();
+          const row = ((j?.verses ?? []) as any[]).find(v => v.verse === verse);
+          text = String(row?.text ?? '').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
         }
       } catch { /* traduction indisponible : ignorée */ }
     } else if (t.source !== 'apibible') {

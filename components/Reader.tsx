@@ -25,9 +25,15 @@ function describeTranslation(t: any): string {
   if (/nouvelle bible segond|\bnbs\b/.test(s)) return 'Pour décortiquer un verset au mot près : au plus proche de la structure du texte grec ou hébreu d’origine.';
   if (/1910|\blsg\b/.test(s)) return 'Pour retrouver une référence classique ou un verset connu dans son phrasé traditionnel.';
   if (/darby/.test(s)) return 'Traduction littérale, très proche du texte original, pour l’étude mot à mot.';
+  if (/martin/.test(s)) return 'Le français classique de 1744, une des plus anciennes Bibles protestantes, au phrasé solennel.';
+  if (/ostervald/.test(s)) return 'Révision fidèle du XIXᵉ siècle, entre la rigueur de Martin et la clarté moderne.';
   if (/parole de vie|\bpdv\b/.test(s)) return 'Français très simple et immédiat, idéal pour une première lecture ou pour partager.';
   return '';
 }
+
+// Traductions lues à distance (jamais copiées chez nous) : bolls, API.Bible,
+// getbible. Pour celles-ci, la recherche par mot bascule sur la Segond locale.
+const REMOTE_SRC = (t: any) => t?.source === 'apibible' || t?.source === 'bolls' || t?.source === 'getbible';
 
 const LANG_LABELS: Record<string, string> = {
   fr: 'Français', en: 'English', he: 'עברית · Hébreu', el: 'Ελληνικά · Grec',
@@ -118,8 +124,8 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
   const load = useCallback(async () => {
     setLoading(true); setSel(null);
     const t = translations.find((x: any) => x.code === trad);
-    if (t?.source === 'apibible' || t?.source === 'bolls') {
-      // Traduction sous licence lue a distance, jamais copiee dans notre base.
+    if (REMOTE_SRC(t)) {
+      // Traduction lue a distance, jamais copiee dans notre base.
       const r = await fetch(`/api/bible/chapter?trans=${trad}&book=${book}&chapter=${chapter}`);
       const j = await r.json();
       setVerses(((j.verses ?? []) as Array<[number, string]>).map(v => ({ verse: v[0], text: v[1] })));
@@ -298,7 +304,7 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
     // Les traductions sous licence sont lues a distance, verset par verset :
     // la concordance porte donc sur le texte local (Segond 1910).
     const t = translations.find((x: any) => x.code === trad);
-    const searchIn = (t?.source === 'apibible' || t?.source === 'bolls') ? 'FRLSG' : trad;
+    const searchIn = REMOTE_SRC(t) ? 'FRLSG' : trad;
     setSearchedIn(searchIn === trad ? null : 'Segond 1910');
     const { data } = await supabase.from('verses')
       .select('book, chapter, verse, text')

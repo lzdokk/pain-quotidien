@@ -42,6 +42,23 @@ export async function GET(req: NextRequest) {
     }
   }
 
+  // ── Lecture directe chez getbible.net (Bibles françaises libres) ──
+  if (t.source === 'getbible') {
+    try {
+      const r = await fetch(`https://api.getbible.net/v2/${t.api_id ?? trans}/${book}/${chapter}.json`,
+        { next: { revalidate: 86400 } });
+      if (!r.ok) throw new Error(`getbible ${r.status}`);
+      const j = await r.json();
+      const verses = ((j?.verses ?? []) as any[]).map(v => [
+        v.verse,
+        String(v.text ?? '').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim()
+      ] as [number, string]).filter(v => v[1]);
+      return NextResponse.json({ verses });
+    } catch (e: any) {
+      return NextResponse.json({ verses: [], error: String(e?.message ?? e) }, { status: 502 });
+    }
+  }
+
   if (t.source !== 'apibible' || !t.api_id) {
     return NextResponse.json({ verses: [] });
   }
