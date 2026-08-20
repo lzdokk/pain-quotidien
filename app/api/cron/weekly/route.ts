@@ -45,6 +45,11 @@ export async function GET(req: NextRequest) {
     dates = all.slice(skip, skip + perRun);
   }
 
+  // Budget-temps : on rend la main AVANT la coupure Vercel (300 s), en gardant
+  // les jours deja produits. On reprendra les jours manquants au passage suivant.
+  const started = Date.now();
+  const BUDGET_MS = 250_000;
+
   const { data: run } = await admin.from('generation_runs')
     .insert({ kind: 'week', period_start: dates[0], period_end: dates[dates.length - 1] })
     .select('id').single();
@@ -56,6 +61,10 @@ export async function GET(req: NextRequest) {
 
   try {
     for (const date of dates) {
+      if (Date.now() - started > BUDGET_MS) {
+        errors.push(`${date} : budget temps atteint, a reprendre au prochain passage`);
+        break;
+      }
       try {
         // ── 1. Lectures du jour, avec substitution du canon ──────────
         const payload = await fetchAelf(date);
@@ -93,7 +102,8 @@ export async function GET(req: NextRequest) {
             }))
           }),
           responseSchema: DAY_GEMINI_SCHEMA,
-          maxTokens: 24000
+          maxTokens: 24000,
+          timeoutMs: 90_000 // generation longue : on laisse au modele le temps d'ecrire tout le jour
         });
         totalIn += usage.input; totalOut += usage.output;
 

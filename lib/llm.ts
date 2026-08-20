@@ -17,7 +17,7 @@ export type Provider = 'gemini' | 'groq' | 'mistral' | 'cerebras'
   | 'nvidia' | 'openrouter' | 'anthropic' | 'none';
 export const PROVIDER = (process.env.LLM_PROVIDER ?? 'gemini') as Provider;
 
-type Call = { system: string; user: string; maxTokens?: number; temperature?: number; responseSchema?: any; json?: boolean };
+type Call = { system: string; user: string; maxTokens?: number; temperature?: number; responseSchema?: any; json?: boolean; timeoutMs?: number };
 type Raw = { text: string; input: number; output: number };
 
 /* Variable d'env de la cle, par fournisseur (valeur par defaut). */
@@ -89,14 +89,14 @@ class LLMError extends Error {
    suivant. Reglable par LLM_TIMEOUT_MS (defaut 30 s). */
 const CALL_TIMEOUT_MS = Math.max(5000, Number(process.env.LLM_TIMEOUT_MS ?? 30_000));
 
-/** fetch avec abandon automatique passe le delai imparti. */
-async function fetchT(url: string, init: RequestInit): Promise<Response> {
+/** fetch avec abandon automatique passe le delai imparti (ms surchargeable par appel). */
+async function fetchT(url: string, init: RequestInit, ms = CALL_TIMEOUT_MS): Promise<Response> {
   const ctrl = new AbortController();
-  const t = setTimeout(() => ctrl.abort(), CALL_TIMEOUT_MS);
+  const t = setTimeout(() => ctrl.abort(), ms);
   try {
     return await fetch(url, { ...init, signal: ctrl.signal });
   } catch (e: any) {
-    if (e?.name === 'AbortError') throw new LLMError(504, `timeout ${CALL_TIMEOUT_MS} ms`);
+    if (e?.name === 'AbortError') throw new LLMError(504, `timeout ${ms} ms`);
     throw e;
   } finally {
     clearTimeout(t);
@@ -141,7 +141,7 @@ async function gemini(c: Call, key: string, model: string): Promise<Raw> {
           temperature: c.temperature ?? 0.7
         }
       })
-    });
+    }, c.timeoutMs);
   if (!r.ok) throw new LLMError(r.status, `gemini ${r.status} : ${(await r.text()).slice(0, 200)}`);
   const j = await r.json();
   return {
@@ -179,7 +179,7 @@ async function openaiLike(p: Provider, c: Call, key: string, model: string): Pro
       temperature: c.temperature ?? 0.7,
       messages: [{ role: 'system', content: c.system }, { role: 'user', content: c.user }]
     })
-  });
+  }, c.timeoutMs);
   if (!r.ok) throw new LLMError(r.status, `${p} ${r.status} : ${(await r.text()).slice(0, 200)}`);
   const j = await r.json();
   return {
@@ -192,7 +192,7 @@ async function openaiLike(p: Provider, c: Call, key: string, model: string): Pro
 /* ── Claude, payant ───────────────────────────────────────────────── */
 async function anthropic(c: Call, key: string, model: string): Promise<Raw> {
   const { default: Anthropic } = await import('@anthropic-ai/sdk');
-  const client = new Anthropic({ apiKey: key, timeout: CALL_TIMEOUT_MS, maxRetries: 0 });
+  const client = new Anthropic({ apiKey: key, timeout: c.timeoutMs ?? CALL_TIMEOUT_MS, maxRetries: 0 });
   const res = await client.messages.create({
     model, max_tokens: c.maxTokens ?? 8000,
     temperature: c.temperature ?? 0.7, system: c.system,
@@ -238,7 +238,9 @@ async function raw(c: Call): Promise<Raw> {
   const n = POOL.length;
   const start = cursor % n;
   cursor = (cursor + 1) % n;
-  const deadline = Date.now() + OVERALL_MS;
+  // Le budget global s'adapte au delai d'appel : une generation longue (ex. le
+  // pain du jour, timeoutMs eleve) doit pouvoir aboutir, avec au moins une bascule.
+  const deadline = Date.now() + Math.max(OVERALL_MS, (c.timeoutMs ?? CALL_TIMEOUT_MS) * 2 + 10_000);
   let lastErr: any;
   for (let i = 0; i < n; i++) {
     if (Date.now() > deadline) break; // on n'enchaine pas les bascules a l'infini

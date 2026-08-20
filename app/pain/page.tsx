@@ -33,8 +33,8 @@ export default async function Pain() {
       <main className="wrap">
         <header className="hero">
           <div className="eyebrow">Le Pain quotidien</div>
-          <h1>Le pain du jour<br />arrive bientot</h1>
-          <p className="lede">La génération hebdomadaire n'a pas encore tourne. Revenez dans un instant.</p>
+          <h1>Le pain du jour<br />arrive bientôt</h1>
+          <p className="lede">La génération hebdomadaire n&rsquo;a pas encore tourné. Revenez dans un instant.</p>
         </header>
       </main>
     );

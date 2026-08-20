@@ -1,9 +1,11 @@
 name: Régénérer la semaine (manuel)
 
 # À lancer à la main (Run workflow) pour régénérer les 7 jours à partir
-# d'aujourd'hui avec les règles à jour (dont "verset dans les lectures"),
-# puis republier la journée du jour. Par paquets de 3 pour tenir sous la
-# limite de temps de Vercel.
+# d'aujourd'hui avec les règles à jour (accents, verset dans les lectures…),
+# puis republier la journée du jour.
+#
+# On génère UN JOUR PAR APPEL : chaque appel reste largement sous la limite
+# Vercel, et un jour qui échoue n'empêche pas les autres (|| true).
 on:
   workflow_dispatch: {}
 
@@ -11,19 +13,16 @@ jobs:
   regen:
     runs-on: ubuntu-latest
     steps:
-      - name: Jours 1 à 3
+      - name: Générer les 7 jours (un par un)
         run: |
-          curl -sf "${{ secrets.SITE_URL }}/api/cron/weekly?from=today&days=3&skip=0" \
-            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"
-      - name: Jours 4 à 6
-        run: |
-          curl -sf "${{ secrets.SITE_URL }}/api/cron/weekly?from=today&days=3&skip=3" \
-            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"
-      - name: Jour 7
-        run: |
-          curl -sf "${{ secrets.SITE_URL }}/api/cron/weekly?from=today&days=3&skip=6" \
-            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"
+          for skip in 0 1 2 3 4 5 6; do
+            echo "→ Jour $((skip + 1))/7"
+            curl -s --max-time 300 \
+              "${{ secrets.SITE_URL }}/api/cron/weekly?from=today&days=1&skip=${skip}" \
+              -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" || echo "  (jour $((skip + 1)) : échec, on continue)"
+            sleep 3
+          done
       - name: Republier aujourd'hui
         run: |
-          curl -sf "${{ secrets.SITE_URL }}/api/cron/daily" \
-            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"
+          curl -s --max-time 120 "${{ secrets.SITE_URL }}/api/cron/daily" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" || true
