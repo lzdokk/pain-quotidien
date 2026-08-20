@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { admin } from '@/lib/supabase/admin';
 import { OSIS } from '@/lib/osis';
 import { fetchApiBibleChapter } from '@/lib/apibible';
+import { fetchYouversionChapter } from '@/lib/youversion';
 
 export const dynamic = 'force-dynamic';
 
@@ -36,6 +37,19 @@ export async function GET(req: NextRequest) {
         v.verse,
         String(v.text ?? '').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim()
       ] as [number, string]).filter(v => v[1]);
+      return NextResponse.json({ verses });
+    } catch (e: any) {
+      return NextResponse.json({ verses: [], error: String(e?.message ?? e) }, { status: 502 });
+    }
+  }
+
+  // ── Lecture à la volée chez YouVersion (versions sous licence acceptée) ──
+  if (t.source === 'youversion') {
+    if (!process.env.YVP_APP_KEY) {
+      return NextResponse.json({ verses: [], error: 'YVP_APP_KEY non configurée' }, { status: 500 });
+    }
+    try {
+      const verses = await fetchYouversionChapter(t.api_id ?? trans, book, chapter);
       return NextResponse.json({ verses });
     } catch (e: any) {
       return NextResponse.json({ verses: [], error: String(e?.message ?? e) }, { status: 502 });

@@ -33,7 +33,8 @@ function describeTranslation(t: any): string {
 
 // Traductions lues à distance (jamais copiées chez nous) : bolls, API.Bible,
 // getbible. Pour celles-ci, la recherche par mot bascule sur la Segond locale.
-const REMOTE_SRC = (t: any) => t?.source === 'apibible' || t?.source === 'bolls' || t?.source === 'getbible';
+const REMOTE_SRC = (t: any) =>
+  t?.source === 'apibible' || t?.source === 'bolls' || t?.source === 'getbible' || t?.source === 'youversion';
 
 const LANG_LABELS: Record<string, string> = {
   fr: 'Français', en: 'English', he: 'עברית · Hébreu', el: 'Ελληνικά · Grec',

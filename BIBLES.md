@@ -104,6 +104,38 @@ Société Biblique de Genève pour un usage public).
 > Crampon, Lausanne, Martin) restent récupérables — mais depuis des sources
 > ouvertes, pas depuis son serveur.
 
+## 5 bis. Versions SOUS DROITS, en toute légalité : YouVersion Platform
+
+C'est **la** voie officielle pour lire Segond 21, Semeur, NBS, NEG, Parole de
+Vie… sans jamais stocker le texte (lecture à la volée, comme bolls) et **avec
+l'accord des éditeurs**. Une nouvelle source `youversion` est déjà branchée
+dans l'app (routes lecteur + comparateur). Étapes, une seule fois :
+
+1. Crée un compte et une app sur **platform.youversion.com**, récupère ta clé
+   (App Key).
+2. Mets la clé dans **Vercel → Settings → Environment Variables** :
+   `YVP_APP_KEY = <ta clé>`. (Elle n'est jamais exposée au navigateur.)
+3. Dans le portail, **accepte la licence** de chaque Bible française voulue.
+   Puis récupère son **ID numérique** (visible dans l'URL bible.com/versions/<ID>,
+   ou via l'endpoint « Get a Bible collection »). Exemples d'IDs YouVersion :
+   Segond 21 = `152`, Bible du Semeur = `62`, NBS = `146`, NEG1979 = `133`,
+   Parole de Vie = `93` *(à vérifier dans ton portail : les IDs disponibles
+   dépendent des licences que TU as acceptées)*.
+4. Ajoute une ligne par version, `source='youversion'`, `api_id` = l'ID :
+
+```sql
+insert into translations (code, name, language, enabled, source, api_id, public_domain)
+values ('S21', 'Segond 21', 'fr', true, 'youversion', '152', false)
+on conflict (code) do update
+  set source = 'youversion', api_id = '152', enabled = true, language = 'fr';
+```
+
+Le texte est lu chapitre par chapitre à la demande, jamais copié dans ta base :
+tu restes dans le cadre de la licence acceptée. Si l'affichage d'un chapitre
+paraît « en un bloc » plutôt que verset par verset, préviens-moi : le petit
+analyseur HTML (`lib/youversion.ts`) se règle en une passe une fois testé avec
+ta clé réelle.
+
 ## 6. Déploiement de ce lot
 
 ```bash

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { admin } from '@/lib/supabase/admin';
+import { fetchYouversionVerse } from '@/lib/youversion';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,7 +18,8 @@ export async function GET(req: NextRequest) {
     .select('code, name, language, source, api_id').eq('enabled', true);
   const list = trans ?? [];
 
-  const localCodes = list.filter(t => t.source !== 'bolls' && t.source !== 'apibible' && t.source !== 'getbible').map(t => t.code);
+  const REMOTE = new Set(['bolls', 'apibible', 'getbible', 'youversion']);
+  const localCodes = list.filter(t => !REMOTE.has(t.source)).map(t => t.code);
   const localText = new Map<string, string>();
   if (localCodes.length) {
     const { data } = await admin.from('verses').select('translation, text')
@@ -46,6 +48,9 @@ export async function GET(req: NextRequest) {
           text = String(row?.text ?? '').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
         }
       } catch { /* traduction indisponible : ignorée */ }
+    } else if (t.source === 'youversion') {
+      try { text = await fetchYouversionVerse(t.api_id ?? t.code, book, chapter, verse); }
+      catch { /* indisponible : ignorée */ }
     } else if (t.source !== 'apibible') {
       text = localText.get(t.code) ?? '';
     }
