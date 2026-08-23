@@ -1,117 +1,55 @@
 'use client';
-import { useEffect, useMemo, useState } from 'react';
-
-type Verse = { verse: number; text: string };
-type Chapter = { translation: string; name: string; verses: Verse[] };
+import { useEffect, useState } from 'react';
+import { getTwoTranslations, type Verse } from '@/lib/study';
 
 /**
- * Affichage côte à côte ou empilé de deux traductions pour un chapitre entier.
+ * Comparateur : un même chapitre dans DEUX traductions, côte à côte
+ * (empilé sur mobile). Gère local et distant via lib/study. Style CSS maison.
  */
 export default function VerseCompare({
-  book,
-  chapter,
-  bookName,
-  translationA,
-  translationB,
-  translations,
-  onClose
+  book, chapter, transA, transB, nameA, nameB
 }: {
-  book: number;
-  chapter: number;
-  bookName: string;
-  translationA: string;
-  translationB: string;
-  translations: Array<{ code: string; name: string }>;
-  onClose: () => void;
+  book: number; chapter: number; transA: string; transB: string;
+  nameA?: string; nameB?: string;
 }) {
-  const [chapters, setChapters] = useState<Chapter[] | null>(null);
-  const [layout, setLayout] = useState<'side' | 'stack'>('stack');
-  const [b, setB] = useState(translationB);
-
-  useEffect(() => { setB(translationB); }, [translationB]);
+  const [rows, setRows] = useState<{ a: Verse[]; b: Verse[] } | null>(null);
+  const [err, setErr] = useState(false);
 
   useEffect(() => {
     let alive = true;
+    setRows(null); setErr(false);
     (async () => {
-      const r = await fetch(
-        `/api/bible/chapter-compare?book=${book}&chapter=${chapter}&a=${translationA}&b=${b}`
-      );
-      const j = await r.json();
-      if (alive) setChapters(j.chapters ?? []);
+      try {
+        const r = await getTwoTranslations(book, chapter, transA, transB);
+        if (alive) setRows(r);
+      } catch { if (alive) setErr(true); }
     })();
     return () => { alive = false; };
-  }, [book, chapter, translationA, b]);
+  }, [book, chapter, transA, transB]);
 
-  const [left, right] = chapters ?? [];
-  const verseNums = useMemo(() => {
-    const set = new Set<number>();
-    for (const ch of chapters ?? []) for (const v of ch.verses) set.add(v.verse);
-    return [...set].sort((a, b) => a - b);
-  }, [chapters]);
+  if (err) return <p className="muted">Comparaison indisponible pour ce passage.</p>;
+  if (!rows) return <p className="muted">Chargement…</p>;
 
-  const textOf = (ch: Chapter | undefined, n: number) =>
-    ch?.verses.find(v => v.verse === n)?.text ?? '';
-
-  const others = translations.filter(t => t.code !== translationA);
+  const byVerse = new Map<number, { a?: string; b?: string }>();
+  for (const v of rows.a) byVerse.set(v.verse, { ...(byVerse.get(v.verse) ?? {}), a: v.text });
+  for (const v of rows.b) byVerse.set(v.verse, { ...(byVerse.get(v.verse) ?? {}), b: v.text });
+  const verses = [...byVerse.keys()].sort((x, y) => x - y);
 
   return (
-    <div className="modal-in vexplain vcompare">
-      <button className="mclose" onClick={onClose} aria-label="Fermer">✕</button>
-      <div className="msub">Comparer les traductions — {bookName} {chapter}</div>
-
-      <div className="vcompare-bar">
-        <select className="field sm" value={b} onChange={e => setB(e.target.value)} aria-label="Deuxième traduction">
-          {others.map(t => <option key={t.code} value={t.code}>{t.name}</option>)}
-        </select>
-        <div className="cmp-filter">
-          <button className={`cmp-chip${layout === 'stack' ? ' on' : ''}`} onClick={() => setLayout('stack')}>
-            Empilé
-          </button>
-          <button className={`cmp-chip${layout === 'side' ? ' on' : ''}`} onClick={() => setLayout('side')}>
-            Côte à côte
-          </button>
-        </div>
+    <div className="vc">
+      <div className="vc-head">
+        <span>{nameA ?? transA}</span>
+        <span>{nameB ?? transB}</span>
       </div>
-
-      {chapters === null ? <p className="empty">Chargement…</p> :
-       !left?.verses.length && !right?.verses.length ? (
-         <p className="empty">Ce chapitre n&rsquo;est pas disponible dans ces traductions.</p>
-       ) : layout === 'side' ? (
-         <div className="vcompare-grid">
-           <div className="vcompare-col">
-             <span className="cmp-name">{left?.name ?? translationA}</span>
-             {verseNums.map(n => (
-               <p key={n} className="vcompare-verse">
-                 <span className="vn">{n}</span>{textOf(left, n) || '—'}
-               </p>
-             ))}
-           </div>
-           <div className="vcompare-col">
-             <span className="cmp-name">{right?.name ?? b}</span>
-             {verseNums.map(n => (
-               <p key={n} className="vcompare-verse">
-                 <span className="vn">{n}</span>{textOf(right, n) || '—'}
-               </p>
-             ))}
-           </div>
-         </div>
-       ) : (
-         <div className="vcompare-stack">
-           {verseNums.map(n => (
-             <div key={n} className="vcompare-block">
-               <span className="vcompare-num">{n}</span>
-               <div className="cmp-row">
-                 <span className="cmp-name">{left?.name ?? translationA}</span>
-                 <p className="cmp-text">{textOf(left, n) || '—'}</p>
-               </div>
-               <div className="cmp-row">
-                 <span className="cmp-name">{right?.name ?? b}</span>
-                 <p className="cmp-text">{textOf(right, n) || '—'}</p>
-               </div>
-             </div>
-           ))}
-         </div>
-       )}
+      {verses.map(n => {
+        const r = byVerse.get(n)!;
+        return (
+          <div className="vc-row" key={n}>
+            <div className="vc-cell"><span className="vc-n">{n}</span>{r.a ?? '—'}</div>
+            <div className="vc-cell"><span className="vc-n">{n}</span>{r.b ?? '—'}</div>
+          </div>
+        );
+      })}
     </div>
   );
 }

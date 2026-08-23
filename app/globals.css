@@ -678,6 +678,39 @@ html[data-mode="soir"] .step.done .step-n{color:#0E141A}
 .sharepitch-text p + p{margin-top:11px}
 .sharepitch-text p:last-child{color:var(--accent);font-weight:560;word-break:break-word}
 
+/* ---------- OUTILS D'ÉTUDE (Strong au clic + comparateur) ---------- */
+.sw-word{font:inherit;color:var(--ink);background:none;border:0;border-bottom:1px dotted var(--accent-line);
+ cursor:pointer;padding:0 1px;margin:0 1px;border-radius:3px;transition:.15s var(--ease)}
+.sw-word:hover{background:var(--accent-soft);border-bottom-color:var(--accent)}
+.sw-word-plain{color:var(--ink)}
+.sw-verse{font-family:var(--serif);font-size:18px;line-height:2}
+.sw-overlay{position:fixed;inset:0;z-index:150;display:flex;align-items:center;justify-content:center;padding:20px;
+ background:color-mix(in srgb,var(--bg) 45%,rgba(0,0,0,.55));animation:fade .25s var(--ease)}
+.sw-modal{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:var(--r,16px);
+ width:100%;max-width:420px;padding:24px 26px;box-shadow:0 24px 60px rgba(0,0,0,.25)}
+.sw-close{position:absolute;top:12px;right:14px;background:none;border:0;font-size:22px;line-height:1;
+ color:var(--ink-3);cursor:pointer}
+.sw-code{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.sw-lang{color:var(--ink-3);font-weight:600}
+.sw-lemma{font-family:var(--serif);font-size:24px;margin-top:8px;color:var(--ink)}
+.sw-translit{font-size:16px;color:var(--ink-3)}
+.sw-pron{font-size:13px;color:var(--ink-3);margin-top:2px}
+.sw-def{font-size:15px;line-height:1.7;color:var(--ink-2);margin-top:14px}
+
+.vc{border:1px solid var(--line);border-radius:var(--r-sm,12px);overflow:hidden}
+.vc-head{display:grid;grid-template-columns:1fr 1fr;background:var(--surface-2);font-size:11px;font-weight:640;
+ letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.vc-head span{padding:11px 16px}
+.vc-head span:first-child{border-right:1px solid var(--line)}
+.vc-row{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--line)}
+.vc-cell{padding:12px 16px;font-family:var(--serif);font-size:16px;line-height:1.6;color:var(--ink)}
+.vc-cell:first-child{border-right:1px solid var(--line)}
+.vc-n{font-family:var(--sans);font-size:10.5px;font-weight:660;color:var(--accent);vertical-align:.4em;margin-right:6px}
+@media(max-width:560px){
+ .vc-head{grid-template-columns:1fr}.vc-head span:first-child{border-right:0;border-bottom:1px solid var(--line)}
+ .vc-row{grid-template-columns:1fr}.vc-cell:first-child{border-right:0;border-bottom:1px solid var(--line)}
+}
+
 /* ---------- TOUR D'ACCUEIL ---------- */
 .ob{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;
  background:color-mix(in srgb,var(--bg) 45%,rgba(0,0,0,.6));animation:fade .3s var(--ease)}
