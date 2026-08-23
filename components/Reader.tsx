@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase/client';
 import Explain from './Explain';
 import WordByWord from './WordByWord';
 import Compare from './Compare';
+import VerseCompare from './VerseCompare';
 import { themeOf, suggestTheme, matchThemeQuery } from '@/lib/highlight-themes';
 
 type V = { verse: number; text: string };
@@ -43,7 +44,7 @@ const LANG_LABELS: Record<string, string> = {
 const LANG_ORDER = ['fr', 'en', 'he', 'el', 'la', 'de', 'ru', 'pl', 'ar', 'zh'];
 
 export default function Reader({ books, translations, plans, steps, plan, notes, highlights, intros, user }: any) {
-  // Bible du Semeur (BDS) par defaut, sauf si une position a ete memorisee.
+  // Segond 1910 (FRLSG) par defaut partout, sauf si l'utilisateur a memorise un autre choix.
   const [trad, setTrad] = useState('FRLSG');
   const [book, setBook] = useState(43);
   const [chapter, setChapter] = useState(1);
@@ -56,6 +57,7 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
   const [explain, setExplain] = useState<{ kind: 'ch' | 'v'; verse?: number } | null>(null);
   const [wbw, setWbw] = useState<number | null>(null);
   const [cmp, setCmp] = useState<number | null>(null);
+  const [compareWith, setCompareWith] = useState<string | null>(null); // 2e traduction (comparateur chapitre)
   const [search, setSearch] = useState('');
   const [hl, setHl] = useState<Record<string, number>>(
     Object.fromEntries((highlights ?? []).map((h: any) => [`${h.book}-${h.chapter}-${h.verse}`, h.color])));
@@ -183,13 +185,11 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
         }
       }
       const saved = JSON.parse(localStorage.getItem('pq-pos') ?? 'null');
-      const bds = translations.find((t: any) => !HIDDEN_TRAD(t) && /semeur|\bbds\b/i.test(`${t.code} ${t.name}`));
+      // Segond 1910 (FRLSG) par defaut. On ne restaure la traduction memorisee
+      // que si l'utilisateur l'avait lui-meme changee.
       if (saved?.b) {
         setBook(saved.b); setChapter(saved.c ?? 1);
         if (saved.t && !HIDDEN_TRAD({ code: saved.t, name: '' })) setTrad(saved.t);
-        else if (bds) setTrad(bds.code);
-      } else if (bds) {
-        setTrad(bds.code);
       }
       setRecent(JSON.parse(localStorage.getItem('pq-recent') ?? '[]'));
     } catch {}
@@ -508,6 +508,19 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
               {Array.from({ length: chapters }, (_, i) => <option key={i} value={i + 1}>{i + 1}</option>)}
             </select>
           </div>
+
+          <div className="cmp-bar">
+            <button className="btn sm" onClick={() =>
+              setCompareWith(compareWith ? null : (langTranslations.find((t: any) => t.code !== trad)?.code ?? null))}>
+              {compareWith ? 'Fermer la comparaison' : 'Comparer 2 versions'}
+            </button>
+            {compareWith && (
+              <select className="field" value={compareWith} onChange={e => setCompareWith(e.target.value)}>
+                {langTranslations.filter((t: any) => t.code !== trad).map((t: any) =>
+                  <option key={t.code} value={t.code}>{t.name}</option>)}
+              </select>
+            )}
+          </div>
           {describeTranslation(translations.find((t: any) => t.code === trad) ?? {}) && (
             <p style={{ fontSize: 12.5, color: 'var(--ink-3)', marginTop: 10 }}>
               {describeTranslation(translations.find((t: any) => t.code === trad) ?? {})}
@@ -552,6 +565,15 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
           </details>
         )}
 
+        {compareWith && (
+          <div style={{ padding: '4px 30px 26px' }}>
+            <VerseCompare book={book} chapter={chapter} transA={trad} transB={compareWith}
+              nameA={translations.find((t: any) => t.code === trad)?.name}
+              nameB={translations.find((t: any) => t.code === compareWith)?.name} />
+          </div>
+        )}
+
+        {!compareWith && (
         <div className="vlist">
           {loading ? <p className="empty">Chargement…</p> :
            verses.length === 0 ? <p className="empty">Ce chapitre n&rsquo;est pas encore importe dans cette traduction.</p> :
@@ -629,8 +651,9 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
              );
            })}
         </div>
+        )}
 
-        {!loading && verses.length > 0 && (
+        {!loading && verses.length > 0 && !compareWith && (
           <div className="chap-foot">
             <button className="chap-move" disabled={!prevLabel} onClick={goPrev}>
               <span className="cm-dir">‹ Précédent</span>

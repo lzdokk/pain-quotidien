@@ -38,26 +38,53 @@ export function parseRef(ref: string) {
   // ou le chiffre initial fait partie du nom du livre. On exige donc que les
   // chiffres soient suivis d'une virgule ou d'une parenthese, pas d'une lettre.
   const c2 = /^\d+\s*(\(\d+\))?\s*[,.:]/.test(cleaned) ? 'Psaumes ' + cleaned : cleaned;
-  // AELF numerote les psaumes a la grecque, l'hebreu est entre parentheses.
-  // Segond 1910 suit l'hebreu : on prend le nombre entre parentheses s'il existe.
-  const alt = c2.match(/\((\d+)\)/);
-  const m = c2.match(/^(.+?)\s+(\d+)/);
-  if (!m) return null;
-  const name = m[1].trim();
-  const chapter = alt ? +alt[1] : +m[2];
-  const rest = c2.replace(/\(\d+\)/, '').replace(/^.+?\s+\d+[.,:]?/, '');
-  const verses: number[] = [];
-  // AELF decoupe parfois un verset en sous-parties (« 5AB », « 5CD ») : on
-  // tolere donc des lettres apres le chiffre pour ne PAS perdre le verset.
-  rest.split(/[.,;]/).forEach(part => {
-    const t = part.trim();
-    const range = t.match(/^(\d+)[a-z]*\s*-\s*(\d+)[a-z]*$/i);
-    const single = t.match(/^(\d+)[a-z]*$/i);
-    if (range) { for (let v = +range[1]; v <= +range[2]; v++) verses.push(v); }
-    else if (single) verses.push(+single[1]);
-  });
+  const nameM = c2.match(/^(.+?)\s+\d/);
+  if (!nameM) return null;
+  const name = nameM[1].trim();
+
+  // Tout ce qui suit le nom du livre : "15, 3-4.15-16 ; 16, 1-2".
+  // Une reference peut enjamber PLUSIEURS chapitres, separes par ";" :
+  // chaque segment peut redefinir son chapitre ("16, 1-2"). Sans distinguer
+  // les chapitres, les versets d'un 2e chapitre etaient injectes a tort dans
+  // le 1er (ex. "16,1-2" affichait v1-2 sous le chapitre 15). On collecte donc
+  // les versets par chapitre, puis on retourne le chapitre principal (le 1er).
+  const body = c2.slice(nameM[1].length).trim();
+  const byChapter = new Map<number, number[]>();
+  let curChapter: number | null = null;
+  let primary: number | null = null;
+
+  for (const seg of body.split(';')) {
+    let s = seg.trim();
+    if (!s) continue;
+    // Tete de segment "15,", "16 :", "3." ou "33 (34)," → (re)definit le chapitre.
+    // Un "3-4" (suite du meme chapitre) ne matche pas : le "-" bloque.
+    // AELF numerote les psaumes a la grecque, l'hebreu (Segond) est entre ().
+    const chM = s.match(/^(\d+)\s*(\(\d+\))?\s*[,.:]/);
+    if (chM) {
+      const paren = chM[2]?.match(/\d+/);
+      curChapter = paren ? +paren[0] : +chM[1];
+      s = s.slice(chM[0].length);
+    } else if (curChapter === null) {
+      curChapter = +nameM[0].match(/\d+$/)![0];
+    }
+    if (primary === null) primary = curChapter;
+    const list = byChapter.get(curChapter!) ?? [];
+    // AELF decoupe parfois un verset en sous-parties (« 5AB », « 5CD ») : on
+    // tolere donc des lettres apres le chiffre pour ne PAS perdre le verset.
+    s.split(/[.,]/).forEach(part => {
+      const t = part.trim();
+      const range = t.match(/^(\d+)[a-z]*\s*-\s*(\d+)[a-z]*$/i);
+      const single = t.match(/^(\d+)[a-z]*$/i);
+      if (range) { for (let v = +range[1]; v <= +range[2]; v++) list.push(v); }
+      else if (single) list.push(+single[1]);
+    });
+    byChapter.set(curChapter!, list);
+  }
+
+  if (primary === null) return null;
   // Dedoublonne (5AB + 5CD → 5 une seule fois) et remet dans l'ordre.
-  return { name, chapter, verses: [...new Set(verses)].sort((a, b) => a - b) };
+  const verses = [...new Set(byChapter.get(primary) ?? [])].sort((a, b) => a - b);
+  return { name, chapter: primary, verses };
 }
 
 export async function bookIdByName(name: string) {
@@ -77,11 +104,11 @@ export async function getVerses(translation: string, book: number, chapter: numb
   return (data ?? []) as Verse[];
 }
 
-/** Traduction Bible du Semeur (BDS), avec repli sur Segond 1910. */
+/** Traduction par defaut des lectures du jour : Segond 1910 (FRLSG). */
 export async function bdsTranslation(): Promise<{ code: string; name: string }> {
-  const { data } = await admin.from('translations').select('code, name').eq('enabled', true);
-  const bds = (data ?? []).find((t: any) => /semeur|\bbds\b/i.test(`${t.code} ${t.name}`));
-  return bds ?? { code: 'FRLSG', name: 'Segond 1910' };
+  const { data } = await admin.from('translations')
+    .select('code, name').eq('code', 'FRLSG').maybeSingle();
+  return data ?? { code: 'FRLSG', name: 'Segond 1910' };
 }
 
 /**

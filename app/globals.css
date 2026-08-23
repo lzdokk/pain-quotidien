@@ -679,6 +679,8 @@ html[data-mode="soir"] .step.done .step-n{color:#0E141A}
 .sharepitch-text p:last-child{color:var(--accent);font-weight:560;word-break:break-word}
 
 /* ---------- OUTILS D'ÉTUDE (Strong au clic + comparateur) ---------- */
+.cmp-bar{display:flex;gap:10px;align-items:center;margin-top:10px;flex-wrap:wrap}
+.cmp-bar .field{max-width:260px}
 .sw-word{font:inherit;color:var(--ink);background:none;border:0;border-bottom:1px dotted var(--accent-line);
  cursor:pointer;padding:0 1px;margin:0 1px;border-radius:3px;transition:.15s var(--ease)}
 .sw-word:hover{background:var(--accent-soft);border-bottom-color:var(--accent)}
