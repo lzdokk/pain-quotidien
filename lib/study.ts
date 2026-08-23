@@ -1,157 +1,116 @@
-import type { SupabaseClient } from '@supabase/supabase-js';
-import { admin } from '@/lib/supabase/admin';
-
-// ─── Types ───────────────────────────────────────────────────────────
-
-export type VerseHit = {
-  translation: string;
-  book: number;
-  chapter: number;
-  verse: number;
-  text: string;
-  rank: number;
-};
-
-export type ComparedVerse = { verse: number; text: string };
-
-export type ComparedChapter = {
-  translation: string;
-  name: string;
-  verses: ComparedVerse[];
-};
-
-export type StrongEntry = {
-  code: string;
-  lang: string;
-  num: number;
-  lemma: string | null;
-  translit: string | null;
-  pronunciation: string | null;
-  definition_en: string | null;
-  definition_fr: string | null;
-  derivation: string | null;
-  kjv_def: string | null;
-};
-
-export type CrossReference = {
-  to_book: number;
-  to_chapter: number;
-  to_verse: number;
-  to_verse_end: number | null;
-  kind: string;
-  note: string | null;
-  weight: number;
-};
-
-// ─── Recherche plein texte ─────────────────────────────────────────────
-
-/** FTS sur toutes les traductions locales (ou une seule si `translation` est fourni). */
-export async function searchVerses(
-  query: string,
-  opts?: { translation?: string; limit?: number; offset?: number },
-  client: SupabaseClient = admin
-): Promise<VerseHit[]> {
-  const q = query.trim();
-  if (q.length < 2) return [];
-
-  const { data, error } = await client.rpc('search_verses', {
-    p_query: q,
-    p_translation: opts?.translation ?? null,
-    p_limit: opts?.limit ?? 50,
-    p_offset: opts?.offset ?? 0
-  });
-  if (error) throw error;
-  return (data ?? []) as VerseHit[];
-}
-
-// ─── Comparateur de chapitres (2 traductions) ──────────────────────────
-
 /**
- * Récupère un chapitre entier dans deux traductions locales en une seule
- * requête, prêt pour un affichage côte à côte ou empilé.
+ * COUCHE D'ACCÈS AUX OUTILS D'ÉTUDE (Étape 2)
+ * ───────────────────────────────────────────
+ * Toutes les lectures passent par le client navigateur `supabase` (les tables
+ * verses / strongs / cross_references / verse_words sont en lecture publique).
+ * Les traductions distantes (bolls, getbible, youversion) ne sont pas dans la
+ * table `verses` : on les lit via la route /api/bible/chapter déjà en place.
  */
-export async function getChapterCompared(
-  book: number,
-  chapter: number,
-  translationA: string,
-  translationB: string,
-  client: SupabaseClient = admin
-): Promise<ComparedChapter[]> {
-  const codes = [translationA, translationB];
-  const [{ data: rows, error }, { data: meta }] = await Promise.all([
-    client.from('verses')
-      .select('translation, verse, text')
-      .eq('book', book)
-      .eq('chapter', chapter)
-      .in('translation', codes)
-      .order('verse'),
-    client.from('translations')
-      .select('code, name')
-      .in('code', codes)
-  ]);
-  if (error) throw error;
+import { supabase } from '@/lib/supabase/client';
 
-  const names = new Map((meta ?? []).map(t => [t.code, t.name]));
-  const grouped = new Map<string, ComparedVerse[]>();
-  for (const code of codes) grouped.set(code, []);
-  for (const row of rows ?? []) {
-    grouped.get(row.translation)?.push({ verse: row.verse, text: row.text });
-  }
+export type Verse = { verse: number; text: string };
+export type StrongEntry = {
+  code: string; lang: string; lemma: string | null; translit: string | null;
+  pronunciation: string | null; definition_fr: string | null; definition_en: string | null;
+};
+export type CrossRef = {
+  to_book: number; to_chapter: number; to_verse_start: number;
+  to_verse_end: number | null; votes: number;
+};
 
-  return codes.map(code => ({
-    translation: code,
-    name: names.get(code) ?? code,
-    verses: grouped.get(code) ?? []
-  }));
-}
+/* Codes considérés comme « distants » (texte lu à la volée, hors table verses). */
+const REMOTE = new Set(['bolls', 'apibible', 'getbible', 'youversion']);
 
-// ─── Lexique Strong ────────────────────────────────────────────────────
-
-/** Entrée précise du dictionnaire Strong (vue `strong_lexicon`). */
-export async function getStrongEntry(
-  code: string,
-  client: SupabaseClient = admin
-): Promise<StrongEntry | null> {
-  const { data, error } = await client
-    .from('strong_lexicon')
-    .select('code, lang, num, lemma, translit, pronunciation, definition_en, definition_fr, derivation, kjv_def')
-    .eq('code', code.toUpperCase())
-    .maybeSingle();
-  if (error) throw error;
-  return data as StrongEntry | null;
-}
-
-/** Recherche plein texte dans le lexique Strong. */
-export async function searchStrongLexicon(
-  query: string,
-  limit = 40,
-  client: SupabaseClient = admin
-): Promise<Omit<StrongEntry, 'num' | 'pronunciation' | 'derivation' | 'kjv_def'>[]> {
-  const q = query.trim();
-  if (q.length < 2) return [];
-
-  const { data, error } = await client.rpc('search_strong_lexicon', {
-    p_query: q,
-    p_limit: limit
+/* ─────────────────────────────────────────────────────────────────────
+ * 1. RECHERCHE PLEIN TEXTE (via la fonction SQL search_verses, insensible
+ *    aux accents, classée par pertinence).
+ * ──────────────────────────────────────────────────────────────────── */
+export async function searchVerses(
+  q: string, translation = 'FRLSG', limit = 100
+): Promise<Array<{ book: number; chapter: number; verse: number; text: string; rank: number }>> {
+  const query = q.trim();
+  if (!query) return [];
+  const { data, error } = await supabase.rpc('search_verses', {
+    q: query, trans: translation, lim: limit
   });
   if (error) throw error;
   return data ?? [];
 }
 
-// ─── Références croisées ─────────────────────────────────────────────────
+/* ─────────────────────────────────────────────────────────────────────
+ * 2. UN CHAPITRE, LOCAL OU DISTANT.
+ * ──────────────────────────────────────────────────────────────────── */
+async function getSource(code: string): Promise<string> {
+  const { data } = await supabase.from('translations').select('source').eq('code', code).maybeSingle();
+  return data?.source ?? 'local';
+}
 
-/** Liens canoniques sortants d'un verset (table `cross_references`). */
-export async function getCrossReferences(
-  book: number,
-  chapter: number,
-  verse: number,
-  client: SupabaseClient = admin
-): Promise<CrossReference[]> {
-  const { data, error } = await client.rpc('get_cross_references', {
-    p_book: book,
-    p_chapter: chapter,
-    p_verse: verse
-  });
+export async function getChapter(book: number, chapter: number, translation: string): Promise<Verse[]> {
+  const source = await getSource(translation);
+
+  if (REMOTE.has(source)) {
+    // Traduction distante : on passe par la route serveur (jamais stockée).
+    const r = await fetch(`/api/bible/chapter?trans=${encodeURIComponent(translation)}&book=${book}&chapter=${chapter}`);
+    const j = await r.json();
+    return ((j.verses ?? []) as Array<[number, string]>).map(([verse, text]) => ({ verse, text }));
+  }
+
+  const { data, error } = await supabase.from('verses')
+    .select('verse, text')
+    .eq('translation', translation).eq('book', book).eq('chapter', chapter)
+    .order('verse');
   if (error) throw error;
-  return (data ?? []) as CrossReference[];
+  return (data ?? []) as Verse[];
+}
+
+/** Le même chapitre dans DEUX traductions, pour l'affichage comparé. */
+export async function getTwoTranslations(
+  book: number, chapter: number, transA: string, transB: string
+): Promise<{ a: Verse[]; b: Verse[] }> {
+  const [a, b] = await Promise.all([
+    getChapter(book, chapter, transA),
+    getChapter(book, chapter, transB)
+  ]);
+  return { a, b };
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+ * 3. DICTIONNAIRE STRONG.
+ * ──────────────────────────────────────────────────────────────────── */
+/** Définition d'un code Strong ("G26", "H2617"). */
+export async function getStrong(code: string): Promise<StrongEntry | null> {
+  const { data, error } = await supabase.from('strongs')
+    .select('code, lang, lemma, translit, pronunciation, definition_fr, definition_en')
+    .eq('code', code.toUpperCase()).maybeSingle();
+  if (error) throw error;
+  return (data as StrongEntry) ?? null;
+}
+
+/** Découpage mot à mot d'un verset (interlinéaire), avec code Strong par mot.
+ *  Renvoie [] si le verset n'est pas encore couvert par verse_words. */
+export async function getVerseWords(
+  book: number, chapter: number, verse: number
+): Promise<Array<{ position: number; lang: string; word: string; strong: string | null; gloss: string | null }>> {
+  const { data, error } = await supabase.from('verse_words')
+    .select('position, lang, word, strong, gloss')
+    .eq('book', book).eq('chapter', chapter).eq('verse', verse)
+    .order('position');
+  if (error) throw error;
+  return data ?? [];
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+ * 4. RÉFÉRENCES CROISÉES d'un verset (triées par pertinence).
+ * ──────────────────────────────────────────────────────────────────── */
+export async function getCrossReferences(
+  book: number, chapter: number, verse: number, minVotes = 1, limit = 20
+): Promise<CrossRef[]> {
+  const { data, error } = await supabase.from('cross_references')
+    .select('to_book, to_chapter, to_verse_start, to_verse_end, votes')
+    .eq('from_book', book).eq('from_chapter', chapter).eq('from_verse', verse)
+    .gte('votes', minVotes)
+    .order('votes', { ascending: false })
+    .limit(limit);
+  if (error) throw error;
+  return (data ?? []) as CrossRef[];
 }
