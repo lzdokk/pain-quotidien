@@ -2,6 +2,7 @@ import Nav from './Nav';
 import Readings from './Readings';
 import DayActions from './DayActions';
 import DayNav from './DayNav';
+import ShareButton from './ShareButton';
 import { rich } from '@/lib/rich';
 
 type Props = {
@@ -50,6 +51,11 @@ export default function Shell({ day, readings, user, archive, recentDays, transl
         <div className="card verse">
           <blockquote>{day.verse_text}</blockquote>
           <cite>{day.verse_ref.toUpperCase()} · SEGOND</cite>
+          <div className="verse-share">
+            <ShareButton title={day.verse_ref}
+                         text={`« ${day.verse_text} »\n${day.verse_ref}\n\n— Pain de Vie, le pain quotidien`}
+                         label="Partager ce verset" className="btn sm" />
+          </div>
         </div>
 
         <h2 className="sect">Le pain quotidien</h2>

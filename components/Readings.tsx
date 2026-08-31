@@ -36,9 +36,13 @@ export default function Readings({ readings, user, translationName }:
               {verses.length > 0 && (
                 <div className="rd-trad">{r.reference.toUpperCase()} · {translationName ?? 'Bible du Semeur'}</div>
               )}
-              <VerseActions book={r.book ?? null} chapter={r.chapter ?? null}
-                            bookName={(r.reference.match(/^(.*?)\s+\d+/) ?? [null, r.reference])[1]}
-                            verses={verses} user={user} />
+              {/* On ne monte VerseActions que pour la lecture ouverte : ouvrir
+                  une autre lecture referme donc le volet de la précédente. */}
+              {on && (
+                <VerseActions book={r.book ?? null} chapter={r.chapter ?? null}
+                              bookName={(r.reference.match(/^(.*?)\s+\d+/) ?? [null, r.reference])[1]}
+                              verses={verses} user={user} />
+              )}
 
               {r.canon_note && (
                 <div className="note-canon">

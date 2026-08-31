@@ -274,8 +274,8 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
     if (nav?.share) { try { await nav.share({ text: txt }); return; } catch { /* repli copie */ } }
     try { await nav?.clipboard?.writeText(txt); } catch {}
   };
-  // Réinitialise la sélection quand on change de chapitre/livre.
-  useEffect(() => { setMulti(new Set()); }, [book, chapter]);
+  // Change de chapitre/livre : on referme les volets ouverts et la sélection.
+  useEffect(() => { setMulti(new Set()); setSel(null); setWbw(null); setCmp(null); setExplain(null); }, [book, chapter]);
 
   // Recherche : une reference (nom + chiffre) ouvre le passage ;
   // un simple mot lance une concordance sur toute la traduction.

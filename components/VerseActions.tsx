@@ -1,9 +1,10 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase/client';
 import { themeOf, suggestTheme } from '@/lib/highlight-themes';
 import Explain from './Explain';
 import WordByWord from './WordByWord';
+import Compare from './Compare';
 
 type Props = {
   book: number | null;
@@ -14,9 +15,9 @@ type Props = {
 };
 
 /**
- * Les memes actions verset (surligner, noter, expliquer, copier) que dans
- * /lire, mais directement dans les lectures du jour : pas besoin d'ouvrir
- * le lecteur pour interagir avec un verset.
+ * Les MÊMES actions verset que dans /lire, mais directement dans les lectures
+ * du jour : le volet s'ouvre juste SOUS le verset tapé, avec surlignage,
+ * thème, note, explication, mot-à-mot, comparaison, partage et multi-sélection.
  */
 export default function VerseActions({ book, chapter, bookName, verses, user }: Props) {
   const [sel, setSel] = useState<number | null>(null);
@@ -26,6 +27,8 @@ export default function VerseActions({ book, chapter, bookName, verses, user }: 
   const [noteText, setNoteText] = useState('');
   const [explain, setExplain] = useState<number | null>(null);
   const [wbw, setWbw] = useState<number | null>(null);
+  const [cmp, setCmp] = useState<number | null>(null);
+  const [multi, setMulti] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     if (!user || !book || !chapter) return;
@@ -41,6 +44,7 @@ export default function VerseActions({ book, chapter, bookName, verses, user }: 
 
   if (!book || !chapter) return null;
 
+  const textOf = (n: number) => verses.find(([m]) => m === n)?.[1] ?? '';
   const noteFor = (v: number) => myNotes.find(n => n.verse === v);
 
   const setColor = async (v: number, color: number) => {
@@ -54,7 +58,6 @@ export default function VerseActions({ book, chapter, bookName, verses, user }: 
   const saveNote = async (v: number) => {
     if (!user) return alert('Connectez-vous pour écrire dans votre carnet.');
     const reference = `${bookName} ${chapter}.${v}`;
-    const verse_text = verses.find(([n]) => n === v)?.[1] ?? '';
     const existing = noteFor(v);
     if (!noteText.trim()) {
       if (existing) { await supabase.from('notes').delete().eq('id', existing.id); setMyNotes(n => n.filter(x => x.id !== existing.id)); }
@@ -63,12 +66,31 @@ export default function VerseActions({ book, chapter, bookName, verses, user }: 
       setMyNotes(n => n.map(x => x.id === existing.id ? { ...x, body: noteText } : x));
     } else {
       const { data } = await supabase.from('notes')
-        .insert({ user_id: user.id, book, chapter, verse: v, reference, verse_text, body: noteText })
+        .insert({ user_id: user.id, book, chapter, verse: v, reference, verse_text: textOf(v), body: noteText })
         .select().single();
       if (data) setMyNotes(n => [data, ...n]);
     }
-    setEditing(false); setSel(null); setNoteText('');
+    setEditing(false); setNoteText('');
   };
+
+  const shareText = async (txt: string) => {
+    const nav: any = navigator;
+    if (nav?.share) { try { await nav.share({ text: txt }); return; } catch { /* repli copie */ } }
+    try { await nav?.clipboard?.writeText(txt); } catch {}
+  };
+  const shareOne = (n: number) => shareText(`« ${textOf(n)} » ${bookName} ${chapter}.${n}`);
+
+  // ── Multi-sélection ────────────────────────────────────────────────
+  const toggleMulti = (v: number) =>
+    setMulti(prev => { const n = new Set(prev); n.has(v) ? n.delete(v) : n.add(v); return n; });
+  const multiSorted = () => [...multi].sort((a, b) => a - b);
+  const multiRefLabel = () => {
+    const s = multiSorted(); if (!s.length) return '';
+    const contiguous = s.every((n, i) => i === 0 || n === s[i - 1] + 1);
+    return contiguous && s.length > 1 ? `${s[0]}-${s[s.length - 1]}` : s.join(', ');
+  };
+  const multiText = () =>
+    `${multiSorted().map(n => `${n}. ${textOf(n)}`).join('\n')}\n— ${bookName} ${chapter}.${multiRefLabel()}`;
 
   return (
     <>
@@ -76,75 +98,93 @@ export default function VerseActions({ book, chapter, bookName, verses, user }: 
         {verses.map(([n, t]) => {
           const c = hl[n];
           return (
-            <span key={n} className={`vs${c ? ` h${c}` : ''}${sel === n ? ' sel' : ''}`}
-                  onClick={() => { setSel(sel === n ? null : n); setEditing(false); setNoteText(noteFor(n)?.body ?? ''); }}>
-              <span className="vn">{n}</span>{t}
-              {noteFor(n) && <span className="noteflag">note</span>}
-            </span>
+            <Fragment key={n}>
+              <span className={`vs${c ? ` h${c}` : ''}${sel === n ? ' sel' : ''}${multi.has(n) ? ' multi' : ''}`}
+                    onClick={() => { setSel(sel === n ? null : n); setEditing(false); setNoteText(noteFor(n)?.body ?? ''); }}>
+                <span className="vn">{n}</span>{t}
+                {noteFor(n) && <span className="noteflag">note</span>}
+              </span>
+
+              {sel === n && (
+                <div className="vbar-inline">
+                  <div className="vbar-head">
+                    <span className="vref">{bookName} {chapter}.{n}</span>
+                    <button className="vbar-x" onClick={() => { setSel(null); setEditing(false); }} aria-label="Fermer">✕</button>
+                  </div>
+
+                  {(() => {
+                    const sug = suggestTheme(t);
+                    return sug && hl[n] !== sug.color ? (
+                      <button className="btn sm suggest" onClick={() => setColor(n, sug.color)}>
+                        ✨ Classer en « {sug.label} »
+                      </button>
+                    ) : null;
+                  })()}
+
+                  <div className="vbar-row">
+                    {[1, 2, 3, 4, 5, 6, 7].map(cc => (
+                      <span key={cc} className={`swatch s${cc}`} title={themeOf(cc)?.label} onClick={() => setColor(n, cc)} />
+                    ))}
+                    <span className="swatch s0" title="Retirer le surlignage" onClick={() => setColor(n, 0)} />
+                    <button className="btn sm" style={{ marginLeft: 'auto' }} onClick={() => setEditing(true)}>
+                      {noteFor(n) ? 'Modifier la note' : 'Ajouter une note'}
+                    </button>
+                    <button className="btn sm" onClick={() => setExplain(explain === n ? null : n)}>Expliquer</button>
+                    <button className="btn sm" onClick={() => setWbw(wbw === n ? null : n)}>Mot à mot</button>
+                    <button className="btn sm" onClick={() => setCmp(cmp === n ? null : n)}>Comparer</button>
+                    <button className="btn sm" onClick={() => shareOne(n)}>Partager</button>
+                    <button className="btn sm" onClick={() => navigator.clipboard?.writeText(`« ${t} » ${bookName} ${chapter}.${n}`)}>Copier</button>
+                    <button className="btn sm" onClick={() => toggleMulti(n)}>{multi.has(n) ? '− Retirer' : '+ Sélection'}</button>
+                  </div>
+
+                  {hl[n] ? (
+                    <div className="vbar-theme">
+                      <span className={`swatch s${hl[n]}`} />
+                      Thème : <strong>{themeOf(hl[n])?.label}</strong>
+                    </div>
+                  ) : (
+                    <div className="vbar-theme muted">Chaque couleur correspond à un thème — survole pour le voir.</div>
+                  )}
+
+                  {editing && (
+                    <div>
+                      <textarea className="field" style={{ marginTop: 12 }} autoFocus value={noteText}
+                                onChange={e => setNoteText(e.target.value)}
+                                placeholder="Ce que ce verset vous dit, une question, un lien avec votre vie…" />
+                      <div className="share-grid" style={{ marginTop: 10 }}>
+                        <button className="btn primary" onClick={() => saveNote(n)}>Enregistrer dans mon carnet</button>
+                      </div>
+                    </div>
+                  )}
+
+                  {wbw === n && <WordByWord book={book} chapter={chapter} verse={n} onClose={() => setWbw(null)} />}
+                  {cmp === n && (
+                    <Compare book={book} chapter={chapter} verse={n}
+                             refLabel={`${bookName} ${chapter}.${n}`} onClose={() => setCmp(null)} />
+                  )}
+                  {explain === n && (
+                    <Explain book={book} chapter={chapter} verse={n} bookName={bookName} text={t} inline
+                             onClose={() => setExplain(null)}
+                             onGoto={(ref) => { location.href = `/lire?ref=${encodeURIComponent(ref)}`; }} />
+                  )}
+                </div>
+              )}
+            </Fragment>
           );
         })}
       </div>
 
-      {sel !== null && (
-        <div className="vbar on" style={{ position: 'static', marginTop: 16 }}>
-          <div className="vref">{bookName} {chapter}.{sel}</div>
-          {(() => {
-            const t = verses.find(([n]) => n === sel)?.[1] ?? '';
-            const sug = suggestTheme(t);
-            return sug && hl[sel] !== sug.color ? (
-              <button className="btn sm suggest" onClick={() => setColor(sel, sug.color)}>
-                ✨ Classer en « {sug.label} »
-              </button>
-            ) : null;
-          })()}
-          <div className="vbar-row">
-            {[1, 2, 3, 4, 5, 6, 7].map(c => (
-              <span key={c} className={`swatch s${c}${hl[sel] === c ? ' on' : ''}`}
-                    title={themeOf(c)?.label} onClick={() => setColor(sel, c)} />
-            ))}
-            <span className="swatch s0" title="Retirer" onClick={() => setColor(sel, 0)} />
-            <button className="btn sm" style={{ marginLeft: 'auto' }} onClick={() => setEditing(true)}>
-              {noteFor(sel) ? 'Modifier la note' : 'Ajouter une note'}
-            </button>
-            <button className="btn sm" onClick={() => setExplain(sel)}>Expliquer</button>
-            <button className="btn sm" onClick={() => setWbw(wbw === sel ? null : sel)}>Mot à mot</button>
-            <button className="btn sm" onClick={() => {
-              const txt = `« ${verses.find(([n]) => n === sel)?.[1]} » ${bookName} ${chapter}.${sel}`;
-              const nav: any = navigator;
-              if (nav?.share) nav.share({ text: txt }).catch(() => {}); else nav?.clipboard?.writeText(txt);
-            }}>Partager</button>
-            <button className="btn sm" onClick={() =>
-              navigator.clipboard?.writeText(`« ${verses.find(([n]) => n === sel)?.[1]} » ${bookName} ${chapter}.${sel}`)}>
-              Copier
-            </button>
+      {multi.size > 0 && (
+        <div className="multibar">
+          <span className="multibar-ref">
+            {bookName} {chapter}.{multiRefLabel()} · {multi.size} verset{multi.size > 1 ? 's' : ''}
+          </span>
+          <div className="multibar-actions">
+            <button className="btn sm primary" onClick={() => shareText(multiText())}>Partager</button>
+            <button className="btn sm" onClick={() => navigator.clipboard?.writeText(multiText())}>Copier</button>
+            <button className="btn sm" onClick={() => setMulti(new Set())}>Effacer</button>
           </div>
-          <div className="vbar-theme">
-            {hl[sel]
-              ? <>Thème : <b>{themeOf(hl[sel])?.label}</b></>
-              : <span className="muted">Chaque couleur correspond à un thème — survole une pastille pour le voir.</span>}
-          </div>
-          {editing && (
-            <div>
-              <textarea className="field" style={{ marginTop: 12 }} autoFocus value={noteText}
-                        onChange={e => setNoteText(e.target.value)}
-                        placeholder="Ce que ce verset vous dit, une question, un lien avec votre vie…" />
-              <div className="share-grid" style={{ marginTop: 10 }}>
-                <button className="btn primary" onClick={() => saveNote(sel)}>Enregistrer dans mon carnet</button>
-              </div>
-            </div>
-          )}
         </div>
-      )}
-
-      {wbw !== null && (
-        <WordByWord book={book} chapter={chapter} verse={wbw} onClose={() => setWbw(null)} />
-      )}
-
-      {explain !== null && (
-        <Explain book={book} chapter={chapter} verse={explain}
-                 bookName={bookName} text={verses.find(([n]) => n === explain)?.[1] ?? ''}
-                 onClose={() => setExplain(null)}
-                 onGoto={(ref) => { location.href = `/lire?ref=${encodeURIComponent(ref)}`; }} />
       )}
     </>
   );
