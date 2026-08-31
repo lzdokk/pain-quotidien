@@ -1,8 +1,9 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase/client';
-import { themeOf } from '@/lib/highlight-themes';
+import { themeOf, suggestTheme } from '@/lib/highlight-themes';
 import Explain from './Explain';
+import WordByWord from './WordByWord';
 
 type Props = {
   book: number | null;
@@ -24,6 +25,7 @@ export default function VerseActions({ book, chapter, bookName, verses, user }: 
   const [editing, setEditing] = useState(false);
   const [noteText, setNoteText] = useState('');
   const [explain, setExplain] = useState<number | null>(null);
+  const [wbw, setWbw] = useState<number | null>(null);
 
   useEffect(() => {
     if (!user || !book || !chapter) return;
@@ -86,6 +88,15 @@ export default function VerseActions({ book, chapter, bookName, verses, user }: 
       {sel !== null && (
         <div className="vbar on" style={{ position: 'static', marginTop: 16 }}>
           <div className="vref">{bookName} {chapter}.{sel}</div>
+          {(() => {
+            const t = verses.find(([n]) => n === sel)?.[1] ?? '';
+            const sug = suggestTheme(t);
+            return sug && hl[sel] !== sug.color ? (
+              <button className="btn sm suggest" onClick={() => setColor(sel, sug.color)}>
+                ✨ Classer en « {sug.label} »
+              </button>
+            ) : null;
+          })()}
           <div className="vbar-row">
             {[1, 2, 3, 4, 5, 6, 7].map(c => (
               <span key={c} className={`swatch s${c}${hl[sel] === c ? ' on' : ''}`}
@@ -96,6 +107,12 @@ export default function VerseActions({ book, chapter, bookName, verses, user }: 
               {noteFor(sel) ? 'Modifier la note' : 'Ajouter une note'}
             </button>
             <button className="btn sm" onClick={() => setExplain(sel)}>Expliquer</button>
+            <button className="btn sm" onClick={() => setWbw(wbw === sel ? null : sel)}>Mot à mot</button>
+            <button className="btn sm" onClick={() => {
+              const txt = `« ${verses.find(([n]) => n === sel)?.[1]} » ${bookName} ${chapter}.${sel}`;
+              const nav: any = navigator;
+              if (nav?.share) nav.share({ text: txt }).catch(() => {}); else nav?.clipboard?.writeText(txt);
+            }}>Partager</button>
             <button className="btn sm" onClick={() =>
               navigator.clipboard?.writeText(`« ${verses.find(([n]) => n === sel)?.[1]} » ${bookName} ${chapter}.${sel}`)}>
               Copier
@@ -117,6 +134,10 @@ export default function VerseActions({ book, chapter, bookName, verses, user }: 
             </div>
           )}
         </div>
+      )}
+
+      {wbw !== null && (
+        <WordByWord book={book} chapter={chapter} verse={wbw} onClose={() => setWbw(null)} />
       )}
 
       {explain !== null && (

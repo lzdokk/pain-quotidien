@@ -58,6 +58,7 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
   const [wbw, setWbw] = useState<number | null>(null);
   const [cmp, setCmp] = useState<number | null>(null);
   const [compareWith, setCompareWith] = useState<string | null>(null); // 2e traduction (comparateur chapitre)
+  const [multi, setMulti] = useState<Set<number>>(new Set()); // sélection multi-versets
   const [search, setSearch] = useState('');
   const [hl, setHl] = useState<Record<string, number>>(
     Object.fromEntries((highlights ?? []).map((h: any) => [`${h.book}-${h.chapter}-${h.verse}`, h.color])));
@@ -253,6 +254,28 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
     const b = books.find((x: any) => x.name.toLowerCase().startsWith(norm));
     if (b) { setBook(b.id); setChapter(Math.min(+m[2], b.chapters)); setExplain(null); setWbw(null); setCmp(null); }
   };
+
+  // ── Sélection multi-versets (partager / copier un ensemble) ──────────
+  const toggleMulti = (v: number) =>
+    setMulti(prev => { const n = new Set(prev); n.has(v) ? n.delete(v) : n.add(v); return n; });
+  const multiSorted = () => [...multi].sort((a, b) => a - b);
+  const multiRefLabel = () => {
+    const s = multiSorted(); if (!s.length) return '';
+    const contiguous = s.every((n, i) => i === 0 || n === s[i - 1] + 1);
+    return contiguous && s.length > 1 ? `${s[0]}-${s[s.length - 1]}` : s.join(', ');
+  };
+  const multiText = () => {
+    const body = multiSorted()
+      .map(n => `${n}. ${verses.find(x => x.verse === n)?.text ?? ''}`).join('\n');
+    return `${body}\n— ${bookName} ${chapter}.${multiRefLabel()}`;
+  };
+  const shareMulti = async () => {
+    const txt = multiText(); const nav: any = navigator;
+    if (nav?.share) { try { await nav.share({ text: txt }); return; } catch { /* repli copie */ } }
+    try { await nav?.clipboard?.writeText(txt); } catch {}
+  };
+  // Réinitialise la sélection quand on change de chapitre/livre.
+  useEffect(() => { setMulti(new Set()); }, [book, chapter]);
 
   // Recherche : une reference (nom + chiffre) ouvre le passage ;
   // un simple mot lance une concordance sur toute la traduction.
@@ -582,7 +605,7 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
              const showExplain = explain?.kind === 'v' && explain.verse === v.verse;
              return (
                <Fragment key={v.verse}>
-                 <span className={`vs${c ? ` h${c}` : ''}${sel === v.verse ? ' sel' : ''}${famous[v.verse] ? ' famous' : ''}${jesusV.has(v.verse) ? ' jesus' : ''}`}
+                 <span className={`vs${c ? ` h${c}` : ''}${sel === v.verse ? ' sel' : ''}${multi.has(v.verse) ? ' multi' : ''}${famous[v.verse] ? ' famous' : ''}${jesusV.has(v.verse) ? ' jesus' : ''}`}
                        onClick={() => { setSel(sel === v.verse ? null : v.verse); setEditing(false); setNoteText(noteFor(v.verse)?.body ?? ''); }}>
                    {famous[v.verse] && <span className="vstar" title={`Verset connu · ${famous[v.verse]}`}>★</span>}
                    <span className="vn">{v.verse}</span>{v.text}
@@ -614,6 +637,9 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
                        <button className="btn sm" onClick={() =>
                          navigator.clipboard?.writeText(`« ${v.text} » ${bookName} ${chapter}.${v.verse}`)}>
                          Copier
+                       </button>
+                       <button className="btn sm" onClick={() => toggleMulti(v.verse)}>
+                         {multi.has(v.verse) ? '− Retirer' : '+ Sélection'}
                        </button>
                      </div>
                      {hl[key(v.verse)] ? (
@@ -666,6 +692,19 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
           </div>
         )}
       </div>
+
+      {multi.size > 0 && (
+        <div className="multibar">
+          <span className="multibar-ref">
+            {bookName} {chapter}.{multiRefLabel()} · {multi.size} verset{multi.size > 1 ? 's' : ''}
+          </span>
+          <div className="multibar-actions">
+            <button className="btn sm primary" onClick={shareMulti}>Partager</button>
+            <button className="btn sm" onClick={() => navigator.clipboard?.writeText(multiText())}>Copier</button>
+            <button className="btn sm" onClick={() => setMulti(new Set())}>Effacer</button>
+          </div>
+        </div>
+      )}
 
       {results !== null && (
         <>

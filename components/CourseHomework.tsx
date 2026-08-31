@@ -1,5 +1,5 @@
 'use client';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { relabelCode } from '@/lib/cursus-code';
 import { courseTitle } from '@/lib/course-titles';
 
@@ -85,13 +85,16 @@ function loadHtml2Pdf(): Promise<void> {
   return html2pdfLoading;
 }
 
+/** Nettoie un titre pour en faire un nom de fichier lisible. */
+function fileSafe(s: string) {
+  return (s || 'cours').replace(/[\\/:*?"<>|]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 80);
+}
+
 function Result({ r, code, title }: { r: any; code: string; title?: string }) {
-  const [html, setHtml] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const frameRef = useRef<HTMLIFrameElement>(null);
 
-  const open = () => setHtml(previewHtml(r, code, title));
-
+  // Téléchargement DIRECT du fichier (pas d'aperçu, pas de boîte d'impression).
+  // Le nom du fichier reprend le titre du cours.
   const download = async () => {
     setSaving(true);
     try {
@@ -100,9 +103,10 @@ function Result({ r, code, title }: { r: any; code: string; title?: string }) {
       c.style.cssText = 'position:fixed;left:-99999px;top:0;width:794px;background:#fff';
       c.innerHTML = `<style>${DOC_CSS}</style>${bodyHtml(r, code, title)}`;
       document.body.appendChild(c);
+      const name = fileSafe(courseTitle(code, title || '')) || `Cours ${relabelCode(code)}`;
       await (window as any).html2pdf().set({
         margin: [10, 10, 10, 10],
-        filename: `Correction-${relabelCode(code)}.pdf`,
+        filename: `${name} — correction.pdf`,
         image: { type: 'jpeg', quality: 0.96 },
         html2canvas: { scale: 2, backgroundColor: '#ffffff', useCORS: true },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
@@ -110,8 +114,7 @@ function Result({ r, code, title }: { r: any; code: string; title?: string }) {
       }).from(c.querySelector('.doc')).save();
       c.remove();
     } catch {
-      // Repli : impression navigateur si la lib n'a pas pu charger.
-      frameRef.current?.contentWindow?.print();
+      alert('Le téléchargement du PDF a échoué (connexion ?). Réessayez dans un instant.');
     }
     setSaving(false);
   };
@@ -154,21 +157,10 @@ function Result({ r, code, title }: { r: any; code: string; title?: string }) {
       </div>
 
       <div className="share-grid" style={{ marginTop: 18 }}>
-        <button className="btn" onClick={open}>Aperçu du PDF</button>
+        <button className="btn primary" onClick={download} disabled={saving}>
+          {saving ? 'Préparation…' : 'Télécharger le PDF ↓'}
+        </button>
       </div>
-
-      {html && (
-        <div className="pdfmodal">
-          <div className="pdfmodal-bar">
-            <button className="btn sm" onClick={() => setHtml(null)}>✕ Fermer</button>
-            <span className="pdfmodal-title">Aperçu de la correction</span>
-            <button className="btn sm primary" onClick={download} disabled={saving}>
-              {saving ? 'Préparation…' : 'Télécharger le PDF ↓'}
-            </button>
-          </div>
-          <iframe ref={frameRef} className="pdfmodal-frame" srcDoc={html} title="Correction" />
-        </div>
-      )}
     </div>
   );
 }

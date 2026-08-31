@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { relabelCode } from '@/lib/cursus-code';
 import { courseTitle } from '@/lib/course-titles';
@@ -7,8 +7,24 @@ import { courseTitle } from '@/lib/course-titles';
 const KIND: Record<string, string> = { E: 'Exegese', D: 'Doctrine', P: 'Pratique', G: 'Langue' };
 
 export default function CursusBrowser({ levels, groups, courses, done, user }: any) {
-  const [level, setLevel] = useState(levels[0]?.id);
   const [validated] = useState<Set<string>>(new Set(done));
+
+  // « Là où j'en suis » : le premier cours non validé, dans l'ordre. On ouvre
+  // directement son niveau et on fait défiler jusqu'à lui.
+  const current = courses.find((c: any) => !validated.has(c.code)) ?? null;
+  const currentLevel = current
+    ? groups.find((g: any) => g.id === current.group_id)?.level_id
+    : undefined;
+
+  const [level, setLevel] = useState(currentLevel ?? levels[0]?.id);
+  const currentRef = useRef<HTMLAnchorElement>(null);
+
+  useEffect(() => {
+    if (currentRef.current) {
+      const t = setTimeout(() => currentRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 250);
+      return () => clearTimeout(t);
+    }
+  }, []);
 
   const total = courses.length;
   const hours = courses.reduce((a: number, c: any) => a + c.hours, 0);
@@ -68,12 +84,14 @@ export default function CursusBrowser({ levels, groups, courses, done, user }: a
             {courses.filter((c: any) => c.group_id === g.id).map((c: any) => {
               const ok = validated.has(c.code);
               const ready = c.status === 'reviewed';
+              const isCurrent = current?.code === c.code;
               return (
                 <Link key={c.code} href={`/cursus/${c.code}`}
-                      className={`course${ok ? ' done' : ''}${ready ? ' ready' : ''}`}>
+                      ref={isCurrent ? currentRef : undefined}
+                      className={`course${ok ? ' done' : ''}${ready ? ' ready' : ''}${isCurrent ? ' current' : ''}`}>
                   <span className="code">{ok ? '✓' : relabelCode(c.code)}</span>
                   <span style={{ flex: 1, minWidth: 0 }}>
-                    <span className="ct">{courseTitle(c.code, c.title)}</span>
+                    <span className="ct">{courseTitle(c.code, c.title)}{isCurrent && <span className="course-here">Reprendre ici</span>}</span>
                     <span className="cp">{c.hook}{ready ? '' : ' · fiche a venir'}</span>
                   </span>
                   <span className="ctype">{KIND[c.kind]} · {c.hours} h</span>

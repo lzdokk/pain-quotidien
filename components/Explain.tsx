@@ -9,8 +9,43 @@ type P = {
   inline?: boolean;
 };
 
+const stripTags = (s: string) => (s || '').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+
 export default function Explain({ book, chapter, verse, bookName, text, onClose, onGoto, inline }: P) {
   const [data, setData] = useState<any>(undefined);
+  const [q, setQ] = useState('');
+  const [answer, setAnswer] = useState<string | null>(null);
+  const [asking, setAsking] = useState(false);
+  const [shared, setShared] = useState(false);
+
+  const reference = verse === undefined ? `${bookName} ${chapter}` : `${bookName} ${chapter}.${verse}`;
+
+  const shareExplanation = async () => {
+    const parts = [`${reference}`];
+    if (text) parts.push(`« ${text} »`);
+    if (data?.says) parts.push(stripTags(data.says));
+    if (data?.parable) parts.push(data.parable);
+    const body = parts.join('\n\n');
+    const nav: any = typeof navigator !== 'undefined' ? navigator : null;
+    if (nav?.share) { try { await nav.share({ title: reference, text: body }); return; } catch { /* repli copie */ } }
+    try { await nav?.clipboard?.writeText(body); setShared(true); setTimeout(() => setShared(false), 1800); } catch {}
+  };
+
+  const ask = async () => {
+    if (!q.trim() || asking) return;
+    setAsking(true); setAnswer(null);
+    try {
+      const r = await fetch('/api/verse-ask', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ reference, text, question: q })
+      });
+      const j = await r.json();
+      setAnswer(r.ok ? j.answer : (j.error ?? 'La réponse a échoué.'));
+    } catch {
+      setAnswer('La réponse a échoué, réessayez.');
+    }
+    setAsking(false);
+  };
 
   useEffect(() => {
     (async () => {
@@ -93,6 +128,31 @@ export default function Explain({ book, chapter, verse, bookName, text, onClose,
             ))}
           </div>
         </>
+      )}
+
+      {data && (
+        <div className="ex-foot">
+          <div className="share-grid" style={{ marginTop: 4 }}>
+            <button className="btn sm" onClick={shareExplanation}>
+              {shared ? 'Copié ✓' : 'Partager l’explication ›'}
+            </button>
+          </div>
+
+          <div className="ex-ask">
+            <span className="kicker">Poser ma question</span>
+            <textarea className="field" value={q} onChange={e => setQ(e.target.value)}
+                      placeholder="Une question sur ce passage… (ex. « Pourquoi Jésus dit-il cela ? »)"
+                      onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) ask(); }} />
+            <button className="btn primary sm" onClick={ask} disabled={asking || !q.trim()} style={{ marginTop: 8 }}>
+              {asking ? 'Réflexion…' : 'Demander à l’assistant'}
+            </button>
+            {answer && (
+              <div className="ex-answer">
+                {answer.split('\n').filter(Boolean).map((p, i) => <p key={i}>{p}</p>)}
+              </div>
+            )}
+          </div>
+        </div>
       )}
     </div>
   );
