@@ -76,14 +76,27 @@ export default async function Fiche({ params }: { params: Promise<{ code: string
             ))}
 
             <div className="card pad">
-              <span className="kicker">Verset directeur</span>
-              <div className="keyv" style={{ marginTop: 4 }}>
-                <p>{c.key_verse}<br /><span className="ref-inline">{c.key_verse_ref}</span></p>
-              </div>
-              <h3 style={{ marginTop: 26 }}>Lectures obligatoires</h3>
-              <ul className="mlist">{(c.readings as string[]).map((r, i) => <li key={i}><ReadingLinks text={r} /></li>)}</ul>
+              {c.key_verse && (
+                <>
+                  <span className="kicker">Verset directeur</span>
+                  <div className="keyv" style={{ marginTop: 4 }}>
+                    <p>{c.key_verse}<br /><span className="ref-inline">{c.key_verse_ref}</span></p>
+                  </div>
+                </>
+              )}
+              {(c.readings as string[])?.length > 0 && (
+                <>
+                  <h3 style={{ marginTop: c.key_verse ? 26 : 4 }}>Lectures obligatoires</h3>
+                  <ul className="mlist">{(c.readings as string[]).map((r, i) => <li key={i}><ReadingLinks text={r} /></li>)}</ul>
+                </>
+              )}
               <h3 style={{ marginTop: 22 }}>Travail a rendre</h3>
               <p style={{ marginTop: 8 }}>{c.assignment}</p>
+              {c.source_url && (
+                <a className="btn primary" style={{ marginTop: 16 }} href={c.source_url} target="_blank" rel="noreferrer">
+                  Suivre ce cours sur le site officiel ›
+                </a>
+              )}
               <ValidateCourse code={c.code} user={user} initial={Boolean(prog)}
                               next={nextC ?? null} />
             </div>

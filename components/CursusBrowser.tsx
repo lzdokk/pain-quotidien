@@ -6,101 +6,167 @@ import { courseTitle } from '@/lib/course-titles';
 
 const KIND: Record<string, string> = { E: 'Exegese', D: 'Doctrine', P: 'Pratique', G: 'Langue' };
 
-export default function CursusBrowser({ levels, groups, courses, done, user }: any) {
+export default function CursusBrowser({ cursus, levels, groups, courses, done, user, isAdmin }: any) {
   const [validated] = useState<Set<string>>(new Set(done));
-
-  // « Là où j'en suis » : le premier cours non validé, dans l'ordre. On ouvre
-  // directement son niveau et on fait défiler jusqu'à lui.
-  const current = courses.find((c: any) => !validated.has(c.code)) ?? null;
-  const currentLevel = current
-    ? groups.find((g: any) => g.id === current.group_id)?.level_id
-    : undefined;
-
-  const [level, setLevel] = useState(currentLevel ?? levels[0]?.id);
+  const [curId, setCurId] = useState<string>(cursus[0]?.id);
+  const [level, setLevel] = useState<string | undefined>(undefined);
+  const [unlocked, setUnlocked] = useState<Set<string>>(new Set());
+  const [code, setCode] = useState('');
+  const [err, setErr] = useState(false);
+  const [checking, setChecking] = useState(false);
   const currentRef = useRef<HTMLAnchorElement>(null);
 
   useEffect(() => {
-    if (currentRef.current) {
+    try { setUnlocked(new Set(JSON.parse(localStorage.getItem('pq-cursus-unlock') ?? '[]'))); } catch {}
+  }, []);
+
+  const cur = cursus.find((c: any) => c.id === curId) ?? cursus[0];
+  const open = isAdmin || !cur?.locked || unlocked.has(cur?.id);
+
+  const myLevels = levels.filter((l: any) => l.cursus_id === cur?.id);
+  const levelIds = new Set(myLevels.map((l: any) => l.id));
+  const myGroups = groups.filter((g: any) => levelIds.has(g.level_id));
+  const groupIds = new Set(myGroups.map((g: any) => g.id));
+  const myCourses = courses.filter((c: any) => groupIds.has(c.group_id));
+
+  // Niveau affiché : le premier du cursus courant.
+  useEffect(() => { setLevel(myLevels[0]?.id); /* eslint-disable-next-line */ }, [curId]);
+
+  const current = myCourses.find((c: any) => !validated.has(c.code)) ?? null;
+  useEffect(() => {
+    if (open && currentRef.current) {
       const t = setTimeout(() => currentRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 250);
       return () => clearTimeout(t);
     }
-  }, []);
+  }, [open, curId, level]);
 
-  const total = courses.length;
-  const hours = courses.reduce((a: number, c: any) => a + c.hours, 0);
-  const doneCount = courses.filter((c: any) => validated.has(c.code)).length;
-  const doneHours = courses.filter((c: any) => validated.has(c.code)).reduce((a: number, c: any) => a + c.hours, 0);
+  const submitCode = async () => {
+    if (!code.trim()) return;
+    setChecking(true); setErr(false);
+    try {
+      const r = await fetch('/api/cursus/unlock', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ cursusId: cur.id, code })
+      });
+      const j = await r.json();
+      if (j.ok) {
+        const next = new Set(unlocked); next.add(cur.id); setUnlocked(next);
+        try { localStorage.setItem('pq-cursus-unlock', JSON.stringify([...next])); } catch {}
+        setCode('');
+      } else setErr(true);
+    } catch { setErr(true); }
+    setChecking(false);
+  };
 
-  const L = levels.find((l: any) => l.id === level) ?? levels[0];
-  const myGroups = groups.filter((g: any) => g.level_id === L?.id);
-  const inLevel = courses.filter((c: any) => myGroups.some((g: any) => g.id === c.group_id));
+  const total = myCourses.length;
+  const doneCount = myCourses.filter((c: any) => validated.has(c.code)).length;
+  const hours = myCourses.reduce((a: number, c: any) => a + (c.hours || 0), 0);
+  const L = myLevels.find((l: any) => l.id === level) ?? myLevels[0];
+  const lvlGroups = myGroups.filter((g: any) => g.level_id === L?.id);
+  const lvlCourses = myCourses.filter((c: any) => lvlGroups.some((g: any) => g.id === c.group_id));
 
   return (
     <main className="wrap">
       <header className="hero">
-        <div className="eyebrow">Cursus théologique</div>
-        <h1>Un cursus complet,<br />dans l&rsquo;ordre</h1>
-        <p className="lede">
-          {total} cours, du niveau Base a l&rsquo;Approfondissement, plus le grec ancien.
-          La progression d&rsquo;un institut biblique, a votre rythme.
-        </p>
+        <div className="eyebrow">Cursus</div>
+        <h1>Se former,<br />dans l&rsquo;ordre</h1>
+        <p className="lede">Plusieurs cursus. Choisissez le vôtre ci-dessous.</p>
       </header>
 
-      <div className="card pad">
-        <span className="kicker">Votre progression</span>
-        <h3 style={{ marginTop: 6 }}>{doneCount} cours valide{doneCount > 1 ? 's' : ''} sur {total}</h3>
-        <div className="progress-wrap">
-          <div className="bar"><i style={{ width: `${Math.round(doneCount / total * 100)}%` }} /></div>
-          <span className="pct">{Math.round(doneCount / total * 100)} %</span>
-        </div>
-        <div className="grid2" style={{ marginTop: 18 }}>
-          <div className="mini"><strong>Volume horaire</strong><span>{doneHours} h suivies sur {hours} h au total</span></div>
-          <div className="mini"><strong>Rythme conseille</strong><span>Deux cours par mois, soit environ six ans pour le cursus entier</span></div>
-        </div>
-        {!user && <div className="banner" style={{ marginTop: 18 }}>
-          <span>☁︎</span><div><b>Connectez-vous</b> pour enregistrer les cours valides et les retrouver partout.</div>
-        </div>}
-      </div>
-
-      <div className="chips" style={{ margin: '26px 0 0' }}>
-        {levels.map((l: any) => (
-          <button key={l.id} className="chip" aria-selected={l.id === level} onClick={() => setLevel(l.id)}>
-            {l.name}
+      <div className="chips" style={{ margin: '0 0 20px' }}>
+        {cursus.map((c: any) => (
+          <button key={c.id} className="chip" aria-selected={c.id === curId} onClick={() => setCurId(c.id)}>
+            {c.name}{c.locked && !isAdmin && !unlocked.has(c.id) ? ' 🔒' : ''}
           </button>
         ))}
       </div>
 
-      <div className="card">
-        <div className="lvl-head">
-          <div className="ln2">{inLevel.filter((c: any) => validated.has(c.code)).length} / {inLevel.length} cours</div>
-          <h3>{L?.name}</h3>
-          <div className="ls">{L?.subtitle}</div>
-          <div className="li">{L?.intro}</div>
-        </div>
-
-        {myGroups.map((g: any) => (
-          <div key={g.id}>
-            {g.name && <div className="grp">{g.name}</div>}
-            {courses.filter((c: any) => c.group_id === g.id).map((c: any) => {
-              const ok = validated.has(c.code);
-              const ready = c.status === 'reviewed';
-              const isCurrent = current?.code === c.code;
-              return (
-                <Link key={c.code} href={`/cursus/${c.code}`}
-                      ref={isCurrent ? currentRef : undefined}
-                      className={`course${ok ? ' done' : ''}${ready ? ' ready' : ''}${isCurrent ? ' current' : ''}`}>
-                  <span className="code">{ok ? '✓' : relabelCode(c.code)}</span>
-                  <span style={{ flex: 1, minWidth: 0 }}>
-                    <span className="ct">{courseTitle(c.code, c.title)}{isCurrent && <span className="course-here">Reprendre ici</span>}</span>
-                    <span className="cp">{c.hook}{ready ? '' : ' · fiche a venir'}</span>
-                  </span>
-                  <span className="ctype">{KIND[c.kind]} · {c.hours} h</span>
-                </Link>
-              );
-            })}
+      <div className="card pad">
+        {cur?.subtitle && <span className="kicker">{cur.subtitle}</span>}
+        <h3 style={{ marginTop: 6 }}>{cur?.name}</h3>
+        {open && total > 0 && (
+          <>
+            <div className="progress-wrap" style={{ marginTop: 14 }}>
+              <div className="bar"><i style={{ width: `${Math.round(doneCount / total * 100)}%` }} /></div>
+              <span className="pct">{Math.round(doneCount / total * 100)} %</span>
+            </div>
+            <div className="mini" style={{ marginTop: 14 }}>
+              <strong>{doneCount} / {total} cours</strong><span>{hours ? `${hours} h indicatives` : ''}</span>
+            </div>
+          </>
+        )}
+        {cur?.source_url && (
+          <a className="btn sm" style={{ marginTop: 14 }} href={cur.source_url} target="_blank" rel="noreferrer">
+            Site officiel ›
+          </a>
+        )}
+        {!user && open && (
+          <div className="banner" style={{ marginTop: 16 }}>
+            <span>☁︎</span><div><b>Connectez-vous</b> pour enregistrer votre progression.</div>
           </div>
-        ))}
+        )}
       </div>
+
+      {!open && (
+        <div className="card pad" style={{ marginTop: 18, textAlign: 'center' }}>
+          <div style={{ fontSize: 32 }}>🔒</div>
+          <h3 style={{ marginTop: 8 }}>Cursus protégé</h3>
+          <p className="muted" style={{ marginTop: 6 }}>Entrez le code d&rsquo;accès communiqué par le responsable.</p>
+          <div style={{ maxWidth: 280, margin: '16px auto 0' }}>
+            <input className="field" value={code} onChange={e => { setCode(e.target.value); setErr(false); }}
+                   placeholder="Code d&rsquo;accès" onKeyDown={e => { if (e.key === 'Enter') submitCode(); }} />
+            {err && <p className="muted" style={{ color: '#b3413a', marginTop: 8 }}>Code incorrect.</p>}
+            <button className="btn primary" style={{ marginTop: 10, width: '100%' }}
+                    onClick={submitCode} disabled={checking || !code.trim()}>
+              {checking ? 'Vérification…' : 'Déverrouiller'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {open && myLevels.length > 1 && (
+        <div className="chips" style={{ margin: '22px 0 0' }}>
+          {myLevels.map((l: any) => (
+            <button key={l.id} className="chip" aria-selected={l.id === level} onClick={() => setLevel(l.id)}>
+              {l.name}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {open && L && (
+        <div className="card">
+          <div className="lvl-head">
+            <div className="ln2">{lvlCourses.filter((c: any) => validated.has(c.code)).length} / {lvlCourses.length} cours</div>
+            <h3>{L.name}</h3>
+            <div className="ls">{L.subtitle}</div>
+            <div className="li">{L.intro}</div>
+          </div>
+
+          {lvlGroups.map((g: any) => (
+            <div key={g.id}>
+              {g.name && <div className="grp">{g.name}</div>}
+              {myCourses.filter((c: any) => c.group_id === g.id).map((c: any) => {
+                const ok = validated.has(c.code);
+                const ready = c.status === 'reviewed';
+                const isCurrent = current?.code === c.code;
+                return (
+                  <Link key={c.code} href={`/cursus/${c.code}`}
+                        ref={isCurrent ? currentRef : undefined}
+                        className={`course${ok ? ' done' : ''}${ready ? ' ready' : ''}${isCurrent ? ' current' : ''}`}>
+                    <span className="code">{ok ? '✓' : relabelCode(c.code)}</span>
+                    <span style={{ flex: 1, minWidth: 0 }}>
+                      <span className="ct">{courseTitle(c.code, c.title)}{isCurrent && <span className="course-here">Reprendre ici</span>}</span>
+                      <span className="cp">{c.hook}{ready ? '' : ' · fiche a venir'}</span>
+                    </span>
+                    <span className="ctype">{KIND[c.kind]}{c.hours ? ` · ${c.hours} h` : ''}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          ))}
+        </div>
+      )}
     </main>
   );
 }

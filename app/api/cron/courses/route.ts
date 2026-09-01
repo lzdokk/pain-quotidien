@@ -47,14 +47,18 @@ export async function GET(req: NextRequest) {
 
   let generated = 0, totalIn = 0, totalOut = 0;
   const errors: string[] = [];
+  const started = Date.now();
+  const BUDGET_MS = 250_000; // on rend la main avant la coupure Vercel (300 s)
 
   for (const c of pending) {
+    if (Date.now() - started > BUDGET_MS) break; // le reste sera fait au prochain passage
     try {
       const { data, usage } = await callJSON(CourseSchema, {
         system: COURSE_SYSTEM,
         user: courseUserPrompt(c),
         responseSchema: COURSE_GEMINI_SCHEMA,
-        maxTokens: 16000
+        maxTokens: 16000,
+        timeoutMs: 90_000 // une fiche de cours est longue à écrire
       });
       totalIn += usage.input; totalOut += usage.output;
 
