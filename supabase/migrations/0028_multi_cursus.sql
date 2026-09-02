@@ -35,7 +35,8 @@ insert into cursus (id, name, subtitle, source_url, password, order_index) value
    'https://formations.egliseicc.com/pages/courses', 'ACCES2026', 1)
 on conflict (id) do update set
   name = excluded.name, subtitle = excluded.subtitle,
-  source_url = excluded.source_url, order_index = excluded.order_index;
+  source_url = excluded.source_url, order_index = excluded.order_index,
+  password = excluded.password;
 
 -- 2) Tous les niveaux existants appartiennent au cursus ITB.
 update cursus_levels set cursus_id = 'itb' where cursus_id is null;

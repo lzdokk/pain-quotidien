@@ -258,6 +258,11 @@ Champs a produire :
       du jour. Respecte scrupuleusement l'objet de l'axe : rien de demande
       dans l'adoration, des actes remercies dans la louange, autrui porte
       dans l'intercession.
+      OBLIGATOIRE : fais figurer NATURELLEMENT le mot hebreu/grec de l'axe
+      (le champ "word" ci-dessous) DANS cette priere, en le nommant et en le
+      priant, avec sa traduction juste apres entre parentheses. Exemple :
+      « Ruach (souffle de Dieu), viens reposer sur moi… ». Le mot cite ici et
+      le champ "word" doivent etre identiques.
     - tip : deux ou trois lignes tres concretes pour prier cet axe avec la
       lecture du jour (un mot du texte, une scene, un verset a reprendre).
     - word : un mot hebreu, arameen ou grec authentique, pertinent pour

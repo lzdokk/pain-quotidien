@@ -141,10 +141,10 @@ h3{font-size:18px;font-weight:600;letter-spacing:-.017em;line-height:1.35}
 
 .prayer{background:var(--surface-2);border-left:2.5px solid var(--accent-line);border-radius:0 var(--r-sm) var(--r-sm) 0;padding:26px 28px;margin:16px 0}
 .prayer .kicker{margin-bottom:10px}
-.prayer p{font-family:var(--serif);font-size:17.5px;line-height:1.74;color:var(--ink-2);font-style:italic}
+.prayer p{font-family:var(--serif);font-size:20px;line-height:1.7;color:var(--ink-2);font-style:italic}
 .prayer.opening{background:linear-gradient(180deg,var(--accent-soft),transparent);border:1px solid var(--accent-line);
  border-left:3px solid var(--accent);border-radius:var(--r);padding:32px;margin-top:0}
-.prayer.opening p{font-size:18.5px;color:var(--ink)}
+.prayer.opening p{font-size:20.5px;color:var(--ink)}
 
 .rd{border-bottom:1px solid var(--line);padding:30px}
 .rd:last-child{border-bottom:0}
