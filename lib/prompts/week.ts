@@ -17,6 +17,7 @@ export const DaySchema = z.object({
   // via le prompt, sans faire echouer une sortie a un element pres.
   bread_says: z.array(z.string()).min(1).max(4),
   bread_touches: z.array(z.string()).min(1).max(4),
+  bread_close: z.string().max(220),
   actions: z.array(z.object({ title: z.string().max(60), body: z.string() })).min(2).max(4),
   prayer_open: z.string(),
   prayer_close: z.string(),
@@ -24,6 +25,7 @@ export const DaySchema = z.object({
     verse: z.string(), verse_ref: z.string(), title: z.string(),
     meditation: z.array(z.string()).min(2).max(4),
     review: z.array(z.object({ title: z.string(), body: z.string() })).min(2).max(4),
+    evening_close: z.string().max(220),
     prayer: z.string()
   }),
   witness: z.object({
@@ -88,6 +90,7 @@ export const DAY_GEMINI_SCHEMA = {
     bread_lead: { type: 'STRING' },
     bread_says: { type: 'ARRAY', items: { type: 'STRING' } },
     bread_touches: { type: 'ARRAY', items: { type: 'STRING' } },
+    bread_close: { type: 'STRING' },
     actions: { type: 'ARRAY', items: titleBody },
     prayer_open: { type: 'STRING' },
     prayer_close: { type: 'STRING' },
@@ -97,9 +100,10 @@ export const DAY_GEMINI_SCHEMA = {
         verse: { type: 'STRING' }, verse_ref: { type: 'STRING' }, title: { type: 'STRING' },
         meditation: { type: 'ARRAY', items: { type: 'STRING' } },
         review: { type: 'ARRAY', items: titleBody },
+        evening_close: { type: 'STRING' },
         prayer: { type: 'STRING' }
       },
-      required: ['verse', 'verse_ref', 'title', 'meditation', 'review', 'prayer']
+      required: ['verse', 'verse_ref', 'title', 'meditation', 'review', 'evening_close', 'prayer']
     },
     witness: {
       type: 'OBJECT',
@@ -150,7 +154,7 @@ export const DAY_GEMINI_SCHEMA = {
   },
   required: [
     'date', 'theme_title', 'theme_lede', 'central_message', 'verse',
-    'reading_summaries', 'bread_lead', 'bread_says', 'bread_touches', 'actions',
+    'reading_summaries', 'bread_lead', 'bread_says', 'bread_touches', 'bread_close', 'actions',
     'prayer_open', 'prayer_close', 'evening', 'witness', 'prayers'
   ]
 };
@@ -184,7 +188,11 @@ STRUCTURE D'UNE JOURNEE
 8. bread_touches : deux paragraphes TRES COURTS (2-3 phrases chacun), "ce que ca touche en nous"
    (le lecteur doit pouvoir lire tout le pain quotidien en moins de 2 minutes :
    va droit a l'essentiel, dense et bref, sans jamais delayer ni repeter)
-9. actions : trois actions concretes
+8b. bread_close : UNE seule phrase, courte et simple, facile a retenir, qui
+    clot le pain du jour. C'est l'essentiel a emporter dans la journee, une
+    verite a garder en tete, sans imperatif complique. (ex : "Aujourd'hui, Dieu
+    te donne un coeur neuf : recois-le.")
+9. actions : trois actions concretes (utilisees ailleurs ; garde-les courtes)
 10. prayer_open et prayer_close : priere d'ouverture et de fermeture, tutoiement
     de Dieu. prayer_open commence toujours par une invocation courte au
     Saint-Esprit (l'esprit d'intelligence et de revelation, cf. Ephesiens
@@ -193,7 +201,9 @@ STRUCTURE D'UNE JOURNEE
     enchaine sur la priere proprement dite. prayer_close se termine par "au
     nom de Jesus, amen"
 11. evening : la veillee du soir, un autre verset, une meditation en trois
-    paragraphes, trois questions de relecture, une priere avant le sommeil
+    paragraphes, une priere avant le sommeil, et evening_close : UNE seule
+    phrase simple a garder avant de dormir (une verite qui apaise, pas une
+    consigne). Les champs review restent produits mais courts.
 12. witness : le fil du jour pour temoigner, trois amorces de conversation en
     langage parle, une objection courante et sa reponse en deux paragraphes
 13. prayers : le temps de priere du jour (voir section dediee ci-dessous)
@@ -226,8 +236,12 @@ Troisieme conviction, prier n'est ni une recitation, ni une performance, ni
 une formule magique : c'est un engagement de la volonte assiste par l'Esprit.
 Le ton doit donc etre habite, jamais mecanique, jamais pieux par reflexe.
 
+STYLE DES PRIERES (important) : des formulations SIMPLES et MEMORABLES, que le
+lecteur peut retenir et reprendre de tete. Phrases courtes, mots du quotidien,
+pas de tournures alambiquees. Un peu plus court partout que par le passe.
+
 Champs a produire :
-- intro : cinq a huit lignes pour entrer en priere. Le secret, la sobriete,
+- intro : trois a cinq lignes pour entrer en priere. Le secret, la sobriete,
   se rendre disponible, sans multiplier les paroles. Relie discretement au
   theme du jour sans le devoiler entierement.
   IMPORTANT : cette priere se prie a TOUT moment de la journee. Ne la situe
@@ -239,7 +253,7 @@ Champs a produire :
   Intercession. Pour chacun :
     - axis : exactement "Adoration", "Louange" ou "Intercession"
     - prayer : la priere elle-meme, premiere personne, tutoiement de Dieu,
-      HUIT A DOUZE lignes (assez pour respirer, sans s'etirer), du souffle et
+      CINQ A HUIT lignes, phrases simples et faciles a retenir, du souffle et
       du rythme, ancree dans le texte
       du jour. Respecte scrupuleusement l'objet de l'axe : rien de demande
       dans l'adoration, des actes remercies dans la louange, autrui porte
@@ -263,13 +277,13 @@ Champs a produire :
   - demande : le libelle exact ci-dessus
   - prayer : deux a quatre lignes qui prient CETTE demande a partir du texte
     du jour. Chaque jour doit produire un eclairage different.
-- confession : une priere de confession de six a dix lignes, sur le modele du
+- confession : une priere de confession de quatre a six lignes, sur le modele du
   Psaume 51. Sincere et lucide, sans culpabilisation ni auto-flagellation,
   qui demande une creation nouvelle et pas seulement un constat de faute.
   En lien avec ce que les lectures du jour revelent du coeur humain.
-- supplication : six a dix lignes pour faire connaitre ses besoins a Dieu
+- supplication : quatre a six lignes pour faire connaitre ses besoins a Dieu
   (Philippiens 4.6), avec actions de graces, sans inquietude deguisee.
-- spirit_invitation : la cloture, six a dix lignes, invitation sobre et
+- spirit_invitation : la cloture, quatre a six lignes, invitation sobre et
   directe a etre rempli et conduit par le Saint-Esprit (Ephesiens 5.18,
   Romains 8, Galates 5, Actes 1.8 selon ce qui convient), terminee par un
   "amen" habite, jamais expedie.

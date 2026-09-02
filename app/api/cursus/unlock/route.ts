@@ -4,19 +4,19 @@ import { admin } from '@/lib/supabase/admin';
 export const dynamic = 'force-dynamic';
 
 /**
- * Vérifie le code d'accès d'un cursus, côté serveur (le mot de passe n'est
- * jamais envoyé au navigateur). Renvoie { ok: true } si le code correspond.
- *   body : { cursusId, code }
+ * Vérifie le code d'accès de la section Cursus, côté serveur (les mots de passe
+ * ne sont jamais envoyés au navigateur). Le code est valide s'il correspond au
+ * mot de passe d'AU MOINS un cursus : un seul code ouvre alors toute la section.
+ *   body : { code }
  */
 export async function POST(req: NextRequest) {
-  const { cursusId, code } = await req.json().catch(() => ({}));
-  if (!cursusId) return NextResponse.json({ ok: false }, { status: 400 });
+  const { code } = await req.json().catch(() => ({}));
+  const entered = String(code ?? '').trim();
+  if (!entered) return NextResponse.json({ ok: false });
 
-  const { data } = await admin.from('cursus').select('password').eq('id', cursusId).maybeSingle();
-  const pw = data?.password ?? null;
-  // Pas de mot de passe = accès libre.
-  if (!pw) return NextResponse.json({ ok: true });
+  const { data } = await admin.from('cursus').select('password');
+  const passwords = (data ?? []).map(c => (c.password ?? '').trim()).filter(Boolean);
 
-  const ok = String(code ?? '').trim() === String(pw).trim();
+  const ok = passwords.some(p => p === entered);
   return NextResponse.json({ ok });
 }

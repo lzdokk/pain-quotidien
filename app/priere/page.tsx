@@ -24,7 +24,7 @@ function Priere({ texte }: { texte?: string | null }) {
     <>
       {paragraphs(texte).map((p, i) => (
         <p key={i} style={{
-          fontFamily: 'var(--serif)', fontSize: 17.5, lineHeight: 1.76,
+          fontFamily: 'var(--serif)', fontSize: 20, lineHeight: 1.72,
           fontStyle: 'italic', color: 'var(--ink-2)'
         }} dangerouslySetInnerHTML={{ __html: rich(p) }} />
       ))}
@@ -117,6 +117,10 @@ export default async function Priere_() {
                   Non pas récité, mais repris demande après demande, à la lumière du texte du jour.
                 </p>
                 <div className="card">
+                  <div className="np-open">
+                    <span className="wterm" style={{ fontStyle: 'italic' }}>אָבִינוּ</span>
+                    <p>Notre Père qui es aux cieux,</p>
+                  </div>
                   {notrePere.map((d, i) => (
                     <div className="npd" key={i}>
                       <span className="npn">{i + 1}</span>

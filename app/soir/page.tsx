@@ -1,6 +1,5 @@
 import { supabaseServer } from '@/lib/supabase/server';
 import Nav from '@/components/Nav';
-import Checklist from '@/components/Checklist';
 import ResumeReading from '@/components/ResumeReading';
 import { contentDate } from '@/lib/date';
 import { rich } from '@/lib/rich';
@@ -50,8 +49,12 @@ export default async function Soir() {
             <p key={i} dangerouslySetInnerHTML={{ __html: rich(p) }} />)}
         </div>
 
-        <Checklist title="Relecture, trois questions"
-                   items={(day.evening_review as Array<{ title: string; body: string }>)} />
+        {day.evening_close && (
+          <div className="card pad bread-close">
+            <span className="kicker">Avant de fermer les yeux</span>
+            <p dangerouslySetInnerHTML={{ __html: rich(day.evening_close) }} />
+          </div>
+        )}
 
         <div className="prayer">
           <span className="kicker">Prière avant le sommeil</span>

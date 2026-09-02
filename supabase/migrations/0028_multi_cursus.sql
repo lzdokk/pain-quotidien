@@ -25,12 +25,14 @@ alter table cursus_levels add column if not exists cursus_id text references cur
 alter table courses       add column if not exists source_url text;
 
 -- 1) Les deux cursus. (Tu changes les codes/mots de passe quand tu veux.)
+-- Les DEUX cursus sont protégés par le même code d'accès (« la section Cursus »
+-- est verrouillée). Tu partages ce code à qui tu veux ; toi (admin) passes sans.
 insert into cursus (id, name, subtitle, source_url, password, order_index) values
   ('itb', 'Théologie — Institut biblique',
-   'Cursus complet : Base, Approfondissement, grec ancien', null, null, 0),
+   'Cursus complet : Base, Approfondissement, grec ancien', null, 'ACCES2026', 0),
   ('icc', 'Parcours de Croissance',
    'De la nouvelle naissance à l’école des bergers — mêmes thèmes que le parcours ICC, contenu original',
-   'https://formations.egliseicc.com/pages/courses', 'ICC2026', 1)
+   'https://formations.egliseicc.com/pages/courses', 'ACCES2026', 1)
 on conflict (id) do update set
   name = excluded.name, subtitle = excluded.subtitle,
   source_url = excluded.source_url, order_index = excluded.order_index;

@@ -1,6 +1,5 @@
 import Nav from './Nav';
 import Readings from './Readings';
-import DayActions from './DayActions';
 import DayNav from './DayNav';
 import ShareButton from './ShareButton';
 import { rich } from '@/lib/rich';
@@ -68,7 +67,12 @@ export default function Shell({ day, readings, user, archive, recentDays, transl
           {(day.bread_touches as string[]).map((p, i) => <p key={i} dangerouslySetInnerHTML={{ __html: rich(p) }} />)}
         </div>
 
-        <DayActions date={day.date} actions={day.actions} user={user} />
+        {day.bread_close && (
+          <div className="card pad bread-close">
+            <span className="kicker">À retenir aujourd&rsquo;hui</span>
+            <p dangerouslySetInnerHTML={{ __html: rich(day.bread_close) }} />
+          </div>
+        )}
 
         <div className="prayer">
           <span className="kicker">Prière de fermeture</span>
