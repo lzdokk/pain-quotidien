@@ -38,9 +38,9 @@ const MODEL_DEFAULT: Record<Provider, string> = {
   gemini: 'gemini-flash-latest',
   groq: 'llama-3.3-70b-versatile',
   mistral: 'mistral-small-latest',
-  cerebras: 'llama-3.3-70b',
+  cerebras: 'llama3.1-8b',
   nvidia: 'meta/llama-3.3-70b-instruct',
-  openrouter: 'meta-llama/llama-3.3-70b-instruct:free',
+  openrouter: 'meta-llama/llama-3.1-8b-instruct:free',
   anthropic: 'claude-sonnet-5',
   none: 'aucun'
 };
