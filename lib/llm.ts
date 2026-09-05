@@ -236,21 +236,30 @@ async function raw(c: Call): Promise<Raw> {
   }
   // Mode pool : on part de la position courante puis on bascule en cas d'echec.
   const n = POOL.length;
-  const start = cursor % n;
-  cursor = (cursor + 1) % n;
   // Le budget global s'adapte au delai d'appel : une generation longue (ex. le
   // pain du jour, timeoutMs eleve) doit pouvoir aboutir, avec au moins une bascule.
   const deadline = Date.now() + Math.max(OVERALL_MS, (c.timeoutMs ?? CALL_TIMEOUT_MS) * 2 + 10_000);
+  const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
   let lastErr: any;
-  for (let i = 0; i < n; i++) {
-    if (Date.now() > deadline) break; // on n'enchaine pas les bascules a l'infini
-    const entry = POOL[(start + i) % n];
-    try {
-      return await callProvider(entry.provider, c, entry.keyEnv);
-    } catch (e: any) {
-      lastErr = e;
-      // on tente toujours la cle suivante : une cle KO ne bloque pas le pool
+
+  // Jusqu'a deux tours du pool. Si un tour echoue uniquement sur des limites de
+  // debit (429/503/504), on patiente puis on retente : ces erreurs sont
+  // temporaires et disparaissent souvent apres quelques secondes.
+  for (let pass = 0; pass < 2; pass++) {
+    const s = (cursor % n); cursor = (cursor + 1) % n;
+    for (let i = 0; i < n; i++) {
+      if (Date.now() > deadline) return Promise.reject(lastErr ?? new LLMError(504, `budget global depasse (${OVERALL_MS} ms)`));
+      const entry = POOL[(s + i) % n];
+      try {
+        return await callProvider(entry.provider, c, entry.keyEnv);
+      } catch (e: any) {
+        lastErr = e; // une cle KO ne bloque pas le pool : on tente la suivante
+      }
     }
+    const st = lastErr?.status;
+    const transient = st === 429 || st === 503 || st === 504;
+    if (pass === 0 && transient && Date.now() < deadline - 5000) await sleep(4000);
+    else break;
   }
   throw lastErr ?? new LLMError(504, `budget global depasse (${OVERALL_MS} ms)`);
 }
