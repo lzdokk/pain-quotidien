@@ -17,7 +17,7 @@ export const DaySchema = z.object({
   // via le prompt, sans faire echouer une sortie a un element pres.
   bread_says: z.array(z.string()).min(1).max(4),
   bread_touches: z.array(z.string()).min(1).max(4),
-  bread_close: z.string().max(220),
+  bread_close: z.string().max(260).optional().default(''),
   actions: z.array(z.object({ title: z.string().max(60), body: z.string() })).min(2).max(4),
   prayer_open: z.string(),
   prayer_close: z.string(),
@@ -25,7 +25,7 @@ export const DaySchema = z.object({
     verse: z.string(), verse_ref: z.string(), title: z.string(),
     meditation: z.array(z.string()).min(2).max(4),
     review: z.array(z.object({ title: z.string(), body: z.string() })).min(2).max(4),
-    evening_close: z.string().max(220),
+    evening_close: z.string().max(260).optional().default(''),
     prayer: z.string()
   }),
   witness: z.object({
@@ -103,7 +103,7 @@ export const DAY_GEMINI_SCHEMA = {
         evening_close: { type: 'STRING' },
         prayer: { type: 'STRING' }
       },
-      required: ['verse', 'verse_ref', 'title', 'meditation', 'review', 'evening_close', 'prayer']
+      required: ['verse', 'verse_ref', 'title', 'meditation', 'review', 'prayer']
     },
     witness: {
       type: 'OBJECT',
@@ -154,7 +154,7 @@ export const DAY_GEMINI_SCHEMA = {
   },
   required: [
     'date', 'theme_title', 'theme_lede', 'central_message', 'verse',
-    'reading_summaries', 'bread_lead', 'bread_says', 'bread_touches', 'bread_close', 'actions',
+    'reading_summaries', 'bread_lead', 'bread_says', 'bread_touches', 'actions',
     'prayer_open', 'prayer_close', 'evening', 'witness', 'prayers'
   ]
 };
