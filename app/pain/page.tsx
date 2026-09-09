@@ -12,11 +12,20 @@ export default async function Pain() {
   const sb = await supabaseServer();
   const today = contentDate();
 
-  const { data: day } = await sb.from('daily_bread')
+  // Le pain du jour ; s'il n'est pas encore genere, on retombe sur le DERNIER
+  // pain publie plutot que d'afficher une page vide.
+  let { data: day } = await sb.from('daily_bread')
     .select('*').eq('date', today).eq('published', true).maybeSingle();
+  if (!day) {
+    const { data: last } = await sb.from('daily_bread')
+      .select('*').eq('published', true).lte('date', today)
+      .order('date', { ascending: false }).limit(1).maybeSingle();
+    day = last ?? null;
+  }
+  const shownDate = day?.date ?? today;
 
   const { data: readings } = await sb.from('readings')
-    .select('*').eq('date', today).order('position');
+    .select('*').eq('date', shownDate).order('position');
 
   const bds = await bdsTranslation();
   const readingsBds = await readingsWithTranslation(readings ?? [], bds.code);
@@ -40,5 +49,5 @@ export default async function Pain() {
     );
   }
   return <Shell day={day} readings={readingsBds} user={user} recentDays={recentDays}
-                translationName={bds.name} />;
+                translationName={bds.name} archive={day.date !== today} />;
 }

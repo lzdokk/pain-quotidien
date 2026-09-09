@@ -35,9 +35,16 @@ function Priere({ texte }: { texte?: string | null }) {
 export default async function Priere_() {
   const sb = await supabaseServer();
   const today = contentDate();
-  const { data: day } = await sb.from('daily_bread')
-    .select('date, theme_title, prayer_intro, prayer_axes, prayer_notre_pere, prayer_confession, prayer_supplication, spirit_invitation')
-    .eq('date', today).eq('published', true).maybeSingle();
+  const cols = 'date, theme_title, prayer_intro, prayer_axes, prayer_notre_pere, prayer_confession, prayer_supplication, spirit_invitation';
+  let { data: day } = await sb.from('daily_bread')
+    .select(cols).eq('date', today).eq('published', true).maybeSingle();
+  if (!day) {
+    // Repli sur la derniere priere publiee plutot qu'une page vide.
+    const { data: last } = await sb.from('daily_bread')
+      .select(cols).eq('published', true).lte('date', today)
+      .order('date', { ascending: false }).limit(1).maybeSingle();
+    day = last ?? null;
+  }
   const { data: { user } } = await sb.auth.getUser();
 
   const axes = (day?.prayer_axes ?? []) as Axe[];

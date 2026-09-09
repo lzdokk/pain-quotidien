@@ -17,8 +17,14 @@ const fdate = (d: string) => {
 export default async function Soir() {
   const sb = await supabaseServer();
   const today = contentDate();
-  const { data: day } = await sb.from('daily_bread')
+  let { data: day } = await sb.from('daily_bread')
     .select('*').eq('date', today).eq('published', true).maybeSingle();
+  if (!day) {
+    const { data: last } = await sb.from('daily_bread')
+      .select('*').eq('published', true).lte('date', today)
+      .order('date', { ascending: false }).limit(1).maybeSingle();
+    day = last ?? null;
+  }
   const { data: { user } } = await sb.auth.getUser();
 
   if (!day) return <><Nav user={user} /><main className="wrap"><header className="hero"><h1>La veillée arrive</h1></header></main></>;
