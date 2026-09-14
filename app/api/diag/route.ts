@@ -1,12 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { supabaseServer } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
 
+/* Emails admin (bypass) — meme reglage que le cursus. */
+const ADMINS = (process.env.CURSUS_ADMINS ?? 'lzdokk@gmail.com')
+  .split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+
 /* ══════════════════════════════════════════════════════════════════
    DIAGNOSTIC DU POOL LLM
    -----------------------------------------------------------------
-   Ouvre :  /api/diag?key=TON_CRON_SECRET
+   Ouvre simplement :  /api/diag   (en etant CONNECTE avec ton email
+   admin) — aucun secret a taper. Sinon : /api/diag?key=TON_CRON_SECRET
    -> Montre, SANS jamais reveler les cles :
       • ce que le serveur lit vraiment dans LLM_POOL / LLM_PROVIDER
       • pour chaque entree : le fournisseur, le nom de la variable
@@ -109,8 +115,23 @@ export async function GET(req: NextRequest) {
   const url = new URL(req.url);
   const key = url.searchParams.get('key') ?? '';
   const auth = req.headers.get('authorization');
-  if (key !== process.env.CRON_SECRET && auth !== `Bearer ${process.env.CRON_SECRET}`) {
-    return new NextResponse('Unauthorized — ajoute ?key=TON_CRON_SECRET', { status: 401 });
+
+  // Acces autorise si : (1) tu es connecte avec ton email admin, OU
+  // (2) tu fournis le CRON_SECRET (?key=... ou en-tete Bearer).
+  let admin = false;
+  try {
+    const sb = await supabaseServer();
+    const { data: { user } } = await sb.auth.getUser();
+    admin = !!user?.email && ADMINS.includes(user.email.toLowerCase());
+  } catch { /* pas connecte : on retombe sur le secret */ }
+
+  const bySecret = !!process.env.CRON_SECRET &&
+    (key === process.env.CRON_SECRET || auth === `Bearer ${process.env.CRON_SECRET}`);
+
+  if (!admin && !bySecret) {
+    return new NextResponse(
+      'Non autorise. Connecte-toi avec ton email admin puis ouvre /api/diag, ' +
+      'ou ajoute ?key=TON_CRON_SECRET.', { status: 401 });
   }
 
   const rawPool = process.env.LLM_POOL ?? '';
