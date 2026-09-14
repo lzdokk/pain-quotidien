@@ -35,7 +35,9 @@ const MODEL_ENV: Record<Provider, string> = {
   anthropic: 'ANTHROPIC_MODEL', none: ''
 };
 const MODEL_DEFAULT: Record<Provider, string> = {
-  gemini: 'gemini-flash-latest',
+  // Modele fige et stable (GA) plutot que "-latest" : nettement moins de 503
+  // "surcharge". Surchargeable par la variable d'env GEMINI_MODEL.
+  gemini: 'gemini-2.0-flash',
   groq: 'llama-3.3-70b-versatile',
   mistral: 'mistral-small-latest',
   cerebras: 'llama3.1-8b',
