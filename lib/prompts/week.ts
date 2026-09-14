@@ -236,12 +236,20 @@ Troisieme conviction, prier n'est ni une recitation, ni une performance, ni
 une formule magique : c'est un engagement de la volonte assiste par l'Esprit.
 Le ton doit donc etre habite, jamais mecanique, jamais pieux par reflexe.
 
-STYLE DES PRIERES (important) : des formulations SIMPLES et MEMORABLES, que le
-lecteur peut retenir et reprendre de tete. Phrases courtes, mots du quotidien,
-pas de tournures alambiquees. Un peu plus court partout que par le passe.
+STYLE DES PRIERES (TRES important) : ces prieres doivent pouvoir se DIRE et se
+CHANTER simplement, et se RETENIR par coeur sans effort. Vise le style d'un
+cantique ou d'un refrain de louange :
+  - phrases COURTES (une idee par ligne), mots simples et concrets du quotidien,
+    aucune tournure savante ou alambiquee ;
+  - du RYTHME et du souffle : des reprises, un parallelisme leger, une petite
+    musique qui aide la memoire (ex. « Tu es la, tu me vois, tu me tiens ») ;
+  - PLUS COURT partout qu'avant : on retranche tout ce qui n'est pas essentiel ;
+  - malgre cette simplicite, on GARDE toujours le mot hebreu, arameen ou grec de
+    chaque axe (champ "word"), pose simplement avec sa traduction : c'est le
+    petit tresor a retenir, pas un obstacle.
 
 Champs a produire :
-- intro : trois a cinq lignes pour entrer en priere. Le secret, la sobriete,
+- intro : deux a trois lignes pour entrer en priere. Le secret, la sobriete,
   se rendre disponible, sans multiplier les paroles. Relie discretement au
   theme du jour sans le devoiler entierement.
   IMPORTANT : cette priere se prie a TOUT moment de la journee. Ne la situe
@@ -253,8 +261,8 @@ Champs a produire :
   Intercession. Pour chacun :
     - axis : exactement "Adoration", "Louange" ou "Intercession"
     - prayer : la priere elle-meme, premiere personne, tutoiement de Dieu,
-      CINQ A HUIT lignes, phrases simples et faciles a retenir, du souffle et
-      du rythme, ancree dans le texte
+      QUATRE A SIX lignes, phrases courtes et faciles a retenir/chanter, du
+      souffle et du rythme, ancree dans le texte
       du jour. Respecte scrupuleusement l'objet de l'axe : rien de demande
       dans l'adoration, des actes remercies dans la louange, autrui porte
       dans l'intercession.
@@ -280,15 +288,16 @@ Champs a produire :
   6 "Ne nous induis pas en tentation, delivre-nous du malin",
   7 "A toi le regne, la puissance et la gloire".
   - demande : le libelle exact ci-dessus
-  - prayer : deux a quatre lignes qui prient CETTE demande a partir du texte
-    du jour. Chaque jour doit produire un eclairage different.
-- confession : une priere de confession de quatre a six lignes, sur le modele du
-  Psaume 51. Sincere et lucide, sans culpabilisation ni auto-flagellation,
+  - prayer : deux a trois lignes qui prient CETTE demande a partir du texte
+    du jour, en mots simples qui se retiennent. Chaque jour doit produire un
+    eclairage different.
+- confession : une priere de confession de trois a quatre lignes, sur le modele
+  du Psaume 51. Sincere et lucide, sans culpabilisation ni auto-flagellation,
   qui demande une creation nouvelle et pas seulement un constat de faute.
   En lien avec ce que les lectures du jour revelent du coeur humain.
-- supplication : quatre a six lignes pour faire connaitre ses besoins a Dieu
+- supplication : trois a quatre lignes pour faire connaitre ses besoins a Dieu
   (Philippiens 4.6), avec actions de graces, sans inquietude deguisee.
-- spirit_invitation : la cloture, quatre a six lignes, invitation sobre et
+- spirit_invitation : la cloture, trois a quatre lignes, invitation sobre et
   directe a etre rempli et conduit par le Saint-Esprit (Ephesiens 5.18,
   Romains 8, Galates 5, Actes 1.8 selon ce qui convient), terminee par un
   "amen" habite, jamais expedie.
