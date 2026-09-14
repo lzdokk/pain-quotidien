@@ -1,15 +1,20 @@
 import { notFound } from 'next/navigation';
 import { supabaseServer } from '@/lib/supabase/server';
-import { admin } from '@/lib/supabase/admin';
 import { bdsTranslation, readingsWithTranslation } from '@/lib/bible';
+import { contentDate } from '@/lib/date';
 import Shell from '@/components/Shell';
 
-export const revalidate = 86400;
+// Une page admin peut charger un jour manquant : pas de cache fige.
+export const dynamic = 'force-dynamic';
 
-export async function generateStaticParams() {
-  const { data } = await admin.from('daily_bread')
-    .select('date').eq('published', true).order('date', { ascending: false }).limit(120);
-  return (data ?? []).map(d => ({ date: d.date }));
+const ADMINS = (process.env.CURSUS_ADMINS ?? 'lzdokk@gmail.com')
+  .split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+
+function lastDates(today: string, n: number): string[] {
+  const [y, m, d] = today.split('-').map(Number);
+  const base = Date.UTC(y, m - 1, d);
+  return Array.from({ length: n }, (_, i) =>
+    new Date(base - i * 86400000).toISOString().slice(0, 10));
 }
 
 export default async function Jour({ params }: { params: Promise<{ date: string }> }) {
@@ -25,11 +30,20 @@ export default async function Jour({ params }: { params: Promise<{ date: string 
   const readingsBds = await readingsWithTranslation(readings ?? [], bds.code);
   const { data: { user } } = await sb.auth.getUser();
 
+  const isAdmin = !!user?.email && ADMINS.includes(user.email.toLowerCase());
+  const today = contentDate();
+
   const { data: recent } = await sb.from('daily_bread')
-    .select('date').eq('published', true).lte('date', date)
+    .select('date').eq('published', true).lte('date', today)
     .order('date', { ascending: false }).limit(62);
   const recentDays = (recent ?? []).map(d => d.date).reverse();
 
+  const publishedSet = new Set(recentDays);
+  const missingDays = isAdmin
+    ? lastDates(today, 14).filter(d => !publishedSet.has(d))
+    : [];
+
   return <Shell day={day} readings={readingsBds} user={user} archive recentDays={recentDays}
-                translationName={bds.name} />;
+                translationName={bds.name}
+                missingDays={missingDays} isAdmin={isAdmin} todayDate={today} />;
 }

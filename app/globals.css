@@ -434,6 +434,29 @@ html[data-mode="soir"] .dn-month[aria-selected="true"]{color:#0E141A}
 .day-pill.active{background:var(--accent);border-color:var(--accent);color:#fff}
 .day-pill.more{background:var(--accent-soft);color:var(--accent);font-size:16px}
 
+/* Jour attendu mais non genere (admin) : pastille grisee, en tirets, cliquable
+   pour forcer la generation. */
+.day-pill.missing{background:transparent;border-style:dashed;border-color:var(--line-2);
+  color:var(--ink-3,var(--ink-2));opacity:.75;cursor:pointer;font:inherit;
+  width:34px;height:34px;font-size:13px;font-weight:620;font-variant-numeric:tabular-nums}
+.day-pill.missing:hover:not(:disabled){opacity:1;border-color:var(--accent);color:var(--accent);border-style:solid}
+.day-pill.missing.loading{opacity:1;border-style:solid;border-color:var(--accent);color:var(--accent);
+  animation:pillpulse 1s var(--ease) infinite}
+.day-pill.missing:disabled{cursor:default}
+@keyframes pillpulse{0%,100%{opacity:.55}50%{opacity:1}}
+.dn-hint{text-align:center;font-size:12.5px;color:var(--ink-2);margin:2px 0 14px;line-height:1.5}
+.dn-hint.err{color:#c0392b}
+
+/* Bandeau admin : "le pain d'aujourd'hui n'est pas encore genere". */
+.admin-bar{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
+  background:var(--accent-soft);border:1px solid var(--accent-line);border-radius:var(--r-sm,12px);
+  padding:14px 16px;margin:0 0 18px}
+.admin-bar b{display:block;font-size:14.5px;color:var(--ink)}
+.admin-bar span{font-size:13px;color:var(--ink-2)}
+.dayload{display:inline-flex;align-items:center;gap:10px;flex-wrap:wrap}
+.dayload-msg{font-size:12.5px;color:var(--accent);font-weight:560}
+.dayload-msg.err{color:#c0392b}
+
 /* Chapitres cliquables dans les lectures du cursus */
 .rlink{color:var(--accent);font-weight:640;text-decoration:none;border-bottom:1px solid var(--accent-line);
  padding:0 1px;transition:.2s var(--ease)}

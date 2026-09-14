@@ -2,11 +2,13 @@ import Nav from './Nav';
 import Readings from './Readings';
 import DayNav from './DayNav';
 import ShareButton from './ShareButton';
+import DayLoadButton from './DayLoadButton';
 import { rich } from '@/lib/rich';
 
 type Props = {
   day: any; readings: any[]; user: any; archive?: boolean;
   recentDays?: string[]; translationName?: string;
+  missingDays?: string[]; isAdmin?: boolean; todayDate?: string;
 };
 
 const fdate = (d: string) => {
@@ -16,11 +18,24 @@ const fdate = (d: string) => {
   return s[0].toUpperCase() + s.slice(1);
 };
 
-export default function Shell({ day, readings, user, archive, recentDays, translationName }: Props) {
+export default function Shell({ day, readings, user, archive, recentDays, translationName,
+  missingDays = [], isAdmin = false, todayDate }: Props) {
+  // Aujourd'hui n'est pas encore genere : on affiche un repli (archive) mais,
+  // en admin, on propose de charger le pain du jour d'un seul geste.
+  const showLoadToday = isAdmin && archive && !!todayDate && day.date !== todayDate;
   return (
     <>
       <Nav user={user} />
       <main className="wrap">
+        {showLoadToday && (
+          <div className="admin-bar">
+            <div>
+              <b>Le pain d&rsquo;aujourd&rsquo;hui n&rsquo;est pas encore généré.</b>
+              <span> Vous lisez le dernier jour publié.</span>
+            </div>
+            <DayLoadButton date={todayDate!} label="Charger le pain d’aujourd’hui" className="btn" />
+          </div>
+        )}
         <header className="hero">
           <div className="eyebrow">Le pain du matin{archive ? ' · archive' : ''}</div>
           <div className="date">{fdate(day.date)}</div>
@@ -29,7 +44,8 @@ export default function Shell({ day, readings, user, archive, recentDays, transl
         </header>
 
         {recentDays && recentDays.length > 0 && (
-          <DayNav days={recentDays} current={day.date} />
+          <DayNav days={recentDays} current={day.date}
+                  missingDays={missingDays} isAdmin={isAdmin} />
         )}
 
         <div className="prayer opening">
