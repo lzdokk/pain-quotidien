@@ -184,9 +184,9 @@ export async function GET(req: NextRequest) {
     aide: {
       '200': 'OK — cette cle marche',
       '429': 'quota epuise (Google : ~50 req/jour/projet en gratuit ; 2 cles du MEME projet Google partagent le quota — il faut des PROJETS/COMPTES differents)',
-      '503': 'surcharge Google — patiente, ou mets GEMINI_MODEL=gemini-2.0-flash (modele plus stable)',
+      '503': 'surcharge Google — patiente, ou mets GEMINI_MODEL=gemini-flash-latest',
       '401/403': 'cle invalide ou API non activee sur ce projet Google',
-      '404': 'modele introuvable — verifie GEMINI_MODEL',
+      '404': 'modele retire/introuvable — mets GEMINI_MODEL=gemini-flash-latest (suit le dernier Flash stable)',
       '0': 'variable d\'env absente : le nom dans LLM_POOL ne correspond a aucune cle definie dans Vercel',
     },
   }, { headers: { 'cache-control': 'no-store' } });

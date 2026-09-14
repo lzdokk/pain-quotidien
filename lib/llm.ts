@@ -35,9 +35,10 @@ const MODEL_ENV: Record<Provider, string> = {
   anthropic: 'ANTHROPIC_MODEL', none: ''
 };
 const MODEL_DEFAULT: Record<Provider, string> = {
-  // Modele fige et stable (GA) plutot que "-latest" : nettement moins de 503
-  // "surcharge". Surchargeable par la variable d'env GEMINI_MODEL.
-  gemini: 'gemini-2.0-flash',
+  // Alias "-latest" : suit automatiquement le dernier Flash stable, donc jamais
+  // de 404 quand Google retire une version (ex. 2.0-flash retire). Surchargeable
+  // par la variable d'env GEMINI_MODEL (ex. un modele fige gemini-3.6-flash).
+  gemini: 'gemini-flash-latest',
   groq: 'llama-3.3-70b-versatile',
   mistral: 'mistral-small-latest',
   cerebras: 'llama3.1-8b',
