@@ -35,10 +35,13 @@ const MODEL_ENV: Record<Provider, string> = {
   anthropic: 'ANTHROPIC_MODEL', none: ''
 };
 const MODEL_DEFAULT: Record<Provider, string> = {
-  // Alias "-latest" : suit automatiquement le dernier Flash stable, donc jamais
-  // de 404 quand Google retire une version (ex. 2.0-flash retire). Surchargeable
-  // par la variable d'env GEMINI_MODEL (ex. un modele fige gemini-3.6-flash).
-  gemini: 'gemini-flash-latest',
+  // Flash-Lite : quota gratuit BEAUCOUP plus genereux que le Flash complet
+  // (~1000+ requetes/jour au lieu de quelques dizaines depuis la coupe de
+  // decembre 2025), amplement suffisant pour ces textes. L'alias "-latest"
+  // evite tout 404 quand Google retire une version. Surchargeable par
+  // GEMINI_MODEL (ex. gemini-flash-latest pour la meilleure qualite si ton
+  // quota le permet, ou un modele fige gemini-2.5-flash-lite).
+  gemini: 'gemini-flash-lite-latest',
   groq: 'llama-3.3-70b-versatile',
   mistral: 'mistral-small-latest',
   cerebras: 'llama3.1-8b',
