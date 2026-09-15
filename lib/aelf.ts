@@ -33,6 +33,23 @@ export async function fetchAelf(date: string) {
   throw new Error(`AELF injoignable pour ${date}`);
 }
 
+/**
+ * Isole la VRAIE reference biblique quand AELF la prefixe du nom d'une sequence
+ * ou d'un cantique, ex. "Stabat Mater. Jn 19, 25-27" -> "Jn 19, 25-27". Sans ce
+ * nettoyage, le nom du livre est mal detecte et la lecture (souvent l'evangile
+ * d'une fete) est silencieusement perdue. On coupe uniquement sur ". " (point
+ * SUIVI d'un espace) : cela ne casse pas "1 Co 12, 12-14.27-31a".
+ */
+function cleanScriptureRef(raw: string): string {
+  const s = raw.replace(/ /g, ' ').trim();
+  const parts = s.split(/\.\s+/).map(p => p.trim()).filter(Boolean);
+  if (parts.length <= 1) return s;
+  const isScripture = (p: string) =>
+    /^(\d\s*)?\p{L}[\p{L}.]*\s+\d+\s*[,(:]/u.test(p)
+    || /^\d+\s*(\(\d+\))?\s*[,:]/.test(p);
+  return parts.find(isScripture) ?? parts[parts.length - 1];
+}
+
 export function parseReadings(payload: any): AelfReading[] {
   const lectures = payload?.messes?.[0]?.lectures ?? [];
   // AELF propose souvent plusieurs options pour un meme temps de lecture
@@ -44,7 +61,7 @@ export function parseReadings(payload: any): AelfReading[] {
     groups.set(l.type, arr);
   }
   const build = (l: any): AelfReading => {
-      const ref = String(l.ref || '').replace(/ /g, ' ').trim();
+      const ref = cleanScriptureRef(String(l.ref || ''));
       const prefix = DEUTERO.find(d => ref.startsWith(d + ' '));
       const key = ref.split(',')[0].trim();
       return {

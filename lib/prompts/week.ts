@@ -249,7 +249,7 @@ cantique ou d'un refrain de louange :
     petit tresor a retenir, pas un obstacle.
 
 Champs a produire :
-- intro : deux a trois lignes pour entrer en priere. Le secret, la sobriete,
+- intro : trois a quatre lignes pour entrer en priere. Le secret, la sobriete,
   se rendre disponible, sans multiplier les paroles. Relie discretement au
   theme du jour sans le devoiler entierement.
   IMPORTANT : cette priere se prie a TOUT moment de la journee. Ne la situe
@@ -261,7 +261,7 @@ Champs a produire :
   Intercession. Pour chacun :
     - axis : exactement "Adoration", "Louange" ou "Intercession"
     - prayer : la priere elle-meme, premiere personne, tutoiement de Dieu,
-      QUATRE A SIX lignes, phrases courtes et faciles a retenir/chanter, du
+      CINQ A SEPT lignes, phrases courtes et faciles a retenir/chanter, du
       souffle et du rythme, ancree dans le texte
       du jour. Respecte scrupuleusement l'objet de l'axe : rien de demande
       dans l'adoration, des actes remercies dans la louange, autrui porte
@@ -288,16 +288,16 @@ Champs a produire :
   6 "Ne nous induis pas en tentation, delivre-nous du malin",
   7 "A toi le regne, la puissance et la gloire".
   - demande : le libelle exact ci-dessus
-  - prayer : deux a trois lignes qui prient CETTE demande a partir du texte
+  - prayer : trois a quatre lignes qui prient CETTE demande a partir du texte
     du jour, en mots simples qui se retiennent. Chaque jour doit produire un
     eclairage different.
-- confession : une priere de confession de trois a quatre lignes, sur le modele
+- confession : une priere de confession de quatre a cinq lignes, sur le modele
   du Psaume 51. Sincere et lucide, sans culpabilisation ni auto-flagellation,
   qui demande une creation nouvelle et pas seulement un constat de faute.
   En lien avec ce que les lectures du jour revelent du coeur humain.
-- supplication : trois a quatre lignes pour faire connaitre ses besoins a Dieu
+- supplication : quatre a cinq lignes pour faire connaitre ses besoins a Dieu
   (Philippiens 4.6), avec actions de graces, sans inquietude deguisee.
-- spirit_invitation : la cloture, trois a quatre lignes, invitation sobre et
+- spirit_invitation : la cloture, quatre a cinq lignes, invitation sobre et
   directe a etre rempli et conduit par le Saint-Esprit (Ephesiens 5.18,
   Romains 8, Galates 5, Actes 1.8 selon ce qui convient), terminee par un
   "amen" habite, jamais expedie.

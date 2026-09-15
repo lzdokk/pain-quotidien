@@ -76,18 +76,36 @@ export async function GET(req: NextRequest) {
           const r = raw[i];
           const reference = r.deuterocanonical ? r.substitute! : r.reference;
           const passage = await getPassage(reference, 'FRLSG');
-          if (!passage) continue;
-          readings.push({
-            position: i + 1,
-            reference,
-            title: r.title,
-            text: passage.verses.map(v => `${v.verse}. ${v.text}`).join('\n'),
-            substituted: r.deuterocanonical ? r.reference : undefined,
-            canonNote: r.deuterocanonical,
-            verses: passage.verses.map(v => [v.verse, v.text] as [number, string]),
-            book: passage.book,
-            chapter: passage.chapter
-          });
+          if (passage && passage.verses.length) {
+            readings.push({
+              position: i + 1,
+              reference,
+              title: r.title,
+              text: passage.verses.map(v => `${v.verse}. ${v.text}`).join('\n'),
+              substituted: r.deuterocanonical ? r.reference : undefined,
+              canonNote: r.deuterocanonical,
+              verses: passage.verses.map(v => [v.verse, v.text] as [number, string]),
+              book: passage.book,
+              chapter: passage.chapter
+            });
+          } else {
+            // Filet de securite : on n'ABANDONNE jamais une lecture (surtout
+            // l'evangile d'une fete). On conserve le texte AELF et on journalise
+            // pour pouvoir corriger la reference plus tard. readingsWithTranslation
+            // retentera la resolution en Segond a l'affichage.
+            errors.push(`${date} : "${reference}" non resolue en Segond — texte AELF conserve`);
+            readings.push({
+              position: i + 1,
+              reference,
+              title: r.title,
+              text: r.body,
+              substituted: r.deuterocanonical ? r.reference : undefined,
+              canonNote: r.deuterocanonical,
+              verses: [] as [number, string][],
+              book: null,
+              chapter: null
+            });
+          }
         }
         if (readings.length === 0) { errors.push(`${date} : aucune lecture exploitable`); continue; }
 
