@@ -48,6 +48,14 @@ export default function Shell({ day, readings, user, archive, recentDays, transl
                   missingDays={missingDays} isAdmin={isAdmin} />
         )}
 
+        {isAdmin && (
+          <div className="admin-regen">
+            <span className="ar-tag">Admin</span>
+            <span className="ar-txt">Ce jour est déjà généré. Le régénérer écrase le contenu actuel.</span>
+            <DayLoadButton date={day.date} label="Régénérer ce jour" className="btn sm" />
+          </div>
+        )}
+
         <div className="prayer opening">
           <span className="kicker">Prière d&rsquo;ouverture</span>
           <p dangerouslySetInnerHTML={{ __html: rich(day.prayer_open) }} />

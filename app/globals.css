@@ -457,6 +457,14 @@ html[data-mode="soir"] .dn-month[aria-selected="true"]{color:#0E141A}
 .dayload-msg{font-size:12.5px;color:var(--accent);font-weight:560}
 .dayload-msg.err{color:#c0392b}
 
+/* Barre admin discrete : regenerer le jour affiche (ecrase le contenu). */
+.admin-regen{display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  border:1px dashed var(--line-2);border-radius:var(--r-sm,12px);
+  padding:9px 12px;margin:0 0 18px;background:transparent}
+.admin-regen .ar-tag{font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--accent);border:1px solid var(--accent-line);border-radius:99px;padding:2px 8px}
+.admin-regen .ar-txt{font-size:12.5px;color:var(--ink-2);flex:1;min-width:180px}
+
 /* Chapitres cliquables dans les lectures du cursus */
 .rlink{color:var(--accent);font-weight:640;text-decoration:none;border-bottom:1px solid var(--accent-line);
  padding:0 1px;transition:.2s var(--ease)}
