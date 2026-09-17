@@ -15,8 +15,9 @@ const STYLES = [
   ['libre', 'Libre, a votre main']
 ] as const;
 
-// Traductions volontairement masquees de la liste (doublon avec la BDS).
-const HIDDEN_TRAD = (t: any) => /segond\s*21|^s21$|^frs21$/i.test(`${t.code} ${t.name}`);
+// Plus aucune traduction n'est masquee : la S21 est desormais importee en local
+// et pleinement disponible (lecteur ET comparateur).
+const HIDDEN_TRAD = (_t: any) => false;
 
 // Mini-explication affichee sous le choix de traduction, pour aider a choisir
 // suivant l'objectif de lecture.
@@ -186,11 +187,14 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
         }
       }
       const saved = JSON.parse(localStorage.getItem('pq-pos') ?? 'null');
-      // Segond 1910 (FRLSG) par defaut. On ne restaure la traduction memorisee
-      // que si l'utilisateur l'avait lui-meme changee.
+      // Traduction par defaut : Segond 21 si elle est presente, sinon Segond
+      // 1910. On restaure le choix memorise si l'utilisateur en avait fait un.
+      const preferred = translations.some((t: any) => t.code === 'S21') ? 'S21' : 'FRLSG';
       if (saved?.b) {
         setBook(saved.b); setChapter(saved.c ?? 1);
-        if (saved.t && !HIDDEN_TRAD({ code: saved.t, name: '' })) setTrad(saved.t);
+        setTrad(saved.t || preferred);
+      } else {
+        setTrad(preferred);
       }
       setRecent(JSON.parse(localStorage.getItem('pq-recent') ?? '[]'));
     } catch {}
