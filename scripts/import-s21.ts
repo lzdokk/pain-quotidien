@@ -16,6 +16,7 @@
  */
 import './load-env';
 import { readFileSync, existsSync } from 'node:fs';
+import os from 'node:os';
 import { createClient } from '@supabase/supabase-js';
 
 const admin = createClient(
@@ -65,12 +66,20 @@ function cleanVerse(raw: string): string {
 }
 
 async function main() {
-  const file = process.argv[2];
+  // Nettoie l'argument : enleve d'eventuels guillemets colles et etend le ~.
+  let file = (process.argv[2] ?? '').trim().replace(/^['"]|['"]$/g, '');
+  if (file.startsWith('~')) file = os.homedir() + file.slice(1);
+
   if (!file || !existsSync(file)) {
-    console.error('\n  Fichier introuvable. Usage :');
-    console.error('    npx tsx scripts/import-s21.ts "chemin/vers/bible s21.xml"\n');
+    console.error('\n  Fichier introuvable :', file || '(aucun chemin donne)');
+    console.error('\n  Usage — le plus simple : tape la commande sans le chemin,');
+    console.error('  puis GLISSE le fichier XML dans la fenetre du Terminal :');
+    console.error('    npx tsx scripts/import-s21.ts <glisse le fichier ici>\n');
+    console.error('  Ou indique le chemin complet, ex :');
+    console.error('    npx tsx scripts/import-s21.ts ~/Downloads/"bible s21.xml"\n');
     process.exit(1);
   }
+  console.log('  Fichier :', file);
 
   const xml = readFileSync(file, 'utf8');
 
@@ -86,10 +95,9 @@ async function main() {
   }, { onConflict: 'code' });
   if (tErr) { console.error('translations:', tErr.message); process.exit(1); }
 
-  // 3. Repartir propre : on efface les versets S21 déjà présents.
-  await admin.from('verses').delete().eq('translation', CODE);
-
-  // 4. Parcourir livres → chapitres → versets et collecter les lignes.
+  // 3. Parcourir livres → chapitres → versets et collecter les lignes.
+  //    (On NE touche PAS encore a la base : on efface seulement plus bas, une
+  //    fois qu'on est SUR que le fichier est complet.)
   const bookRe = /<book\s+number="(\d+)"[^>]*>([\s\S]*?)<\/book>/g;
   const chapRe = /<chapter\s+number="(\d+)"[^>]*>([\s\S]*?)<\/chapter>/g;
   const verseRe = /<verse\s+number="(\d+)"[^>]*>([\s\S]*?)<\/verse>/g;
@@ -117,9 +125,18 @@ async function main() {
   }
 
   console.log(`  Livres trouvés : ${booksSeen.size}/66 · versets à insérer : ${rows.length}`);
+
+  // SECURITE : on n'efface la S21 existante QUE si le nouveau fichier est
+  // complet. Ainsi, passer par erreur un mauvais fichier (0 verset) ne detruit
+  // JAMAIS un import deja en place.
   if (rows.length < 25000) {
-    console.warn('  ⚠ Nombre de versets anormalement bas — vérifie le fichier avant de continuer.');
+    console.error("  ⛔ Fichier incomplet (moins de 25000 versets). Rien n'a été modifié en base.");
+    console.error('     Vérifie que tu passes bien le fichier XML de la S21 (et non le script).');
+    process.exit(1);
   }
+
+  // 4. On repart propre : on efface les versets S21 existants, puis on réinsère.
+  await admin.from('verses').delete().eq('translation', CODE);
 
   // 5. Insertion par paquets (plus rapide et sous la limite de payload).
   const CHUNK = 800;
