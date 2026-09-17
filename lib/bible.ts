@@ -104,8 +104,13 @@ export async function getVerses(translation: string, book: number, chapter: numb
   return (data ?? []) as Verse[];
 }
 
-/** Traduction par defaut des lectures du jour : Segond 1910 (FRLSG). */
+/** Traduction par defaut des lectures du jour : Segond 21 si elle est importee
+ *  et activee, sinon repli sur la Segond 1910 (FRLSG). Ainsi le changement est
+ *  sans risque meme avant l'import de la S21. */
 export async function bdsTranslation(): Promise<{ code: string; name: string }> {
+  const { data: s21 } = await admin.from('translations')
+    .select('code, name').eq('code', 'S21').eq('enabled', true).maybeSingle();
+  if (s21) return s21;
   const { data } = await admin.from('translations')
     .select('code, name').eq('code', 'FRLSG').maybeSingle();
   return data ?? { code: 'FRLSG', name: 'Segond 1910' };
