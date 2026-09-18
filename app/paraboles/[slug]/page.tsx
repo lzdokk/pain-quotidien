@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { supabaseServer } from '@/lib/supabase/server';
 import Nav from '@/components/Nav';
 import { rich } from '@/lib/rich';
+import { citedVerse } from '@/lib/bible';
 import ReadingLinks from '@/components/ReadingLinks';
 import ShareButton from '@/components/ShareButton';
 import { MarkParableRead } from '@/components/ParableRead';
@@ -21,6 +22,9 @@ export default async function Episode({ params }: { params: Promise<{ slug: stri
   const idx = (siblings ?? []).findIndex(s => s.slug === slug);
   const prev = idx > 0 ? siblings![idx - 1] : null;
   const next = idx >= 0 && idx < (siblings?.length ?? 0) - 1 ? siblings![idx + 1] : null;
+
+  // Verset-cle cite dans la traduction par defaut du site (S21 si importee).
+  const kv = await citedVerse(p.key_verse_ref, p.key_verse);
 
   return (
     <>
@@ -53,8 +57,8 @@ export default async function Episode({ params }: { params: Promise<{ slug: stri
         ))}
 
         <div className="card verse">
-          <blockquote>{p.key_verse}</blockquote>
-          <cite>{p.key_verse_ref?.toUpperCase()} · SEGOND</cite>
+          <blockquote>{kv.text}</blockquote>
+          <cite>{p.key_verse_ref?.toUpperCase()} · {kv.name.toUpperCase()}</cite>
         </div>
 
         <div className="card pad">

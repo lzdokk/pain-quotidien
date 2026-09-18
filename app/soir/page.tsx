@@ -1,52 +1,76 @@
-import { notFound } from 'next/navigation';
 import { supabaseServer } from '@/lib/supabase/server';
-import { bdsTranslation, readingsWithTranslation, citedVerse } from '@/lib/bible';
+import Nav from '@/components/Nav';
+import ResumeReading from '@/components/ResumeReading';
 import { contentDate } from '@/lib/date';
-import Shell from '@/components/Shell';
+import { rich } from '@/lib/rich';
+import { citedVerse } from '@/lib/bible';
 
-// Une page admin peut charger un jour manquant : pas de cache fige.
-export const dynamic = 'force-dynamic';
+export const dynamic = 'force-dynamic'; // toujours le jour courant, jamais du cache
+export const metadata = { title: 'La veillée du soir' };
 
-const ADMINS = (process.env.CURSUS_ADMINS ?? 'lzdokk@gmail.com')
-  .split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+const fdate = (d: string) => {
+  const [y, m, j] = d.split('-').map(Number);
+  const s = new Intl.DateTimeFormat('fr-FR',
+    { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(y, m - 1, j));
+  return s[0].toUpperCase() + s.slice(1);
+};
 
-function lastDates(today: string, n: number): string[] {
-  const [y, m, d] = today.split('-').map(Number);
-  const base = Date.UTC(y, m - 1, d);
-  return Array.from({ length: n }, (_, i) =>
-    new Date(base - i * 86400000).toISOString().slice(0, 10));
-}
-
-export default async function Jour({ params }: { params: Promise<{ date: string }> }) {
-  const { date } = await params;
+export default async function Soir() {
   const sb = await supabaseServer();
-
-  const { data: day } = await sb.from('daily_bread')
-    .select('*').eq('date', date).eq('published', true).maybeSingle();
-  if (!day) notFound();
-
-  const { data: readings } = await sb.from('readings').select('*').eq('date', date).order('position');
-  const bds = await bdsTranslation();
-  const readingsBds = await readingsWithTranslation(readings ?? [], bds.code);
+  const today = contentDate();
+  let { data: day } = await sb.from('daily_bread')
+    .select('*').eq('date', today).eq('published', true).maybeSingle();
+  if (!day) {
+    const { data: last } = await sb.from('daily_bread')
+      .select('*').eq('published', true).lte('date', today)
+      .order('date', { ascending: false }).limit(1).maybeSingle();
+    day = last ?? null;
+  }
   const { data: { user } } = await sb.auth.getUser();
 
-  const isAdmin = !!user?.email && ADMINS.includes(user.email.toLowerCase());
-  const today = contentDate();
+  if (!day) return <><Nav user={user} /><main className="wrap"><header className="hero"><h1>La veillée arrive</h1></header></main></>;
 
-  const { data: recent } = await sb.from('daily_bread')
-    .select('date').eq('published', true).lte('date', today)
-    .order('date', { ascending: false }).limit(62);
-  const recentDays = (recent ?? []).map(d => d.date).reverse();
+  // Verset du soir cite dans la traduction par defaut du site (S21 si importee).
+  const ev = await citedVerse(day.evening_verse_ref, day.evening_verse);
 
-  const publishedSet = new Set(recentDays);
-  const missingDays = isAdmin
-    ? lastDates(today, 14).filter(d => !publishedSet.has(d))
-    : [];
+  return (
+    <>
+      <Nav user={user} />
+      <main className="wrap">
+        <header className="hero">
+          <div className="eyebrow">La veillée du soir</div>
+          <div className="date">{fdate(day.date)} · 21h00</div>
+          <h1>Poser<br />la journée</h1>
+          <p className="lede">Cinq minutes avant de dormir. Un verset, un silence, une relecture, une paix.</p>
+        </header>
 
-  const memVerse = await citedVerse(day.verse_ref, day.verse_text);
+        <ResumeReading />
 
-  return <Shell day={day} readings={readingsBds} user={user} archive recentDays={recentDays}
-                translationName={bds.name}
-                missingDays={missingDays} isAdmin={isAdmin} todayDate={today}
-                verseText={memVerse.text} verseName={memVerse.name} />;
+        <div className="card verse">
+          <div className="breathe"><div className="orb"><span>Respirez</span></div></div>
+          <blockquote>{ev.text}</blockquote>
+          <cite>{day.evening_verse_ref?.toUpperCase()} · {ev.name.toUpperCase()}</cite>
+        </div>
+
+        <div className="card pad pq">
+          <span className="kicker">Meditation du soir</span>
+          <h3 style={{ marginTop: 6 }}>{day.evening_title}</h3>
+          {(day.evening_meditation as string[]).map((p, i) =>
+            <p key={i} dangerouslySetInnerHTML={{ __html: rich(p) }} />)}
+        </div>
+
+        {day.evening_close && (
+          <div className="card pad bread-close">
+            <span className="kicker">Avant de fermer les yeux</span>
+            <p dangerouslySetInnerHTML={{ __html: rich(day.evening_close) }} />
+          </div>
+        )}
+
+        <div className="prayer">
+          <span className="kicker">Prière avant le sommeil</span>
+          <p dangerouslySetInnerHTML={{ __html: rich(day.prayer_night) }} />
+        </div>
+      </main>
+    </>
+  );
 }

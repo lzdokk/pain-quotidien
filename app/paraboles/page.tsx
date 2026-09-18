@@ -1,76 +1,91 @@
+import Link from 'next/link';
 import { supabaseServer } from '@/lib/supabase/server';
 import Nav from '@/components/Nav';
-import ResumeReading from '@/components/ResumeReading';
-import { contentDate } from '@/lib/date';
-import { rich } from '@/lib/rich';
-import { citedVerse } from '@/lib/bible';
+import LearnTabs from '@/components/LearnTabs';
+import { ParableReadMarks } from '@/components/ParableRead';
+import { THEMES } from '@/lib/prompts/parable';
 
-export const dynamic = 'force-dynamic'; // toujours le jour courant, jamais du cache
-export const metadata = { title: 'La veillée du soir' };
+export const revalidate = 3600;
+export const metadata = { title: 'Paraboles' };
 
-const fdate = (d: string) => {
-  const [y, m, j] = d.split('-').map(Number);
-  const s = new Intl.DateTimeFormat('fr-FR',
-    { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(y, m - 1, j));
-  return s[0].toUpperCase() + s.slice(1);
-};
-
-export default async function Soir() {
+export default async function Paraboles() {
   const sb = await supabaseServer();
-  const today = contentDate();
-  let { data: day } = await sb.from('daily_bread')
-    .select('*').eq('date', today).eq('published', true).maybeSingle();
-  if (!day) {
-    const { data: last } = await sb.from('daily_bread')
-      .select('*').eq('published', true).lte('date', today)
-      .order('date', { ascending: false }).limit(1).maybeSingle();
-    day = last ?? null;
-  }
   const { data: { user } } = await sb.auth.getUser();
+  const { data: rows } = await sb.from('parables')
+    .select('slug, theme, theme_order, episode, title, hook, published_at')
+    .order('theme_order').order('episode');
 
-  if (!day) return <><Nav user={user} /><main className="wrap"><header className="hero"><h1>La veillée arrive</h1></header></main></>;
+  const parTheme = new Map<string, typeof rows>();
+  for (const t of THEMES) parTheme.set(t, []);
+  for (const r of rows ?? []) parTheme.get(r.theme)?.push(r as any);
 
-  // Verset du soir cite dans la traduction par defaut du site (S21 si importee).
-  const ev = await citedVerse(day.evening_verse_ref, day.evening_verse);
+  const total = rows?.length ?? 0;
 
   return (
     <>
       <Nav user={user} />
       <main className="wrap">
+        <ParableReadMarks />
+        <LearnTabs />
         <header className="hero">
-          <div className="eyebrow">La veillée du soir</div>
-          <div className="date">{fdate(day.date)} · 21h00</div>
-          <h1>Poser<br />la journée</h1>
-          <p className="lede">Cinq minutes avant de dormir. Un verset, un silence, une relecture, une paix.</p>
+          <div className="eyebrow">Apprendre · Paraboles</div>
+          <h1>La théologie<br />racontée</h1>
+          <p className="lede">
+            Un point à la fois, une histoire pour le faire sentir avant de l&rsquo;expliquer.
+            Un ou deux épisodes par semaine, classés par thème pour ne jamais s&rsquo;y perdre.
+          </p>
         </header>
 
-        <ResumeReading />
-
-        <div className="card verse">
-          <div className="breathe"><div className="orb"><span>Respirez</span></div></div>
-          <blockquote>{ev.text}</blockquote>
-          <cite>{day.evening_verse_ref?.toUpperCase()} · {ev.name.toUpperCase()}</cite>
-        </div>
-
-        <div className="card pad pq">
-          <span className="kicker">Meditation du soir</span>
-          <h3 style={{ marginTop: 6 }}>{day.evening_title}</h3>
-          {(day.evening_meditation as string[]).map((p, i) =>
-            <p key={i} dangerouslySetInnerHTML={{ __html: rich(p) }} />)}
-        </div>
-
-        {day.evening_close && (
-          <div className="card pad bread-close">
-            <span className="kicker">Avant de fermer les yeux</span>
-            <p dangerouslySetInnerHTML={{ __html: rich(day.evening_close) }} />
+        {total === 0 && (
+          <div className="card pad">
+            <p className="empty">Le premier épisode arrive bientôt.</p>
           </div>
         )}
 
-        <div className="prayer">
-          <span className="kicker">Prière avant le sommeil</span>
-          <p dangerouslySetInnerHTML={{ __html: rich(day.prayer_night) }} />
-        </div>
+        {total > 0 && (
+          <>
+            <h2 className="sect">Le parcours</h2>
+            <p className="sub">Les quatorze thèmes du parcours, dans l&rsquo;ordre. Touchez-en un pour aller directement à ses épisodes.</p>
+            <div className="card">
+              {THEMES.map((t, i) => {
+                const n = parTheme.get(t)?.length ?? 0;
+                return (
+                  <a key={t} href={`#${slugTheme(t)}`} className="pth" aria-disabled={n === 0}>
+                    <span className="pth-n">{i + 1}</span>
+                    <span className="pth-t">{t}</span>
+                    <span className="pth-c">{n > 0 ? `${n} épisode${n > 1 ? 's' : ''}` : 'à venir'}</span>
+                  </a>
+                );
+              })}
+            </div>
+
+            {THEMES.map(t => {
+              const list = parTheme.get(t) ?? [];
+              if (list.length === 0) return null;
+              return (
+                <section key={t} id={slugTheme(t)} style={{ marginTop: 34 }}>
+                  <h2 className="sect" style={{ margin: '0 0 14px' }}>{t}</h2>
+                  <div className="card">
+                    {list.map(p => (
+                      <Link key={p.slug} href={`/paraboles/${p.slug}`} className="pep" data-parable={p.slug}>
+                        <span className="pep-n">{p.episode}</span>
+                        <div>
+                          <span className="pep-t">{p.title}</span>
+                          <span className="pep-h">{p.hook}</span>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </section>
+              );
+            })}
+          </>
+        )}
       </main>
     </>
   );
+}
+
+function slugTheme(t: string) {
+  return t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 }

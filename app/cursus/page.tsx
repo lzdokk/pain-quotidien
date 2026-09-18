@@ -1,91 +1,51 @@
-import { notFound } from 'next/navigation';
-import Link from 'next/link';
 import { supabaseServer } from '@/lib/supabase/server';
 import Nav from '@/components/Nav';
-import { rich } from '@/lib/rich';
-import { citedVerse } from '@/lib/bible';
-import ReadingLinks from '@/components/ReadingLinks';
-import ShareButton from '@/components/ShareButton';
-import { MarkParableRead } from '@/components/ParableRead';
+import CursusBrowser from '@/components/CursusBrowser';
 
-export const revalidate = 86400;
+export const revalidate = 0;
+export const dynamic = 'force-dynamic';
+export const metadata = { title: 'Cursus theologique' };
 
-export default async function Episode({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params;
+// Emails ayant accès à TOUT (bypass des codes). Réglable via CURSUS_ADMINS
+// (liste séparée par des virgules) ; par défaut, le compte du propriétaire.
+const ADMINS = (process.env.CURSUS_ADMINS ?? 'lzdokk@gmail.com')
+  .split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+
+export default async function Cursus() {
   const sb = await supabaseServer();
-  const { data: p } = await sb.from('parables').select('*').eq('slug', slug).maybeSingle();
-  if (!p) notFound();
   const { data: { user } } = await sb.auth.getUser();
 
-  const { data: siblings } = await sb.from('parables')
-    .select('slug, episode').eq('theme', p.theme).order('episode');
-  const idx = (siblings ?? []).findIndex(s => s.slug === slug);
-  const prev = idx > 0 ? siblings![idx - 1] : null;
-  const next = idx >= 0 && idx < (siblings?.length ?? 0) - 1 ? siblings![idx + 1] : null;
+  const [{ data: cursusRows }, { data: levels }, { data: groups }, { data: courses }] = await Promise.all([
+    sb.from('cursus').select('id, name, subtitle, source_url, password, order_index').order('order_index'),
+    sb.from('cursus_levels').select('*').order('order_index'),
+    sb.from('cursus_groups').select('*').order('order_index'),
+    sb.from('courses').select('code, group_id, title, kind, hook, hours, order_index, status').order('order_index')
+  ]);
 
-  // Verset-cle cite dans la traduction par defaut du site (S21 si importee).
-  const kv = await citedVerse(p.key_verse_ref, p.key_verse);
+  const { data: progress } = user
+    ? await sb.from('course_progress').select('code')
+    : { data: [] };
+
+  // On n'envoie JAMAIS le mot de passe au navigateur : juste « verrouillé ou non ».
+  const cursus = (cursusRows ?? []).map(c => ({
+    id: c.id, name: c.name, subtitle: c.subtitle, source_url: c.source_url,
+    order_index: c.order_index, locked: !!c.password
+  }));
+
+  const isAdmin = !!user?.email && ADMINS.includes(user.email.toLowerCase());
 
   return (
     <>
       <Nav user={user} />
-      <main className="wrap">
-        <header className="hero">
-          <div className="eyebrow">{p.theme} · épisode {p.episode}</div>
-          <h1>{p.title}</h1>
-          <p className="lede" dangerouslySetInnerHTML={{ __html: rich(p.hook) }} />
-        </header>
-
-        <MarkParableRead slug={slug} />
-        <div className="pep-top">
-          <Link href="/paraboles" className="back">‹ Tous les épisodes</Link>
-          <ShareButton title={p.title} text={`${p.title} — ${p.hook}`} />
-        </div>
-
-        <div className="card pad pq">
-          <span className="kicker">La parabole</span>
-          {(p.story as string[]).map((par, i) => (
-            <p key={i} className={i === 0 ? 'lead' : ''} dangerouslySetInnerHTML={{ __html: rich(par) }} />
-          ))}
-        </div>
-
-        {(p.unpacking as Array<{ h: string; p: string[] }>).map((sec, i) => (
-          <div className="card pad pq" key={i}>
-            <span className="kicker">{sec.h}</span>
-            {sec.p.map((x, j) => <p key={j} dangerouslySetInnerHTML={{ __html: rich(x) }} />)}
-          </div>
-        ))}
-
-        <div className="card verse">
-          <blockquote>{kv.text}</blockquote>
-          <cite>{p.key_verse_ref?.toUpperCase()} · {kv.name.toUpperCase()}</cite>
-        </div>
-
-        <div className="card pad">
-          <span className="kicker">Pour se situer</span>
-          <ul className="steps">
-            {(p.questions as string[]).map((q, i) => (
-              <li key={i}><span className="st-txt" dangerouslySetInnerHTML={{ __html: rich(q) }} /></li>
-            ))}
-          </ul>
-        </div>
-
-        <div className="card pad">
-          <span className="kicker">Pour aller plus loin</span>
-          <ul className="mlist">
-            {(p.refs as string[]).map((r, i) => <li key={i}><ReadingLinks text={r} from={`/paraboles/${slug}`} /></li>)}
-          </ul>
-        </div>
-
-        <div className="pnav">
-          {prev ? (
-            <Link href={`/paraboles/${prev.slug}`} className="btn">‹ Épisode précédent</Link>
-          ) : <span />}
-          {next && (
-            <Link href={`/paraboles/${next.slug}`} className="btn primary">Épisode suivant ›</Link>
-          )}
-        </div>
-      </main>
+      <CursusBrowser
+        cursus={cursus}
+        levels={levels ?? []}
+        groups={groups ?? []}
+        courses={courses ?? []}
+        done={(progress ?? []).map(p => p.code)}
+        user={user}
+        isAdmin={isAdmin}
+      />
     </>
   );
 }

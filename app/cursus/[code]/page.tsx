@@ -8,6 +8,7 @@ import ReadingLinks from '@/components/ReadingLinks';
 import { rich } from '@/lib/rich';
 import { relabelCode } from '@/lib/cursus-code';
 import { courseTitle } from '@/lib/course-titles';
+import { citedVerse } from '@/lib/bible';
 
 export const revalidate = 86400;
 const KIND: Record<string, string> = { E: 'Exegese', D: 'Doctrine', P: 'Pratique', G: 'Langue' };
@@ -33,6 +34,9 @@ export default async function Fiche({ params }: { params: Promise<{ code: string
   const { data: nextC } = await sb.from('courses')
     .select('code, title').gt('order_index', c.order_index)
     .order('order_index').limit(1).maybeSingle();
+
+  // Verset directeur cite dans la traduction par defaut du site (S21 si importee).
+  const kv = await citedVerse(c.key_verse_ref, c.key_verse);
 
   return (
     <>
@@ -80,7 +84,7 @@ export default async function Fiche({ params }: { params: Promise<{ code: string
                 <>
                   <span className="kicker">Verset directeur</span>
                   <div className="keyv" style={{ marginTop: 4 }}>
-                    <p>{c.key_verse}<br /><span className="ref-inline">{c.key_verse_ref}</span></p>
+                    <p>{kv.text}<br /><span className="ref-inline">{c.key_verse_ref} · {kv.name}</span></p>
                   </div>
                 </>
               )}

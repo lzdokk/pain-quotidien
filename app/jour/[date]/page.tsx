@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { supabaseServer } from '@/lib/supabase/server';
-import { bdsTranslation, readingsWithTranslation } from '@/lib/bible';
+import { bdsTranslation, readingsWithTranslation, citedVerse } from '@/lib/bible';
 import { contentDate } from '@/lib/date';
 import Shell from '@/components/Shell';
 
@@ -43,7 +43,10 @@ export default async function Jour({ params }: { params: Promise<{ date: string 
     ? lastDates(today, 14).filter(d => !publishedSet.has(d))
     : [];
 
+  const memVerse = await citedVerse(day.verse_ref, day.verse_text);
+
   return <Shell day={day} readings={readingsBds} user={user} archive recentDays={recentDays}
                 translationName={bds.name}
-                missingDays={missingDays} isAdmin={isAdmin} todayDate={today} />;
+                missingDays={missingDays} isAdmin={isAdmin} todayDate={today}
+                verseText={memVerse.text} verseName={memVerse.name} />;
 }
