@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
 import { admin } from '@/lib/supabase/admin';
 import { callJSON, cost, PROVIDER, modelName } from '@/lib/llm';
+import { citedVerse } from '@/lib/bible';
 import { ParableSchema, PARABLE_SYSTEM, parableUserPrompt, PARABLE_GEMINI_SCHEMA, THEMES } from '@/lib/prompts/parable';
 
 export const maxDuration = 300;
@@ -60,10 +61,13 @@ export async function GET(req: NextRequest) {
         .toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
         .replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 
+      // Verset-cle : texte officiel de la traduction par defaut (S21).
+      const kv = await citedVerse(data.key_verse_ref, data.key_verse);
+
       const { error } = await admin.from('parables').insert({
         slug, theme, theme_order: themeOrder, episode,
         title: data.title, hook: data.hook, story: data.story,
-        unpacking: data.unpacking, key_verse: data.key_verse,
+        unpacking: data.unpacking, key_verse: kv.text,
         key_verse_ref: data.key_verse_ref, questions: data.questions, refs: data.refs
       });
       if (error) throw new Error(error.message);

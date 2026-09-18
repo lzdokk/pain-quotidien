@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
 import { admin } from '@/lib/supabase/admin';
 import { callJSON, cost, PROVIDER, modelName } from '@/lib/llm';
+import { bdsTranslation } from '@/lib/bible';
 import { FamousBatchSchema, FAMOUS_SYSTEM, famousUserPrompt, FAMOUS_GEMINI_SCHEMA, FAMOUS_THEMES } from '@/lib/prompts/famous';
 
 export const maxDuration = 300;
@@ -77,6 +78,9 @@ export async function GET(req: NextRequest) {
 
   const themeSet = new Set<string>(FAMOUS_THEMES as readonly string[]);
   const booksCache = new Map<number, { name: string }>();
+  // Traduction par defaut du site (S21 si importee) : les versets celebres sont
+  // stockes dans cette version, avec repli Segond 1910 si un chapitre manquait.
+  const defCode = (await bdsTranslation()).code;
   let created = 0, skipped = 0, totalIn = 0, totalOut = 0;
   let last = { book: p.book, chapter: p.chapter };
   const errors: string[] = [];
@@ -91,10 +95,12 @@ export async function GET(req: NextRequest) {
       }
       const bookName = booksCache.get(ch.book)!.name;
 
-      const { data: verses } = await admin.from('verses')
+      const loadVerses = (tr: string) => admin.from('verses')
         .select('verse, text')
-        .eq('translation', 'FRLSG').eq('book', ch.book).eq('chapter', ch.chapter)
+        .eq('translation', tr).eq('book', ch.book).eq('chapter', ch.chapter)
         .order('verse');
+      let { data: verses } = await loadVerses(defCode);
+      if (!verses || verses.length === 0) ({ data: verses } = await loadVerses('FRLSG'));
       if (!verses || verses.length === 0) { last = ch; continue; }
 
       // Emplacements deja etoiles dans ce chapitre : on ne regenere pas

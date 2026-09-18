@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
 import { admin } from '@/lib/supabase/admin';
 import { callJSON, cost, PROVIDER, modelName } from '@/lib/llm';
+import { citedVerse } from '@/lib/bible';
 import { CourseSchema, COURSE_SYSTEM, courseUserPrompt, COURSE_GEMINI_SCHEMA } from '@/lib/prompts/course';
 
 export const maxDuration = 300;
@@ -62,11 +63,15 @@ export async function GET(req: NextRequest) {
       });
       totalIn += usage.input; totalOut += usage.output;
 
+      // Verset directeur : texte officiel de la traduction par defaut (S21),
+      // resolu depuis la reference. Repli sur le texte du modele si besoin.
+      const kv = await citedVerse(data.key_verse_ref, data.key_verse);
+
       const { error } = await admin.from('courses').update({
         objectives: data.objectives,
         parable: data.parable,
         body: data.body,
-        key_verse: data.key_verse,
+        key_verse: kv.text,
         key_verse_ref: data.key_verse_ref,
         readings: data.readings,
         assignment: data.assignment,

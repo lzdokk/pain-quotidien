@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
 import { admin } from '@/lib/supabase/admin';
 import { fetchAelf, parseReadings, liturgicalInfo } from '@/lib/aelf';
-import { getPassage } from '@/lib/bible';
+import { getPassage, bdsTranslation, citedVerse } from '@/lib/bible';
 import { callJSON, cost, modelName, PROVIDER } from '@/lib/llm';
 import { DaySchema, WEEK_SYSTEM, dayUserPrompt, DAY_GEMINI_SCHEMA } from '@/lib/prompts/week';
 
@@ -59,6 +59,11 @@ export async function GET(req: NextRequest) {
   let totalIn = 0, totalOut = 0;
   const errors: string[] = [];
 
+  // Traduction par defaut du site (Segond 21 si importee) : on stocke DIRECTEMENT
+  // le texte des lectures et versets dans cette version, pour que tout nouveau
+  // contenu soit en S21 des la generation. Repli sur Segond 1910 si besoin.
+  const def = await bdsTranslation();
+
   try {
     for (const date of dates) {
       if (Date.now() - started > BUDGET_MS) {
@@ -75,7 +80,10 @@ export async function GET(req: NextRequest) {
         for (let i = 0; i < raw.length; i++) {
           const r = raw[i];
           const reference = r.deuterocanonical ? r.substitute! : r.reference;
-          const passage = await getPassage(reference, 'FRLSG');
+          // On lit la lecture dans la traduction par defaut (S21), avec repli
+          // Segond 1910 si un verset manquait dans cette version.
+          let passage = await getPassage(reference, def.code);
+          if (!passage || !passage.verses.length) passage = await getPassage(reference, 'FRLSG');
           if (passage && passage.verses.length) {
             readings.push({
               position: i + 1,
@@ -125,6 +133,13 @@ export async function GET(req: NextRequest) {
         });
         totalIn += usage.input; totalOut += usage.output;
 
+        // Verset du matin et du soir : on stocke le TEXTE OFFICIEL de la
+        // traduction par defaut (S21) resolu depuis la reference, plutot que la
+        // formulation approximative du modele. Repli sur le texte du modele si
+        // la reference ne se resout pas.
+        const memV = await citedVerse(day.verse.ref, day.verse.text);
+        const evV = await citedVerse(day.evening.verse_ref, day.evening.verse);
+
         // ── 3. Sauvegarde ────────────────────────────────────────────
         const { error } = await admin.from('daily_bread').upsert({
           date,
@@ -134,7 +149,7 @@ export async function GET(req: NextRequest) {
           theme_title: day.theme_title,
           theme_lede: day.theme_lede,
           central_message: day.central_message,
-          verse_text: day.verse.text,
+          verse_text: memV.text,
           verse_ref: day.verse.ref,
           bread_lead: day.bread_lead,
           bread_says: day.bread_says,
@@ -143,7 +158,7 @@ export async function GET(req: NextRequest) {
           actions: day.actions,
           prayer_open: day.prayer_open,
           prayer_close: day.prayer_close,
-          evening_verse: day.evening.verse,
+          evening_verse: evV.text,
           evening_verse_ref: day.evening.verse_ref,
           evening_title: day.evening.title,
           evening_meditation: day.evening.meditation,
