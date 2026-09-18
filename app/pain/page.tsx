@@ -1,7 +1,7 @@
 import { supabaseServer } from '@/lib/supabase/server';
 import Shell from '@/components/Shell';
 import { contentDate } from '@/lib/date';
-import { bdsTranslation, readingsWithTranslation } from '@/lib/bible';
+import { bdsTranslation, readingsWithTranslation, citedVerse } from '@/lib/bible';
 
 // Toujours frais : le jour affiche depend de l'heure (contentDate), donc on
 // ne met jamais cette page en cache — sinon elle peut montrer la veille.
@@ -69,7 +69,10 @@ export default async function Pain() {
       </main>
     );
   }
+  const memVerse = await citedVerse(day.verse_ref, day.verse_text);
+
   return <Shell day={day} readings={readingsBds} user={user} recentDays={recentDays}
                 translationName={bds.name} archive={day.date !== today}
-                missingDays={missingDays} isAdmin={isAdmin} todayDate={today} />;
+                missingDays={missingDays} isAdmin={isAdmin} todayDate={today}
+                verseText={memVerse.text} verseName={memVerse.name} />;
 }

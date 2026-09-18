@@ -9,6 +9,7 @@ type Props = {
   day: any; readings: any[]; user: any; archive?: boolean;
   recentDays?: string[]; translationName?: string;
   missingDays?: string[]; isAdmin?: boolean; todayDate?: string;
+  verseText?: string; verseName?: string;
 };
 
 const fdate = (d: string) => {
@@ -19,7 +20,10 @@ const fdate = (d: string) => {
 };
 
 export default function Shell({ day, readings, user, archive, recentDays, translationName,
-  missingDays = [], isAdmin = false, todayDate }: Props) {
+  missingDays = [], isAdmin = false, todayDate, verseText, verseName }: Props) {
+  // Verset du jour cite dans la traduction par defaut du site (S21 si importee).
+  const vText = verseText ?? day.verse_text;
+  const vName = (verseName ?? 'Segond').toUpperCase();
   // Aujourd'hui n'est pas encore genere : on affiche un repli (archive) mais,
   // en admin, on propose de charger le pain du jour d'un seul geste.
   const showLoadToday = isAdmin && archive && !!todayDate && day.date !== todayDate;
@@ -72,11 +76,11 @@ export default function Shell({ day, readings, user, archive, recentDays, transl
         <Readings readings={readings} user={user} translationName={translationName} />
 
         <div className="card verse">
-          <blockquote>{day.verse_text}</blockquote>
-          <cite>{day.verse_ref.toUpperCase()} · SEGOND</cite>
+          <blockquote>{vText}</blockquote>
+          <cite>{day.verse_ref.toUpperCase()} · {vName}</cite>
           <div className="verse-share">
             <ShareButton title={day.verse_ref}
-                         text={`« ${day.verse_text} »\n${day.verse_ref}\n\n— Pain de Vie, le pain quotidien`}
+                         text={`« ${vText} »\n${day.verse_ref}\n\n— Pain de Vie, le pain quotidien`}
                          label="Partager ce verset" className="btn sm" />
           </div>
         </div>

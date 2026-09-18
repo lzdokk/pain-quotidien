@@ -146,3 +146,26 @@ export async function getPassage(ref: string, translation = 'FRLSG') {
   const verses = await getVerses(translation, book, parsed.chapter, parsed.verses);
   return { book, chapter: parsed.chapter, verses };
 }
+
+/**
+ * Texte d'un verset CITE (verset du jour, verset-cle d'un cours, d'une parabole,
+ * verset celebre...) dans la traduction PAR DEFAUT du site : Segond 21 si elle
+ * est importee, sinon Segond 1910. Repli sur le texte deja stocke si la
+ * reference ne se resout pas. `name` = nom a afficher sous la citation.
+ *
+ * Ainsi tout le site cite les versets en S21 sans avoir a regenerer le contenu :
+ * on re-resout simplement la reference a l'affichage.
+ */
+export async function citedVerse(ref?: string | null, fallbackText?: string | null):
+  Promise<{ text: string; name: string }> {
+  const def = await bdsTranslation();
+  if (ref) {
+    try {
+      const p = await getPassage(ref, def.code);
+      if (p && p.verses.length) {
+        return { text: p.verses.map(v => v.text).join(' '), name: def.name };
+      }
+    } catch { /* repli ci-dessous */ }
+  }
+  return { text: (fallbackText ?? '').trim(), name: 'Segond 1910' };
+}

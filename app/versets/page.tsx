@@ -1,21 +1,114 @@
+import { notFound } from 'next/navigation';
+import Link from 'next/link';
 import { supabaseServer } from '@/lib/supabase/server';
 import Nav from '@/components/Nav';
-import VersesBrowser from '@/components/VersesBrowser';
+import ValidateCourse from '@/components/ValidateCourse';
+import CourseHomework from '@/components/CourseHomework';
+import ReadingLinks from '@/components/ReadingLinks';
+import { rich } from '@/lib/rich';
+import { relabelCode } from '@/lib/cursus-code';
+import { courseTitle } from '@/lib/course-titles';
+import { citedVerse } from '@/lib/bible';
 
-export const revalidate = 3600;
-export const metadata = { title: 'Les versets à connaître' };
+export const revalidate = 86400;
+const KIND: Record<string, string> = { E: 'Exegese', D: 'Doctrine', P: 'Pratique', G: 'Langue' };
 
-export default async function Versets() {
+export default async function Fiche({ params }: { params: Promise<{ code: string }> }) {
+  const { code } = await params;
   const sb = await supabaseServer();
+
+  const { data: c } = await sb.from('courses').select('*').eq('code', code).maybeSingle();
+  if (!c) notFound();
   const { data: { user } } = await sb.auth.getUser();
-  const { data: verses } = await sb.from('famous_verses')
-    .select('slug, reference, theme, title, blurb, verse_text, ord')
-    .order('ord');
+  const { data: g } = await sb.from('cursus_groups').select('level_id').eq('id', c.group_id).maybeSingle();
+  const { data: lvl } = await sb.from('cursus_levels').select('name').eq('id', g?.level_id ?? '').maybeSingle();
+  const { data: prog } = user
+    ? await sb.from('course_progress').select('code').eq('code', code).maybeSingle()
+    : { data: null };
+  const { data: last } = user
+    ? await sb.from('course_submissions').select('*').eq('code', code)
+        .order('created_at', { ascending: false }).limit(1).maybeSingle()
+    : { data: null };
+
+  // Cours suivant du cursus (par ordre), pour enchainer apres validation.
+  const { data: nextC } = await sb.from('courses')
+    .select('code, title').gt('order_index', c.order_index)
+    .order('order_index').limit(1).maybeSingle();
+
+  // Verset directeur cite dans la traduction par defaut du site (S21 si importee).
+  const kv = await citedVerse(c.key_verse_ref, c.key_verse);
 
   return (
     <>
       <Nav user={user} />
-      <VersesBrowser verses={verses ?? []} />
+      <main className="wrap">
+        <header className="hero">
+          <div className="eyebrow">{lvl?.name} · {relabelCode(c.code)}</div>
+          <h1>{courseTitle(c.code, c.title)}</h1>
+          <p className="lede">{KIND[c.kind]} · {c.hours} heures · {c.hook}</p>
+        </header>
+
+        <Link href="/cursus" className="back">‹ Retour au cursus</Link>
+
+        {c.status !== 'reviewed' ? (
+          <div className="card pad">
+            <span className="kicker">Fiche en préparation</span>
+            <p style={{ marginTop: 10 }}>
+              Cette fiche est produite par la génération hebdomadaire. Elle suivra le
+              gabarit habituel : quatre objectifs, une parabole d&rsquo;entree, trois a quatre
+              sections, un verset directeur, les lectures obligatoires et le travail a rendre.
+            </p>
+          </div>
+        ) : (
+          <>
+            <div className="card pad">
+              <span className="kicker">Objectifs du cours</span>
+              <ul className="obj">{(c.objectives as string[]).map((o, i) => <li key={i}>{o}</li>)}</ul>
+            </div>
+
+            <div className="card pad pq">
+              <span className="kicker">Pour entrer dans le sujet</span>
+              <p className="parable">{c.parable}</p>
+            </div>
+
+            {(c.body as Array<{ h: string; p: string[] }>).map((sec, i) => (
+              <div className="card pad pq" key={i}>
+                <span className="kicker">{sec.h}</span>
+                {sec.p.map((x, j) =>
+                  <p key={j} className={j === 0 ? 'lead' : ''} dangerouslySetInnerHTML={{ __html: rich(x) }} />)}
+              </div>
+            ))}
+
+            <div className="card pad">
+              {c.key_verse && (
+                <>
+                  <span className="kicker">Verset directeur</span>
+                  <div className="keyv" style={{ marginTop: 4 }}>
+                    <p>{kv.text}<br /><span className="ref-inline">{c.key_verse_ref} · {kv.name}</span></p>
+                  </div>
+                </>
+              )}
+              {(c.readings as string[])?.length > 0 && (
+                <>
+                  <h3 style={{ marginTop: c.key_verse ? 26 : 4 }}>Lectures obligatoires</h3>
+                  <ul className="mlist">{(c.readings as string[]).map((r, i) => <li key={i}><ReadingLinks text={r} /></li>)}</ul>
+                </>
+              )}
+              <h3 style={{ marginTop: 22 }}>Travail a rendre</h3>
+              <p style={{ marginTop: 8 }}>{c.assignment}</p>
+              {c.source_url && (
+                <a className="btn primary" style={{ marginTop: 16 }} href={c.source_url} target="_blank" rel="noreferrer">
+                  Suivre ce cours sur le site officiel ›
+                </a>
+              )}
+              <ValidateCourse code={c.code} user={user} initial={Boolean(prog)}
+                              next={nextC ?? null} />
+            </div>
+
+            <CourseHomework code={c.code} user={user} last={last} title={c.title} />
+          </>
+        )}
+      </main>
     </>
   );
 }

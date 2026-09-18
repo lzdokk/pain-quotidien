@@ -1,13 +1,13 @@
 'use client';
 import { useRef } from 'react';
 
-type P = { verse: string; ref_: string; title: string; lede: string; date: string };
+type P = { verse: string; ref_: string; title: string; lede: string; date: string; transName?: string };
 
-export default function ShareBar({ verse, ref_, title, lede, date }: P) {
+export default function ShareBar({ verse, ref_, title, lede, date, transName = 'Segond' }: P) {
   const canvas = useRef<HTMLCanvasElement>(null);
   const link = typeof window !== 'undefined' ? `${location.origin}/jour/${date}` : '';
   const site = typeof window !== 'undefined' ? location.host.replace(/^www\./, '') : '';
-  const text = `${verse}\n${ref_} (Segond)\n\n${title.replace(/<br\s*\/?>/g, ' ')}\n${lede}\n\nLe pain quotidien du jour :\n${link}`;
+  const text = `${verse}\n${ref_} (${transName})\n\n${title.replace(/<br\s*\/?>/g, ' ')}\n${lede}\n\nLe pain quotidien du jour :\n${link}`;
 
   const share = async () => {
     if (navigator.share) { try { await navigator.share({ title: 'Le Pain quotidien', text }); } catch {} }
@@ -54,7 +54,7 @@ export default function ShareBar({ verse, ref_, title, lede, date }: P) {
     vLines.forEach(l => { x.fillText(l, W / 2, y); y += 96; });
 
     x.fillStyle = acc; x.font = '600 32px -apple-system,Helvetica,Arial';
-    x.fillText(`${ref_.toUpperCase()}  ·  SEGOND`, W / 2, y + 40);
+    x.fillText(`${ref_.toUpperCase()}  ·  ${transName.toUpperCase()}`, W / 2, y + 40);
 
     // Un trait de separation, le verset d'un cote, la meditation de l'autre
     const sepY = y + 130;

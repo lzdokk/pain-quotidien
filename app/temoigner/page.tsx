@@ -4,6 +4,7 @@ import Openers from '@/components/Openers';
 import Intercession from '@/components/Intercession';
 import ShareBar from '@/components/ShareBar';
 import { parisDate } from '@/lib/date';
+import { citedVerse } from '@/lib/bible';
 
 export const revalidate = 3600;
 export const metadata = { title: 'Temoigner' };
@@ -24,6 +25,9 @@ export default async function Témoigner() {
   const { data: profile } = user
     ? await sb.from('profiles').select('intercession_name').eq('id', user.id).maybeSingle()
     : { data: null };
+
+  // Verset du jour cite dans la traduction par defaut du site (S21 si importee).
+  const mem = day ? await citedVerse(day.verse_ref, day.verse_text) : { text: '', name: 'Segond' };
 
   return (
     <>
@@ -71,7 +75,7 @@ export default async function Témoigner() {
           <>
             <h2 className="sect">Partager le pain du jour</h2>
             <p className="sub">Un lien, un message pret, une image pour les stories.</p>
-            <ShareBar verse={day.verse_text} ref_={day.verse_ref}
+            <ShareBar verse={mem.text} ref_={day.verse_ref} transName={mem.name}
                       title={day.theme_title} lede={day.theme_lede} date={day.date} />
           </>
         )}
