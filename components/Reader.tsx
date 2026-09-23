@@ -33,10 +33,10 @@ function describeTranslation(t: any): string {
   return '';
 }
 
-// Traductions lues à distance (jamais copiées chez nous) : bolls, API.Bible,
-// getbible. Pour celles-ci, la recherche par mot bascule sur la Segond locale.
-const REMOTE_SRC = (t: any) =>
-  t?.source === 'apibible' || t?.source === 'bolls' || t?.source === 'getbible' || t?.source === 'youversion';
+// Toutes les traductions sont desormais stockees en LOCAL (import XML) : plus
+// aucune lecture a distance, aucune API. On garde la fonction (toujours false)
+// pour neutraliser les anciens chemins d'API sans toucher au reste du code.
+const REMOTE_SRC = (_t: any) => false;
 
 const LANG_LABELS: Record<string, string> = {
   fr: 'Français', en: 'English', he: 'עברית · Hébreu', el: 'Ελληνικά · Grec',

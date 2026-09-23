@@ -6,6 +6,8 @@ node_modules
 *.log
 .DS_Store
 
-# Texte biblique sous licence — hors dépôt
+# Texte biblique (licencié ou volumineux) — hors dépôt
 /s21.xml
 /scripts/s21.xml
+/bibles/
+*.xml
