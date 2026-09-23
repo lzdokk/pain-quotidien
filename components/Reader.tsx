@@ -476,6 +476,23 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
         </div>
       </details>
 
+      {/* Barre TOUJOURS accessible : livre+chapitre, version, aller au verset. */}
+      <div className="reader-sticky">
+        <button className="nav-day" aria-label="Chapitre précédent"
+                onClick={() => { chapter > 1 ? setChapter(chapter - 1) : (book > 1 && (setBook(book - 1), setChapter(1))); }}>‹</button>
+        <button className="rpill rs-book" onClick={() => { setSheetBook(book); setSheet('book'); }}>
+          <span className="rpill-k">Livre · chapitre</span>
+          <span className="rpill-v">{bookName} {chapter}</span>
+        </button>
+        <button className="rpill rs-ver" onClick={() => setSheet('version')}>
+          <span className="rpill-k">Version</span>
+          <span className="rpill-v">{translations.find((t: any) => t.code === trad)?.code ?? trad}</span>
+        </button>
+        <button className="nav-day" aria-label="Chapitre suivant"
+                onClick={() => { chapter < chapters ? setChapter(chapter + 1) : (book < 66 && (setBook(book + 1), setChapter(1))); }}>›</button>
+        <button className="rs-go" onClick={() => setSheet('verse')} disabled={!verses.length}>V.</button>
+      </div>
+
       <div className="card">
         <div style={{ padding: '24px 30px 26px' }}>
           <input className="field" type="search" value={search}
@@ -526,17 +543,6 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
               {languages.map((l: any) => <option key={l} value={l}>{LANG_LABELS[l] ?? l}</option>)}
             </select>
           )}
-          <div className="reader-pills">
-            <button className="rpill" onClick={() => { setSheetBook(book); setSheet('book'); }}>
-              <span className="rpill-k">Livre</span>
-              <span className="rpill-v">{bookName} {chapter}</span>
-            </button>
-            <button className="rpill" onClick={() => setSheet('version')}>
-              <span className="rpill-k">Version</span>
-              <span className="rpill-v">{translations.find((t: any) => t.code === trad)?.code ?? trad}</span>
-            </button>
-          </div>
-
           <div className="cmp-bar">
             <button className="btn sm" onClick={() =>
               setCompareWith(compareWith ? null : (langTranslations.find((t: any) => t.code !== trad)?.code ?? null))}>
@@ -567,11 +573,6 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
           <button className="nav-day" onClick={() => chapter < chapters ? setChapter(chapter + 1) : book < 66 && (setBook(book + 1), setChapter(1))} aria-label="Suivant">›</button>
         </div>
 
-        {!loading && verses.length > 0 && !compareWith && (
-          <div className="goverse-row">
-            <button className="goverse-btn" onClick={() => setSheet('verse')}>Aller au verset</button>
-          </div>
-        )}
 
         {intro && (
           <details className="bookintro">
@@ -777,24 +778,24 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
 
       {/* ── Feuilles : version, livre + chapitres, aller au verset ───────── */}
       {sheet && (
-        <div className="sheet-back" onClick={() => setSheet(null)}>
-          <div className="sheet" onClick={e => e.stopPropagation()}>
-            <div className="sheet-grip" />
+        <div className="rsheet-back" onClick={() => setSheet(null)}>
+          <div className="rsheet" onClick={e => e.stopPropagation()}>
+            <div className="rsheet-grip" />
 
             {sheet === 'version' && (
               <>
-                <h3 className="sheet-title">Version</h3>
+                <h3 className="rsheet-title">Version</h3>
                 {languages.length > 1 && (
-                  <div className="sheet-langs">
+                  <div className="rsheet-langs">
                     {languages.map((l: any) => (
                       <button key={l} className={`chip${l === lang ? ' on' : ''}`}
                               onClick={() => changeLang(l)}>{LANG_LABELS[l] ?? l}</button>
                     ))}
                   </div>
                 )}
-                <div className="sheet-list">
+                <div className="rsheet-list">
                   {langTranslations.map((t: any) => (
-                    <button key={t.code} className={`sheet-row${t.code === trad ? ' on' : ''}`}
+                    <button key={t.code} className={`rsheet-row${t.code === trad ? ' on' : ''}`}
                             onClick={() => { setTrad(t.code); setSheet(null); }}>
                       <span className="sr-code">{t.code}</span>
                       <span className="sr-main">
@@ -810,11 +811,11 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
 
             {sheet === 'book' && (
               <>
-                <h3 className="sheet-title">Livres</h3>
-                <div className="sheet-list">
+                <h3 className="rsheet-title">Livres</h3>
+                <div className="rsheet-list">
                   {books.map((b: any) => (
                     <div key={b.id}>
-                      <button className={`sheet-row${b.id === book ? ' on' : ''}`}
+                      <button className={`rsheet-row${b.id === book ? ' on' : ''}`}
                               onClick={() => setSheetBook(sheetBook === b.id ? null : b.id)}>
                         <span className="sr-main"><b>{b.name}</b></span>
                         <span className="sr-chev">{sheetBook === b.id ? '▾' : '▸'}</span>
@@ -840,7 +841,7 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
 
             {sheet === 'verse' && (
               <>
-                <h3 className="sheet-title">Aller au verset</h3>
+                <h3 className="rsheet-title">Aller au verset</h3>
                 <div className="chgrid vg">
                   {verses.map(v => (
                     <button key={v.verse} className="chcell"
