@@ -48,8 +48,10 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 3) Navigations (pages de l'app) -> reseau d'abord, repli cache.
-  if (req.mode === 'navigate' && url.origin === self.location.origin) {
+  // 3) Pages de l'app (navigation OU pre-telechargement HTML) -> reseau d'abord,
+  //    repli cache. Le pre-telechargement passe un en-tete Accept: text/html.
+  if (url.origin === self.location.origin &&
+      (req.mode === 'navigate' || (req.headers.get('accept') || '').includes('text/html'))) {
     event.respondWith(networkFirst(req, PDV_PAGES));
     return;
   }

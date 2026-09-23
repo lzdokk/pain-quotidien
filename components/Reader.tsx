@@ -5,6 +5,7 @@ import Explain from './Explain';
 import WordByWord from './WordByWord';
 import Compare from './Compare';
 import VerseCompare from './VerseCompare';
+import OfflineDownload from './OfflineDownload';
 import { themeOf, suggestTheme, matchThemeQuery } from '@/lib/highlight-themes';
 
 type V = { verse: number; text: string };
@@ -563,6 +564,9 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
           <p style={{ fontSize: 12.5, color: 'var(--ink-4)', marginTop: 4 }}>
             {translations.find((t: any) => t.code === trad)?.notice}
           </p>
+
+          <OfflineDownload translation={trad}
+            translationName={translations.find((t: any) => t.code === trad)?.name} />
         </div>
 
         <div className="chap-nav">

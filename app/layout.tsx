@@ -4,7 +4,6 @@ import './globals.css';
 import Reveal from '@/components/Reveal';
 import NativeInit from '@/components/NativeInit';
 import OneSignalInit from '@/components/OneSignalInit';
-import MusicPlayer from '@/components/MusicPlayer';
 import InstallPrompt from '@/components/InstallPrompt';
 import RouteMemory from '@/components/RouteMemory';
 import Onboarding from '@/components/Onboarding';
@@ -49,7 +48,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Onboarding />
         <NativeInit />
         <OneSignalInit />
-        <MusicPlayer />
         <InstallPrompt />
         <Reveal />
       </body>

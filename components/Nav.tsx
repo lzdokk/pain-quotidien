@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import SignIn from './SignIn';
 import Brand from './Brand';
+import MusicPlayer from './MusicPlayer';
 
 const TABS = [
   { href: '/pain',      label: 'Matin' },
@@ -65,6 +66,8 @@ export default function Nav({ user }: { user: any }) {
               <Link key={t.href} href={t.href} className="tab" aria-selected={isActive(t)}>{t.label}</Link>
             ))}
           </div>
+
+          <MusicPlayer />
 
           <button className="icon-btn" onClick={toggleMode} aria-label="Matin ou soir">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"

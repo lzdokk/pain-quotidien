@@ -547,17 +547,16 @@ html[data-mode="soir"] .btn.primary{color:#0E141A}
 .profile-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
 .profile-actions .btn{text-decoration:none}
 
-/* ── Musique de fond ──────────────────────────────────────────────── */
-.music{position:fixed;left:16px;bottom:calc(16px + env(safe-area-inset-bottom));z-index:90;
- display:flex;align-items:flex-end;gap:10px}
-@media(max-width:700px){.music{bottom:calc(72px + env(safe-area-inset-bottom))}}
-.music-fab{width:46px;height:46px;border-radius:99px;border:1px solid var(--line);flex:none;
- background:var(--surface);color:var(--ink-2);font-size:16px;cursor:pointer;box-shadow:var(--shadow);
- display:grid;place-items:center;transition:.25s var(--ease)}
+/* ── Musique de fond (integree dans la barre du haut, a cote de l'avatar) ── */
+.music{position:relative;display:flex;align-items:center;flex:none}
+.music-fab{width:34px;height:34px;border-radius:99px;border:1px solid var(--line-2);flex:none;
+ background:transparent;color:var(--ink-2);font-size:13px;cursor:pointer;
+ display:grid;place-items:center;transition:.2s var(--ease)}
 .music-fab:hover{color:var(--accent);border-color:var(--accent-line)}
-.music.open .music-fab{color:var(--accent)}
+.music.open .music-fab{color:var(--accent);border-color:var(--accent);background:var(--accent-soft)}
 
-.music-panel{width:min(280px,74vw);background:var(--surface);border:1px solid var(--line);
+.music-panel{position:absolute;top:calc(100% + 12px);right:0;z-index:75;
+ width:min(280px,74vw);background:var(--surface);border:1px solid var(--line);
  border-radius:16px;padding:12px 14px 14px;box-shadow:var(--shadow-lg);animation:igfade .22s var(--ease)}
 .music-top{display:flex;align-items:center;gap:10px}
 .music-play{width:30px;height:30px;flex:none;border-radius:99px;border:0;background:var(--accent-soft);
@@ -977,6 +976,18 @@ html[data-mode="soir"] .msg.me{color:#0E141A}
  display:grid;place-items:center;transition:.15s var(--ease)}
 .chcell:hover{border-color:var(--accent-line);color:var(--accent);box-shadow:0 2px 10px rgba(0,0,0,.05)}
 .chcell:active{transform:scale(.95)}
+
+/* Telechargement hors-ligne (avion) */
+.offline-dl{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:space-between;
+ margin-top:14px;padding:12px 14px;border:1px dashed var(--accent-line);border-radius:16px;background:var(--accent-soft)}
+.odl-txt{display:flex;flex-direction:column;gap:2px;min-width:180px;flex:1}
+.odl-txt b{font-size:13.5px;color:var(--ink)}
+.odl-txt span{font-size:12px;color:var(--ink-2);line-height:1.4}
+.odl-prog{display:flex;align-items:center;gap:10px;min-width:160px}
+.odl-bar{flex:1;height:7px;border-radius:99px;background:var(--surface-2);overflow:hidden}
+.odl-bar i{display:block;height:100%;background:var(--accent);border-radius:99px;transition:width .3s var(--ease)}
+.odl-prog span{font-size:12px;font-weight:640;color:var(--accent);font-variant-numeric:tabular-nums}
+.odl-done{font-size:13px;font-weight:640;color:var(--accent)}
 .chcell.on{background:var(--accent);border-color:var(--accent);color:#fff}
 .vbar-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .vbar-head .vref{font-family:var(--sans);font-size:12.5px;font-weight:640;letter-spacing:.02em;color:var(--accent)}
