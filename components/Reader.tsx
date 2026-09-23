@@ -71,6 +71,8 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
   const [themeMode, setThemeMode] = useState(false);
   const [famous, setFamous] = useState<Record<number, string>>({});
   const [jesusV, setJesusV] = useState<Set<number>>(new Set()); // paroles de Jésus (red-letter)
+  const [sheet, setSheet] = useState<null | 'book' | 'version' | 'verse'>(null); // feuilles (livre / version / aller au verset)
+  const [sheetBook, setSheetBook] = useState<number | null>(null); // livre deplie dans la feuille
 
   const bookName = books.find((b: any) => b.id === book)?.name ?? '';
   const chapters = books.find((b: any) => b.id === book)?.chapters ?? 1;
@@ -524,16 +526,15 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
               {languages.map((l: any) => <option key={l} value={l}>{LANG_LABELS[l] ?? l}</option>)}
             </select>
           )}
-          <div className="reader-bar">
-            <select className="field" value={trad} onChange={e => setTrad(e.target.value)}>
-              {langTranslations.map((t: any) => <option key={t.code} value={t.code}>{t.name}</option>)}
-            </select>
-            <select className="field" value={book} onChange={e => { setBook(+e.target.value); setChapter(1); }}>
-              {books.map((b: any) => <option key={b.id} value={b.id}>{b.name}</option>)}
-            </select>
-            <select className="field" value={chapter} onChange={e => setChapter(+e.target.value)}>
-              {Array.from({ length: chapters }, (_, i) => <option key={i} value={i + 1}>{i + 1}</option>)}
-            </select>
+          <div className="reader-pills">
+            <button className="rpill" onClick={() => { setSheetBook(book); setSheet('book'); }}>
+              <span className="rpill-k">Livre</span>
+              <span className="rpill-v">{bookName} {chapter}</span>
+            </button>
+            <button className="rpill" onClick={() => setSheet('version')}>
+              <span className="rpill-k">Version</span>
+              <span className="rpill-v">{translations.find((t: any) => t.code === trad)?.code ?? trad}</span>
+            </button>
           </div>
 
           <div className="cmp-bar">
@@ -565,6 +566,12 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
           </span>
           <button className="nav-day" onClick={() => chapter < chapters ? setChapter(chapter + 1) : book < 66 && (setBook(book + 1), setChapter(1))} aria-label="Suivant">›</button>
         </div>
+
+        {!loading && verses.length > 0 && !compareWith && (
+          <div className="goverse-row">
+            <button className="goverse-btn" onClick={() => setSheet('verse')}>Aller au verset</button>
+          </div>
+        )}
 
         {intro && (
           <details className="bookintro">
@@ -609,63 +616,13 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
              const showExplain = explain?.kind === 'v' && explain.verse === v.verse;
              return (
                <Fragment key={v.verse}>
-                 <span className={`vs${c ? ` h${c}` : ''}${sel === v.verse ? ' sel' : ''}${multi.has(v.verse) ? ' multi' : ''}${famous[v.verse] ? ' famous' : ''}${jesusV.has(v.verse) ? ' jesus' : ''}`}
+                 <span id={`v-${v.verse}`}
+                       className={`vs${c ? ` h${c}` : ''}${sel === v.verse ? ' sel' : ''}${multi.has(v.verse) ? ' multi' : ''}${famous[v.verse] ? ' famous' : ''}${jesusV.has(v.verse) ? ' jesus' : ''}`}
                        onClick={() => { setSel(sel === v.verse ? null : v.verse); setEditing(false); setNoteText(noteFor(v.verse)?.body ?? ''); }}>
                    {famous[v.verse] && <span className="vstar" title={`Verset connu · ${famous[v.verse]}`}>★</span>}
                    <span className="vn">{v.verse}</span>{v.text}
                    {noteFor(v.verse) && <span className="noteflag">note</span>}
                  </span>
-                 {sel === v.verse && (
-                   <div className="vbar-inline">
-                     <div className="vbar-head">
-                       <span className="vref">{bookName} {chapter}.{v.verse}</span>
-                       <button className="vbar-x" onClick={() => { setSel(null); setEditing(false); }} aria-label="Fermer">✕</button>
-                     </div>
-                     {(() => {
-                       const sug = suggestTheme(v.text);
-                       return sug && hl[key(v.verse)] !== sug.color ? (
-                         <button className="btn sm suggest" onClick={() => setColor(v.verse, sug.color)}>
-                           ✨ Classer en « {sug.label} »
-                         </button>
-                       ) : null;
-                     })()}
-                     <div className="vbar-row">
-                       {[1, 2, 3, 4, 5, 6, 7].map(c => <span key={c} className={`swatch s${c}`} title={themeOf(c)?.label} onClick={() => setColor(v.verse, c)} />)}
-                       <span className="swatch s0" title="Retirer le surlignage" onClick={() => setColor(v.verse, 0)} />
-                       <button className="btn sm" style={{ marginLeft: 'auto' }} onClick={() => setEditing(true)}>
-                         {noteFor(v.verse) ? 'Modifier la note' : 'Ajouter une note'}
-                       </button>
-                       <button className="btn sm" onClick={() => setExplain({ kind: 'v', verse: v.verse })}>Expliquer</button>
-                       <button className="btn sm" onClick={() => setWbw(wbw === v.verse ? null : v.verse)}>Mot à mot</button>
-                       <button className="btn sm" onClick={() => setCmp(cmp === v.verse ? null : v.verse)}>Comparer</button>
-                       <button className="btn sm" onClick={() =>
-                         navigator.clipboard?.writeText(`« ${v.text} » ${bookName} ${chapter}.${v.verse}`)}>
-                         Copier
-                       </button>
-                       <button className="btn sm" onClick={() => toggleMulti(v.verse)}>
-                         {multi.has(v.verse) ? '− Retirer' : '+ Sélection'}
-                       </button>
-                     </div>
-                     {hl[key(v.verse)] ? (
-                       <div className="vbar-theme">
-                         <span className={`swatch s${hl[key(v.verse)]}`} />
-                         Thème : <strong>{themeOf(hl[key(v.verse)])?.label}</strong>
-                       </div>
-                     ) : (
-                       <div className="vbar-theme muted">Chaque couleur correspond à un thème — survole pour le voir.</div>
-                     )}
-                     {editing && (
-                       <div>
-                         <textarea className="field" style={{ marginTop: 12 }} autoFocus value={noteText}
-                                   onChange={e => setNoteText(e.target.value)}
-                                   placeholder="Ce que ce verset vous dit, une question, un lien avec votre vie…" />
-                         <div className="share-grid" style={{ marginTop: 10 }}>
-                           <button className="btn primary" onClick={() => saveNote(v.verse)}>Enregistrer dans mon carnet</button>
-                         </div>
-                       </div>
-                     )}
-                   </div>
-                 )}
                  {showExplain && (
                    <Explain book={book} chapter={chapter} verse={v.verse} bookName={bookName}
                             text={v.text} inline onClose={() => setExplain(null)} onGoto={go} />
@@ -696,6 +653,57 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
           </div>
         )}
       </div>
+
+      {/* Barre d'actions du verset selectionne, dockée en bas de l'ecran. */}
+      {sel !== null && !compareWith && (() => {
+        const s = sel; if (s === null) return null;
+        const sv = verses.find(x => x.verse === s);
+        if (!sv) return null;
+        const sug = suggestTheme(sv.text);
+        return (
+          <div className="vbar-inline">
+            <div className="vbar-head">
+              <span className="vref">{bookName} {chapter}.{s}</span>
+              <button className="vbar-x" onClick={() => { setSel(null); setEditing(false); }} aria-label="Fermer">✕</button>
+            </div>
+            {sug && hl[key(s)] !== sug.color && (
+              <button className="btn sm suggest" onClick={() => setColor(s, sug.color)}>✨ Classer en « {sug.label} »</button>
+            )}
+            <div className="vbar-row">
+              {[1, 2, 3, 4, 5, 6, 7].map(c => <span key={c} className={`swatch s${c}`} title={themeOf(c)?.label} onClick={() => setColor(s, c)} />)}
+              <span className="swatch s0" title="Retirer le surlignage" onClick={() => setColor(s, 0)} />
+              <button className="btn sm" style={{ marginLeft: 'auto' }} onClick={() => setEditing(true)}>
+                {noteFor(s) ? 'Modifier la note' : 'Ajouter une note'}
+              </button>
+              <button className="btn sm" onClick={() => setExplain({ kind: 'v', verse: s })}>Expliquer</button>
+              <button className="btn sm" onClick={() => setWbw(wbw === s ? null : s)}>Mot à mot</button>
+              <button className="btn sm" onClick={() => setCmp(cmp === s ? null : s)}>Comparer</button>
+              <button className="btn sm" onClick={() =>
+                navigator.clipboard?.writeText(`« ${sv.text} » ${bookName} ${chapter}.${s}`)}>Copier</button>
+              <button className="btn sm" onClick={() => toggleMulti(s)}>
+                {multi.has(s) ? '− Retirer' : '+ Sélection'}
+              </button>
+            </div>
+            {hl[key(s)] ? (
+              <div className="vbar-theme">
+                <span className={`swatch s${hl[key(s)]}`} /> Thème : <strong>{themeOf(hl[key(s)])?.label}</strong>
+              </div>
+            ) : (
+              <div className="vbar-theme muted">Chaque couleur correspond à un thème — survole pour le voir.</div>
+            )}
+            {editing && (
+              <div>
+                <textarea className="field" style={{ marginTop: 12 }} autoFocus value={noteText}
+                          onChange={e => setNoteText(e.target.value)}
+                          placeholder="Ce que ce verset vous dit, une question, un lien avec votre vie…" />
+                <div className="share-grid" style={{ marginTop: 10 }}>
+                  <button className="btn primary" onClick={() => saveNote(s)}>Enregistrer dans mon carnet</button>
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      })()}
 
       {multi.size > 0 && (
         <div className="multibar">
@@ -765,6 +773,88 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
         <Explain book={book} chapter={chapter} verse={undefined}
                  bookName={bookName} text=""
                  onClose={() => setExplain(null)} onGoto={go} />
+      )}
+
+      {/* ── Feuilles : version, livre + chapitres, aller au verset ───────── */}
+      {sheet && (
+        <div className="sheet-back" onClick={() => setSheet(null)}>
+          <div className="sheet" onClick={e => e.stopPropagation()}>
+            <div className="sheet-grip" />
+
+            {sheet === 'version' && (
+              <>
+                <h3 className="sheet-title">Version</h3>
+                {languages.length > 1 && (
+                  <div className="sheet-langs">
+                    {languages.map((l: any) => (
+                      <button key={l} className={`chip${l === lang ? ' on' : ''}`}
+                              onClick={() => changeLang(l)}>{LANG_LABELS[l] ?? l}</button>
+                    ))}
+                  </div>
+                )}
+                <div className="sheet-list">
+                  {langTranslations.map((t: any) => (
+                    <button key={t.code} className={`sheet-row${t.code === trad ? ' on' : ''}`}
+                            onClick={() => { setTrad(t.code); setSheet(null); }}>
+                      <span className="sr-code">{t.code}</span>
+                      <span className="sr-main">
+                        <b>{t.name}</b>
+                        {t.notice && <span className="sr-sub">{t.notice}</span>}
+                      </span>
+                      {t.code === trad && <span className="sr-check">✓</span>}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+
+            {sheet === 'book' && (
+              <>
+                <h3 className="sheet-title">Livres</h3>
+                <div className="sheet-list">
+                  {books.map((b: any) => (
+                    <div key={b.id}>
+                      <button className={`sheet-row${b.id === book ? ' on' : ''}`}
+                              onClick={() => setSheetBook(sheetBook === b.id ? null : b.id)}>
+                        <span className="sr-main"><b>{b.name}</b></span>
+                        <span className="sr-chev">{sheetBook === b.id ? '▾' : '▸'}</span>
+                      </button>
+                      {sheetBook === b.id && (
+                        <div className="chgrid">
+                          {Array.from({ length: b.chapters }, (_, i) => (
+                            <button key={i}
+                                    className={`chcell${b.id === book && chapter === i + 1 ? ' on' : ''}`}
+                                    onClick={() => {
+                                      setBook(b.id); setChapter(i + 1); setSheet(null);
+                                      setTimeout(() => document.getElementById('lecteur')
+                                        ?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
+                                    }}>{i + 1}</button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+
+            {sheet === 'verse' && (
+              <>
+                <h3 className="sheet-title">Aller au verset</h3>
+                <div className="chgrid vg">
+                  {verses.map(v => (
+                    <button key={v.verse} className="chcell"
+                            onClick={() => {
+                              setSel(v.verse); setSheet(null);
+                              setTimeout(() => document.getElementById(`v-${v.verse}`)
+                                ?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 60);
+                            }}>{v.verse}</button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        </div>
       )}
     </main>
   );

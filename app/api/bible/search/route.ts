@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
   if (q.length < 2) return NextResponse.json({ results: [] });
 
   try {
-    const results = await searchVerses(q, { translation, limit });
+    const results = await searchVerses(q, translation, limit);
     return NextResponse.json({ results });
   } catch (e: any) {
     return NextResponse.json({ results: [], error: String(e?.message ?? e) }, { status: 500 });
