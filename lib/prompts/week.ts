@@ -347,14 +347,16 @@ ${r.title}
 ${r.text}`).join('\n')}
 
 ANCRAGE DU THEME (comme l'homelie du jour)
-Le theme du jour (theme_title, theme_lede, central_message) doit DECOULER des
-lectures du jour ci-dessus, jamais d'une idee inventee hors des textes. Le centre
-naturel est le plus souvent l'EVANGILE DU JOUR${gospel ? ` (${gospel.reference})` : ''} —
-c'est ce que commente l'homelie du jour ; MAIS si la PREMIERE LECTURE ou le PSAUME
-porte plus clairement le coeur du jour, tu peux tout a fait ancrer le theme sur
-elle/lui. Choisis, parmi les lectures du jour, celle qui exprime le mieux le
-message central, et fais-en le fil du pain quotidien. Les autres lectures
-l'eclairent et le nourrissent.
+Le theme du jour (theme_title, theme_lede, central_message) doit CORRESPONDRE a
+l'homelie du jour : c'est le message central qui UNIT les lectures, ancre sur
+l'EVANGILE DU JOUR${gospel ? ` (${gospel.reference})` : ''} — le texte que
+l'homelie commente. Tiens compte de TOUTES les lectures fournies ci-dessus :
+premiere lecture, DEUXIEME LECTURE quand elle existe, psaume ET evangile — la
+liturgie les accorde autour d'un meme fil. Degage ce fil commun (centre sur
+l'evangile) et fais-en le theme du pain quotidien. Le verset du jour et les
+formulations peuvent venir de la lecture qui exprime le mieux ce theme, mais le
+theme lui-meme reste celui de l'homelie, jamais un sujet etranger aux textes du
+jour.
 Developpe ce theme en VISION PROTESTANTE EVANGELIQUE (salut par la grace au moyen
 de la foi, autorite souveraine de l'Ecriture, Christ seul au centre, sacerdoce de
 tous les croyants) : meme theme que l'homelie, mais lu a la lumiere de l'Evangile
