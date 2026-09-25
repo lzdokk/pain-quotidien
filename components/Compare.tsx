@@ -31,7 +31,9 @@ export default function Compare({ book, chapter, verse, refLabel, onClose }:
     return [...LANG_ORDER.filter(l => set.has(l)), ...[...set].filter(l => !LANG_ORDER.includes(l))];
   }, [items]);
 
-  const shown = (items ?? []).filter(i => !only || i.language === only);
+  const shown = (items ?? []).filter(i => !only || i.language === only)
+    // La Bible expliquée (BEX2004) en premier.
+    .sort((a, b) => a.code === 'BEX2004' ? -1 : b.code === 'BEX2004' ? 1 : 0);
 
   return (
     <div className="modal-in vexplain">

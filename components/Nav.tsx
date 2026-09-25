@@ -67,8 +67,6 @@ export default function Nav({ user }: { user: any }) {
             ))}
           </div>
 
-          <MusicPlayer />
-
           <button className="icon-btn" onClick={toggleMode} aria-label="Matin ou soir">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                  strokeWidth="1.7" strokeLinecap="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z" /></svg>
@@ -85,6 +83,8 @@ export default function Nav({ user }: { user: any }) {
               </svg>
             </button>
           )}
+
+          <MusicPlayer />
         </div>
       </nav>
 

@@ -83,9 +83,12 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
     const set = new Set(visibleTranslations.map((t: any) => t.language ?? 'fr'));
     return [...LANG_ORDER.filter(l => set.has(l)), ...[...set].filter((l: any) => !LANG_ORDER.includes(l))];
   }, [visibleTranslations]);
-  const langTranslations = useMemo(
-    () => visibleTranslations.filter((t: any) => (t.language ?? 'fr') === lang),
-    [visibleTranslations, lang]);
+  const langTranslations = useMemo(() => {
+    const list = visibleTranslations.filter((t: any) => (t.language ?? 'fr') === lang);
+    // La Bible expliquée (BEX2004) en tête de liste (version + comparaison).
+    return [...list].sort((a: any, b: any) =>
+      a.code === 'BEX2004' ? -1 : b.code === 'BEX2004' ? 1 : 0);
+  }, [visibleTranslations, lang]);
   const changeLang = (l: string) => {
     setLang(l);
     const inLang = visibleTranslations.filter((t: any) => (t.language ?? 'fr') === l);
@@ -179,6 +182,10 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
       const qs = new URLSearchParams(location.search);
       const f = qs.get('from');
       if (f && f.startsWith('/')) setBackTo(f); // retour interne uniquement (securite)
+      // Traduction par defaut : Segond 21 PARTOUT (y compris ouverture depuis un
+      // lien cursus/pain). On ne restaure un choix memorise que si l'utilisateur
+      // a explicitement pris AUTRE chose que la Segond 1910 (l'ancien defaut).
+      const preferred = translations.some((t: any) => t.code === 'S21') ? 'S21' : 'FRLSG';
       const p = qs.get('ref');
       if (p) {
         const m = p.match(/^(.+?)\s+(\d+)/);
@@ -186,16 +193,14 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
           const norm = m[1].trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
           const b = books.find((x: any) =>
             x.name.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').startsWith(norm));
-          if (b) { setBook(b.id); setChapter(Math.min(+m[2], b.chapters)); return; }
+          if (b) { setBook(b.id); setChapter(Math.min(+m[2], b.chapters)); setTrad(preferred); return; }
         }
       }
       const saved = JSON.parse(localStorage.getItem('pq-pos') ?? 'null');
-      // Traduction par defaut : Segond 21 si elle est presente, sinon Segond
-      // 1910. On restaure le choix memorise si l'utilisateur en avait fait un.
-      const preferred = translations.some((t: any) => t.code === 'S21') ? 'S21' : 'FRLSG';
+      const savedT = saved?.t && saved.t !== 'FRLSG' ? saved.t : preferred;
       if (saved?.b) {
         setBook(saved.b); setChapter(saved.c ?? 1);
-        setTrad(saved.t || preferred);
+        setTrad(savedT);
       } else {
         setTrad(preferred);
       }
@@ -633,7 +638,8 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
                             text={v.text} inline onClose={() => setExplain(null)} onGoto={go} />
                  )}
                  {wbw === v.verse && (
-                   <WordByWord book={book} chapter={chapter} verse={v.verse} onClose={() => setWbw(null)} />
+                   <WordByWord book={book} chapter={chapter} verse={v.verse}
+                               frText={v.text} onClose={() => setWbw(null)} />
                  )}
                  {cmp === v.verse && (
                    <Compare book={book} chapter={chapter} verse={v.verse}
