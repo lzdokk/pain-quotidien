@@ -89,6 +89,7 @@ export async function GET(req: NextRequest) {
               position: i + 1,
               reference,
               title: r.title,
+              kind: r.kind,
               text: passage.verses.map(v => `${v.verse}. ${v.text}`).join('\n'),
               substituted: r.deuterocanonical ? r.reference : undefined,
               canonNote: r.deuterocanonical,
@@ -106,6 +107,7 @@ export async function GET(req: NextRequest) {
               position: i + 1,
               reference,
               title: r.title,
+              kind: r.kind,
               text: r.body,
               substituted: r.deuterocanonical ? r.reference : undefined,
               canonNote: r.deuterocanonical,
@@ -124,7 +126,7 @@ export async function GET(req: NextRequest) {
             date, season, week,
             readings: readings.map(r => ({
               position: r.position, reference: r.reference, title: r.title,
-              text: r.text, substituted: r.substituted
+              text: r.text, substituted: r.substituted, kind: r.kind
             }))
           }),
           responseSchema: DAY_GEMINI_SCHEMA,

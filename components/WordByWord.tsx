@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 
 type W = {
   position: number; word: string; strong: string | null; gloss: string | null;
-  lang: string; translit: string | null; definition_fr: string | null;
+  gloss_fr: string | null; lang: string; translit: string | null; definition_fr: string | null;
 };
 
 /**
@@ -61,7 +61,7 @@ export default function WordByWord({ book, chapter, verse, frText, onClose }:
            {words.map(w => (
              <button key={w.position} className={`wbw-tok${open === w.position ? ' on' : ''}`}
                      onClick={() => openWord(w)}>
-               <span className="wbw-fr">{w.gloss || w.translit || w.word}</span>
+               <span className="wbw-fr">{w.gloss_fr || w.gloss || w.translit || w.word}</span>
                <span className="wbw-src" dir={rtl ? 'rtl' : 'ltr'}>{w.word}</span>
              </button>
            ))}
@@ -73,7 +73,8 @@ export default function WordByWord({ book, chapter, verse, frText, onClose }:
              <div className="wbw-lemma" dir={rtl ? 'rtl' : 'ltr'}>
                {active.word}{active.translit ? ` — ${active.translit}` : ''}
              </div>
-             {active.gloss && <div className="wbw-gloss-big">{active.gloss}</div>}
+             {(active.gloss_fr || active.gloss) &&
+               <div className="wbw-gloss-big">{active.gloss_fr || active.gloss}</div>}
              {active.strong && (fr[active.strong] ?? active.definition_fr)
                ? <p>{fr[active.strong] || active.definition_fr}</p>
                : <p className="fine">Sens français en préparation…</p>}

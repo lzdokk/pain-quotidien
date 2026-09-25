@@ -13,6 +13,17 @@ const norm = (c: string) => {
   return m ? m[1].toUpperCase() + m[2] : c;
 };
 
+// Glose FRANCAISE courte, tiree de la definition Strong francaise : on retire
+// une eventuelle numerotation « 1) », les guillemets, et on garde le 1er sens.
+function shortFr(def: string | null): string | null {
+  if (!def) return null;
+  let s = def.replace(/\s+/g, ' ').trim();
+  s = s.replace(/^\d+[).\]]\s*/, '').replace(/^[-–•«"'\s]+/, '');
+  s = s.split(/[;,.\n(]/)[0].trim().replace(/["»']+$/, '').trim();
+  if (!s) return null;
+  return s.length > 30 ? s.slice(0, 30).trim() + '…' : s;
+}
+
 export async function GET(req: NextRequest) {
   const sp = new URL(req.url).searchParams;
   const book = +(sp.get('book') ?? 0), chapter = +(sp.get('chapter') ?? 0), verse = +(sp.get('verse') ?? 0);
@@ -42,6 +53,7 @@ export async function GET(req: NextRequest) {
     const s = w.strong ? map.get(norm(w.strong)) : null;
     return {
       position: w.position, word: w.word, strong: w.strong, gloss: w.gloss, lang: w.lang,
+      gloss_fr: shortFr(s?.definition_fr ?? null),
       translit: s?.translit ?? null,
       definition_fr: s?.definition_fr ?? null
     };

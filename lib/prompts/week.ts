@@ -334,16 +334,34 @@ Renvoie { "days": [ ... ] } avec un objet par date, dans l'ordre.`;
 
 export function dayUserPrompt(d: {
   date: string; season: string | null; week: string | null;
-  readings: Array<{ position: number; reference: string; title: string; text: string; substituted?: string }>;
+  readings: Array<{ position: number; reference: string; title: string; text: string; substituted?: string; kind?: string }>;
 }) {
+  const gospel = d.readings.find(r => r.kind === 'evangile');
   return `Redige le contenu complet de la journee suivante.
 
 ════════ ${d.date} ════════
 Temps liturgique : ${d.season ?? 'ordinaire'} ${d.week ?? ''}
 ${d.readings.map(r => `
---- Lecture ${r.position} : ${r.reference}${r.substituted ? ` (remplace ${r.substituted}, hors canon protestant)` : ''}
+--- Lecture ${r.position} : ${r.reference}${r.kind === 'evangile' ? '  ⟨ÉVANGILE DU JOUR⟩' : ''}${r.substituted ? ` (remplace ${r.substituted}, hors canon protestant)` : ''}
 ${r.title}
 ${r.text}`).join('\n')}
+
+ANCRAGE DU THEME (comme l'homelie du jour)
+Le theme du jour (theme_title, theme_lede, central_message) doit DECOULER des
+lectures du jour ci-dessus, jamais d'une idee inventee hors des textes. Le centre
+naturel est le plus souvent l'EVANGILE DU JOUR${gospel ? ` (${gospel.reference})` : ''} —
+c'est ce que commente l'homelie du jour ; MAIS si la PREMIERE LECTURE ou le PSAUME
+porte plus clairement le coeur du jour, tu peux tout a fait ancrer le theme sur
+elle/lui. Choisis, parmi les lectures du jour, celle qui exprime le mieux le
+message central, et fais-en le fil du pain quotidien. Les autres lectures
+l'eclairent et le nourrissent.
+Developpe ce theme en VISION PROTESTANTE EVANGELIQUE (salut par la grace au moyen
+de la foi, autorite souveraine de l'Ecriture, Christ seul au centre, sacerdoce de
+tous les croyants) : meme theme que l'homelie, mais lu a la lumiere de l'Evangile
+de la grace, sans les elements propres au catholicisme romain (culte et mediation
+mariale, priere aux saints, purgatoire, merites, transsubstantiation). Reste
+respectueux, jamais polemique. Le verset du jour, lui, se choisit comme d'habitude
+parmi les versets des lectures (regle du champ "verse").
 
 Renvoie un seul objet JSON conforme au schema d'une journee, avec le champ "date" egal a "${d.date}".`;
 }
