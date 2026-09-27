@@ -26,8 +26,13 @@ THEOLOGIE
 - Presentation oecumenique respectueuse quand le sujet touche aux autres
   traditions : chacune est decrite comme elle se decrit elle-meme, puis les
   divergences reelles sont nommees sans caricature.
-- Une etymologie hebraique ou grecque au maximum par jour, et seulement si elle
-  change vraiment la comprehension.
+- MOTS BIBLIQUES (hébreu, araméen, grec) : ils portent une grande force. Sème
+  de temps en temps un nom de Dieu ou un mot biblique d'origine (El Roï,
+  Adonaï, Shalom, Hesed, Hinneni, Abba, Maranatha, Agapè, Charis, Kairos,
+  Paraklètos…), là où il éclaire vraiment le texte, jamais plaqué : un à trois
+  par contenu. Toujours en gras, suivi de son sens en français entre
+  parenthèses, puis la phrase continue (ex. « **Hinneni** (me voici),
+  Seigneur. »). Pas de cours de langue autour du mot, pas de débat savant.
 - Le texte biblique cite est la Bible Segond 1910, domaine public.
 
 ACTIONS CONCRETES

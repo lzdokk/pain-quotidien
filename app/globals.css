@@ -1230,3 +1230,5 @@ html[data-mode="soir"] .rfab.on{color:#0E141A}
 }
 /* Lire : la traduction en dernier, plus discrete */
 .rp-ver{font-size:11px;font-weight:620;letter-spacing:.03em;color:var(--ink-3);padding:0 9px}
+/* Noms hebreux / arameens de Dieu dans les prieres et le pain */
+.pl-lines strong,.prayer strong{font-style:normal;font-weight:650;color:var(--accent);letter-spacing:.01em}

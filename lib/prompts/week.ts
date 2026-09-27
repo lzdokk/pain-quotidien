@@ -148,6 +148,29 @@ biblique quotidienne d'orientation protestante evangelique.
 
 ${VOICE}
 
+LES MOTS HÉBREUX, ARAMÉENS ET GRECS (à semer de temps en temps)
+Les noms de Dieu et les mots de la Bible en hébreu, araméen et grec portent une
+grande force : on les fait entendre régulièrement, sans en abuser, dans le
+pain quotidien, les prières et la veillée du soir.
+  - Chaque jour, DEUX à QUATRE mots au total sur l'ensemble de la journée,
+    placés là où ils éclairent vraiment le texte du jour (jamais plaqués) :
+    un nom de Dieu (El Roï, YHWH Jiré, Adonaï…) et/ou un mot biblique
+    hébreu, araméen ou grec (Shalom, Hesed, Hinneni, Selah, Abba, Agapè,
+    Charis, Kairos, Paraklètos, Splagchnizomai…).
+  - Répartis-les : par exemple un dans le pain quotidien, un dans la prière,
+    un dans la veillée du soir. Jamais deux dans la même phrase.
+  - Toujours écrits en gras, suivis de leur sens en français entre
+    parenthèses, puis la phrase continue simplement. Exemples :
+      « **El Roï** (le Dieu qui me voit), tu me vois aujourd'hui. »
+      « **Hinneni** (me voici), Seigneur, je suis là pour toi. »
+      « Ta **Hesed** (ta bonté fidèle) ne m'a jamais lâché. »
+      « **Abba** (Papa), je viens à toi. »
+  - Jamais d'explication ni de cours autour du mot : il se prie, il se dit.
+  - Choisis EN PRIORITÉ dans le LEXIQUE DU SITE fourni avec les lectures du
+    jour (ce sont les mots que le lecteur retrouve sur la page « Mots »),
+    avec la même orthographe. Varie d'un jour à l'autre.
+  - Jamais d'étymologie savante ni de débat de traduction.
+
 STRUCTURE D'UNE JOURNEE
 1. theme_title : le titre du jour, huit mots maximum, une image forte
 2. theme_lede : une phrase qui donne envie de lire
@@ -213,7 +236,11 @@ LE TEMPS DE PRIÈRE (prayers)
 C'est un vrai temps de prière, pas un article sur la prière. Le lecteur prie
 avec ces mots, tels quels, à voix haute. Donc :
   - AUCUNE explication, AUCUN enseignement, AUCUN commentaire sur la prière ;
-  - AUCUN mot hébreu, grec ou araméen, AUCUNE étymologie, aucune référence savante ;
+  - AUCUNE étymologie, aucune référence savante ;
+  - MAIS un ou deux mots hébreux, araméens ou grecs (nom de Dieu ou mot biblique,
+    voir la section dédiée) dans l'ensemble de ce temps de prière, de
+    préférence dans adorer, ecouter, esprit ou le Notre Père, écrits en gras
+    avec leur sens entre parenthèses ;
   - seulement des phrases de communion adressées à Dieu, à la première
     personne, en le tutoyant.
 
@@ -288,6 +315,7 @@ Renvoie { "days": [ ... ] } avec un objet par date, dans l'ordre.`;
 export function dayUserPrompt(d: {
   date: string; season: string | null; week: string | null;
   readings: Array<{ position: number; reference: string; title: string; text: string; substituted?: string; kind?: string }>;
+  lexique?: string[];
 }) {
   const gospel = d.readings.find(r => r.kind === 'evangile');
   return `Redige le contenu complet de la journee suivante.
@@ -318,5 +346,10 @@ mariale, priere aux saints, purgatoire, merites, transsubstantiation). Reste
 respectueux, jamais polemique. Le verset du jour, lui, se choisit comme d'habitude
 parmi les versets des lectures (regle du champ "verse").
 
+${d.lexique?.length ? `
+LEXIQUE DU SITE (mots hébreux, araméens et grecs de la page « Mots », à utiliser en
+priorité pour les deux à quatre mots du jour, orthographe identique) :
+${d.lexique.join(' ; ')}
+` : ''}
 Renvoie un seul objet JSON conforme au schema d'une journee, avec le champ "date" egal a "${d.date}".`;
 }

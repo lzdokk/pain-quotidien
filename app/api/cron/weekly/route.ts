@@ -64,6 +64,17 @@ export async function GET(req: NextRequest) {
   // contenu soit en S21 des la generation. Repli sur Segond 1910 si besoin.
   const def = await bdsTranslation();
 
+  // Lexique hebreu / arameen / grec de la page « Mots » : le modele y puise les
+  // deux a quatre mots du jour (noms de Dieu, mots bibliques).
+  const { data: lex } = await admin.from('bible_words')
+    .select('translit, lang, gloss');
+  const lexAll = (lex ?? [])
+    .filter((w: any) => w.translit && w.gloss)
+    .map((w: any) => `${w.translit} (${w.gloss})`);
+  // Un tirage different chaque jour pour varier les mots proposes.
+  const lexiqueDuJour = () =>
+    [...lexAll].sort(() => Math.random() - 0.5).slice(0, 100);
+
   try {
     for (const date of dates) {
       if (Date.now() - started > BUDGET_MS) {
@@ -127,7 +138,8 @@ export async function GET(req: NextRequest) {
             readings: readings.map(r => ({
               position: r.position, reference: r.reference, title: r.title,
               text: r.text, substituted: r.substituted, kind: r.kind
-            }))
+            })),
+            lexique: lexiqueDuJour()
           }),
           responseSchema: DAY_GEMINI_SCHEMA,
           maxTokens: 24000,

@@ -4,13 +4,14 @@ import Nav from '@/components/Nav';
 import PageTabs from '@/components/PageTabs';
 import { contentDate } from '@/lib/date';
 import ResumeReading from '@/components/ResumeReading';
+import { rich } from '@/lib/rich';
 
 export const dynamic = 'force-dynamic'; // toujours le jour courant, jamais du cache
 export const metadata = { title: 'Prière' };
 
 type Axe = {
   axis: string; lines?: string[]; prayer?: string;
-  word?: string; word_meaning?: string;
+  word?: string; word_lang?: string; word_meaning?: string;
 };
 type Demande = { demande: string; lines?: string[]; prayer?: string };
 
@@ -40,20 +41,8 @@ const NOTRE_PERE: Array<[string, number]> = [
 /* Decoupe un texte en lignes courtes (une phrase par ligne). */
 const toLines = (t?: string | null): string[] =>
   (t ?? '')
-    .replace(/\*\*|__/g, '')
     .split(/\n+|(?<=[.!?…])\s+(?=[A-ZÀÂÉÈÊÎÔÛÇ«])/)
     .map(s => s.trim()).filter(Boolean);
-
-/* Anciennes journees : on retire le mot grec/hebreu et on garde sa traduction.
-   « Kadosh (saint), tu es… » devient « Saint, tu es… ». */
-const sansMotAncien = (t: string, mot?: string) => {
-  if (!mot) return t;
-  const esc = mot.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  return t
-    .replace(new RegExp(`${esc}\\s*\\(([^)]+)\\)`, 'gi'), (_m, tr: string) => tr)
-    .replace(new RegExp(`\\s*\\b${esc}\\b,?`, 'gi'), '')
-    .replace(/(^|[.!?]\s+)([a-zà-ÿ])/g, (_m, a: string, c: string) => a + c.toUpperCase());
-};
 
 /* Construit les cinq etapes, format nouveau ou ancien (repli). */
 function etapesDuJour(day: any): Record<string, string[]> {
@@ -65,7 +54,11 @@ function etapesDuJour(day: any): Record<string, string[]> {
   }
   // Ancien format (Adoration / Louange / Intercession + confession + supplication)
   const find = (n: string) => axes.find(a => a.axis?.toLowerCase() === n);
-  const clean = (a?: Axe) => a ? toLines(sansMotAncien(a.prayer ?? '', a.word)) : [];
+  const clean = (a?: Axe) => {
+    if (!a) return [];
+    const t = a.prayer ?? '';
+    return toLines(a.word ? t.replace(a.word, `**${a.word}**`) : t);
+  };
   out['Adorer'] = clean(find('adoration'));
   out['Louer'] = clean(find('louange'));
   out['Confesser'] = toLines(day?.prayer_confession);
@@ -76,7 +69,11 @@ function etapesDuJour(day: any): Record<string, string[]> {
 
 function Lignes({ l }: { l: string[] }) {
   if (!l.length) return null;
-  return <div className="pl-lines">{l.map((x, i) => <p key={i}>{x}</p>)}</div>;
+  return (
+    <div className="pl-lines">
+      {l.map((x, i) => <p key={i} dangerouslySetInnerHTML={{ __html: rich(x) }} />)}
+    </div>
+  );
 }
 
 export default async function Priere_() {
@@ -127,7 +124,7 @@ export default async function Priere_() {
       {esprit.length > 0 && (
         <div className="prayer spirit">
           <span className="kicker">Viens, Saint-Esprit</span>
-          {esprit.map((x, i) => <p key={i}>{x}</p>)}
+          {esprit.map((x, i) => <p key={i} dangerouslySetInnerHTML={{ __html: rich(x) }} />)}
         </div>
       )}
     </>
