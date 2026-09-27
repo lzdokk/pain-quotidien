@@ -815,10 +815,10 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
         <div className="rpill-nav">
           <button className="rp-seg rp-book" onClick={() => { setTab('bible'); setSheetBook(book); setSheet('book'); }}
                   aria-label="Choisir le livre et le chapitre">{bookName} {chapter}</button>
-          <button className="rp-seg" onClick={() => { setTab('bible'); setSheet('version'); }}
-                  aria-label="Choisir la version">{translations.find((t: any) => t.code === trad)?.code ?? trad}</button>
           <button className="rp-seg rp-v" onClick={() => { setTab('bible'); setSheet('verse'); }}
-                  disabled={!verses.length} aria-label="Aller au verset">versets</button>
+                  disabled={!verses.length} aria-label="Aller au verset">vers.</button>
+          <button className="rp-seg rp-ver" onClick={() => { setTab('bible'); setSheet('version'); }}
+                  aria-label="Choisir la version">{translations.find((t: any) => t.code === trad)?.code ?? trad}</button>
         </div>, slot)}
 
       {/* Bulles flottantes : comment lire / rechercher + historique. */}

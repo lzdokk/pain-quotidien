@@ -1228,3 +1228,5 @@ html[data-mode="soir"] .rfab.on{color:#0E141A}
  .reader-notice{padding:4px 14px 16px}
  .rbubble{bottom:calc(252px + env(safe-area-inset-bottom))}
 }
+/* Lire : la traduction en dernier, plus discrete */
+.rp-ver{font-size:11px;font-weight:620;letter-spacing:.03em;color:var(--ink-3);padding:0 9px}
