@@ -171,12 +171,23 @@ export async function GET(req: NextRequest) {
           witness_openers: day.witness.openers,
           objection_q: day.witness.objection_q,
           objection_a: day.witness.objection_a,
-          prayer_intro: day.prayers.intro,
-          prayer_axes: day.prayers.axes,
-          prayer_notre_pere: day.prayers.notre_pere,
-          prayer_confession: day.prayers.confession,
-          prayer_supplication: day.prayers.supplication,
-          spirit_invitation: day.prayers.spirit_invitation,
+          // Priere simple : les cinq etapes vivent dans prayer_axes (sans
+          // migration), confession / demande / Saint-Esprit gardent aussi leur
+          // colonne en texte (une ligne par phrase).
+          prayer_intro: '',
+          prayer_axes: [
+            { axis: 'Adorer', lines: day.prayers.adorer },
+            { axis: 'Louer', lines: day.prayers.louer },
+            { axis: 'Confesser', lines: day.prayers.confesser },
+            { axis: 'Demander', lines: day.prayers.demander },
+            { axis: 'Écouter', lines: [day.prayers.ecouter] }
+          ],
+          prayer_notre_pere: day.prayers.notre_pere.map(d => ({
+            demande: d.demande, lines: d.lignes, prayer: d.lignes.join('\n')
+          })),
+          prayer_confession: day.prayers.confesser.join('\n'),
+          prayer_supplication: day.prayers.demander.join('\n'),
+          spirit_invitation: day.prayers.esprit.join('\n'),
           model: `${PROVIDER}/${modelName()}`,
           published: false
         });

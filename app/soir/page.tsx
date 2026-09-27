@@ -40,8 +40,8 @@ export default async function Soir() {
         <header className="hero">
           <div className="eyebrow">La veillée du soir</div>
           <div className="date">{fdate(day.date)} · 21h00</div>
-          <h1>Poser<br />la journée</h1>
-          <p className="lede">Cinq minutes avant de dormir. Un verset, un silence, une relecture, une paix.</p>
+          <h1>Se reposer<br />en lui</h1>
+          <p className="lede">Un verset, une méditation, une prière. Finir la journée devant Dieu.</p>
         </header>
 
         <ResumeReading />
@@ -53,18 +53,13 @@ export default async function Soir() {
         </div>
 
         <div className="card pad pq">
-          <span className="kicker">Meditation du soir</span>
+          <span className="kicker">Méditation du soir</span>
           <h3 style={{ marginTop: 6 }}>{day.evening_title}</h3>
           {(day.evening_meditation as string[]).map((p, i) =>
             <p key={i} dangerouslySetInnerHTML={{ __html: rich(p) }} />)}
         </div>
 
-        {day.evening_close && (
-          <div className="card pad bread-close">
-            <span className="kicker">Avant de fermer les yeux</span>
-            <p dangerouslySetInnerHTML={{ __html: rich(day.evening_close) }} />
-          </div>
-        )}
+        {/* « Avant de fermer les yeux » retire : redisait la meditation. */}
 
         <div className="prayer">
           <span className="kicker">Prière avant le sommeil</span>

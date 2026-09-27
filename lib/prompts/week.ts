@@ -34,23 +34,20 @@ export const DaySchema = z.object({
     objection_q: z.string(),
     objection_a: z.array(z.string()).min(1).max(3)
   }),
+  // Temps de priere simple : Adorer, Louer, Confesser, Demander, Ecouter,
+  // puis invocation du Saint-Esprit, et le Notre Pere prie avec le theme du jour.
+  // Des lignes courtes, sans mot grec ni explication.
   prayers: z.object({
-    intro: z.string(),
-    axes: z.array(z.object({
-      axis: z.string(),
-      prayer: z.string(),
-      tip: z.string(),
-      word: z.string(),
-      word_lang: z.string(),
-      word_meaning: z.string()
-    })).min(2).max(4),
+    adorer: z.array(z.string()).min(2).max(5),
+    louer: z.array(z.string()).min(2).max(5),
+    confesser: z.array(z.string()).min(2).max(5),
+    demander: z.array(z.string()).min(2).max(5),
+    ecouter: z.string(),
+    esprit: z.array(z.string()).min(2).max(5),
     notre_pere: z.array(z.object({
       demande: z.string(),
-      prayer: z.string()
-    })).min(5).max(8),
-    confession: z.string(),
-    supplication: z.string(),
-    spirit_invitation: z.string()
+      lignes: z.array(z.string()).min(1).max(4)
+    })).min(5).max(8)
   })
 });
 
@@ -118,38 +115,25 @@ export const DAY_GEMINI_SCHEMA = {
     prayers: {
       type: 'OBJECT',
       properties: {
-        intro: { type: 'STRING' },
-        axes: {
-          type: 'ARRAY',
-          items: {
-            type: 'OBJECT',
-            properties: {
-              axis: { type: 'STRING' },
-              prayer: { type: 'STRING' },
-              tip: { type: 'STRING' },
-              word: { type: 'STRING' },
-              word_lang: { type: 'STRING' },
-              word_meaning: { type: 'STRING' }
-            },
-            required: ['axis', 'prayer', 'tip', 'word', 'word_lang', 'word_meaning']
-          }
-        },
+        adorer: { type: 'ARRAY', items: { type: 'STRING' } },
+        louer: { type: 'ARRAY', items: { type: 'STRING' } },
+        confesser: { type: 'ARRAY', items: { type: 'STRING' } },
+        demander: { type: 'ARRAY', items: { type: 'STRING' } },
+        ecouter: { type: 'STRING' },
+        esprit: { type: 'ARRAY', items: { type: 'STRING' } },
         notre_pere: {
           type: 'ARRAY',
           items: {
             type: 'OBJECT',
             properties: {
               demande: { type: 'STRING' },
-              prayer: { type: 'STRING' }
+              lignes: { type: 'ARRAY', items: { type: 'STRING' } }
             },
-            required: ['demande', 'prayer']
+            required: ['demande', 'lignes']
           }
-        },
-        confession: { type: 'STRING' },
-        supplication: { type: 'STRING' },
-        spirit_invitation: { type: 'STRING' }
+        }
       },
-      required: ['intro', 'axes', 'notre_pere', 'confession', 'supplication', 'spirit_invitation']
+      required: ['adorer', 'louer', 'confesser', 'demander', 'ecouter', 'esprit', 'notre_pere']
     }
   },
   required: [
@@ -200,117 +184,86 @@ STRUCTURE D'UNE JOURNEE
     la comprehension du texte du jour, formulee differemment chaque jour, puis
     enchaine sur la priere proprement dite. prayer_close se termine par "au
     nom de Jesus, amen"
-11. evening : la veillee du soir, un autre verset, une meditation en trois
-    paragraphes, une priere avant le sommeil, et evening_close : UNE seule
-    phrase simple a garder avant de dormir (une verite qui apaise, pas une
-    consigne). Les champs review restent produits mais courts.
+11. evening : la veillée du soir. Ce temps doit NOURRIR l'âme et faire ADORER
+    le Seigneur. Ce n'est PAS une relecture de la journée ni une redite du matin.
+    - verse / verse_ref : un verset qui montre QUI EST DIEU (sa bonté, sa
+      fidélité, sa paix, sa grandeur, sa présence qui veille), de préférence
+      dans les Psaumes ou un texte de louange. Toujours DIFFÉRENT du verset du
+      matin.
+    - title : quatre à six mots, tournés vers Dieu (ex. « Il veille sur toi »).
+    - meditation : exactement trois paragraphes COURTS (deux à trois phrases
+      simples chacun), qui avancent sans jamais se répéter :
+        1) contempler ce que le verset révèle de Dieu ;
+        2) s'en nourrir : ce que cette vérité sur Dieu donne à mon cœur ce soir ;
+        3) répondre par l'adoration : se tourner vers lui, l'admirer, l'aimer.
+      INTERDIT : reprendre le thème ou le message du matin, faire le bilan de
+      la journée (réussites, échecs, erreurs), parler de confession ou de
+      pardon (cela appartient à la prière du jour), redire la même idée avec
+      d'autres mots.
+    - prayer : la prière avant le sommeil, quatre à cinq lignes courtes et
+      simples, tutoiement de Dieu : adoration et confiance pour la nuit. Elle
+      ne répète pas la méditation.
+    - evening_close : UNE phrase très courte (non affichée).
+    - review : deux éléments très courts (non affichés).
 12. witness : le fil du jour pour temoigner, trois amorces de conversation en
     langage parle, une objection courante et sa reponse en deux paragraphes
 13. prayers : le temps de priere du jour (voir section dediee ci-dessous)
 
-LE TEMPS DE PRIERE (prayers)
-C'est un vrai temps de priere, pas un article sur la priere. Le lecteur doit
-pouvoir prier avec ces mots, entrer en communion avec Dieu, rester ouvert a
-l'Esprit Saint. La structure suit trois convictions, a respecter strictement.
+LE TEMPS DE PRIÈRE (prayers)
+C'est un vrai temps de prière, pas un article sur la prière. Le lecteur prie
+avec ces mots, tels quels, à voix haute. Donc :
+  - AUCUNE explication, AUCUN enseignement, AUCUN commentaire sur la prière ;
+  - AUCUN mot hébreu, grec ou araméen, AUCUNE étymologie, aucune référence savante ;
+  - seulement des phrases de communion adressées à Dieu, à la première
+    personne, en le tutoyant.
 
-Premiere conviction, les TROIS AXES. La priere se deploie sur trois axes,
-chacun ancre dans un verbe grec precis, et chacun a un objet propre :
-  1. Adoration (timaó, estimer, tenir en honneur) : pour ce que Dieu EST,
-     sa nature, son essence. On ne demande RIEN dans cet axe, on contemple
-     et on honore. Aucune requete, aucun besoin exprime, sous aucune forme.
-  2. Louange (humneó, celebrer ses oeuvres) : pour ce que Dieu FAIT, ses
-     actions, hier, aujourd'hui, demain. On remercie pour des actes.
-  3. Intercession (entugchanó, supplier pour autrui) : pour ce que Dieu PEUT
-     FAIRE POUR LES AUTRES. Cet axe est tourne vers autrui, pas vers soi :
-     l'Eglise, les proches, ceux qui souffrent, ceux qui ne connaissent pas
-     Dieu. On s'y joint a l'intercession de l'Esprit (Romains 8.26) et de
-     Christ (Romains 8.34).
-L'ordre est toujours celui-la : on adore, on loue, et c'est seulement
-inonde de cette realite que l'on intercede.
+STYLE (règle absolue) :
+  - phrases TRÈS COURTES : une idée par ligne, douze mots maximum par ligne ;
+  - mots simples du quotidien, ceux d'un enfant ou d'un nouveau croyant ; aucun
+    mot religieux compliqué (sanctification, rédemption, intercession,
+    miséricordieux, propitiation…) ;
+  - ton intime et chaleureux, comme on parle à un Père qui aime ; un peu de
+    rythme et de reprises pour que cela se retienne ;
+  - chaque ligne est une phrase complète qui se dit d'un souffle ;
+  - relié au thème et aux lectures du jour, sans les expliquer.
 
-Deuxieme conviction, le NOTRE PERE est la matrice, pas une formule a reciter.
-Ses demandes se prient a nouveaux frais chaque jour, a la lumiere du texte
-du jour.
-
-Troisieme conviction, prier n'est ni une recitation, ni une performance, ni
-une formule magique : c'est un engagement de la volonte assiste par l'Esprit.
-Le ton doit donc etre habite, jamais mecanique, jamais pieux par reflexe.
-
-STYLE DES PRIERES (TRES important) : ces prieres doivent pouvoir se DIRE et se
-CHANTER simplement, et se RETENIR par coeur sans effort. Vise le style d'un
-cantique ou d'un refrain de louange :
-  - phrases COURTES (une idee par ligne), mots simples et concrets du quotidien,
-    aucune tournure savante ou alambiquee ;
-  - du RYTHME et du souffle : des reprises, un parallelisme leger, une petite
-    musique qui aide la memoire (ex. « Tu es la, tu me vois, tu me tiens ») ;
-  - PLUS COURT partout qu'avant : on retranche tout ce qui n'est pas essentiel ;
-  - malgre cette simplicite, on GARDE toujours le mot hebreu, arameen ou grec de
-    chaque axe (champ "word"), pose simplement avec sa traduction : c'est le
-    petit tresor a retenir, pas un obstacle.
-
-Champs a produire :
-- intro : trois a quatre lignes pour entrer en priere. Le secret, la sobriete,
-  se rendre disponible, sans multiplier les paroles. Relie discretement au
-  theme du jour sans le devoiler entierement.
-  IMPORTANT : cette priere se prie a TOUT moment de la journee. Ne la situe
-  jamais dans le temps ("ce matin", "ce soir", "avant de dormir", "au reveil")
-  et n'emprunte PAS le rituel de la veillee du soir (respiration, fermer les
-  yeux, poser la journee) : cela appartient au champ evening, pas ici. Reste
-  intemporel : on entre en presence de Dieu, tout simplement.
-- axes : exactement trois objets, dans l'ordre Adoration, Louange,
-  Intercession. Pour chacun :
-    - axis : exactement "Adoration", "Louange" ou "Intercession"
-    - prayer : la priere elle-meme, premiere personne, tutoiement de Dieu,
-      CINQ A SEPT lignes, phrases courtes et faciles a retenir/chanter, du
-      souffle et du rythme, ancree dans le texte
-      du jour. Respecte scrupuleusement l'objet de l'axe : rien de demande
-      dans l'adoration, des actes remercies dans la louange, autrui porte
-      dans l'intercession.
-      OBLIGATOIRE : fais figurer NATURELLEMENT le mot hebreu/grec de l'axe
-      (le champ "word" ci-dessous) DANS cette priere, en le nommant et en le
-      priant, avec sa traduction juste apres entre parentheses. Exemple :
-      « Ruach (souffle de Dieu), viens reposer sur moi… ». Le mot cite ici et
-      le champ "word" doivent etre identiques.
-    - tip : deux ou trois lignes tres concretes pour prier cet axe avec la
-      lecture du jour (un mot du texte, une scene, un verset a reprendre).
-    - word : un mot hebreu, arameen ou grec authentique, pertinent pour
-      l'axe (transliteration simple : Kadosh, Chesed, Todah, Machseh,
-      Shalom, Ruach, Abba, Maranatha, Selah, Hallel, Berakah, Splagchnizomai,
-      Paraklesis, entre autres).
-    - word_lang : "hebreu", "arameen" ou "grec"
-    - word_meaning : trois a quatre lignes qui expliquent le mot, ce qu'il
-      revele de la grandeur ou de la proximite de Dieu, et comment le
-      ressentir en priant. Pas une definition de dictionnaire.
+Champs à produire (chaque ligne = un élément du tableau) :
+- adorer : trois à quatre lignes. Dire à Dieu QUI IL EST (bon, fidèle, saint,
+  proche, puissant…), à partir de ce que les lectures du jour montrent de lui.
+  Aucune demande. Ex. : « Tu es bon, Seigneur. » « Tu es fidèle, même quand je
+  ne le suis pas. »
+- louer : trois à quatre lignes. Le remercier pour ce qu'il A FAIT (dans les
+  lectures, pour moi, pour les autres). Au moins une ligne commence par
+  « Merci pour » ou « Merci de ».
+- confesser : trois à quatre lignes. Reconnaître simplement ce qui n'a pas été
+  juste (en lien avec ce que les lectures révèlent du cœur), puis RECEVOIR son
+  pardon. La dernière ligne reçoit le pardon avec confiance, sans culpabilité
+  (ex. « Merci, tu me pardonnes et tu me relèves. »).
+- demander : trois à quatre lignes. Lui confier mes besoins ET ceux des autres
+  (proches, Église, ceux qui souffrent, ceux qui ne le connaissent pas).
+  Confiant, jamais inquiet.
+- ecouter : UNE seule ligne très courte, dite avant le silence, pour se rendre
+  attentif à sa voix (ex. « Parle, Seigneur, je t'écoute. »). Différente
+  chaque jour.
+- esprit : trois à quatre lignes. Invocation du Saint-Esprit : l'inviter à
+  remplir, conduire, consoler, fortifier pour la journée. La première ligne
+  commence par « Saint-Esprit » ou « Viens, Saint-Esprit ». La dernière ligne
+  se termine par « Amen. »
 - notre_pere : exactement sept objets, dans l'ordre des demandes :
-  1 "Que ton nom soit sanctifie", 2 "Que ton regne vienne",
-  3 "Que ta volonte soit faite", 4 "Donne-nous notre pain quotidien",
+  1 "Que ton nom soit sanctifié", 2 "Que ton règne vienne",
+  3 "Que ta volonté soit faite", 4 "Donne-nous notre pain quotidien",
   5 "Pardonne-nous comme nous pardonnons",
-  6 "Ne nous induis pas en tentation, delivre-nous du malin",
-  7 "A toi le regne, la puissance et la gloire".
-  - demande : le libelle exact ci-dessus
-  - prayer : trois a quatre lignes qui prient CETTE demande a partir du texte
-    du jour, en mots simples qui se retiennent. Chaque jour doit produire un
-    eclairage different.
-- confession : une priere de confession de quatre a cinq lignes, sur le modele
-  du Psaume 51. Sincere et lucide, sans culpabilisation ni auto-flagellation,
-  qui demande une creation nouvelle et pas seulement un constat de faute.
-  En lien avec ce que les lectures du jour revelent du coeur humain.
-- supplication : quatre a cinq lignes pour faire connaitre ses besoins a Dieu
-  (Philippiens 4.6), avec actions de graces, sans inquietude deguisee.
-- spirit_invitation : la cloture, quatre a cinq lignes, invitation sobre et
-  directe a etre rempli et conduit par le Saint-Esprit (Ephesiens 5.18,
-  Romains 8, Galates 5, Actes 1.8 selon ce qui convient), terminee par un
-  "amen" habite, jamais expedie.
-
-Exception explicite a la regle VOICE d'une seule etymologie par jour : elle
-ne s'applique pas a cette section, qui en contient trois, une par axe.
+  6 "Ne nous induis pas en tentation, délivre-nous du malin",
+  7 "À toi le règne, la puissance et la gloire".
+  - demande : le libellé exact ci-dessus
+  - lignes : deux à trois lignes courtes qui prient CETTE demande avec le
+    thème du jour, en mots simples. Chaque jour, un éclairage différent.
 
 COHERENCE DE LA SEMAINE
 Les journees se suivent. Evite de repeter la meme image ou la meme etymologie
-d'un jour a l'autre. Si un theme revient, aborde-le par un autre angle. Cela
-vaut aussi pour les mots hebreu, arameen et grec des prieres : aucune
-repetition d'un mot sur la semaine, et aucune redite dans la maniere de prier
-les demandes du Notre Pere.
+d'un jour a l'autre. Si un theme revient, aborde-le par un autre angle. Aucune
+redite non plus dans les phrases de priere ni dans la maniere de prier les
+demandes du Notre Pere.
 
 Reponds uniquement par un objet JSON conforme au schema, sans texte autour.`;
 

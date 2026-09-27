@@ -1,5 +1,6 @@
 'use client';
 import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { supabase } from '@/lib/supabase/client';
 import Explain from './Explain';
 import WordByWord from './WordByWord';
@@ -74,6 +75,17 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
   const [jesusV, setJesusV] = useState<Set<number>>(new Set()); // paroles de Jésus (red-letter)
   const [sheet, setSheet] = useState<null | 'book' | 'version' | 'verse'>(null); // feuilles (livre / version / aller au verset)
   const [sheetBook, setSheetBook] = useState<number | null>(null); // livre deplie dans la feuille
+  // Onglets de la page : lecture du jour / parcours / Bible.
+  const [tab, setTabState] = useState<'jour' | 'parcours' | 'bible'>('jour');
+  const setTab = (t: 'jour' | 'parcours' | 'bible') => {
+    setTabState(t);
+    try { localStorage.setItem('pq-lire-tab', t); } catch {}
+  };
+  // Bulles flottantes : methode de lecture / recherche + historique.
+  const [bubble, setBubble] = useState<null | 'method' | 'search'>(null);
+  // Emplacement dans la barre du haut (a cote de l'avatar) pour livre · version · v.
+  const [slot, setSlot] = useState<HTMLElement | null>(null);
+  useEffect(() => { setSlot(document.getElementById('nav-slot')); }, []);
 
   const bookName = books.find((b: any) => b.id === book)?.name ?? '';
   const chapters = books.find((b: any) => b.id === book)?.chapters ?? 1;
@@ -193,9 +205,11 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
           const norm = m[1].trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
           const b = books.find((x: any) =>
             x.name.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').startsWith(norm));
-          if (b) { setBook(b.id); setChapter(Math.min(+m[2], b.chapters)); setTrad(preferred); return; }
+          if (b) { setBook(b.id); setChapter(Math.min(+m[2], b.chapters)); setTrad(preferred); setTabState('bible'); return; }
         }
       }
+      const savedTab = localStorage.getItem('pq-lire-tab');
+      if (savedTab === 'jour' || savedTab === 'parcours' || savedTab === 'bible') setTabState(savedTab);
       const saved = JSON.parse(localStorage.getItem('pq-pos') ?? 'null');
       const savedT = saved?.t && saved.t !== 'FRLSG' ? saved.t : preferred;
       if (saved?.b) {
@@ -221,6 +235,13 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
       setRecent(next);
     } catch {}
   }, [book, chapter, trad]);
+
+  useEffect(() => {
+    if (sheet !== 'book') return;
+    const t = setTimeout(() => document.getElementById(`bk-${book}`)
+      ?.scrollIntoView({ block: 'start' }), 40);
+    return () => clearTimeout(t);
+  }, [sheet]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const key = (v: number) => `${book}-${chapter}-${v}`;
   const noteFor = (v: number) => myNotes.find(n => n.book === book && n.chapter === chapter && n.verse === v);
@@ -264,7 +285,7 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
     if (!m) return;
     const norm = m[1].trim().toLowerCase();
     const b = books.find((x: any) => x.name.toLowerCase().startsWith(norm));
-    if (b) { setBook(b.id); setChapter(Math.min(+m[2], b.chapters)); setExplain(null); setWbw(null); setCmp(null); }
+    if (b) { setBook(b.id); setChapter(Math.min(+m[2], b.chapters)); setExplain(null); setWbw(null); setCmp(null); setTab('bible'); }
   };
 
   // ── Sélection multi-versets (partager / copier un ensemble) ──────────
@@ -291,7 +312,14 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
 
   // Recherche : une reference (nom + chiffre) ouvre le passage ;
   // un simple mot lance une concordance sur toute la traduction.
+  const showResults = () => {
+    setBubble(null); setTab('bible');
+    setTimeout(() => document.getElementById('resultats')
+      ?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
+  };
+
   const searchTheme = async (color: number) => {
+    showResults();
     setThemeMode(true); setSearching(true); setResults([]);
     setSearchedIn(themeOf(color)?.label ?? null);
     const { data: hls } = await supabase.from('highlights')
@@ -312,6 +340,7 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
   };
 
   const searchFamous = async () => {
+    showResults();
     setThemeMode(true); setSearching(true); setResults([]); setSearchedIn('★ versets connus');
     const { data: fam } = await supabase.from('famous_verses')
       .select('book, chapter, verse_start, title').order('book').order('chapter').limit(400);
@@ -335,7 +364,8 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
     const themeColor = matchThemeQuery(q);
     if (themeColor) { searchTheme(themeColor); return; }
     setThemeMode(false);
-    if (/\S\s+\d/.test(q)) { go(q); setResults(null); return; }
+    if (/\S\s+\d/.test(q)) { go(q); setResults(null); setBubble(null); window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+    showResults();
     setSearching(true); setResults([]);
     // Les traductions sous licence sont lues a distance, verset par verset :
     // la concordance porte donc sur le texte local (Segond 1910).
@@ -354,9 +384,18 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
       <header className="hero">
         <div className="eyebrow">Lire la Bible</div>
         <h1>Un chapitre<br />par jour</h1>
-        <p className="lede">Un parcours qui commencé la ou il faut commencer, et un carnet qui garde tout ce que vous notez.</p>
+        <p className="lede">Un parcours qui commence là où il faut commencer, et un carnet qui garde tout ce que vous notez.</p>
       </header>
 
+      <div className="page-tabs" role="tablist">
+        {([['jour', 'Lecture du jour'], ['parcours', 'Parcours'], ['bible', 'Bible']] as const).map(([k, l]) => (
+          <button key={k} role="tab" className="page-tab" aria-selected={tab === k}
+                  onClick={() => { setTab(k); setBubble(null); }}>{l}</button>
+        ))}
+      </div>
+
+      {tab === 'jour' && (
+        <>
       {P && position.step && (
         <div className="card">
           <div className="today-read tr-flex">
@@ -375,7 +414,7 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
               ) : null}
               <div className="share-grid" style={{ marginTop: 20 }}>
                 <button className="btn primary" onClick={() => {
-                  setBook(position.step.book); setChapter(position.chapter);
+                  setBook(position.step.book); setChapter(position.chapter); setTab('bible');
                   setTimeout(() => document.getElementById('lecteur')
                     ?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
                 }}>
@@ -404,9 +443,39 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
         </div>
       )}
 
-      <details className="card pad volet">
-        <summary><b>Choisir un parcours de lecture</b><span className="muted"> · {plans.length} disponibles</span></summary>
-        <div style={{ marginTop: 14 }}>
+      <h2 className="sect">Mon carnet de bord</h2>
+      <p className="sub">{myNotes.length} note{myNotes.length > 1 ? 's' : ''} et {Object.keys(hl).length} surlignage{Object.keys(hl).length > 1 ? 's' : ''}.</p>
+      <div className="card pad">
+        {myNotes.length === 0 && Object.keys(hl).length === 0 ? (
+          <p className="empty">Rien pour l&rsquo;instant. Ouvrez un chapitre, touchez un verset, choisissez une couleur ou ecrivez une note. Tout se retrouve ici.</p>
+        ) : myNotes.map(n => (
+          <div className="entry" key={n.id}>
+            <div className="eref">{n.reference}</div>
+            <div className="etext">{n.verse_text}</div>
+            <div className="enote">{n.body}</div>
+            <button className="edel" onClick={async () => {
+              await supabase.from('notes').delete().eq('id', n.id);
+              setMyNotes(l => l.filter(x => x.id !== n.id));
+            }}>Supprimer</button>
+          </div>
+        ))}
+      </div>
+
+      {!user && (
+        <div className="banner">
+          <span>☁︎</span>
+          <div><b>Vos notes ne sont pas encore enregistrées.</b> Creez un compte pour les retrouver partout et ne rien perdre.</div>
+        </div>
+      )}
+
+        </>
+      )}
+
+      {tab === 'parcours' && (
+        <>
+      <div className="card pad">
+        <span className="kicker">Choisir un parcours de lecture · {plans.length} disponibles</span>
+        <div>
         <p style={{ color: 'var(--ink-2)', fontSize: 14.5, lineHeight: 1.6, marginBottom: 4 }}>
           Un <b>parcours</b> vous dit <b>quoi lire chaque jour</b> : il découpe la Bible en étapes et
           avance tout seul. Choisissez-en un ci-dessous ; ensuite, la carte «&nbsp;Votre lecture du jour&nbsp;»
@@ -454,101 +523,44 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
           </>
         )}
         </div>
-      </details>
+      </div>
 
+        </>
+      )}
+
+      {tab === 'bible' && (
+        <>
       {backTo && (
         <a href={backTo} className="back-parable">‹ Revenir à la parabole</a>
       )}
-      <h2 className="sect" id="lecteur" style={{ scrollMarginTop: 70 }}>Le lecteur</h2>
-      <p className="sub">Touchez le titre du chapitre pour son introduction, un verset pour le surligner ou l&rsquo;annoter.</p>
-
-      <details className="card pad volet meditip">
-        <summary><b>Avant de lire : méditer, pas seulement lire</b></summary>
-        <div style={{ marginTop: 14 }}>
-          <p style={{ color: 'var(--ink-2)', fontSize: 14.5, lineHeight: 1.6 }}>
-            Méditer, ce n&rsquo;est pas <b>vider</b> l&rsquo;esprit mais le <b>remplir</b> de la Parole (Josué 1.8).
-            Avancez lentement en cinq mouvements&nbsp;:
+      {results !== null && (
+        <>
+          <h2 className="sect" id="resultats" style={{ scrollMarginTop: 70 }}>Recherche</h2>
+          <p className="sub">
+            {searching ? 'Recherche en cours…'
+              : themeMode ? (results.length === 0
+                  ? `Rien à afficher pour « ${searchedIn} ».`
+                  : `${results.length} verset${results.length > 1 ? 's' : ''} — « ${searchedIn} ».`)
+              : results.length === 0 ? `Aucun verset ne contient « ${search} ».`
+              : `${results.length}${results.length === 400 ? '+ (400 premiers)' : ''} verset${results.length > 1 ? 's' : ''} contiennent « ${search} »${searchedIn ? `, recherche faite dans la ${searchedIn}` : ''}.`}
+            {' '}<a style={{ cursor: 'pointer', color: 'var(--accent)' }} onClick={() => { setResults(null); setSearch(''); setThemeMode(false); }}>Effacer</a>
           </p>
-          <ol className="meditip-steps">
-            <li><b>Prier</b> — «&nbsp;Ouvre mes yeux&nbsp;» (Ps 119.18). On dépend de l&rsquo;Esprit.</li>
-            <li><b>Observer</b> — qui parle&nbsp;? à qui&nbsp;? quoi avant, quoi après&nbsp;?</li>
-            <li><b>Comprendre</b> — le sens voulu, dans son contexte, et ce qu&rsquo;il dit de Dieu et de Christ.</li>
-            <li><b>Appliquer</b> — une vérité à croire, un ordre à suivre, <b>une</b> action pour aujourd&rsquo;hui.</li>
-            <li><b>Répondre</b> — reprendre le texte dans la prière&nbsp;: adoration, confession, requête.</li>
-          </ol>
-          <a href="/cursus/PMED01" className="btn sm" style={{ marginTop: 6 }}>
-            Le cours complet : Méditer la Bible ›
-          </a>
-        </div>
-      </details>
-
-      {/* Barre TOUJOURS accessible : livre+chapitre, version, aller au verset. */}
-      <div className="reader-sticky">
-        <button className="nav-day" aria-label="Chapitre précédent"
-                onClick={() => { chapter > 1 ? setChapter(chapter - 1) : (book > 1 && (setBook(book - 1), setChapter(1))); }}>‹</button>
-        <button className="rpill rs-book" onClick={() => { setSheetBook(book); setSheet('book'); }}>
-          <span className="rpill-k">Livre · chapitre</span>
-          <span className="rpill-v">{bookName} {chapter}</span>
-        </button>
-        <button className="rpill rs-ver" onClick={() => setSheet('version')}>
-          <span className="rpill-k">Version</span>
-          <span className="rpill-v">{translations.find((t: any) => t.code === trad)?.code ?? trad}</span>
-        </button>
-        <button className="nav-day" aria-label="Chapitre suivant"
-                onClick={() => { chapter < chapters ? setChapter(chapter + 1) : (book < 66 && (setBook(book + 1), setChapter(1))); }}>›</button>
-        <button className="rs-go" onClick={() => setSheet('verse')} disabled={!verses.length}>V.</button>
-      </div>
-
-      <div className="card">
-        <div style={{ padding: '24px 30px 26px' }}>
-          <input className="field" type="search" value={search}
-                 onChange={e => setSearch(e.target.value)}
-                 onKeyDown={e => { if (e.key === 'Enter') runSearch(); }}
-                 placeholder="Référence (Jean 3), un mot (grâce…), ou un thème / une couleur (foi, bleu…)" />
-
-          <div className="filter-row">
-            <span className="filter-label">Aller à :</span>
-            {[1, 2, 3, 4, 5, 6, 7].map(c => (
-              <button key={c} className={`swatch s${c}`} title={themeOf(c)?.label}
-                      onClick={() => { setSearch(themeOf(c)?.label ?? ''); searchTheme(c); }} />
-            ))}
-            <button className="filter-star" title="Versets connus (★)"
-                    onClick={() => { setSearch('★ versets connus'); searchFamous(); }}>★</button>
-          </div>
-
-          {results !== null && (
-            <button className="btn sm" style={{ marginTop: 10 }}
-                    onClick={() => document.getElementById('resultats')
-                      ?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>
-              Voir les résultats ↓
-            </button>
-          )}
-
-          {recent.length > 1 && (
-            <div className="chips" style={{ marginTop: 10 }}>
-              <span className="muted" style={{ fontSize: 12, alignSelf: 'center', marginRight: 4 }}>Reprendre :</span>
-              {recent.slice(1, 6).map((r, i) => (
-                <span key={i} className="chip" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
-                  <span onClick={() => { setBook(r.b); setChapter(r.c); }}>
-                    {books.find((b: any) => b.id === r.b)?.name} {r.c}
-                  </span>
-                  <span aria-label="Retirer" style={{ opacity: .55, fontSize: 13, lineHeight: 1 }}
-                        onClick={e => {
-                          e.stopPropagation();
-                          const next = recent.filter(x => !(x.b === r.b && x.c === r.c));
-                          setRecent(next);
-                          try { localStorage.setItem('pq-recent', JSON.stringify(next)); } catch {}
-                        }}>×</span>
-                </span>
+          {!searching && results.length > 0 && (
+            <div className="card pad">
+              {results.map((r, i) => (
+                <div className="entry" key={i} style={{ cursor: 'pointer' }}
+                     onClick={() => { setBook(r.book); setChapter(r.chapter); setResults(null); setTab('bible'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
+                  <div className="eref">{books.find((b: any) => b.id === r.book)?.name} {r.chapter}.{r.verse}</div>
+                  <div className="etext">{r.text}</div>
+                </div>
               ))}
             </div>
           )}
-          {languages.length > 1 && (
-            <select className="field" value={lang} onChange={e => changeLang(e.target.value)}
-                    style={{ marginBottom: 10 }} aria-label="Langue">
-              {languages.map((l: any) => <option key={l} value={l}>{LANG_LABELS[l] ?? l}</option>)}
-            </select>
-          )}
+        </>
+      )}
+
+      <div className="card" id="lecteur" style={{ scrollMarginTop: 70 }}>
+        <div className="reader-tools">
           <div className="cmp-bar">
             <button className="btn sm" onClick={() =>
               setCompareWith(compareWith ? null : (langTranslations.find((t: any) => t.code !== trad)?.code ?? null))}>
@@ -665,6 +677,9 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
         )}
       </div>
 
+        </>
+      )}
+
       {/* Barre d'actions du verset selectionne, dockée en bas de l'ecran. */}
       {sel !== null && !compareWith && (() => {
         const s = sel; if (s === null) return null;
@@ -729,57 +744,6 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
         </div>
       )}
 
-      {results !== null && (
-        <>
-          <h2 className="sect" id="resultats" style={{ scrollMarginTop: 70 }}>Recherche</h2>
-          <p className="sub">
-            {searching ? 'Recherche en cours…'
-              : themeMode ? (results.length === 0
-                  ? `Rien à afficher pour « ${searchedIn} ».`
-                  : `${results.length} verset${results.length > 1 ? 's' : ''} — « ${searchedIn} ».`)
-              : results.length === 0 ? `Aucun verset ne contient « ${search} ».`
-              : `${results.length}${results.length === 400 ? '+ (400 premiers)' : ''} verset${results.length > 1 ? 's' : ''} contiennent « ${search} »${searchedIn ? `, recherche faite dans la ${searchedIn}` : ''}.`}
-            {' '}<a style={{ cursor: 'pointer', color: 'var(--accent)' }} onClick={() => { setResults(null); setSearch(''); setThemeMode(false); }}>Effacer</a>
-          </p>
-          {!searching && results.length > 0 && (
-            <div className="card pad">
-              {results.map((r, i) => (
-                <div className="entry" key={i} style={{ cursor: 'pointer' }}
-                     onClick={() => { setBook(r.book); setChapter(r.chapter); setSel(r.verse); setResults(null); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
-                  <div className="eref">{books.find((b: any) => b.id === r.book)?.name} {r.chapter}.{r.verse}</div>
-                  <div className="etext">{r.text}</div>
-                </div>
-              ))}
-            </div>
-          )}
-        </>
-      )}
-
-      <h2 className="sect">Mon carnet de bord</h2>
-      <p className="sub">{myNotes.length} note{myNotes.length > 1 ? 's' : ''} et {Object.keys(hl).length} surlignage{Object.keys(hl).length > 1 ? 's' : ''}.</p>
-      <div className="card pad">
-        {myNotes.length === 0 && Object.keys(hl).length === 0 ? (
-          <p className="empty">Rien pour l&rsquo;instant. Ouvrez un chapitre, touchez un verset, choisissez une couleur ou ecrivez une note. Tout se retrouve ici.</p>
-        ) : myNotes.map(n => (
-          <div className="entry" key={n.id}>
-            <div className="eref">{n.reference}</div>
-            <div className="etext">{n.verse_text}</div>
-            <div className="enote">{n.body}</div>
-            <button className="edel" onClick={async () => {
-              await supabase.from('notes').delete().eq('id', n.id);
-              setMyNotes(l => l.filter(x => x.id !== n.id));
-            }}>Supprimer</button>
-          </div>
-        ))}
-      </div>
-
-      {!user && (
-        <div className="banner">
-          <span>☁︎</span>
-          <div><b>Vos notes ne sont pas encore enregistrées.</b> Creez un compte pour les retrouver partout et ne rien perdre.</div>
-        </div>
-      )}
-
       {explain?.kind === 'ch' && (
         <Explain book={book} chapter={chapter} verse={undefined}
                  bookName={bookName} text=""
@@ -824,7 +788,7 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
                 <h3 className="rsheet-title">Livres</h3>
                 <div className="rsheet-list">
                   {books.map((b: any) => (
-                    <div key={b.id}>
+                    <div key={b.id} id={`bk-${b.id}`}>
                       <button className={`rsheet-row${b.id === book ? ' on' : ''}`}
                               onClick={() => setSheetBook(sheetBook === b.id ? null : b.id)}>
                         <span className="sr-main"><b>{b.name}</b></span>
@@ -836,7 +800,7 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
                             <button key={i}
                                     className={`chcell${b.id === book && chapter === i + 1 ? ' on' : ''}`}
                                     onClick={() => {
-                                      setBook(b.id); setChapter(i + 1); setSheet(null);
+                                      setBook(b.id); setChapter(i + 1); setSheet(null); setTab('bible');
                                       setTimeout(() => document.getElementById('lecteur')
                                         ?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
                                     }}>{i + 1}</button>
@@ -867,6 +831,104 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
           </div>
         </div>
       )}
+      {/* Livre · version · verset, dans la barre du haut a cote de l'avatar. */}
+      {slot && createPortal(
+        <div className="rpill-nav">
+          <button className="rp-seg rp-book" onClick={() => { setTab('bible'); setSheetBook(book); setSheet('book'); }}
+                  aria-label="Choisir le livre et le chapitre">{bookName} {chapter}</button>
+          <button className="rp-seg" onClick={() => { setTab('bible'); setSheet('version'); }}
+                  aria-label="Choisir la version">{translations.find((t: any) => t.code === trad)?.code ?? trad}</button>
+          <button className="rp-seg rp-v" onClick={() => { setTab('bible'); setSheet('verse'); }}
+                  disabled={!verses.length} aria-label="Aller au verset">v.</button>
+        </div>, slot)}
+
+      {/* Bulles flottantes : comment lire / rechercher + historique. */}
+      {tab === 'bible' && sel === null && multi.size === 0 && !sheet && (
+        <div className="rfabs">
+          <button className={`rfab${bubble === 'method' ? ' on' : ''}`} aria-label="Comment lire"
+                  onClick={() => setBubble(bubble === 'method' ? null : 'method')}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 18h6M10 21h4M12 3a6 6 0 00-3.6 10.8c.7.5 1.1 1.3 1.1 2.2h5c0-.9.4-1.7 1.1-2.2A6 6 0 0012 3z" />
+            </svg>
+          </button>
+          <button className={`rfab${bubble === 'search' ? ' on' : ''}`} aria-label="Rechercher et historique"
+                  onClick={() => setBubble(bubble === 'search' ? null : 'search')}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+              <circle cx="11" cy="11" r="6.5" /><path d="M20 20l-4.2-4.2" />
+            </svg>
+          </button>
+        </div>
+      )}
+
+      {bubble && tab === 'bible' && (
+        <div className="rbubble" role="dialog">
+          <button className="rbubble-x" onClick={() => setBubble(null)} aria-label="Fermer">×</button>
+
+          {bubble === 'method' && (
+            <>
+              <h3 className="rbubble-t">Commencer simplement</h3>
+              <p className="rbubble-sub">Le plus important n&rsquo;est pas de lire beaucoup, mais de lire chaque jour.</p>
+              <div className="rmethod">
+                {[
+                  ['Lire', 'Que dit le texte\u00a0? Lisez un passage court, lentement.', '5 min'],
+                  ['Méditer', 'Que me dit Dieu à travers ce texte\u00a0? Notez un verset.', '5 min'],
+                  ['Prier', 'Que vais-je lui répondre\u00a0? Transformez le verset en prière.', '3 min'],
+                  ['Pratiquer', 'Que vais-je faire aujourd’hui\u00a0? Une seule action concrète.', '2 min']
+                ].map(([t, q, d]) => (
+                  <div className="rm-row" key={t}>
+                    <b>{t}</b><span>{q}</span><i>{d}</i>
+                  </div>
+                ))}
+              </div>
+              <a href="/cursus/PMED01" className="btn sm" style={{ marginTop: 12 }}>
+                Le cours complet : Méditer la Bible ›
+              </a>
+            </>
+          )}
+
+          {bubble === 'search' && (
+            <>
+              <h3 className="rbubble-t">Rechercher</h3>
+              <input className="field" type="search" value={search} autoFocus
+                     onChange={e => setSearch(e.target.value)}
+                     onKeyDown={e => { if (e.key === 'Enter') runSearch(); }}
+                     placeholder="Jean 3, grâce, foi, bleu…" />
+              <div className="filter-row">
+                <span className="filter-label">Aller à :</span>
+                {[1, 2, 3, 4, 5, 6, 7].map(c => (
+                  <button key={c} className={`swatch s${c}`} title={themeOf(c)?.label}
+                          onClick={() => { setSearch(themeOf(c)?.label ?? ''); searchTheme(c); }} />
+                ))}
+                <button className="filter-star" title="Versets connus (★)"
+                        onClick={() => { setSearch('★ versets connus'); searchFamous(); }}>★</button>
+              </div>
+
+              {recent.length > 1 && (
+                <>
+                  <div className="rbubble-k">Historique</div>
+                  <div className="chips" style={{ marginTop: 6 }}>
+                    {recent.slice(1, 8).map((r, i) => (
+                      <span key={i} className="chip" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
+                        <span onClick={() => { setBook(r.b); setChapter(r.c); setBubble(null); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
+                          {books.find((b: any) => b.id === r.b)?.name} {r.c}
+                        </span>
+                        <span aria-label="Retirer" style={{ opacity: .55, fontSize: 13, lineHeight: 1 }}
+                              onClick={e => {
+                                e.stopPropagation();
+                                const next = recent.filter(x => !(x.b === r.b && x.c === r.c));
+                                setRecent(next);
+                                try { localStorage.setItem('pq-recent', JSON.stringify(next)); } catch {}
+                              }}>×</span>
+                      </span>
+                    ))}
+                  </div>
+                </>
+              )}
+            </>
+          )}
+        </div>
+      )}
+
     </main>
   );
 }

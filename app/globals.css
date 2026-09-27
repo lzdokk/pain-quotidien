@@ -1119,3 +1119,101 @@ a.tab{text-decoration:none;display:inline-block}
 a.course{text-decoration:none}
 a.faq-q{text-decoration:none}
 a.back{text-decoration:none}
+
+/* ══════════════════════════════════════════════════════════════════
+   Septembre 2026 : onglets de page, priere simple, lecteur epure
+   ══════════════════════════════════════════════════════════════════ */
+
+/* Onglets internes d'une page (Priere, Lire) */
+.page-tabs{display:flex;gap:4px;margin:0 auto 22px;padding:4px;background:var(--surface-2);
+ border:1px solid var(--line);border-radius:99px;width:fit-content;max-width:100%}
+.page-tab{flex:1;border:0;background:transparent;font:inherit;font-size:14px;font-weight:560;letter-spacing:-.01em;
+ color:var(--ink-2);padding:8px 18px;border-radius:99px;cursor:pointer;white-space:nowrap;transition:.25s var(--ease)}
+.page-tab:hover{color:var(--ink)}
+.page-tab[aria-selected="true"]{background:var(--accent);color:#fff}
+html[data-mode="soir"] .page-tab[aria-selected="true"]{color:#0E141A}
+@media(max-width:560px){.page-tabs{width:100%}.page-tab{padding:8px 10px;font-size:13.5px}}
+
+/* Priere : cinq etapes simples */
+.pray-steps{padding:6px 0}
+.pstep{padding:22px 30px;border-bottom:1px solid var(--line)}
+.pstep:last-child{border-bottom:0}
+.pstep-h{display:flex;gap:14px;align-items:flex-start}
+.pstep-n{width:26px;height:26px;flex:none;border-radius:99px;background:var(--accent-soft);color:var(--accent);
+ font-size:12px;font-weight:660;display:grid;place-items:center;margin-top:2px}
+.pstep h3{font-family:var(--serif);font-size:20px;font-weight:600;letter-spacing:-.015em;color:var(--ink);line-height:1.3}
+.pstep-aide{font-size:14px!important;line-height:1.5!important;color:var(--ink-3)!important;margin-top:2px}
+.pstep-aide i{font-family:var(--serif);font-size:15px}
+.pl-lines{margin:12px 0 0 40px;display:flex;flex-direction:column;gap:4px}
+.card .pl-lines p,.pl-lines p{font-family:var(--serif);font-style:italic;font-size:18.5px;line-height:1.55;color:var(--ink);margin:0}
+.breathe.sm{padding:22px 0 6px}
+.breathe.sm .orb{width:96px;height:96px}
+.prayer.spirit p{font-size:19px;line-height:1.55;color:var(--ink)}
+.prayer.spirit p + p{margin-top:4px}
+@media(max-width:700px){.pstep{padding:18px 16px}.pl-lines{margin-left:0}}
+
+/* Priere : le Notre Pere complet, prie avec le theme du jour */
+.np-full{padding:6px 0}
+.npf{padding:18px 30px;border-bottom:1px solid var(--line)}
+.npf:last-child{border-bottom:0}
+.npf h3{font-family:var(--serif);font-size:19px;font-weight:600;letter-spacing:-.012em;line-height:1.4;color:var(--ink)}
+.npf .pl-lines{margin:8px 0 0}
+.npf .pl-lines p{font-size:17px;color:var(--ink-2)}
+.npf.edge{background:var(--accent-soft)}
+.npf.edge h3{font-style:italic;color:var(--accent)}
+@media(max-width:700px){.npf{padding:16px}}
+
+/* Lire : outils au-dessus du texte (comparer, notice, hors ligne) */
+.reader-tools{padding:18px 30px 20px}
+@media(max-width:700px){.reader-tools{padding:14px 14px 6px}}
+
+/* Lire : livre · version · v. dans la barre du haut, fin et arrondi */
+.nav-slot{display:flex;min-width:0;flex:0 1 auto}
+.nav-slot:empty{display:none}
+.rpill-nav{display:flex;align-items:center;height:32px;min-width:0;max-width:100%;
+ border:1px solid var(--line-2);border-radius:99px;background:var(--surface);overflow:hidden}
+.rp-seg{border:0;background:transparent;font:inherit;font-size:13px;font-weight:580;letter-spacing:-.01em;
+ color:var(--ink);height:100%;padding:0 11px;cursor:pointer;white-space:nowrap;flex:none;transition:background .15s var(--ease)}
+.rp-seg + .rp-seg{border-left:1px solid var(--line)}
+.rp-seg:hover{background:var(--surface-2)}
+.rp-seg:active{background:var(--accent-soft)}
+.rp-seg:disabled{opacity:.4;cursor:default}
+.rp-book{flex:0 1 auto;min-width:0;max-width:150px;overflow:hidden;text-overflow:ellipsis}
+.rp-v{color:var(--accent);font-weight:660;padding:0 12px}
+/* Mobile : barre plus serree, musique poussee tout a droite */
+@media(max-width:700px){
+ .nav-in{padding:0 14px;gap:8px}
+ .music{margin-left:auto}
+ .rp-book{max-width:118px}
+ .rp-seg{padding:0 9px}
+}
+
+/* Lire : bulles flottantes (comment lire, rechercher + historique) */
+.rfabs{position:fixed;z-index:65;right:max(18px, env(safe-area-inset-right));
+ bottom:calc(24px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:10px}
+.rfab{width:46px;height:46px;border-radius:99px;border:1px solid var(--line-2);background:var(--surface);
+ color:var(--ink-2);display:grid;place-items:center;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,.12);
+ transition:.2s var(--ease)}
+.rfab svg{width:21px;height:21px}
+.rfab:hover{color:var(--accent);border-color:var(--accent-line)}
+.rfab.on{background:var(--accent);border-color:var(--accent);color:#fff}
+html[data-mode="soir"] .rfab.on{color:#0E141A}
+.rbubble{position:fixed;z-index:66;right:max(18px, env(safe-area-inset-right));
+ bottom:calc(136px + env(safe-area-inset-bottom));width:min(380px, calc(100vw - 32px));max-height:62vh;overflow-y:auto;
+ background:var(--surface);border:1px solid var(--line);border-radius:24px;padding:18px 18px 20px;
+ box-shadow:0 18px 50px rgba(0,0,0,.2);animation:rbubin .22s var(--ease)}
+@keyframes rbubin{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
+.rbubble-x{position:absolute;top:12px;right:12px;width:28px;height:28px;border-radius:99px;border:0;
+ background:var(--surface-2);color:var(--ink-2);font-size:17px;line-height:1;cursor:pointer}
+.rbubble-t{font-family:var(--serif);font-size:19px;font-weight:600;letter-spacing:-.015em;margin:0 36px 10px 0}
+.rbubble-sub{font-size:13.5px;color:var(--ink-3);line-height:1.5;margin-bottom:10px}
+.rbubble-k{font-size:11px;font-weight:640;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin-top:16px}
+.rmethod{display:flex;flex-direction:column}
+.rm-row{display:grid;grid-template-columns:78px 1fr auto;gap:10px;align-items:baseline;padding:10px 0;border-top:1px solid var(--line)}
+.rm-row b{font-size:14px;color:var(--accent);font-weight:620}
+.rm-row span{font-size:14px;line-height:1.45;color:var(--ink-2)}
+.rm-row i{font-style:normal;font-size:12.5px;color:var(--ink-3);white-space:nowrap}
+@media(max-width:700px){
+ .rfabs{bottom:calc(84px + env(safe-area-inset-bottom));right:14px}
+ .rbubble{bottom:calc(196px + env(safe-area-inset-bottom));right:16px}
+}

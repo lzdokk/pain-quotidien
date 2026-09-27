@@ -84,6 +84,10 @@ export default function Nav({ user }: { user: any }) {
             </button>
           )}
 
+          {/* Emplacement reserve a la page (ex. Lire : livre · version · v.),
+              rempli par un portail React ; invisible quand il est vide. */}
+          <div id="nav-slot" className="nav-slot" />
+
           <MusicPlayer />
         </div>
       </nav>

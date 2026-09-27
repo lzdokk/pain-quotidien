@@ -1,41 +1,88 @@
 import Link from 'next/link';
 import { supabaseServer } from '@/lib/supabase/server';
 import Nav from '@/components/Nav';
+import PageTabs from '@/components/PageTabs';
 import { contentDate } from '@/lib/date';
-import { rich } from '@/lib/rich';
-import { AXES } from '@/lib/prayer-teaching';
 import ResumeReading from '@/components/ResumeReading';
 
 export const dynamic = 'force-dynamic'; // toujours le jour courant, jamais du cache
 export const metadata = { title: 'Prière' };
 
 type Axe = {
-  axis: string; prayer: string; tip: string;
-  word: string; word_lang: string; word_meaning: string;
+  axis: string; lines?: string[]; prayer?: string;
+  word?: string; word_meaning?: string;
 };
-type Demande = { demande: string; prayer: string };
+type Demande = { demande: string; lines?: string[]; prayer?: string };
 
-const paragraphs = (t?: string | null) =>
-  (t ?? '').split(/\n+/).map(s => s.trim()).filter(Boolean);
+/* Les cinq etapes, toujours dans cet ordre. */
+const ETAPES = [
+  { nom: 'Adorer', aide: 'Dire à Dieu qui il est.', ex: 'Tu es bon, tu es fidèle…' },
+  { nom: 'Louer', aide: 'Le remercier pour ce qu’il a fait.', ex: 'Merci pour…' },
+  { nom: 'Confesser', aide: 'Reconnaître ce qui n’a pas été juste, et recevoir son pardon.' },
+  { nom: 'Demander', aide: 'Lui confier mes besoins et ceux des autres.' },
+  { nom: 'Écouter', aide: 'Rester un moment en silence devant lui.' }
+] as const;
 
-/* Une priere du jour, en serif italique, comme une voix qu'on reprend. */
-function Priere({ texte }: { texte?: string | null }) {
-  return (
-    <>
-      {paragraphs(texte).map((p, i) => (
-        <p key={i} style={{
-          fontFamily: 'var(--serif)', fontSize: 20, lineHeight: 1.72,
-          fontStyle: 'italic', color: 'var(--ink-2)'
-        }} dangerouslySetInnerHTML={{ __html: rich(p) }} />
-      ))}
-    </>
-  );
+/* Le Notre Pere complet (Matthieu 6.9-13), phrase par phrase. L'indice
+   renvoie a la demande priee du jour (0 a 6), -1 = pas de phrase du jour. */
+const NOTRE_PERE: Array<[string, number]> = [
+  ['Notre Père qui es aux cieux,', -1],
+  ['Que ton nom soit sanctifié,', 0],
+  ['Que ton règne vienne,', 1],
+  ['Que ta volonté soit faite sur la terre comme au ciel.', 2],
+  ['Donne-nous aujourd’hui notre pain quotidien,', 3],
+  ['Pardonne-nous nos offenses, comme nous aussi nous pardonnons à ceux qui nous ont offensés,', 4],
+  ['Ne nous induis pas en tentation, mais délivre-nous du malin.', 5],
+  ['Car c’est à toi qu’appartiennent, dans tous les siècles, le règne, la puissance et la gloire.', 6],
+  ['Amen.', -1]
+];
+
+/* Decoupe un texte en lignes courtes (une phrase par ligne). */
+const toLines = (t?: string | null): string[] =>
+  (t ?? '')
+    .replace(/\*\*|__/g, '')
+    .split(/\n+|(?<=[.!?…])\s+(?=[A-ZÀÂÉÈÊÎÔÛÇ«])/)
+    .map(s => s.trim()).filter(Boolean);
+
+/* Anciennes journees : on retire le mot grec/hebreu et on garde sa traduction.
+   « Kadosh (saint), tu es… » devient « Saint, tu es… ». */
+const sansMotAncien = (t: string, mot?: string) => {
+  if (!mot) return t;
+  const esc = mot.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return t
+    .replace(new RegExp(`${esc}\\s*\\(([^)]+)\\)`, 'gi'), (_m, tr: string) => tr)
+    .replace(new RegExp(`\\s*\\b${esc}\\b,?`, 'gi'), '')
+    .replace(/(^|[.!?]\s+)([a-zà-ÿ])/g, (_m, a: string, c: string) => a + c.toUpperCase());
+};
+
+/* Construit les cinq etapes, format nouveau ou ancien (repli). */
+function etapesDuJour(day: any): Record<string, string[]> {
+  const axes = (day?.prayer_axes ?? []) as Axe[];
+  const out: Record<string, string[]> = {};
+  if (axes.some(a => a.axis === 'Adorer')) {
+    for (const a of axes) out[a.axis] = a.lines ?? toLines(a.prayer);
+    return out;
+  }
+  // Ancien format (Adoration / Louange / Intercession + confession + supplication)
+  const find = (n: string) => axes.find(a => a.axis?.toLowerCase() === n);
+  const clean = (a?: Axe) => a ? toLines(sansMotAncien(a.prayer ?? '', a.word)) : [];
+  out['Adorer'] = clean(find('adoration'));
+  out['Louer'] = clean(find('louange'));
+  out['Confesser'] = toLines(day?.prayer_confession);
+  out['Demander'] = [...toLines(day?.prayer_supplication), ...clean(find('intercession'))];
+  out['Écouter'] = ['Parle, Seigneur, je t’écoute.'];
+  return out;
+}
+
+function Lignes({ l }: { l: string[] }) {
+  if (!l.length) return null;
+  return <div className="pl-lines">{l.map((x, i) => <p key={i}>{x}</p>)}</div>;
 }
 
 export default async function Priere_() {
   const sb = await supabaseServer();
   const today = contentDate();
-  const cols = 'date, theme_title, prayer_intro, prayer_axes, prayer_notre_pere, prayer_confession, prayer_supplication, spirit_invitation';
+  const cols = 'date, theme_title, prayer_axes, prayer_notre_pere, prayer_confession, prayer_supplication, spirit_invitation';
   let { data: day } = await sb.from('daily_bread')
     .select(cols).eq('date', today).eq('published', true).maybeSingle();
   if (!day) {
@@ -47,129 +94,80 @@ export default async function Priere_() {
   }
   const { data: { user } } = await sb.auth.getUser();
 
-  const axes = (day?.prayer_axes ?? []) as Axe[];
-  const notrePere = (day?.prayer_notre_pere ?? []) as Demande[];
-  const duJour = axes.length > 0;
+  const duJour = !!day && ((day.prayer_axes ?? []) as Axe[]).length > 0;
+  const etapes = duJour ? etapesDuJour(day) : {};
+  const esprit = toLines(day?.spirit_invitation);
+  const np = ((day?.prayer_notre_pere ?? []) as Demande[])
+    .map(d => d.lines ?? toLines(d.prayer));
+
+  const prier = (
+    <>
+      <div className="card pray-steps">
+        {ETAPES.map((e, i) => (
+          <section className="pstep" key={e.nom}>
+            <div className="pstep-h">
+              <span className="pstep-n">{i + 1}</span>
+              <div>
+                <h3>{e.nom}</h3>
+                <p className="pstep-aide">
+                  {e.aide}{'ex' in e && e.ex ? <> <i>« {e.ex} »</i></> : null}
+                </p>
+              </div>
+            </div>
+            {e.nom === 'Écouter' ? (
+              <>
+                <Lignes l={etapes['Écouter'] ?? []} />
+                <div className="breathe sm"><div className="orb"><span>Silence</span></div></div>
+              </>
+            ) : <Lignes l={etapes[e.nom] ?? []} />}
+          </section>
+        ))}
+      </div>
+
+      {esprit.length > 0 && (
+        <div className="prayer spirit">
+          <span className="kicker">Viens, Saint-Esprit</span>
+          {esprit.map((x, i) => <p key={i}>{x}</p>)}
+        </div>
+      )}
+    </>
+  );
+
+  const notrePere = (
+    <div className="card np-full">
+      {NOTRE_PERE.map(([phrase, k], i) => (
+        <div className={`npf${k < 0 ? ' edge' : ''}`} key={i}>
+          <h3>{phrase}</h3>
+          {k >= 0 && np[k]?.length ? <Lignes l={np[k]} /> : null}
+        </div>
+      ))}
+    </div>
+  );
 
   return (
     <>
       <Nav user={user} />
       <main className="wrap">
         <header className="hero">
-          <div className="eyebrow">Prière · chaque jour</div>
-          <h1>Entrer en<br />communion avec Dieu</h1>
-          <p className="lede">
-            La prière est à l&rsquo;esprit ce que le souffle est à la poitrine.
-            Trois axes, une prière-modèle, et le texte du jour pour la nourrir.
-          </p>
+          <div className="eyebrow">Prière</div>
+          <h1>Parler<br />avec Dieu</h1>
+          <p className="lede">Des mots simples, pour être avec lui.</p>
         </header>
 
         <ResumeReading />
 
-        {!duJour && (
+        {!duJour ? (
           <div className="card pad">
             <span className="kicker">La prière du jour</span>
             <p className="empty" style={{ marginTop: 8 }}>
               Elle se prépare avec la lecture du jour. Revenez dans un instant.
             </p>
           </div>
-        )}
-
-        {duJour && (
-          <>
-            <div className="prayer opening">
-              <span className="kicker">Entrer en prière</span>
-              <p dangerouslySetInnerHTML={{ __html: rich(day!.prayer_intro) }} />
-            </div>
-
-            <h2 className="sect">Les trois axes, aujourd&rsquo;hui</h2>
-            <p className="sub">
-              On adore Dieu pour ce qu&rsquo;il est, on le loue pour ce qu&rsquo;il fait,
-              et c&rsquo;est seulement alors qu&rsquo;on intercède.
-            </p>
-
-            {axes.map((a, i) => {
-              const ref = AXES.find(x => x.nom.toLowerCase() === a.axis?.toLowerCase());
-              return (
-                <div className="card pad" key={i}>
-                  <span className="moment-n">Axe {i + 1} sur 3</span>
-                  <span className="kicker">{a.axis}</span>
-                  {ref && (
-                    <div className="axline">
-                      <i>{ref.grec}</i> · {ref.grec_sens} · <b>{ref.objet}</b>
-                    </div>
-                  )}
-                  <Priere texte={a.prayer} />
-
-                  <div className="pray-tip">
-                    <b>Prier cet axe avec le texte du jour</b><br />
-                    <span dangerouslySetInnerHTML={{ __html: rich(a.tip) }} />
-                  </div>
-
-                  <div className="pray-word">
-                    <div className="wlabel">
-                      <span className="wterm">{a.word}</span>
-                      <span className="wlang">{a.word_lang}</span>
-                    </div>
-                    <p dangerouslySetInnerHTML={{ __html: rich(a.word_meaning) }} />
-                  </div>
-                </div>
-              );
-            })}
-
-            {notrePere.length > 0 && (
-              <>
-                <h2 className="sect">Le Notre Père, prié aujourd&rsquo;hui</h2>
-                <p className="sub">
-                  Non pas récité, mais repris demande après demande, à la lumière du texte du jour.
-                </p>
-                <div className="card">
-                  <div className="np-open">
-                    <span className="wterm" style={{ fontStyle: 'italic' }}>אָבִינוּ</span>
-                    <p>Notre Père qui es aux cieux,</p>
-                  </div>
-                  {notrePere.map((d, i) => (
-                    <div className="npd" key={i}>
-                      <span className="npn">{i + 1}</span>
-                      <div>
-                        <h4>{d.demande}</h4>
-                        <p dangerouslySetInnerHTML={{ __html: rich(d.prayer) }} />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </>
-            )}
-
-            <h2 className="sect">Se remettre devant Dieu</h2>
-            <p className="sub">La confession, puis les besoins déposés avec actions de grâces.</p>
-
-            <div className="card pad">
-              <span className="kicker">Confession</span>
-              <Priere texte={day!.prayer_confession} />
-              <blockquote className="tq" style={{ marginTop: 16 }}>
-                Ô Dieu, crée en moi un cœur pur, et renouvelle en moi un esprit bien disposé.
-                <cite>Psaume 51.12</cite>
-              </blockquote>
-            </div>
-
-            <div className="card pad">
-              <span className="kicker">Supplication</span>
-              <Priere texte={day!.prayer_supplication} />
-              <blockquote className="tq" style={{ marginTop: 16 }}>
-                Ne vous inquiétez de rien, mais en toute chose faites connaître vos besoins à Dieu
-                par des prières et des supplications, avec des actions de grâces.
-                <cite>Philippiens 4.6</cite>
-              </blockquote>
-            </div>
-
-            <div className="breathe"><div className="orb"><span>Silence</span></div></div>
-
-            <div className="prayer">
-              <span className="kicker">Communion avec le Saint-Esprit</span>
-              <p dangerouslySetInnerHTML={{ __html: rich(day!.spirit_invitation) }} />
-            </div>
-          </>
+        ) : (
+          <PageTabs id="priere" tabs={[
+            { key: 'prier', label: 'Prier', content: prier },
+            { key: 'notre-pere', label: 'Notre Père', content: notrePere }
+          ]} />
         )}
 
         <Link href="/pain" className="to-pain">
