@@ -76,13 +76,10 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
   const [sheet, setSheet] = useState<null | 'book' | 'version' | 'verse'>(null); // feuilles (livre / version / aller au verset)
   const [sheetBook, setSheetBook] = useState<number | null>(null); // livre deplie dans la feuille
   // Onglets de la page : lecture du jour / parcours / Bible.
-  const [tab, setTabState] = useState<'jour' | 'parcours' | 'bible'>('jour');
-  const setTab = (t: 'jour' | 'parcours' | 'bible') => {
-    setTabState(t);
-    try { localStorage.setItem('pq-lire-tab', t); } catch {}
-  };
+  const [tab, setTabState] = useState<'jour' | 'parcours' | 'bible'>('bible');
+  const setTab = (t: 'jour' | 'parcours' | 'bible') => setTabState(t);
   // Bulles flottantes : methode de lecture / recherche + historique.
-  const [bubble, setBubble] = useState<null | 'method' | 'search'>(null);
+  const [bubble, setBubble] = useState<null | 'method' | 'search' | 'versions'>(null);
   // Emplacement dans la barre du haut (a cote de l'avatar) pour livre · version · v.
   const [slot, setSlot] = useState<HTMLElement | null>(null);
   useEffect(() => { setSlot(document.getElementById('nav-slot')); }, []);
@@ -208,8 +205,6 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
           if (b) { setBook(b.id); setChapter(Math.min(+m[2], b.chapters)); setTrad(preferred); setTabState('bible'); return; }
         }
       }
-      const savedTab = localStorage.getItem('pq-lire-tab');
-      if (savedTab === 'jour' || savedTab === 'parcours' || savedTab === 'bible') setTabState(savedTab);
       const saved = JSON.parse(localStorage.getItem('pq-pos') ?? 'null');
       const savedT = saved?.t && saved.t !== 'FRLSG' ? saved.t : preferred;
       if (saved?.b) {
@@ -388,7 +383,7 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
       </header>
 
       <div className="page-tabs" role="tablist">
-        {([['jour', 'Lecture du jour'], ['parcours', 'Parcours'], ['bible', 'Bible']] as const).map(([k, l]) => (
+        {([['bible', 'Bible'], ['jour', 'Lecture du jour'], ['parcours', 'Parcours']] as const).map(([k, l]) => (
           <button key={k} role="tab" className="page-tab" aria-selected={tab === k}
                   onClick={() => { setTab(k); setBubble(null); }}>{l}</button>
         ))}
@@ -560,31 +555,12 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
       )}
 
       <div className="card" id="lecteur" style={{ scrollMarginTop: 70 }}>
-        <div className="reader-tools">
-          <div className="cmp-bar">
-            <button className="btn sm" onClick={() =>
-              setCompareWith(compareWith ? null : (langTranslations.find((t: any) => t.code !== trad)?.code ?? null))}>
-              {compareWith ? 'Fermer la comparaison' : 'Comparer 2 versions'}
-            </button>
-            {compareWith && (
-              <select className="field" value={compareWith} onChange={e => setCompareWith(e.target.value)}>
-                {langTranslations.filter((t: any) => t.code !== trad).map((t: any) =>
-                  <option key={t.code} value={t.code}>{t.name}</option>)}
-              </select>
-            )}
+        {compareWith && (
+          <div className="cmp-strip">
+            <span>Comparaison : <b>{trad}</b> et <b>{compareWith}</b></span>
+            <button className="btn sm" onClick={() => setCompareWith(null)}>Fermer</button>
           </div>
-          {describeTranslation(translations.find((t: any) => t.code === trad) ?? {}) && (
-            <p style={{ fontSize: 12.5, color: 'var(--ink-3)', marginTop: 10 }}>
-              {describeTranslation(translations.find((t: any) => t.code === trad) ?? {})}
-            </p>
-          )}
-          <p style={{ fontSize: 12.5, color: 'var(--ink-4)', marginTop: 4 }}>
-            {translations.find((t: any) => t.code === trad)?.notice}
-          </p>
-
-          <OfflineDownload translation={trad}
-            translationName={translations.find((t: any) => t.code === trad)?.name} />
-        </div>
+        )}
 
         <div className="chap-nav">
           <button className="nav-day" onClick={() => chapter > 1 ? setChapter(chapter - 1) : book > 1 && (setBook(book - 1), setChapter(1))} aria-label="Precedent">‹</button>
@@ -674,6 +650,9 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
               {nextLabel && <span className="cm-ref">{nextLabel}</span>}
             </button>
           </div>
+        )}
+        {translations.find((t: any) => t.code === trad)?.notice && (
+          <p className="reader-notice">{translations.find((t: any) => t.code === trad)?.notice}</p>
         )}
       </div>
 
@@ -839,7 +818,7 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
           <button className="rp-seg" onClick={() => { setTab('bible'); setSheet('version'); }}
                   aria-label="Choisir la version">{translations.find((t: any) => t.code === trad)?.code ?? trad}</button>
           <button className="rp-seg rp-v" onClick={() => { setTab('bible'); setSheet('verse'); }}
-                  disabled={!verses.length} aria-label="Aller au verset">v.</button>
+                  disabled={!verses.length} aria-label="Aller au verset">versets</button>
         </div>, slot)}
 
       {/* Bulles flottantes : comment lire / rechercher + historique. */}
@@ -849,6 +828,12 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
                   onClick={() => setBubble(bubble === 'method' ? null : 'method')}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
               <path d="M9 18h6M10 21h4M12 3a6 6 0 00-3.6 10.8c.7.5 1.1 1.3 1.1 2.2h5c0-.9.4-1.7 1.1-2.2A6 6 0 0012 3z" />
+            </svg>
+          </button>
+          <button className={`rfab${bubble === 'versions' ? ' on' : ''}`} aria-label="Comparer et lire hors ligne"
+                  onClick={() => setBubble(bubble === 'versions' ? null : 'versions')}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 5.5C6.5 5 8.5 5.3 10 6.5V19c-1.5-1.2-3.5-1.5-6-1V5.5zM20 5.5c-2.5-.5-4.5-.2-6 1V19c1.5-1.2 3.5-1.5 6-1V5.5z" />
             </svg>
           </button>
           <button className={`rfab${bubble === 'search' ? ' on' : ''}`} aria-label="Rechercher et historique"
@@ -883,6 +868,40 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
               <a href="/cursus/PMED01" className="btn sm" style={{ marginTop: 12 }}>
                 Le cours complet : Méditer la Bible ›
               </a>
+            </>
+          )}
+
+          {bubble === 'versions' && (
+            <>
+              <h3 className="rbubble-t">Versions</h3>
+              <div className="rbubble-k" style={{ marginTop: 0 }}>Comparer 2 versions</div>
+              {compareWith ? (
+                <>
+                  <select className="field" style={{ marginTop: 8 }} value={compareWith}
+                          onChange={e => setCompareWith(e.target.value)}>
+                    {langTranslations.filter((t: any) => t.code !== trad).map((t: any) =>
+                      <option key={t.code} value={t.code}>{t.name}</option>)}
+                  </select>
+                  <button className="btn sm" style={{ marginTop: 10 }} onClick={() => setCompareWith(null)}>
+                    Fermer la comparaison
+                  </button>
+                </>
+              ) : (
+                <button className="btn sm" style={{ marginTop: 8 }} onClick={() => {
+                  setCompareWith(langTranslations.find((t: any) => t.code !== trad)?.code ?? null);
+                  setBubble(null);
+                  setTimeout(() => document.getElementById('lecteur')
+                    ?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
+                }}>Comparer avec une autre version</button>
+              )}
+              {describeTranslation(translations.find((t: any) => t.code === trad) ?? {}) && (
+                <p className="rbubble-sub" style={{ marginTop: 12 }}>
+                  {describeTranslation(translations.find((t: any) => t.code === trad) ?? {})}
+                </p>
+              )}
+              <div className="rbubble-k">Lire hors ligne (avion)</div>
+              <OfflineDownload translation={trad}
+                translationName={translations.find((t: any) => t.code === trad)?.name} />
             </>
           )}
 
