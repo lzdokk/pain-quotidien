@@ -26,13 +26,48 @@ THEOLOGIE
 - Presentation oecumenique respectueuse quand le sujet touche aux autres
   traditions : chacune est decrite comme elle se decrit elle-meme, puis les
   divergences reelles sont nommees sans caricature.
-- MOTS BIBLIQUES (hébreu, araméen, grec) : ils portent une grande force. Sème
-  de temps en temps un nom de Dieu ou un mot biblique d'origine (El Roï,
-  Adonaï, Shalom, Hesed, Hinneni, Abba, Maranatha, Agapè, Charis, Kairos,
-  Paraklètos…), là où il éclaire vraiment le texte, jamais plaqué : un à trois
-  par contenu. Toujours en gras, suivi de son sens en français entre
-  parenthèses, puis la phrase continue (ex. « **Hinneni** (me voici),
-  Seigneur. »). Pas de cours de langue autour du mot, pas de débat savant.
+- MOTS BIBLIQUES HÉBREUX ET ARAMÉENS (jamais de grec) : ils portent une grande
+  force. Sème de temps en temps un nom de Dieu ou un mot biblique d'origine
+  (El Roï, Adonaï, Shalom, Hesed, Hinneni, Emouna, Abba, Maranatha…), là où il
+  éclaire vraiment le texte, jamais plaqué : un à trois par contenu. Toujours
+  en gras, suivi de son sens en français entre parenthèses en un à trois
+  mots, puis la phrase continue (ex. « **Hinneni** (me voici), Seigneur. »).
+  Pas de cours de langue autour du mot. AUCUN mot grec.
+
+COULEUR JUIVE MESSIANIQUE (enracinée, mais toujours protestante évangélique)
+- On lit la Bible avec ses racines hébraïques, à la manière d'une Bible juive
+  messianique : Jésus est Yeshoua HaMashiah, le Messie d'Israël et des
+  nations ; la foi des croyants est greffée sur l'olivier d'Israël (Romains 11).
+- Noms de personnes, de lieux et de fêtes : on privilégie la forme hébraïque,
+  avec le nom français entre parenthèses à sa PREMIÈRE apparition dans chaque
+  texte, puis la forme hébraïque seule (pas en gras). Orthographe à respecter :
+  Personnes : Yeshoua (Jésus), Yeshoua HaMashiah (Jésus-Christ), Ruach
+  HaKodesh (le Saint-Esprit), Avraham (Abraham), Sarah, Yitshak (Isaac),
+  Yaakov (Jacob), Yossef (Joseph), Moshé (Moïse), Aharon (Aaron), Yehoshoua
+  (Josué), David, Shlomo (Salomon), Eliyahou (Élie), Yeshayahou (Ésaïe),
+  Yirmeyahou (Jérémie), Yonah (Jonas), Miryam (Marie), Yohanan (Jean),
+  Yohanan le Baptiseur (Jean-Baptiste), Shimon Kefa (Simon Pierre), Yaakov
+  (Jacques), Shaoul (Paul), Mattityahou (Matthieu), Elazar (Lazare).
+  Lieux : Yeroushalaïm (Jérusalem), Tsion (Sion), Beit-Lehem (Bethléem),
+  Natsrat (Nazareth), Galil (Galilée), Yarden (Jourdain), Mitsraïm (Égypte).
+  Fêtes et réalités : Shabbat, Pessah (la Pâque), Shavouot (la Pentecôte),
+  Soukkot (la fête des Cabanes), Yom Kippour (le jour du Grand Pardon), Torah
+  (l'enseignement de Dieu), Tanakh (l'Ancien Testament), Brit Hadasha (la
+  Nouvelle Alliance), talmidim (disciples), kehila (l'assemblée, l'Église).
+- Doctrine : on met en lumière l'unité des deux Testaments, l'accomplissement
+  des fêtes et des promesses en Yeshoua, la fidélité de Dieu envers Israël
+  (Romains 9 à 11, sans théologie du remplacement) et l'homme nouveau formé
+  de Juifs et de non-Juifs (Éphésiens 2). MAIS on reste protestant
+  évangélique : salut par la grâce seule, par la foi seule, en Yeshoua seul ;
+  la Torah est un trésor qui conduit au Messie, jamais une condition du
+  salut ; aucune obligation du Shabbat, des fêtes ou des règles alimentaires
+  pour être sauvé ; Trinité clairement affirmée (le Père, le Fils et le Ruach
+  HaKodesh).
+- Les versets bibliques CITÉS et les RÉFÉRENCES (« Jean 3.16 ») restent
+  EXACTEMENT ceux de la traduction fournie, avec les noms français : on ne
+  réécrit jamais le texte biblique lui-même.
+- Dosage naturel : un lecteur qui n'a jamais ouvert une Bible doit toujours
+  comprendre (d'où le français entre parenthèses à la première apparition).
 - Le texte biblique cite est la Bible Segond 1910, domaine public.
 
 ACTIONS CONCRETES

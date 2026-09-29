@@ -152,19 +152,22 @@ accentué (é, è, ê, à, â, î, ô, ù, û, ç, œ), sur chaque mot, sans exc
 
 ${VOICE}
 
-LES MOTS HÉBREUX, ARAMÉENS ET GRECS (à semer de temps en temps)
-Les noms de Dieu et les mots de la Bible en hébreu, araméen et grec portent une
+LES MOTS HÉBREUX ET ARAMÉENS (à semer de temps en temps, JAMAIS de grec)
+Les noms de Dieu et les mots de la Bible en hébreu et en araméen portent une
 grande force : on les fait entendre régulièrement, sans en abuser, dans le
 pain quotidien, les prières et la veillée du soir.
   - Chaque jour, DEUX à QUATRE mots au total sur l'ensemble de la journée,
     placés là où ils éclairent vraiment le texte du jour (jamais plaqués) :
     un nom de Dieu (El Roï, YHWH Jiré, Adonaï…) et/ou un mot biblique
-    hébreu, araméen ou grec (Shalom, Hesed, Hinneni, Selah, Abba, Agapè,
-    Charis, Kairos, Paraklètos, Splagchnizomai…).
+    hébreu ou araméen (Shalom, Hesed, Hinneni, Selah, Emouna, Abba,
+    Maranatha…). AUCUN mot grec.
+  - Les noms juifs messianiques du glossaire (Yeshoua, Moshé,
+    Yeroushalaïm…) ne comptent pas dans ces deux à quatre mots et ne se
+    mettent pas en gras.
   - Répartis-les : par exemple un dans le pain quotidien, un dans la prière,
     un dans la veillée du soir. Jamais deux dans la même phrase.
   - Toujours écrits en gras, suivis de leur sens en français entre
-    parenthèses en UN à TROIS mots seulement (« **Doxa** (gloire) », jamais
+    parenthèses en UN à TROIS mots seulement (« **Kavod** (gloire) », jamais
     une liste de sens), puis la phrase continue simplement. Exemples :
       « **El Roï** (le Dieu qui me voit), tu me vois aujourd'hui. »
       « **Hinneni** (me voici), Seigneur, je suis là pour toi. »
@@ -241,52 +244,55 @@ LE TEMPS DE PRIÈRE (prayers)
 C'est un vrai temps de prière, pas un article sur la prière. Le lecteur prie
 avec ces mots, tels quels, à voix haute. Donc :
   - AUCUNE explication, AUCUN enseignement, AUCUN commentaire sur la prière ;
-  - AUCUNE étymologie, aucune référence savante ;
-  - MAIS un ou deux mots hébreux, araméens ou grecs (nom de Dieu ou mot biblique,
+  - AUCUNE étymologie, aucune référence savante, AUCUN mot grec ;
+  - MAIS un ou deux mots hébreux ou araméens (nom de Dieu ou mot biblique,
     voir la section dédiée) dans l'ensemble de ce temps de prière, de
     préférence dans adorer, ecouter, esprit ou le Notre Père, écrits en gras
     avec leur sens entre parenthèses ;
   - seulement des phrases de communion adressées à Dieu, à la première
     personne, en le tutoyant.
 
-STYLE (règle absolue) : des prières à PROCLAMER à voix haute, à RÉPÉTER et
-à RETENIR PAR CŒUR, comme un refrain ou un psaume qu'on chante.
-  - TROIS lignes par étape (pas plus), HUIT mots maximum par ligne ;
-  - chaque étape est bâtie sur un REFRAIN : les lignes commencent par les
-    mêmes mots (« Tu es… / Tu es… / Tu es… », « Merci pour… / Merci pour… »),
-    ce qui les rend faciles à redire et à mémoriser ;
+STYLE (règle absolue) : des prières à PROCLAMER à voix haute, faciles à
+RÉPÉTER et à RETENIR, mais habitées et chaleureuses, jamais sèches ni
+télégraphiques. Le ton d'un psaume qu'on prie avec son cœur.
+  - TROIS à QUATRE lignes par étape, de HUIT à QUINZE mots chacune ; une
+    phrase claire par ligne, qui se dit d'un souffle ;
+  - une légère reprise aide la mémoire (deux lignes qui commencent de la même
+    façon, un mot qui revient), sans mécanique : la prière reste vivante ;
+  - CHAQUE étape est reliée au PAIN QUOTIDIEN DU JOUR : elle reprend l'image du
+    titre (theme_title), un mot du verset du jour ou la phrase à retenir
+    (bread_close). En priant, le lecteur doit reconnaître le message du matin
+    et le faire descendre dans son cœur ;
   - verbes au présent, « je » et « tu », des affirmations de foi qu'on
-    proclame (« Tu es là. », « Je suis à toi. », « Tu me gardes. ») ;
-  - uniquement des mots concrets et courants, ceux d'un enfant. INTERDIT :
-    les mots abstraits ou savants (conscience, existence, défaillances,
-    majesté éternelle, attention, sanctification, rédemption, intercession,
-    miséricordieux…) et les images compliquées ;
-  - pas de virgule en cascade, pas de subordonnée : une ligne = une phrase
-    simple qui se dit d'un seul souffle ;
-  - relié au thème et aux lectures du jour, sans les expliquer.
+    proclame ;
+  - mots concrets et courants. INTERDIT : les mots abstraits ou savants
+    (conscience, existence, défaillances, majesté éternelle, sanctification,
+    rédemption, intercession, miséricordieux…) et les images compliquées ;
+  - Yeshoua, Adonaï, Abba, Ruach HaKodesh peuvent être employés naturellement
+    (voir la couleur juive messianique).
 
 Champs à produire (chaque ligne = un élément du tableau) :
-- adorer : trois lignes sur le refrain « Tu es… ». Dire à Dieu QUI IL EST
-  (bon, fidèle, saint, proche, fort…), à partir de ce que les lectures du jour
-  montrent de lui. Aucune demande.
-  Ex. : « Tu es saint, Seigneur. » « Tu es bon, Seigneur. » « Tu es fidèle,
-  Seigneur. »
-- louer : trois lignes sur le refrain « Merci pour… » ou « Merci de… ». Le
-  remercier pour ce qu'il A FAIT (dans les lectures, pour moi, pour les
-  autres). Ex. : « Merci pour ta Parole. » « Merci pour ton pardon. »
-- confesser : trois lignes. Les deux premières sur le refrain « Pardon
-  pour… » ou « Pardon, Seigneur, … » (simple, en lien avec ce que les
-  lectures révèlent du cœur), la dernière REÇOIT son pardon avec confiance,
-  sans culpabilité. Ex. : « Merci, tu me pardonnes. Je suis libre. »
-- demander : trois lignes sur le refrain « Je te confie… » ou « Garde… » :
-  mes besoins ET ceux des autres (proches, Église, ceux qui souffrent, ceux
-  qui ne le connaissent pas). Confiant, jamais inquiet.
-- ecouter : UNE seule ligne très courte, dite avant le silence, pour se rendre
-  attentif à sa voix (ex. « Parle, Seigneur, je t'écoute. »). Différente
-  chaque jour.
-- esprit : trois lignes. Invocation du Saint-Esprit sur un refrain simple
-  (« Viens, Saint-Esprit… », « Remplis-moi. », « Conduis-moi. »). La
-  dernière ligne se termine par « Amen. »
+- adorer : trois à quatre lignes. Dire à Dieu QUI IL EST, à partir de ce que
+  le pain du jour et les lectures montrent de lui. Aucune demande.
+  Ex. (si le pain parle du berger qui cherche la brebis) : « Tu es le berger
+  qui ne lâche jamais personne. » « Tu es bon, Adonaï, tu viens me chercher
+  là où je suis. »
+- louer : trois à quatre lignes, souvent sur « Merci pour… » ou « Merci
+  de… ». Le remercier pour ce qu'il A FAIT, en reprenant le message du jour.
+- confesser : trois à quatre lignes. Reconnaître simplement ce que le pain du
+  jour met en lumière dans mon cœur, puis la dernière ligne REÇOIT son pardon
+  avec confiance, sans culpabilité (ex. « Merci, Yeshoua, tu me pardonnes et
+  tu me relèves. »).
+- demander : trois à quatre lignes. Lui confier, à la lumière du message du
+  jour, mes besoins ET ceux des autres (proches, kehila, ceux qui souffrent,
+  ceux qui ne le connaissent pas). Confiant, jamais inquiet.
+- ecouter : UNE seule ligne courte, dite avant le silence, pour se rendre
+  attentif à sa voix, en écho au message du jour (ex. « Parle, Adonaï, ton
+  enfant t'écoute. »). Différente chaque jour.
+- esprit : trois à quatre lignes. Invocation du Ruach HaKodesh (le
+  Saint-Esprit) pour vivre AUJOURD'HUI le message du pain quotidien : remplir,
+  conduire, fortifier. La première ligne commence par « Viens, Ruach
+  HaKodesh » ou « Viens, Saint-Esprit ». La dernière se termine par « Amen. »
 - notre_pere : exactement sept objets, dans l'ordre des demandes :
   1 "Que ton nom soit sanctifié", 2 "Que ton règne vienne",
   3 "Que ta volonté soit faite", 4 "Donne-nous notre pain quotidien",
@@ -294,8 +300,9 @@ Champs à produire (chaque ligne = un élément du tableau) :
   6 "Ne nous induis pas en tentation, délivre-nous du malin",
   7 "À toi le règne, la puissance et la gloire".
   - demande : le libellé exact ci-dessus
-  - lignes : deux lignes courtes (huit mots maximum), faciles à redire, qui prient CETTE demande avec le
-    thème du jour, en mots simples. Chaque jour, un éclairage différent.
+  - lignes : deux à trois lignes (huit à quinze mots), faciles à redire, qui
+    prient CETTE demande avec le message du pain quotidien du jour, en mots
+    simples. Chaque jour, un éclairage différent.
 
 COHERENCE DE LA SEMAINE
 Les journees se suivent. Evite de repeter la meme image ou la meme etymologie
@@ -358,7 +365,7 @@ respectueux, jamais polemique. Le verset du jour, lui, se choisit comme d'habitu
 parmi les versets des lectures (regle du champ "verse").
 
 ${d.lexique?.length ? `
-LEXIQUE DU SITE (mots hébreux, araméens et grecs de la page « Mots », à utiliser en
+LEXIQUE DU SITE (mots hébreux et araméens de la page « Mots », à utiliser en
 priorité pour les deux à quatre mots du jour, orthographe identique) :
 ${d.lexique.join(' ; ')}
 ` : ''}
