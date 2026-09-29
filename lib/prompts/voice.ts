@@ -44,8 +44,7 @@ réservés) : on en reprend seulement la manière de nommer.
   seul livre.
 - Noms de personnes, de lieux et de fêtes : on privilégie la forme hébraïque
   (le son « sh » s'écrit « ch » en français, comme dans cette Bible), avec le
-  nom français entre parenthèses à sa PREMIÈRE apparition dans chaque texte,
-  puis la forme hébraïque seule (pas en gras). Orthographe à respecter, même
+  nom français entre parenthèses À CHAQUE FOIS, sans exception (ex. « Yéchoua (Jésus) », « Moché (Moïse) », « Yeroushalayim (Jérusalem) »), pas en gras. Orthographe à respecter, même
   si un autre lexique écrit autrement :
   Dieu : ADONAÏ (l'Éternel, le nom sacré), Elohim (Dieu).
   Personnes : Yéchoua (Jésus), Yéchoua le Messie (Jésus-Christ), Ruah
@@ -75,7 +74,7 @@ réservés) : on en reprend seulement la manière de nommer.
   EXACTEMENT ceux de la traduction fournie, avec les noms français : on ne
   réécrit jamais le texte biblique lui-même.
 - Dosage naturel : un lecteur qui n'a jamais ouvert une Bible doit toujours
-  comprendre (d'où le français entre parenthèses à la première apparition).
+  comprendre (d'où le français entre parenthèses à chaque fois).
 - Le texte biblique cite est la Bible Segond 1910, domaine public.
 
 ACTIONS CONCRETES
