@@ -12,6 +12,7 @@
    (la 2e utilise la variable d'env GOOGLE_AI_KEY2).
    ══════════════════════════════════════════════════════════════════ */
 import { z } from 'zod';
+import { fixAccentsDeep } from './accents';
 
 export type Provider = 'gemini' | 'groq' | 'mistral' | 'cerebras'
   | 'nvidia' | 'openrouter' | 'anthropic' | 'none';
@@ -292,7 +293,8 @@ export async function callJSON<T>(schema: z.ZodType<T>, c: Call): Promise<{
     const json = s.slice(s.indexOf('{'), s.lastIndexOf('}') + 1);
     try {
       const parsed = schema.safeParse(JSON.parse(json || '{}'));
-      if (parsed.success) return { data: parsed.data, usage: { input: r.input, output: r.output } };
+      // Accents remis systematiquement (certains modeles les oublient).
+      if (parsed.success) return { data: fixAccentsDeep(parsed.data), usage: { input: r.input, output: r.output } };
       last = parsed.error.issues.map(i => `${i.path.join('.')}: ${i.message}`).join(' | ');
     } catch (e: any) { last = `JSON illisible : ${e.message}`; }
   }

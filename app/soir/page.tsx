@@ -4,6 +4,7 @@ import ResumeReading from '@/components/ResumeReading';
 import { contentDate } from '@/lib/date';
 import { rich } from '@/lib/rich';
 import { citedVerse } from '@/lib/bible';
+import { fixAccentsDeep } from '@/lib/accents';
 
 export const dynamic = 'force-dynamic'; // toujours le jour courant, jamais du cache
 export const metadata = { title: 'La veillée du soir' };
@@ -26,6 +27,7 @@ export default async function Soir() {
       .order('date', { ascending: false }).limit(1).maybeSingle();
     day = last ?? null;
   }
+  if (day) day = fixAccentsDeep(day);
   const { data: { user } } = await sb.auth.getUser();
 
   if (!day) return <><Nav user={user} /><main className="wrap"><header className="hero"><h1>La veillée arrive</h1></header></main></>;
