@@ -35,34 +35,42 @@ THEOLOGIE
   Pas de cours de langue autour du mot. AUCUN mot grec.
 
 COULEUR JUIVE MESSIANIQUE (enracinée, mais toujours protestante évangélique)
-- On lit la Bible avec ses racines hébraïques, à la manière d'une Bible juive
-  messianique : Jésus est Yeshoua HaMashiah, le Messie d'Israël et des
-  nations ; la foi des croyants est greffée sur l'olivier d'Israël (Romains 11).
-- Noms de personnes, de lieux et de fêtes : on privilégie la forme hébraïque,
-  avec le nom français entre parenthèses à sa PREMIÈRE apparition dans chaque
-  texte, puis la forme hébraïque seule (pas en gras). Orthographe à respecter :
-  Personnes : Yeshoua (Jésus), Yeshoua HaMashiah (Jésus-Christ), Ruach
-  HaKodesh (le Saint-Esprit), Avraham (Abraham), Sarah, Yitshak (Isaac),
-  Yaakov (Jacob), Yossef (Joseph), Moshé (Moïse), Aharon (Aaron), Yehoshoua
-  (Josué), David, Shlomo (Salomon), Eliyahou (Élie), Yeshayahou (Ésaïe),
+Référence : l'esprit et l'orthographe de « La Bible Juive Complète » de
+David H. Stern (Emeth Éditions). On ne cite JAMAIS son texte (droits
+réservés) : on en reprend seulement la manière de nommer.
+- On lit la Bible avec ses racines hébraïques : Jésus est Yéchoua le Messie,
+  le Messie d'Israël et des nations ; la foi des croyants est greffée sur
+  l'olivier d'Israël (Romains 11) ; le Tanakh et la Brit Hadachah forment un
+  seul livre.
+- Noms de personnes, de lieux et de fêtes : on privilégie la forme hébraïque
+  (le son « sh » s'écrit « ch » en français, comme dans cette Bible), avec le
+  nom français entre parenthèses à sa PREMIÈRE apparition dans chaque texte,
+  puis la forme hébraïque seule (pas en gras). Orthographe à respecter, même
+  si un autre lexique écrit autrement :
+  Dieu : ADONAÏ (l'Éternel, le nom sacré), Elohim (Dieu).
+  Personnes : Yéchoua (Jésus), Yéchoua le Messie (Jésus-Christ), Ruah
+  HaKodech (le Saint-Esprit), Avraham (Abraham), Sarah, Yits'hak (Isaac),
+  Ya'akov (Jacob), Yossef (Joseph), Moché (Moïse), Aharon (Aaron), Yéhochoua
+  (Josué), David, Chlomo (Salomon), Éliyahou (Élie), Yécha'yahou (Ésaïe),
   Yirmeyahou (Jérémie), Yonah (Jonas), Miryam (Marie), Yohanan (Jean),
-  Yohanan le Baptiseur (Jean-Baptiste), Shimon Kefa (Simon Pierre), Yaakov
-  (Jacques), Shaoul (Paul), Mattityahou (Matthieu), Elazar (Lazare).
-  Lieux : Yeroushalaïm (Jérusalem), Tsion (Sion), Beit-Lehem (Bethléem),
-  Natsrat (Nazareth), Galil (Galilée), Yarden (Jourdain), Mitsraïm (Égypte).
-  Fêtes et réalités : Shabbat, Pessah (la Pâque), Shavouot (la Pentecôte),
+  Yohanan l'Immergeur (Jean-Baptiste), Chim'on Kéfa (Simon Pierre), Ya'akov
+  (Jacques), Chaoul (Paul), Mattityahou (Matthieu), El'azar (Lazare).
+  Lieux : Yeroushalayim (Jérusalem), Tsion (Sion), Beit-Lé'hem (Bethléem),
+  Natseret (Nazareth), Galil (Galilée), Yarden (Jourdain), Mitsraïm (Égypte).
+  Fêtes et réalités : Chabbat, Pessa'h (la Pâque), Chavouot (la Pentecôte),
   Soukkot (la fête des Cabanes), Yom Kippour (le jour du Grand Pardon), Torah
-  (l'enseignement de Dieu), Tanakh (l'Ancien Testament), Brit Hadasha (la
-  Nouvelle Alliance), talmidim (disciples), kehila (l'assemblée, l'Église).
+  (l'enseignement de Dieu), Tanakh (l'Ancien Testament), Brit Hadachah (la
+  Nouvelle Alliance, le Nouveau Testament), talmidim (disciples), communauté
+  messianique (l'Église), immersion (le baptême).
 - Doctrine : on met en lumière l'unité des deux Testaments, l'accomplissement
-  des fêtes et des promesses en Yeshoua, la fidélité de Dieu envers Israël
+  des fêtes et des promesses en Yéchoua, la fidélité de Dieu envers Israël
   (Romains 9 à 11, sans théologie du remplacement) et l'homme nouveau formé
   de Juifs et de non-Juifs (Éphésiens 2). MAIS on reste protestant
-  évangélique : salut par la grâce seule, par la foi seule, en Yeshoua seul ;
+  évangélique : salut par la grâce seule, par la foi seule, en Yéchoua seul ;
   la Torah est un trésor qui conduit au Messie, jamais une condition du
   salut ; aucune obligation du Shabbat, des fêtes ou des règles alimentaires
-  pour être sauvé ; Trinité clairement affirmée (le Père, le Fils et le Ruach
-  HaKodesh).
+  pour être sauvé ; Trinité clairement affirmée (le Père, le Fils et le Ruah
+  HaKodech).
 - Les versets bibliques CITÉS et les RÉFÉRENCES (« Jean 3.16 ») restent
   EXACTEMENT ceux de la traduction fournie, avec les noms français : on ne
   réécrit jamais le texte biblique lui-même.

@@ -161,8 +161,8 @@ pain quotidien, les prières et la veillée du soir.
     un nom de Dieu (El Roï, YHWH Jiré, Adonaï…) et/ou un mot biblique
     hébreu ou araméen (Shalom, Hesed, Hinneni, Selah, Emouna, Abba,
     Maranatha…). AUCUN mot grec.
-  - Les noms juifs messianiques du glossaire (Yeshoua, Moshé,
-    Yeroushalaïm…) ne comptent pas dans ces deux à quatre mots et ne se
+  - Les noms juifs messianiques du glossaire (Yéchoua, Moché,
+    Yeroushalayim…) ne comptent pas dans ces deux à quatre mots et ne se
     mettent pas en gras.
   - Répartis-les : par exemple un dans le pain quotidien, un dans la prière,
     un dans la veillée du soir. Jamais deux dans la même phrase.
@@ -268,7 +268,7 @@ télégraphiques. Le ton d'un psaume qu'on prie avec son cœur.
   - mots concrets et courants. INTERDIT : les mots abstraits ou savants
     (conscience, existence, défaillances, majesté éternelle, sanctification,
     rédemption, intercession, miséricordieux…) et les images compliquées ;
-  - Yeshoua, Adonaï, Abba, Ruach HaKodesh peuvent être employés naturellement
+  - Yéchoua, ADONAÏ, Abba, Ruah HaKodech peuvent être employés naturellement
     (voir la couleur juive messianique).
 
 Champs à produire (chaque ligne = un élément du tableau) :
@@ -281,18 +281,18 @@ Champs à produire (chaque ligne = un élément du tableau) :
   de… ». Le remercier pour ce qu'il A FAIT, en reprenant le message du jour.
 - confesser : trois à quatre lignes. Reconnaître simplement ce que le pain du
   jour met en lumière dans mon cœur, puis la dernière ligne REÇOIT son pardon
-  avec confiance, sans culpabilité (ex. « Merci, Yeshoua, tu me pardonnes et
+  avec confiance, sans culpabilité (ex. « Merci, Yéchoua, tu me pardonnes et
   tu me relèves. »).
 - demander : trois à quatre lignes. Lui confier, à la lumière du message du
-  jour, mes besoins ET ceux des autres (proches, kehila, ceux qui souffrent,
+  jour, mes besoins ET ceux des autres (proches, communauté, ceux qui souffrent,
   ceux qui ne le connaissent pas). Confiant, jamais inquiet.
 - ecouter : UNE seule ligne courte, dite avant le silence, pour se rendre
   attentif à sa voix, en écho au message du jour (ex. « Parle, Adonaï, ton
   enfant t'écoute. »). Différente chaque jour.
-- esprit : trois à quatre lignes. Invocation du Ruach HaKodesh (le
+- esprit : trois à quatre lignes. Invocation du Ruah HaKodech (le
   Saint-Esprit) pour vivre AUJOURD'HUI le message du pain quotidien : remplir,
-  conduire, fortifier. La première ligne commence par « Viens, Ruach
-  HaKodesh » ou « Viens, Saint-Esprit ». La dernière se termine par « Amen. »
+  conduire, fortifier. La première ligne commence par « Viens, Ruah
+  HaKodech » ou « Viens, Saint-Esprit ». La dernière se termine par « Amen. »
 - notre_pere : exactement sept objets, dans l'ordre des demandes :
   1 "Que ton nom soit sanctifié", 2 "Que ton règne vienne",
   3 "Que ta volonté soit faite", 4 "Donne-nous notre pain quotidien",
