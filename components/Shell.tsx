@@ -19,6 +19,31 @@ const fdate = (d: string) => {
   return s[0].toUpperCase() + s.slice(1);
 };
 
+
+/* Une phrase par ligne, pour prier a voix haute. */
+function prayerLines(t?: string | null): string[] {
+  return (t ?? '')
+    .split(/\n+|(?<=[.!?…])\s+(?=[A-ZÀÂÉÈÊÎÔÛÇ«])/)
+    .map(s => s.trim()).filter(Boolean);
+}
+
+/* Priere de fermeture. Si le texte enregistre est trop court (ex. seulement
+   « au nom de Jésus, amen »), on compose une vraie priere a partir de la
+   phrase a retenir du jour. */
+function closingPrayer(day: any): string[] {
+  const lines = prayerLines(day.prayer_close);
+  const body = lines.filter(l => !/^au nom de/i.test(l)).join(' ');
+  if (body.length >= 60) return lines;
+  const keep = String(day.bread_close ?? '').trim().replace(/[.!…]+$/, '');
+  return [
+    'Père, merci pour ta Parole de ce jour.',
+    ...(keep ? [`Grave dans mon cœur cette vérité : « ${keep} ».`] : []),
+    'Donne-moi la force de la vivre aujourd’hui, dans les petites choses comme dans les grandes.',
+    'Je remets ma journée entre tes mains, garde-moi dans ta paix.',
+    'Au nom de Yéchoua (Jésus), amen.'
+  ];
+}
+
 export default function Shell({ day, readings, user, archive, recentDays, translationName,
   missingDays = [], isAdmin = false, todayDate, verseText, verseName }: Props) {
   // Verset du jour cite dans la traduction par defaut du site (S21 si importee).
@@ -62,7 +87,8 @@ export default function Shell({ day, readings, user, archive, recentDays, transl
 
         <div className="prayer opening">
           <span className="kicker">Prière d&rsquo;ouverture</span>
-          <p dangerouslySetInnerHTML={{ __html: rich(day.prayer_open) }} />
+          {prayerLines(day.prayer_open).map((l, i) =>
+            <p key={i} className="pl" dangerouslySetInnerHTML={{ __html: rich(l) }} />)}
         </div>
 
         <div className="card pad">
@@ -102,9 +128,10 @@ export default function Shell({ day, readings, user, archive, recentDays, transl
           </div>
         )}
 
-        <div className="prayer">
+        <div className="prayer closing">
           <span className="kicker">Prière de fermeture</span>
-          <p dangerouslySetInnerHTML={{ __html: rich(day.prayer_close) }} />
+          {closingPrayer(day).map((l, i) =>
+            <p key={i} className="pl" dangerouslySetInnerHTML={{ __html: rich(l) }} />)}
         </div>
 
         {day.objection_q && (

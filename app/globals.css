@@ -1237,3 +1237,8 @@ html[data-mode="soir"] .rfab.on{color:#0E141A}
 .fv-actions-text .scripture{border-left:0;padding-left:0}
 .fv-actions-text .scripture .vs{cursor:pointer}
 .fv-hint{font-family:var(--sans);font-size:12px!important;color:var(--ink-3)!important;margin-top:8px}
+
+/* Prieres d'ouverture et de fermeture : une phrase par ligne */
+.prayer p.pl{margin:0}
+.prayer p.pl + p.pl{margin-top:6px}
+.prayer.closing p.pl:last-child{margin-top:12px;font-style:normal;font-weight:560;color:var(--accent)}

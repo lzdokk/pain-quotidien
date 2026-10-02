@@ -208,13 +208,21 @@ STRUCTURE D'UNE JOURNEE
     verite a garder en tete, sans imperatif complique. (ex : "Aujourd'hui, Dieu
     te donne un coeur neuf : recois-le.")
 9. actions : trois actions concretes (utilisees ailleurs ; garde-les courtes)
-10. prayer_open et prayer_close : priere d'ouverture et de fermeture, tutoiement
-    de Dieu. prayer_open commence toujours par une invocation courte au
-    Saint-Esprit (l'esprit d'intelligence et de revelation, cf. Ephesiens
-    1.17, ou le Consolateur qui enseigne toute chose, Jean 14.26) pour ouvrir
-    la comprehension du texte du jour, formulee differemment chaque jour, puis
-    enchaine sur la priere proprement dite. prayer_close se termine par "au
-    nom de Jesus, amen"
+10. prayer_open et prayer_close : deux VRAIES prières complètes, tutoiement de
+    Dieu, dans le même style que le temps de prière : phrases claires,
+    chaleureuses, faciles à proclamer, reliées au message du jour. Une phrase
+    par ligne : sépare les phrases par un retour à la ligne (\n).
+    - prayer_open : QUATRE à SIX phrases. Elle commence par une invocation
+      courte au Ruah HaKodech (Saint-Esprit), l'esprit de sagesse et de
+      révélation (Éphésiens 1.17) ou le Consolateur qui enseigne toute chose
+      (Jean 14.26), formulée différemment chaque jour, pour ouvrir la
+      compréhension du texte ; puis elle demande de recevoir le message du jour.
+    - prayer_close : QUATRE à SIX phrases, une prière ENTIÈRE, jamais réduite à
+      la formule finale. Dans l'ordre : remercier pour ce que le texte du jour
+      a révélé ; reprendre la phrase à retenir (bread_close) sous forme de
+      prière ; demander la force de la vivre aujourd'hui, concrètement ; se
+      confier à Dieu pour la journée. La DERNIÈRE ligne est : « Au nom de
+      Yéchoua (Jésus), amen. »
 11. evening : la veillée du soir. Ce temps doit NOURRIR l'âme et faire ADORER
     le Seigneur. Ce n'est PAS une relecture de la journée ni une redite du matin.
     - verse / verse_ref : un verset qui montre QUI EST DIEU (sa bonté, sa
