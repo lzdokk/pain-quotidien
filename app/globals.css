@@ -1232,3 +1232,8 @@ html[data-mode="soir"] .rfab.on{color:#0E141A}
 .rp-ver{font-size:11px;font-weight:620;letter-spacing:.03em;color:var(--ink-3);padding:0 9px}
 /* Noms hebreux / arameens de Dieu dans les prieres et le pain */
 .pl-lines strong,.prayer strong{font-style:normal;font-weight:650;color:var(--accent);letter-spacing:.01em}
+
+/* Versets a connaitre : le texte devient touchable (meme fenetre que Lire) */
+.fv-actions-text .scripture{border-left:0;padding-left:0}
+.fv-actions-text .scripture .vs{cursor:pointer}
+.fv-hint{font-family:var(--sans);font-size:12px!important;color:var(--ink-3)!important;margin-top:8px}

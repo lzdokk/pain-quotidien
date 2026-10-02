@@ -1,5 +1,5 @@
 import { supabaseServer } from '@/lib/supabase/server';
-import { fixAccentsDeep } from '@/lib/accents';
+import { polishDeep } from '@/lib/accents';
 import Shell from '@/components/Shell';
 import { contentDate } from '@/lib/date';
 import { bdsTranslation, readingsWithTranslation, citedVerse } from '@/lib/bible';
@@ -72,7 +72,7 @@ export default async function Pain() {
   }
   const memVerse = await citedVerse(day.verse_ref, day.verse_text);
 
-  return <Shell day={fixAccentsDeep(day)} readings={readingsBds} user={user} recentDays={recentDays}
+  return <Shell day={polishDeep(day)} readings={readingsBds} user={user} recentDays={recentDays}
                 translationName={bds.name} archive={day.date !== today}
                 missingDays={missingDays} isAdmin={isAdmin} todayDate={today}
                 verseText={memVerse.text} verseName={memVerse.name} />;

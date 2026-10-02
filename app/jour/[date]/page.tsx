@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { fixAccentsDeep } from '@/lib/accents';
+import { polishDeep } from '@/lib/accents';
 import { supabaseServer } from '@/lib/supabase/server';
 import { bdsTranslation, readingsWithTranslation, citedVerse } from '@/lib/bible';
 import { contentDate } from '@/lib/date';
@@ -46,7 +46,7 @@ export default async function Jour({ params }: { params: Promise<{ date: string 
 
   const memVerse = await citedVerse(day.verse_ref, day.verse_text);
 
-  return <Shell day={fixAccentsDeep(day)} readings={readingsBds} user={user} archive recentDays={recentDays}
+  return <Shell day={polishDeep(day)} readings={readingsBds} user={user} archive recentDays={recentDays}
                 translationName={bds.name}
                 missingDays={missingDays} isAdmin={isAdmin} todayDate={today}
                 verseText={memVerse.text} verseName={memVerse.name} />;

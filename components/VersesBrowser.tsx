@@ -1,18 +1,43 @@
 'use client';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import LearnTabs from './LearnTabs';
 import ShareButton from './ShareButton';
+import VerseActions from './VerseActions';
+import { supabase } from '@/lib/supabase/client';
 
 /**
  * Les versets les plus connus et importants du christianisme. Recherche +
  * filtre par theme, chaque verset depliable pour lire le texte, sa fiche et
  * un lien direct vers le lecteur.
  */
-export default function VersesBrowser({ verses }: { verses: any[] }) {
+export default function VersesBrowser({ verses, user }: { verses: any[]; user?: any }) {
   const [theme, setTheme] = useState('Tout');
   const [q, setQ] = useState('');
   const [open, setOpen] = useState<string | null>(null);
+  // Texte verset par verset du verset ouvert (pour la fenetre d'actions,
+  // la meme que dans Lire et le pain quotidien).
+  const [vv, setVv] = useState<Record<string, Array<[number, string]>>>({});
+
+  useEffect(() => {
+    const v = verses.find(x => x.slug === open);
+    if (!v || !v.book || !v.chapter || !v.verse_start || vv[v.slug]) return;
+    let alive = true;
+    (async () => {
+      const end = v.verse_end ?? v.verse_start;
+      const read = (t: string) => supabase.from('verses').select('verse, text')
+        .eq('translation', t).eq('book', v.book).eq('chapter', v.chapter)
+        .gte('verse', v.verse_start).lte('verse', end).order('verse');
+      let { data } = await read('S21');
+      if (!data?.length) ({ data } = await read('FRLSG'));
+      if (alive && data?.length) {
+        setVv(m => ({ ...m, [v.slug]: (data as any[]).map(r => [r.verse, r.text] as [number, string]) }));
+      }
+    })();
+    return () => { alive = false; };
+  }, [open, verses]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const bookNameOf = (ref: string) => ref.replace(/\s+\d+[.:,].*$/, '').replace(/\s+\d+$/, '').trim();
 
   const themes = useMemo(
     () => ['Tout', ...Array.from(new Set(verses.map(v => v.theme)))],
@@ -68,7 +93,15 @@ export default function VersesBrowser({ verses }: { verses: any[] }) {
 
               {on && (
                 <div className="fv-body">
-                  <blockquote className="fv-text">{v.verse_text}</blockquote>
+                  {vv[v.slug]?.length ? (
+                    <div className="fv-text fv-actions-text">
+                      <VerseActions book={v.book} chapter={v.chapter} bookName={bookNameOf(v.reference)}
+                                    verses={vv[v.slug]} user={user} />
+                      <p className="fv-hint">Touchez le verset pour l&rsquo;expliquer, le comparer, le classer ou l&rsquo;annoter.</p>
+                    </div>
+                  ) : (
+                    <blockquote className="fv-text">{v.verse_text}</blockquote>
+                  )}
                   <p className="fv-blurb">{v.blurb}</p>
                   <div className="fv-actions">
                     <Link className="btn sm" href={`/lire?ref=${encodeURIComponent(v.reference)}`}>

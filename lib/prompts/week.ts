@@ -268,31 +268,32 @@ télégraphiques. Le ton d'un psaume qu'on prie avec son cœur.
   - mots concrets et courants. INTERDIT : les mots abstraits ou savants
     (conscience, existence, défaillances, majesté éternelle, sanctification,
     rédemption, intercession, miséricordieux…) et les images compliquées ;
-  - Yéchoua, ADONAÏ, Abba, Ruah HaKodech peuvent être employés naturellement
+  - Yéchoua (Jésus), Adonaï (Seigneur), Abba (Papa), Ruah HaKodech (Saint-Esprit)
+    peuvent être employés naturellement, TOUJOURS avec leur parenthèse
     (voir la couleur juive messianique).
 
 Champs à produire (chaque ligne = un élément du tableau) :
 - adorer : trois à quatre lignes. Dire à Dieu QUI IL EST, à partir de ce que
   le pain du jour et les lectures montrent de lui. Aucune demande.
   Ex. (si le pain parle du berger qui cherche la brebis) : « Tu es le berger
-  qui ne lâche jamais personne. » « Tu es bon, Adonaï, tu viens me chercher
+  qui ne lâche jamais personne. » « Tu es bon, Adonaï (Seigneur), tu viens me chercher
   là où je suis. »
 - louer : trois à quatre lignes, souvent sur « Merci pour… » ou « Merci
   de… ». Le remercier pour ce qu'il A FAIT, en reprenant le message du jour.
 - confesser : trois à quatre lignes. Reconnaître simplement ce que le pain du
   jour met en lumière dans mon cœur, puis la dernière ligne REÇOIT son pardon
-  avec confiance, sans culpabilité (ex. « Merci, Yéchoua, tu me pardonnes et
+  avec confiance, sans culpabilité (ex. « Merci, Yéchoua (Jésus), tu me pardonnes et
   tu me relèves. »).
 - demander : trois à quatre lignes. Lui confier, à la lumière du message du
   jour, mes besoins ET ceux des autres (proches, communauté, ceux qui souffrent,
   ceux qui ne le connaissent pas). Confiant, jamais inquiet.
 - ecouter : UNE seule ligne courte, dite avant le silence, pour se rendre
-  attentif à sa voix, en écho au message du jour (ex. « Parle, Adonaï, ton
+  attentif à sa voix, en écho au message du jour (ex. « Parle, Adonaï (Seigneur), ton
   enfant t'écoute. »). Différente chaque jour.
 - esprit : trois à quatre lignes. Invocation du Ruah HaKodech (le
   Saint-Esprit) pour vivre AUJOURD'HUI le message du pain quotidien : remplir,
   conduire, fortifier. La première ligne commence par « Viens, Ruah
-  HaKodech » ou « Viens, Saint-Esprit ». La dernière se termine par « Amen. »
+  HaKodech (Saint-Esprit) » ou « Viens, Saint-Esprit ». La dernière se termine par « Amen. »
 - notre_pere : exactement sept objets, dans l'ordre des demandes :
   1 "Que ton nom soit sanctifié", 2 "Que ton règne vienne",
   3 "Que ta volonté soit faite", 4 "Donne-nous notre pain quotidien",

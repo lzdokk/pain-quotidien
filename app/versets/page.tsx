@@ -10,7 +10,7 @@ export default async function Versets() {
   const sb = await supabaseServer();
   const { data: { user } } = await sb.auth.getUser();
   const { data: verses } = await sb.from('famous_verses')
-    .select('slug, reference, theme, title, blurb, verse_text, ord')
+    .select('slug, reference, theme, title, blurb, verse_text, ord, book, chapter, verse_start, verse_end')
     .order('ord');
 
   // Chaque verset cite dans la traduction par defaut du site (S21 si importee).
@@ -21,7 +21,7 @@ export default async function Versets() {
   return (
     <>
       <Nav user={user} />
-      <VersesBrowser verses={versesDef} />
+      <VersesBrowser verses={versesDef} user={user} />
     </>
   );
 }

@@ -5,7 +5,7 @@ import PageTabs from '@/components/PageTabs';
 import { contentDate } from '@/lib/date';
 import ResumeReading from '@/components/ResumeReading';
 import { rich } from '@/lib/rich';
-import { fixAccentsDeep } from '@/lib/accents';
+import { polishDeep } from '@/lib/accents';
 
 export const dynamic = 'force-dynamic'; // toujours le jour courant, jamais du cache
 export const metadata = { title: 'Prière' };
@@ -91,7 +91,7 @@ export default async function Priere_() {
     day = last ?? null;
   }
   // Les journees deja ecrites sans accents sont reparees a l'affichage.
-  if (day) day = fixAccentsDeep(day);
+  if (day) day = polishDeep(day);
   const { data: { user } } = await sb.auth.getUser();
 
   const duJour = !!day && ((day.prayer_axes ?? []) as Axe[]).length > 0;

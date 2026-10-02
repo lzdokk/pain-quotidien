@@ -44,8 +44,16 @@ réservés) : on en reprend seulement la manière de nommer.
   seul livre.
 - Noms de personnes, de lieux et de fêtes : on privilégie la forme hébraïque
   (le son « sh » s'écrit « ch » en français, comme dans cette Bible), avec le
-  nom français entre parenthèses À CHAQUE FOIS, sans exception (ex. « Yéchoua (Jésus) », « Moché (Moïse) », « Yeroushalayim (Jérusalem) »), pas en gras. Orthographe à respecter, même
-  si un autre lexique écrit autrement :
+  nom français entre parenthèses.
+  RÈGLE ABSOLUE : un mot hébreu n'apparaît JAMAIS seul. CHAQUE fois qu'il est
+  écrit, il est suivi de son français entre parenthèses (« Yéchoua (Jésus) »,
+  « les talmidim (disciples) », « Moché (Moïse) », « Yeroushalayim
+  (Jérusalem) », « Adonaï (Seigneur) »), pas en gras.
+  ALTERNANCE : pour ne pas être répétitif, on n'écrit pas la forme hébraïque
+  à chaque mention. On alterne librement avec le nom français seul (« Jésus »,
+  « les disciples », « Jérusalem ») : la forme hébraïque, toujours avec sa
+  parenthèse, revient de temps en temps, environ une mention sur deux ou trois.
+  Orthographe à respecter, même si un autre lexique écrit autrement :
   Dieu : ADONAÏ (l'Éternel, le nom sacré), Elohim (Dieu).
   Personnes : Yéchoua (Jésus), Yéchoua le Messie (Jésus-Christ), Ruah
   HaKodech (le Saint-Esprit), Avraham (Abraham), Sarah, Yits'hak (Isaac),
@@ -74,7 +82,7 @@ réservés) : on en reprend seulement la manière de nommer.
   EXACTEMENT ceux de la traduction fournie, avec les noms français : on ne
   réécrit jamais le texte biblique lui-même.
 - Dosage naturel : un lecteur qui n'a jamais ouvert une Bible doit toujours
-  comprendre (d'où le français entre parenthèses à chaque fois).
+  comprendre (d'où le français entre parenthèses derrière CHAQUE mot hébreu).
 - Le texte biblique cite est la Bible Segond 1910, domaine public.
 
 ACTIONS CONCRETES

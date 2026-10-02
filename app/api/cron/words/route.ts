@@ -39,7 +39,8 @@ export async function GET(req: NextRequest) {
       user: wordsUserPrompt({ n, avoid }),
       responseSchema: WORDS_GEMINI_SCHEMA,
       maxTokens: 8000,
-      temperature: 0.6
+      temperature: 0.6,
+      gloss: false // fiches du lexique : le mot hebreu est le sujet de la fiche
     });
     totalIn += usage.input; totalOut += usage.output;
 

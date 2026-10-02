@@ -12,13 +12,15 @@
    (la 2e utilise la variable d'env GOOGLE_AI_KEY2).
    ══════════════════════════════════════════════════════════════════ */
 import { z } from 'zod';
-import { fixAccentsDeep } from './accents';
+import { polishDeep } from './accents';
 
 export type Provider = 'gemini' | 'groq' | 'mistral' | 'cerebras'
   | 'nvidia' | 'openrouter' | 'anthropic' | 'none';
 export const PROVIDER = (process.env.LLM_PROVIDER ?? 'gemini') as Provider;
 
-type Call = { system: string; user: string; maxTokens?: number; temperature?: number; responseSchema?: any; json?: boolean; timeoutMs?: number };
+type Call = { system: string; user: string; maxTokens?: number; temperature?: number; responseSchema?: any; json?: boolean; timeoutMs?: number;
+  /** false = ne pas ajouter le francais apres les mots hebreux (ex. fiches du lexique) */
+  gloss?: boolean };
 type Raw = { text: string; input: number; output: number };
 
 /* Variable d'env de la cle, par fournisseur (valeur par defaut). */
@@ -293,8 +295,9 @@ export async function callJSON<T>(schema: z.ZodType<T>, c: Call): Promise<{
     const json = s.slice(s.indexOf('{'), s.lastIndexOf('}') + 1);
     try {
       const parsed = schema.safeParse(JSON.parse(json || '{}'));
-      // Accents remis systematiquement (certains modeles les oublient).
-      if (parsed.success) return { data: fixAccentsDeep(parsed.data), usage: { input: r.input, output: r.output } };
+      // Accents remis systematiquement (certains modeles les oublient), et jamais
+      // un mot hebreu sans son francais entre parentheses.
+      if (parsed.success) return { data: polishDeep(parsed.data, { gloss: c.gloss }), usage: { input: r.input, output: r.output } };
       last = parsed.error.issues.map(i => `${i.path.join('.')}: ${i.message}`).join(' | ');
     } catch (e: any) { last = `JSON illisible : ${e.message}`; }
   }
