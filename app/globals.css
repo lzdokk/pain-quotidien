@@ -1242,3 +1242,13 @@ html[data-mode="soir"] .rfab.on{color:#0E141A}
 .prayer p.pl{margin:0}
 .prayer p.pl + p.pl{margin-top:6px}
 .prayer.closing p.pl:last-child{margin-top:12px;font-style:normal;font-weight:560;color:var(--accent)}
+
+/* Hebreu : lecture de droite a gauche, police lisible avec voyelles */
+.vlist.he,.vc-cell.he,.wbw-orig,.cmp-text[dir="rtl"]{font-family:"SBL Hebrew","Ezra SIL","Taamey Frank CLM","Times New Roman",serif}
+.vlist.he{font-size:23px;line-height:1.9}
+.vlist.he .vn{margin:0 0 0 6px}
+.vc-cell.he{font-size:20px;line-height:1.8;text-align:right}
+.wbw-orig{font-size:22px;line-height:1.8;color:var(--ink);text-align:right;margin:4px 0 10px;
+ padding:10px 14px;background:var(--surface-2);border-radius:12px}
+.wbw-orig[dir="ltr"]{text-align:left}
+.wbw-src-pick{display:flex;gap:6px;flex-wrap:wrap;margin:2px 0 10px}

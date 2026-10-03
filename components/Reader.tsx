@@ -98,6 +98,9 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
     return [...list].sort((a: any, b: any) =>
       a.code === 'BEX2004' ? -1 : b.code === 'BEX2004' ? 1 : 0);
   }, [visibleTranslations, lang]);
+  // Langues ecrites de droite a gauche (hebreu, arabe).
+  const isRtl = (code: string | null) =>
+    /^(he|ar)$/.test(translations.find((t: any) => t.code === code)?.language ?? '');
   const changeLang = (l: string) => {
     setLang(l);
     const inLang = visibleTranslations.filter((t: any) => (t.language ?? 'fr') === l);
@@ -601,12 +604,13 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
           <div style={{ padding: '4px 30px 26px' }}>
             <VerseCompare book={book} chapter={chapter} transA={trad} transB={compareWith}
               nameA={translations.find((t: any) => t.code === trad)?.name}
-              nameB={translations.find((t: any) => t.code === compareWith)?.name} />
+              nameB={translations.find((t: any) => t.code === compareWith)?.name}
+              rtlA={isRtl(trad)} rtlB={isRtl(compareWith)} />
           </div>
         )}
 
         {!compareWith && (
-        <div className="vlist">
+        <div className={`vlist${isRtl(trad) ? ' he' : ''}`} dir={isRtl(trad) ? 'rtl' : undefined}>
           {loading ? <p className="empty">Chargement…</p> :
            verses.length === 0 ? <p className="empty">Ce chapitre n&rsquo;est pas encore importe dans cette traduction.</p> :
            verses.map(v => {
@@ -879,8 +883,11 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
                 <>
                   <select className="field" style={{ marginTop: 8 }} value={compareWith}
                           onChange={e => setCompareWith(e.target.value)}>
-                    {langTranslations.filter((t: any) => t.code !== trad).map((t: any) =>
-                      <option key={t.code} value={t.code}>{t.name}</option>)}
+                    {/* Toutes les versions, hebreu compris, pour comparer le texte d'origine */}
+                    {visibleTranslations.filter((t: any) => t.code !== trad).map((t: any) =>
+                      <option key={t.code} value={t.code}>
+                        {t.name}{(t.language ?? 'fr') !== 'fr' ? ` · ${LANG_LABELS[t.language] ?? t.language}` : ''}
+                      </option>)}
                   </select>
                   <button className="btn sm" style={{ marginTop: 10 }} onClick={() => setCompareWith(null)}>
                     Fermer la comparaison

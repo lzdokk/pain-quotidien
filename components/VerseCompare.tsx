@@ -7,10 +7,10 @@ import { getTwoTranslations, type Verse } from '@/lib/study';
  * (empilé sur mobile). Gère local et distant via lib/study. Style CSS maison.
  */
 export default function VerseCompare({
-  book, chapter, transA, transB, nameA, nameB
+  book, chapter, transA, transB, nameA, nameB, rtlA, rtlB
 }: {
   book: number; chapter: number; transA: string; transB: string;
-  nameA?: string; nameB?: string;
+  nameA?: string; nameB?: string; rtlA?: boolean; rtlB?: boolean;
 }) {
   const [rows, setRows] = useState<{ a: Verse[]; b: Verse[] } | null>(null);
   const [err, setErr] = useState(false);
@@ -45,8 +45,8 @@ export default function VerseCompare({
         const r = byVerse.get(n)!;
         return (
           <div className="vc-row" key={n}>
-            <div className="vc-cell"><span className="vc-n">{n}</span>{r.a ?? '—'}</div>
-            <div className="vc-cell"><span className="vc-n">{n}</span>{r.b ?? '—'}</div>
+            <div className={`vc-cell${rtlA ? ' he' : ''}`} dir={rtlA ? 'rtl' : undefined}><span className="vc-n">{n}</span>{r.a ?? '—'}</div>
+            <div className={`vc-cell${rtlB ? ' he' : ''}`} dir={rtlB ? 'rtl' : undefined}><span className="vc-n">{n}</span>{r.b ?? '—'}</div>
           </div>
         );
       })}

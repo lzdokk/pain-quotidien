@@ -11,7 +11,7 @@ export default async function Lire() {
 
   const [{ data: books }, { data: trans }, { data: plans }, { data: steps }, { data: intros }] = await Promise.all([
     sb.from('books').select('id, name, chapters').order('id'),
-    sb.from('translations').select('code, name, notice, enabled, source, api_id').eq('enabled', true).order('code'),
+    sb.from('translations').select('code, name, notice, enabled, source, api_id, language').eq('enabled', true).order('code'),
     sb.from('reading_plans').select('*').order('order_index'),
     sb.from('plan_steps').select('*').order('position'),
     sb.from('book_intros').select('book, name, testament, section, title, situ, who, why, christ, key_verse')

@@ -18,7 +18,13 @@
  *   --name "<Nom>"    nom affiche, ex. "Darby (1890)" (obligatoire)
  *   --public          marque la version comme domaine public (public_domain = true)
  *   --notice "<...>"  mention de copyright affichee sous le texte (versions sous licence)
- *   --lang <fr>       langue (defaut fr)
+ *   --lang <fr>       langue (defaut fr ; he = hebreu, affiche de droite a gauche)
+ *   --min <n>         nombre minimal de versets pour accepter le fichier
+ *                     (defaut 25000 ; 20000 pour un Ancien Testament seul)
+ *
+ * Exemple, Bible hebraique (Codex de Leningrad, Ancien Testament seul) :
+ *   npx tsx scripts/import-bible-xml.ts --file "bibles/DHNT 1885 (Hebrew Bible)" --code WLC \
+ *       --name "Hébreu (Codex de Leningrad)" --lang he --public --min 20000
  */
 import './load-env';
 import { readFileSync, existsSync } from 'node:fs';
@@ -83,6 +89,7 @@ async function main() {
   const name = String(o.name ?? '').trim();
   const lang = String(o.lang ?? 'fr').trim();
   const isPublic = o.public === true;
+  const minRows = Number(o.min ?? 25000) || 25000;
   const notice = typeof o.notice === 'string' ? o.notice : (isPublic ? `${name}, domaine public` : null);
 
   if (!file || !existsSync(file) || !code || !name) {
@@ -127,8 +134,8 @@ async function main() {
 
   console.log(`  ${code} — livres ${booksSeen.size}/66 · versets a inserer : ${rows.length}`);
   // Securite : on n'efface la version existante QUE si le fichier est complet.
-  if (rows.length < 25000) {
-    console.error("  ⛔ Fichier incomplet (< 25000 versets). Rien n'a ete modifie en base.\n");
+  if (rows.length < minRows) {
+    console.error(`  ⛔ Fichier incomplet (< ${minRows} versets). Rien n'a ete modifie en base.\n`);
     process.exit(1);
   }
 
