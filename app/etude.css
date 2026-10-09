@@ -1,0 +1,66 @@
+
+/* ══════════════════════════════════════════════════════════════════
+   Index d'etude (/etude) et guide « Comment lire la Bible »
+   ══════════════════════════════════════════════════════════════════ */
+.ix-guide{display:flex;flex-direction:column;gap:4px;text-decoration:none;color:inherit;
+ background:linear-gradient(180deg,var(--accent-soft),transparent);border-color:var(--accent-line)}
+.ix-guide b{font-family:var(--serif);font-size:20px;font-weight:600;color:var(--ink)}
+.ix-guide-go{font-size:14px;color:var(--accent)}
+.ix-count{font-size:12.5px;color:var(--ink-3);margin-top:10px}
+.ix-sujet-t{font-family:var(--serif);font-size:22px;font-weight:600;letter-spacing:-.015em;margin-bottom:6px;color:var(--accent)}
+.ix-group{margin-top:14px}
+.ix-group h3{font-size:12px;font-weight:640;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-bottom:8px}
+.ix-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.ix-chip{display:inline-flex;align-items:center;border:1px solid var(--line-2);border-radius:99px;padding:6px 13px;
+ font-size:14px;font-weight:530;color:var(--ink);text-decoration:none;background:var(--surface);transition:.18s var(--ease)}
+.ix-chip:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+.ix-chip.soon{color:var(--ink-4);border-style:dashed;cursor:default;background:transparent}
+.ix-res{display:flex;flex-direction:column;gap:2px;padding:16px 26px;border-bottom:1px solid var(--line);text-decoration:none;color:inherit}
+.ix-res:last-child{border-bottom:0}
+.ix-res:hover{background:var(--surface-2)}
+.ix-res-k{font-size:11px;font-weight:640;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.ix-res-t{font-family:var(--serif);font-size:18px;font-weight:600;color:var(--ink)}
+.ix-res-d{font-size:14px;color:var(--ink-3);line-height:1.5}
+.ix-head{padding:22px 0 8px}
+.ix-head h1{font-family:var(--serif);font-size:clamp(30px,6vw,42px);font-weight:600;letter-spacing:-.02em;line-height:1.15;margin:4px 0 12px}
+.ix-def{font-size:17px;line-height:1.65;color:var(--ink-2)}
+.ix-meta{font-size:12.5px;color:var(--ink-3);margin-top:10px}
+.ix-sec h2{font-family:var(--serif);font-size:20px;font-weight:600;color:var(--accent);margin-bottom:10px}
+.ix-items{list-style:none;margin:0;padding:0}
+.ix-items li{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 10px;padding:9px 0;border-bottom:1px solid var(--line)}
+.ix-items li:last-child{border-bottom:0}
+.ix-label{font-size:15.5px;color:var(--ink);flex:1 1 220px;line-height:1.45}
+.ix-label::before{content:"•";color:var(--accent);margin-right:8px}
+.ix-refs{display:flex;flex-wrap:wrap;gap:6px}
+.refchip{border:1px solid var(--accent-line);background:var(--accent-soft);color:var(--accent);font:inherit;
+ font-size:13px;font-weight:620;border-radius:99px;padding:3px 10px;cursor:pointer;white-space:nowrap;transition:.15s var(--ease)}
+.refchip:hover{background:var(--accent);color:#fff}
+html[data-mode="soir"] .refchip:hover{color:#0E141A}
+.refchip.off{opacity:.5;cursor:default}
+.refsheet-text{font-family:var(--serif);font-size:18px;line-height:1.75;color:var(--ink);padding:4px 4px 8px}
+.refsheet-text p{margin:0 0 6px}
+.refsheet-text .v{font-family:var(--sans);font-size:11px;font-weight:660;color:var(--accent);vertical-align:.45em;margin-right:5px}
+.refsheet-tr{display:block;font-family:var(--sans);font-size:11.5px;color:var(--ink-4);margin-top:6px}
+.refsheet-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.ix-note{font-size:12px;color:var(--ink-4);text-align:center;margin:22px 0 8px;line-height:1.5}
+@media(max-width:700px){.ix-res{padding:14px 16px}}
+
+/* Guide « Comment lire » */
+.guide-steps{margin:10px 0 0;padding-left:22px;display:flex;flex-direction:column;gap:12px}
+.guide-steps li{font-size:15.5px;line-height:1.55;color:var(--ink-2)}
+.guide-steps li b{display:block;color:var(--ink);font-size:16px}
+.guide-sub{font-size:14px!important;color:var(--ink-3)!important;margin:-4px 0 6px}
+.guide-q{margin:6px 0 0;padding-left:20px;display:flex;flex-direction:column;gap:8px}
+.guide-q li{font-size:15.5px;line-height:1.5;color:var(--ink-2)}
+.guide-pray{list-style:none;margin:6px 0 0;padding:0}
+.guide-pray li{display:grid;grid-template-columns:130px 1fr;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.guide-pray li:last-child{border-bottom:0}
+.guide-pray b{color:var(--accent);font-size:14.5px}
+.guide-pray span{font-size:15px;color:var(--ink-2);line-height:1.5}
+@media(max-width:560px){.guide-pray li{grid-template-columns:1fr;gap:2px}}
+
+/* Bulle « Comment lire » du lecteur : petits onglets */
+.rb-tabs{display:flex;gap:4px;margin:0 0 10px}
+.rb-tabs .cmp-chip{font-size:12.5px}
+.rb-list{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px}
+.rb-list li{font-size:14px;line-height:1.45;color:var(--ink-2)}

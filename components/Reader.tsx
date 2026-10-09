@@ -8,6 +8,7 @@ import Compare from './Compare';
 import VerseCompare from './VerseCompare';
 import OfflineDownload from './OfflineDownload';
 import { themeOf, suggestTheme, matchThemeQuery } from '@/lib/highlight-themes';
+import { QUATRE_TEMPS, QUESTIONS, POUR_PRIER } from '@/lib/reading-guide';
 
 type V = { verse: number; text: string };
 const iso = (d: Date) => d.toISOString().slice(0, 10);
@@ -80,6 +81,7 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
   const setTab = (t: 'jour' | 'parcours' | 'bible') => setTabState(t);
   // Bulles flottantes : methode de lecture / recherche + historique.
   const [bubble, setBubble] = useState<null | 'method' | 'search' | 'versions'>(null);
+  const [guideTab, setGuideTab] = useState<'court' | 'questions' | 'prier'>('court');
   // Emplacement dans la barre du haut (a cote de l'avatar) pour livre · version · v.
   const [slot, setSlot] = useState<HTMLElement | null>(null);
   useEffect(() => { setSlot(document.getElementById('nav-slot')); }, []);
@@ -855,22 +857,37 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
 
           {bubble === 'method' && (
             <>
-              <h3 className="rbubble-t">Commencer simplement</h3>
-              <p className="rbubble-sub">Le plus important n&rsquo;est pas de lire beaucoup, mais de lire chaque jour.</p>
-              <div className="rmethod">
-                {[
-                  ['Lire', 'Que dit le texte\u00a0? Lisez un passage court, lentement.', '5 min'],
-                  ['Méditer', 'Que me dit Dieu à travers ce texte\u00a0? Notez un verset.', '5 min'],
-                  ['Prier', 'Que vais-je lui répondre\u00a0? Transformez le verset en prière.', '3 min'],
-                  ['Pratiquer', 'Que vais-je faire aujourd’hui\u00a0? Une seule action concrète.', '2 min']
-                ].map(([t, q, d]) => (
-                  <div className="rm-row" key={t}>
-                    <b>{t}</b><span>{q}</span><i>{d}</i>
-                  </div>
+              <h3 className="rbubble-t">Comment lire</h3>
+              <div className="rb-tabs">
+                {([['court', '4 temps'], ['questions', 'Questions'], ['prier', 'Pour prier']] as const).map(([k, l]) => (
+                  <button key={k} className={`cmp-chip${guideTab === k ? ' on' : ''}`} onClick={() => setGuideTab(k)}>{l}</button>
                 ))}
               </div>
-              <a href="/cursus/PMED01" className="btn sm" style={{ marginTop: 12 }}>
-                Le cours complet : Méditer la Bible ›
+              {guideTab === 'court' && (
+                <>
+                  <p className="rbubble-sub">Le plus important n&rsquo;est pas de lire beaucoup, mais de lire chaque jour.</p>
+                  <div className="rmethod">
+                    {QUATRE_TEMPS.map(([t, q, d]) => (
+                      <div className="rm-row" key={t}><b>{t}</b><span>{q}</span><i>{d}</i></div>
+                    ))}
+                  </div>
+                </>
+              )}
+              {guideTab === 'questions' && (
+                <>
+                  <p className="rbubble-sub">Réponds au moins à une question.</p>
+                  <ul className="rb-list">{QUESTIONS.map((q, i) => <li key={i}>{q}</li>)}</ul>
+                </>
+              )}
+              {guideTab === 'prier' && (
+                <div className="rmethod">
+                  {POUR_PRIER.map(p => (
+                    <div className="rm-row" key={p.t} style={{ gridTemplateColumns: '96px 1fr' }}><b>{p.t}</b><span>{p.q}</span></div>
+                  ))}
+                </div>
+              )}
+              <a href="/etude/comment-lire" className="btn sm" style={{ marginTop: 12 }}>
+                Le guide complet ›
               </a>
             </>
           )}
@@ -928,6 +945,11 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
                 <button className="filter-star" title="Versets connus (★)"
                         onClick={() => { setSearch('★ versets connus'); searchFamous(); }}>★</button>
               </div>
+
+              <a className="btn sm" style={{ marginTop: 10 }}
+                 href={`/etude${search.trim() && !search.startsWith('★') ? `?q=${encodeURIComponent(search.trim())}` : ''}`}>
+                {search.trim() && !search.startsWith('★') ? `« ${search.trim()} » dans l’Index d’étude ›` : 'Chercher un thème dans l’Index d’étude ›'}
+              </a>
 
               {recent.length > 1 && (
                 <>

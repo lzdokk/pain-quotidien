@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation';
 
 /** Onglets internes de la section « Apprendre » : Paraboles, Mots, Versets. */
 const SUBTABS = [
+  { href: '/etude', label: 'Index' },
   { href: '/paraboles', label: 'Paraboles' },
   { href: '/fondements', label: 'Fondements' },
   { href: '/mots', label: 'Mots' },

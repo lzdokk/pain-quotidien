@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import './theme.css';
 import './globals.css';
+import './etude.css';
 import Reveal from '@/components/Reveal';
 import NativeInit from '@/components/NativeInit';
 import OneSignalInit from '@/components/OneSignalInit';
