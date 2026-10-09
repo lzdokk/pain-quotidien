@@ -1,7 +1,7 @@
 import { supabaseServer } from '@/lib/supabase/server';
 import Nav from '@/components/Nav';
 import StudyIndex from '@/components/StudyIndex';
-import { allEntries, GRANDS_SUJETS } from '@/lib/prompts/study-index';
+import { allEntries, GRANDS_SUJETS, RENVOIS, slugify } from '@/lib/prompts/study-index';
 
 export const revalidate = 600;
 export const metadata = { title: 'Index d’étude' };
@@ -19,7 +19,8 @@ export default async function Etude() {
   return (
     <>
       <Nav user={user} />
-      <StudyIndex plan={plan} ready={ready} sujets={sujets} />
+      <StudyIndex plan={plan} ready={ready} sujets={sujets}
+        renvois={Object.entries(RENVOIS).map(([from, to]) => ({ from, to, slug: slugify(to) }))} />
     </>
   );
 }

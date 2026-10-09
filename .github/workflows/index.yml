@@ -1,13 +1,13 @@
 name: Index d'étude (génération des fiches)
 
 # Rédige les fiches de l'Index d'étude (thèmes, personnages, lieux) qui
-# manquent encore, trois par appel.
+# manquent encore, deux par appel.
 #  - Lancement manuel (Run workflow) : enchaîne les appels jusqu'à tout remplir.
-#  - Automatique toutes les 4 heures : complète ce qui manque (sans effet
+#  - Automatique toutes les 2 heures : complète ce qui manque (sans effet
 #    une fois l'index complet).
 on:
   schedule:
-    - cron: '17 */4 * * *'
+    - cron: '17 */2 * * *'
   workflow_dispatch: {}
 
 jobs:
@@ -17,10 +17,10 @@ jobs:
     steps:
       - name: Générer les fiches manquantes
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then ROUNDS=120; else ROUNDS=4; fi
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then ROUNDS=160; else ROUNDS=25; fi
           for i in $(seq 1 $ROUNDS); do
             echo "→ Passage $i/$ROUNDS"
-            OUT=$(curl -s --max-time 300 "${{ secrets.SITE_URL }}/api/cron/index?n=3" \
+            OUT=$(curl -s --max-time 300 "${{ secrets.SITE_URL }}/api/cron/index?n=2" \
               -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" || echo '{}')
             echo "$OUT"
             # Index complet : plus rien a faire.

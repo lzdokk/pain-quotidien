@@ -64,3 +64,9 @@ html[data-mode="soir"] .refchip:hover{color:#0E141A}
 .rb-tabs .cmp-chip{font-size:12.5px}
 .rb-list{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px}
 .rb-list li{font-size:14px;line-height:1.45;color:var(--ink-2)}
+.ix-view{display:flex;gap:6px;justify-content:center;margin:-8px 0 14px}
+.ix-letters{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin:0 0 6px}
+.ix-letters a{min-width:30px;height:30px;display:grid;place-items:center;border-radius:99px;border:1px solid var(--line);
+ font-size:13px;font-weight:620;color:var(--accent);text-decoration:none;background:var(--surface)}
+.ix-letters a:hover{background:var(--accent-soft)}
+.ix-voir{font-style:italic;font-family:var(--sans);font-size:13px;color:var(--ink-3);margin:0 4px}

@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
     return new NextResponse('Unauthorized', { status: 401 });
   }
   const sp = new URL(req.url).searchParams;
-  const n = Math.min(Math.max(1, Number(sp.get('n') ?? 3)), 6);
+  const n = Math.min(Math.max(1, Number(sp.get('n') ?? 2)), 4);
   const only = sp.get('slug');
 
   const planned = allEntries();
@@ -41,9 +41,9 @@ export async function GET(req: NextRequest) {
         system: INDEX_SYSTEM,
         user: indexUserPrompt(e),
         responseSchema: INDEX_GEMINI_SCHEMA,
-        maxTokens: 6000,
+        maxTokens: 12000,
         temperature: 0.3,
-        timeoutMs: 90_000
+        timeoutMs: 120_000
       });
 
       // Nettoyage : seules les references valides sont gardees, au format abrege.
