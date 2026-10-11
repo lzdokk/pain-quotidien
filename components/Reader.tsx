@@ -77,8 +77,17 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
   const [sheet, setSheet] = useState<null | 'book' | 'version' | 'verse'>(null); // feuilles (livre / version / aller au verset)
   const [sheetBook, setSheetBook] = useState<number | null>(null); // livre deplie dans la feuille
   // Onglets de la page : lecture du jour / parcours / Bible.
-  const [tab, setTabState] = useState<'jour' | 'parcours' | 'bible'>('bible');
-  const setTab = (t: 'jour' | 'parcours' | 'bible') => setTabState(t);
+  type Tab = 'jour' | 'parcours' | 'bible' | 'recherche';
+  const [tab, setTabState] = useState<Tab>('bible');
+  const setTab = (t: Tab) => {
+    setTabState(t);
+    try { sessionStorage.setItem('pq-tab', t); } catch {}
+  };
+  // Recherche : derniere requete lancee, historique des mots cherches,
+  // et verset a ouvrir quand on touche un resultat.
+  const [doneQ, setDoneQ] = useState('');
+  const [qHist, setQHist] = useState<string[]>([]);
+  const [target, setTarget] = useState<number | null>(null);
   // Bulles flottantes : methode de lecture / recherche + historique.
   const [bubble, setBubble] = useState<null | 'method' | 'search' | 'versions'>(null);
   const [guideTab, setGuideTab] = useState<'court' | 'questions' | 'prier'>('court');
@@ -222,6 +231,28 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
     } catch {}
   }, [books, translations]);
 
+  // Recherche gardee pendant toute la session : en revenant sur /lire
+  // (bouton retour, lien, autre page), on retrouve les memes resultats.
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(sessionStorage.getItem('pq-search') ?? 'null');
+      if (saved?.results) {
+        setSearch(saved.q ?? ''); setDoneQ(saved.q ?? '');
+        setResults(saved.results); setThemeMode(!!saved.themeMode); setSearchedIn(saved.searchedIn ?? null);
+      }
+      const hasRef = new URLSearchParams(location.search).get('ref');
+      if (!hasRef && sessionStorage.getItem('pq-tab') === 'recherche') setTabState('recherche');
+      setQHist(JSON.parse(localStorage.getItem('pq-search-hist') ?? '[]'));
+    } catch {}
+  }, []);
+  useEffect(() => {
+    if (searching) return;
+    try {
+      if (results === null) sessionStorage.removeItem('pq-search');
+      else sessionStorage.setItem('pq-search', JSON.stringify({ q: doneQ, results, themeMode, searchedIn }));
+    } catch {}
+  }, [results, searching, themeMode, searchedIn, doneQ]);
+
   // Memorisation de la position et de l'historique de lecture
   useEffect(() => {
     try {
@@ -242,6 +273,18 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
       ?.scrollIntoView({ block: 'start' }), 40);
     return () => clearTimeout(t);
   }, [sheet]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (target === null || loading || tab !== 'bible') return;
+    if (!verses.some(v => v.verse === target)) return;
+    const v = target;
+    const t = setTimeout(() => {
+      setSel(v); setEditing(false); setNoteText(noteFor(v)?.body ?? '');
+      document.getElementById(`v-${v}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setTarget(null);
+    }, 120);
+    return () => clearTimeout(t);
+  }, [target, loading, verses, tab]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const key = (v: number) => `${book}-${chapter}-${v}`;
   const noteFor = (v: number) => myNotes.find(n => n.book === book && n.chapter === chapter && n.verse === v);
@@ -313,15 +356,40 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
   // Recherche : une reference (nom + chiffre) ouvre le passage ;
   // un simple mot lance une concordance sur toute la traduction.
   const showResults = () => {
-    setBubble(null); setTab('bible');
+    setBubble(null); setTab('recherche');
     setTimeout(() => document.getElementById('resultats')
       ?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
+  };
+  const remember = (q: string) => {
+    const k = q.trim(); if (!k) return;
+    setQHist(prev => {
+      const next = [k, ...prev.filter(x => x.toLowerCase() !== k.toLowerCase())].slice(0, 16);
+      try { localStorage.setItem('pq-search-hist', JSON.stringify(next)); } catch {}
+      return next;
+    });
+  };
+  const forget = (q: string) => setQHist(prev => {
+    const next = prev.filter(x => x !== q);
+    try { localStorage.setItem('pq-search-hist', JSON.stringify(next)); } catch {}
+    return next;
+  });
+  const openResult = (r: any) => {
+    setBook(r.book); setChapter(r.chapter); setTarget(r.verse); setTab('bible');
+  };
+  const clearSearch = () => { setResults(null); setSearch(''); setDoneQ(''); setThemeMode(false); };
+  // Met en valeur le mot cherche dans le texte du verset.
+  const mark = (text: string) => {
+    const q = doneQ.trim();
+    if (themeMode || q.length < 2) return text;
+    const esc = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const parts = text.split(new RegExp('(' + esc + ')', 'gi'));
+    return parts.map((x, i) => i % 2 ? <mark key={i} className="srch-mark">{x}</mark> : x);
   };
 
   const searchTheme = async (color: number) => {
     showResults();
     setThemeMode(true); setSearching(true); setResults([]);
-    setSearchedIn(themeOf(color)?.label ?? null);
+    setSearchedIn(themeOf(color)?.label ?? null); setDoneQ(themeOf(color)?.label ?? '');
     const { data: hls } = await supabase.from('highlights')
       .select('book, chapter, verse').eq('color', color)
       .order('book').order('chapter').order('verse');
@@ -341,7 +409,7 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
 
   const searchFamous = async () => {
     showResults();
-    setThemeMode(true); setSearching(true); setResults([]); setSearchedIn('★ versets connus');
+    setThemeMode(true); setSearching(true); setResults([]); setSearchedIn('★ versets connus'); setDoneQ('★ versets connus');
     const { data: fam } = await supabase.from('famous_verses')
       .select('book, chapter, verse_start, title').order('book').order('chapter').limit(400);
     const rows = fam ?? [];
@@ -358,15 +426,18 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
     setSearching(false);
   };
 
-  const runSearch = async () => {
-    const q = search.trim();
+  const runSearch = async (qIn?: string) => {
+    const q = (qIn ?? search).trim();
+    if (qIn !== undefined) setSearch(qIn);
     if (!q) { setResults(null); return; }
+    remember(q);
+    if (q.startsWith('★')) { searchFamous(); return; }
     const themeColor = matchThemeQuery(q);
     if (themeColor) { searchTheme(themeColor); return; }
     setThemeMode(false);
     if (/\S\s+\d/.test(q)) { go(q); setResults(null); setBubble(null); window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
     showResults();
-    setSearching(true); setResults([]);
+    setSearching(true); setResults([]); setDoneQ(q);
     // Les traductions sous licence sont lues a distance, verset par verset :
     // la concordance porte donc sur le texte local (Segond 1910).
     const t = translations.find((x: any) => x.code === trad);
@@ -387,8 +458,8 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
         <p className="lede">Un parcours qui commence là où il faut commencer, et un carnet qui garde tout ce que vous notez.</p>
       </header>
 
-      <div className="page-tabs" role="tablist">
-        {([['bible', 'Bible'], ['jour', 'Lecture du jour'], ['parcours', 'Parcours']] as const).map(([k, l]) => (
+      <div className="page-tabs four" role="tablist">
+        {([['bible', 'Bible'], ['recherche', 'Recherche'], ['jour', 'Lecture du jour'], ['parcours', 'Parcours']] as const).map(([k, l]) => (
           <button key={k} role="tab" className="page-tab" aria-selected={tab === k}
                   onClick={() => { setTab(k); setBubble(null); }}>{l}</button>
         ))}
@@ -528,35 +599,96 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
         </>
       )}
 
+      {tab === 'recherche' && (
+        <>
+          <div className="card pad srch-card">
+            <div className="srch-row">
+              <input className="field" type="search" value={search}
+                     onChange={e => setSearch(e.target.value)}
+                     onKeyDown={e => { if (e.key === 'Enter') runSearch(); }}
+                     placeholder="Un mot (grâce, gloire…) ou une référence (Jean 3)" />
+              <button className="btn primary" onClick={() => runSearch()}>Chercher</button>
+            </div>
+            <div className="filter-row">
+              <span className="filter-label">Mes couleurs :</span>
+              {[1, 2, 3, 4, 5, 6, 7].map(c => (
+                <button key={c} className={`swatch s${c}`} title={themeOf(c)?.label}
+                        onClick={() => { const l = themeOf(c)?.label ?? ''; setSearch(l); remember(l); searchTheme(c); }} />
+              ))}
+              <button className="filter-star" title="Versets connus (★)"
+                      onClick={() => runSearch('★ versets connus')}>★</button>
+            </div>
+
+            {qHist.length > 0 && (
+              <>
+                <div className="srch-k">Recherches récentes</div>
+                <div className="chips srch-hist">
+                  {qHist.map(h => (
+                    <span key={h} className={`chip${h === doneQ ? ' on' : ''}`}>
+                      <span onClick={() => runSearch(h)}>{h}</span>
+                      <span className="srch-x" aria-label="Retirer" onClick={() => forget(h)}>×</span>
+                    </span>
+                  ))}
+                </div>
+              </>
+            )}
+
+            <a className="srch-index"
+               href={`/etude${search.trim() && !search.startsWith('★') ? `?q=${encodeURIComponent(search.trim())}` : ''}`}>
+              {search.trim() && !search.startsWith('★') ? `Voir « ${search.trim()} » dans l’Index d’étude ›` : 'Chercher un thème dans l’Index d’étude ›'}
+            </a>
+          </div>
+
+          {results !== null && (
+            <>
+              <h2 className="sect" id="resultats" style={{ scrollMarginTop: 70 }}>Résultats</h2>
+              <p className="sub">
+                {searching ? 'Recherche en cours…'
+                  : themeMode ? (results.length === 0
+                      ? `Rien à afficher pour « ${searchedIn} ».`
+                      : `${results.length} verset${results.length > 1 ? 's' : ''} — « ${searchedIn} ».`)
+                  : results.length === 0 ? `Aucun verset ne contient « ${doneQ} ».`
+                  : `${results.length}${results.length === 400 ? '+ (400 premiers)' : ''} verset${results.length > 1 ? 's' : ''} contiennent « ${doneQ} »${searchedIn ? `, recherche faite dans la ${searchedIn}` : ''}.`}
+                {' '}<a style={{ cursor: 'pointer', color: 'var(--accent)' }} onClick={clearSearch}>Effacer</a>
+              </p>
+              {!searching && results.length > 0 && (
+                <div className="card pad">
+                  {results.map((r, i) => (
+                    <div className="entry srch-res" key={i} onClick={() => openResult(r)}>
+                      <div className="eref">{books.find((b: any) => b.id === r.book)?.name} {r.chapter}.{r.verse} <span className="srch-go">Ouvrir ›</span></div>
+                      <div className="etext">{mark(r.text)}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+
+          {recent.length > 1 && (
+            <>
+              <h2 className="sect">Derniers chapitres lus</h2>
+              <div className="chips srch-hist">
+                {recent.slice(0, 8).map((r, i) => (
+                  <span key={i} className="chip"
+                        onClick={() => { setBook(r.b); setChapter(r.c); setTab('bible'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
+                    {books.find((b: any) => b.id === r.b)?.name} {r.c}
+                  </span>
+                ))}
+              </div>
+            </>
+          )}
+        </>
+      )}
+
       {tab === 'bible' && (
         <>
       {backTo && (
         <a href={backTo} className="back-parable">‹ Revenir à la parabole</a>
       )}
-      {results !== null && (
-        <>
-          <h2 className="sect" id="resultats" style={{ scrollMarginTop: 70 }}>Recherche</h2>
-          <p className="sub">
-            {searching ? 'Recherche en cours…'
-              : themeMode ? (results.length === 0
-                  ? `Rien à afficher pour « ${searchedIn} ».`
-                  : `${results.length} verset${results.length > 1 ? 's' : ''} — « ${searchedIn} ».`)
-              : results.length === 0 ? `Aucun verset ne contient « ${search} ».`
-              : `${results.length}${results.length === 400 ? '+ (400 premiers)' : ''} verset${results.length > 1 ? 's' : ''} contiennent « ${search} »${searchedIn ? `, recherche faite dans la ${searchedIn}` : ''}.`}
-            {' '}<a style={{ cursor: 'pointer', color: 'var(--accent)' }} onClick={() => { setResults(null); setSearch(''); setThemeMode(false); }}>Effacer</a>
-          </p>
-          {!searching && results.length > 0 && (
-            <div className="card pad">
-              {results.map((r, i) => (
-                <div className="entry" key={i} style={{ cursor: 'pointer' }}
-                     onClick={() => { setBook(r.book); setChapter(r.chapter); setResults(null); setTab('bible'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
-                  <div className="eref">{books.find((b: any) => b.id === r.book)?.name} {r.chapter}.{r.verse}</div>
-                  <div className="etext">{r.text}</div>
-                </div>
-              ))}
-            </div>
-          )}
-        </>
+      {results !== null && results.length > 0 && !searching && (
+        <button className="srch-back" onClick={() => { setTab('recherche'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
+          ‹ Résultats « {doneQ} » <span>{results.length}</span>
+        </button>
       )}
 
       <div className="card" id="lecteur" style={{ scrollMarginTop: 70 }}>
@@ -842,8 +974,8 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
               <path d="M4 5.5C6.5 5 8.5 5.3 10 6.5V19c-1.5-1.2-3.5-1.5-6-1V5.5zM20 5.5c-2.5-.5-4.5-.2-6 1V19c1.5-1.2 3.5-1.5 6-1V5.5z" />
             </svg>
           </button>
-          <button className={`rfab${bubble === 'search' ? ' on' : ''}`} aria-label="Rechercher et historique"
-                  onClick={() => setBubble(bubble === 'search' ? null : 'search')}>
+          <button className="rfab" aria-label="Rechercher et historique"
+                  onClick={() => { setBubble(null); setTab('recherche'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
               <circle cx="11" cy="11" r="6.5" /><path d="M20 20l-4.2-4.2" />
             </svg>
@@ -929,51 +1061,6 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
             </>
           )}
 
-          {bubble === 'search' && (
-            <>
-              <h3 className="rbubble-t">Rechercher</h3>
-              <input className="field" type="search" value={search} autoFocus
-                     onChange={e => setSearch(e.target.value)}
-                     onKeyDown={e => { if (e.key === 'Enter') runSearch(); }}
-                     placeholder="Jean 3, grâce, foi, bleu…" />
-              <div className="filter-row">
-                <span className="filter-label">Aller à :</span>
-                {[1, 2, 3, 4, 5, 6, 7].map(c => (
-                  <button key={c} className={`swatch s${c}`} title={themeOf(c)?.label}
-                          onClick={() => { setSearch(themeOf(c)?.label ?? ''); searchTheme(c); }} />
-                ))}
-                <button className="filter-star" title="Versets connus (★)"
-                        onClick={() => { setSearch('★ versets connus'); searchFamous(); }}>★</button>
-              </div>
-
-              <a className="btn sm" style={{ marginTop: 10 }}
-                 href={`/etude${search.trim() && !search.startsWith('★') ? `?q=${encodeURIComponent(search.trim())}` : ''}`}>
-                {search.trim() && !search.startsWith('★') ? `« ${search.trim()} » dans l’Index d’étude ›` : 'Chercher un thème dans l’Index d’étude ›'}
-              </a>
-
-              {recent.length > 1 && (
-                <>
-                  <div className="rbubble-k">Historique</div>
-                  <div className="chips" style={{ marginTop: 6 }}>
-                    {recent.slice(1, 8).map((r, i) => (
-                      <span key={i} className="chip" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
-                        <span onClick={() => { setBook(r.b); setChapter(r.c); setBubble(null); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
-                          {books.find((b: any) => b.id === r.b)?.name} {r.c}
-                        </span>
-                        <span aria-label="Retirer" style={{ opacity: .55, fontSize: 13, lineHeight: 1 }}
-                              onClick={e => {
-                                e.stopPropagation();
-                                const next = recent.filter(x => !(x.b === r.b && x.c === r.c));
-                                setRecent(next);
-                                try { localStorage.setItem('pq-recent', JSON.stringify(next)); } catch {}
-                              }}>×</span>
-                      </span>
-                    ))}
-                  </div>
-                </>
-              )}
-            </>
-          )}
         </div>
       )}
 
