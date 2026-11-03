@@ -63,12 +63,12 @@ export async function GET(req: NextRequest) {
       url: `${SITE}/lire`
     };
   } else if (slot === 'soir') {
-    const verse = day?.evening_verse ? `« ${clip(day.evening_verse)} »` : '';
-    const ref = day?.evening_verse_ref ? ` — ${day.evening_verse_ref}` : '';
+    // Le soir : la sagesse du jour (Proverbes, chapitre = jour du mois).
+    const ch = Number(contentDate().slice(8, 10));
     msg = {
-      title: `🌙 ${day?.evening_title || 'La veillée du soir'}`,
-      body: verse ? `${verse}${ref}` : 'Un temps de paix avec la Parole avant la nuit.',
-      url: `${SITE}/soir`
+      title: `📜 Proverbes ${ch} — la sagesse du jour`,
+      body: 'Un chapitre, une méditation, une prière. Prends quelques minutes avec la Parole 🙏',
+      url: `${SITE}/sagesse`
     };
   } else {
     const verse = day?.verse_text ? `« ${clip(day.verse_text)} »` : '';

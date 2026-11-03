@@ -5,6 +5,7 @@ import Profile from '@/components/Profile';
 import NotifyButton from '@/components/NotifyButton';
 import ShareButton from '@/components/ShareButton';
 import SharePitch from '@/components/SharePitch';
+import { loadHighlightItems } from '@/lib/highlight-items';
 
 export const metadata = { title: 'Mon profil' };
 export const dynamic = 'force-dynamic';
@@ -16,12 +17,12 @@ export default async function Compte() {
   const { data: { user } } = await sb.auth.getUser();
   if (!user) redirect('/');
 
-  const [{ data: profile }, { data: plan }, { data: notes }, { data: highlights }, { data: conversations }] =
+  const [{ data: profile }, { data: plan }, { data: notes }, highlights, { data: conversations }] =
     await Promise.all([
       sb.from('profiles').select('*').eq('id', user.id).single(),
       sb.from('user_plan').select('*, reading_plans(name)').eq('user_id', user.id).maybeSingle(),
       sb.from('notes').select('*').order('created_at', { ascending: false }),
-      sb.from('highlights').select('*'),
+      loadHighlightItems(sb),
       sb.from('conversations').select('*').order('created_at', { ascending: false }).limit(50)
     ]);
 
@@ -46,7 +47,7 @@ export default async function Compte() {
         profile={profile}
         plan={plan}
         notes={notes ?? []}
-        highlights={highlights ?? []}
+        highlights={highlights}
         conversations={conversations ?? []}
       />
     </>

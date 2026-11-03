@@ -1,15 +1,13 @@
 import { supabaseServer } from '@/lib/supabase/server';
 import Nav from '@/components/Nav';
 import CursusBrowser from '@/components/CursusBrowser';
+import { admin } from '@/lib/supabase/admin';
+import { isCursusAdmin } from '@/lib/cursus-admins';
 
 export const revalidate = 0;
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Cursus theologique' };
 
-// Emails ayant accès à TOUT (bypass des codes). Réglable via CURSUS_ADMINS
-// (liste séparée par des virgules) ; par défaut, le compte du propriétaire.
-const ADMINS = (process.env.CURSUS_ADMINS ?? 'lzdokk@gmail.com')
-  .split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
 
 export default async function Cursus() {
   const sb = await supabaseServer();
@@ -32,7 +30,11 @@ export default async function Cursus() {
     order_index: c.order_index, locked: !!c.password
   }));
 
-  const isAdmin = !!user?.email && ADMINS.includes(user.email.toLowerCase());
+  const isAdmin = isCursusAdmin(user?.email);
+  // Frère ou sœur à qui le responsable a donné l'accès par email.
+  const { data: member } = user?.email && !isAdmin
+    ? await admin.from('cursus_members').select('email').eq('email', user.email.toLowerCase()).maybeSingle()
+    : { data: null };
 
   return (
     <>
@@ -45,6 +47,7 @@ export default async function Cursus() {
         done={(progress ?? []).map(p => p.code)}
         user={user}
         isAdmin={isAdmin}
+        isMember={!!member}
       />
     </>
   );

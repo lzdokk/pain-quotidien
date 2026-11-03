@@ -9,6 +9,7 @@ import VerseCompare from './VerseCompare';
 import OfflineDownload from './OfflineDownload';
 import { themeOf, suggestTheme, matchThemeQuery } from '@/lib/highlight-themes';
 import { QUATRE_TEMPS, QUESTIONS, POUR_PRIER } from '@/lib/reading-guide';
+import { ALLIANCES, BOOK_GROUPS, groupOf, searchBooks, bookName as accentName } from '@/lib/bible-books';
 
 type V = { verse: number; text: string };
 const iso = (d: Date) => d.toISOString().slice(0, 10);
@@ -47,7 +48,11 @@ const LANG_LABELS: Record<string, string> = {
 };
 const LANG_ORDER = ['fr', 'en', 'he', 'el', 'la', 'de', 'ru', 'pl', 'ar', 'zh'];
 
-export default function Reader({ books, translations, plans, steps, plan, notes, highlights, intros, user }: any) {
+export default function Reader({ books: booksIn, translations, plans, steps, plan, notes, highlights, intros, user }: any) {
+  // Noms des livres AVEC accents (Genèse, Lévitique, Deutéronome…).
+  const books = useMemo(() => (booksIn ?? []).map((b: any) => ({ ...b, name: accentName(b.id, b.name) })), [booksIn]);
+  // Recherche rapide d'un livre dans la feuille « Livres » (« gen » -> Genèse).
+  const [bookQ, setBookQ] = useState('');
   // Segond 1910 (FRLSG) par defaut partout, sauf si l'utilisateur a memorise un autre choix.
   const [trad, setTrad] = useState('FRLSG');
   const [book, setBook] = useState(43);
@@ -269,6 +274,7 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
 
   useEffect(() => {
     if (sheet !== 'book') return;
+    setBookQ('');
     const t = setTimeout(() => document.getElementById(`bk-${book}`)
       ?.scrollIntoView({ block: 'start' }), 40);
     return () => clearTimeout(t);
@@ -900,35 +906,89 @@ export default function Reader({ books, translations, plans, steps, plan, notes,
               </>
             )}
 
-            {sheet === 'book' && (
-              <>
-                <h3 className="rsheet-title">Livres</h3>
-                <div className="rsheet-list">
-                  {books.map((b: any) => (
-                    <div key={b.id} id={`bk-${b.id}`}>
-                      <button className={`rsheet-row${b.id === book ? ' on' : ''}`}
-                              onClick={() => setSheetBook(sheetBook === b.id ? null : b.id)}>
-                        <span className="sr-main"><b>{b.name}</b></span>
-                        <span className="sr-chev">{sheetBook === b.id ? '▾' : '▸'}</span>
-                      </button>
-                      {sheetBook === b.id && (
-                        <div className="chgrid">
-                          {Array.from({ length: b.chapters }, (_, i) => (
-                            <button key={i}
-                                    className={`chcell${b.id === book && chapter === i + 1 ? ' on' : ''}`}
-                                    onClick={() => {
-                                      setBook(b.id); setChapter(i + 1); setSheet(null); setTab('bible');
-                                      setTimeout(() => document.getElementById('lecteur')
-                                        ?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
-                                    }}>{i + 1}</button>
-                          ))}
-                        </div>
-                      )}
+            {sheet === 'book' && (() => {
+              const openChap = (id: number, c: number) => {
+                setBook(id); setChapter(c); setSheet(null); setTab('bible');
+                setTimeout(() => document.getElementById('lecteur')
+                  ?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
+              };
+              const bookRow = (b: any, tag?: string) => (
+                <div key={b.id} id={`bk-${b.id}`}>
+                  <button className={`rsheet-row${b.id === book ? ' on' : ''}`}
+                          onClick={() => setSheetBook(sheetBook === b.id ? null : b.id)}>
+                    <span className="sr-main"><b>{b.name}</b>{tag && <span className="bk-tag">{tag}</span>}</span>
+                    <span className="sr-chev">{sheetBook === b.id ? '▾' : '▸'}</span>
+                  </button>
+                  {sheetBook === b.id && (
+                    <div className="chgrid">
+                      {Array.from({ length: b.chapters }, (_, i) => (
+                        <button key={i}
+                                className={`chcell${b.id === book && chapter === i + 1 ? ' on' : ''}`}
+                                onClick={() => openChap(b.id, i + 1)}>{i + 1}</button>
+                      ))}
                     </div>
-                  ))}
+                  )}
                 </div>
-              </>
-            )}
+              );
+              const found = searchBooks(bookQ);
+              const hits = found.ids.map(id => books.find((b: any) => b.id === id)).filter(Boolean).slice(0, 8);
+              const pick = () => {
+                const b: any = hits[0]; if (!b) return;
+                if (found.chapter) openChap(b.id, Math.min(Math.max(1, found.chapter), b.chapters));
+                else setSheetBook(b.id);
+              };
+              return (
+                <>
+                  <h3 className="rsheet-title">Livres</h3>
+                  <div className="bk-search">
+                    <input className="field" type="search" value={bookQ}
+                           onChange={e => { setBookQ(e.target.value); setSheetBook(null); }}
+                           onKeyDown={e => { if (e.key === 'Enter') pick(); }}
+                           placeholder="Chercher : gen, 1 co, jean 3…" />
+                  </div>
+
+                  {bookQ.trim() ? (
+                    <div className="rsheet-list">
+                      {hits.length === 0 && <p className="empty">Aucun livre ne correspond.</p>}
+                      {found.chapter && hits[0] && (
+                        <button className="bk-direct" onClick={pick}>
+                          Ouvrir {(hits[0] as any).name} {Math.min(found.chapter, (hits[0] as any).chapters)} ›
+                        </button>
+                      )}
+                      {hits.map((b: any) => bookRow(b, groupOf(b.id)?.label))}
+                    </div>
+                  ) : (
+                    <>
+                      <div className="bk-jump">
+                        {ALLIANCES.map(a => (
+                          <button key={a.id} className={`bk-jump-b ${a.id}`}
+                                  onClick={() => document.getElementById(`al-${a.id}`)
+                                    ?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>
+                            {a.label}
+                          </button>
+                        ))}
+                      </div>
+                      {ALLIANCES.map(a => (
+                        <section key={a.id} id={`al-${a.id}`} className={`bk-alliance ${a.id}`}>
+                          <div className="bk-al-head">
+                            <b>{a.label}</b>
+                            <span>{a.he} · {a.sub}</span>
+                          </div>
+                          {BOOK_GROUPS.filter(g => g.alliance === a.id).map(g => (
+                            <div key={g.id} className="bk-group">
+                              <div className="bk-group-h">{g.label}{g.he && <span>{g.he}</span>}</div>
+                              <div className="rsheet-list">
+                                {books.filter((b: any) => b.id >= g.from && b.id <= g.to).map((b: any) => bookRow(b))}
+                              </div>
+                            </div>
+                          ))}
+                        </section>
+                      ))}
+                    </>
+                  )}
+                </>
+              );
+            })()}
 
             {sheet === 'verse' && (
               <>

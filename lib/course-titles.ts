@@ -45,7 +45,7 @@ export const COURSE_TITLES: Record<string, string> = {
 
   // ── Niveau Approfondissement ─────────────────────────────────────
   U1B01: 'Ancien Testament (1) — Loi & histoire',
-  U1B02: 'Nouveau Testament — Origine des 27 livres',
+  U1B02: 'Nouveau Testament — Comment les 27 livres nous sont parvenus',
   U1B03: 'Corinthiens — Le dossier complet',
   U1D01: 'Herméneutique — La méthode complète',
   U1P01: 'L’Église & la cité — Sel et lumière',
@@ -60,7 +60,7 @@ export const COURSE_TITLES: Record<string, string> = {
   U3D01: 'Vérités fondamentales (2) — Esprit & fin des temps',
   U3D02: 'Missiologie du NT — Le modèle apostolique',
   U3D03: 'Bibliologie — De la révélation au canon',
-  U3P02: 'Institutions — Gouverner une union d’Églises',
+  U3P02: 'Gouvernance — Servir et conduire l’Église locale',
   U4B01: 'Colossiens — Contre les faux compléments',
   U4B02: 'Actes — La théologie de Luc',
   U4B03: 'Les prophètes — Le phénomène prophétique',
@@ -73,7 +73,7 @@ export const COURSE_TITLES: Record<string, string> = {
   U5B04: 'Épîtres générales — Le témoignage commun',
   U5B05: 'Daniel — Apocalyptique & prophétie',
   U5D01: 'Pneumatologie — La personne et l’œuvre de l’Esprit',
-  U5P01: 'Musicologie — Théologie du chant',
+  U5P01: 'Louange — Ce que la Bible dit du chant',
 
   // ── Étude du Grec Ancien ─────────────────────────────────────────
   UGC01: 'Grec (1) — Initiation',

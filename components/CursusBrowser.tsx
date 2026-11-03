@@ -3,10 +3,11 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { relabelCode } from '@/lib/cursus-code';
 import { courseTitle } from '@/lib/course-titles';
+import CursusShare from './CursusShare';
 
 const KIND: Record<string, string> = { E: 'Exegese', D: 'Doctrine', P: 'Pratique', G: 'Langue' };
 
-export default function CursusBrowser({ cursus, levels, groups, courses, done, user, isAdmin }: any) {
+export default function CursusBrowser({ cursus, levels, groups, courses, done, user, isAdmin, isMember }: any) {
   const [validated] = useState<Set<string>>(new Set(done));
   const [curId, setCurId] = useState<string>(cursus[0]?.id);
   const [level, setLevel] = useState<string | undefined>(undefined);
@@ -18,11 +19,22 @@ export default function CursusBrowser({ cursus, levels, groups, courses, done, u
 
   useEffect(() => {
     try { if (localStorage.getItem('pq-cursus-gate') === '1') setGateOk(true); } catch {}
+    // Lien d'invitation : /cursus?acces=CODE ouvre directement la section.
+    const inv = new URLSearchParams(location.search).get('acces');
+    if (inv) {
+      fetch('/api/cursus/unlock', {
+        method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ code: inv })
+      }).then(r => r.json()).then(j => {
+        if (j.ok) { setGateOk(true); try { localStorage.setItem('pq-cursus-gate', '1'); } catch {} }
+        else setCode(inv);
+      }).catch(() => {});
+      history.replaceState(null, '', '/cursus');
+    }
   }, []);
 
   // Toute la section Cursus est verrouillée si au moins un cursus a un code.
   const sectionLocked = cursus.some((c: any) => c.locked);
-  const access = isAdmin || !sectionLocked || gateOk;
+  const access = isAdmin || isMember || !sectionLocked || gateOk;
 
   const cur = cursus.find((c: any) => c.id === curId) ?? cursus[0];
   const myLevels = levels.filter((l: any) => l.cursus_id === cur?.id);
@@ -70,6 +82,8 @@ export default function CursusBrowser({ cursus, levels, groups, courses, done, u
         <h1>Se former,<br />dans l&rsquo;ordre</h1>
         <p className="lede">Plusieurs cursus pour grandir, à votre rythme.</p>
       </header>
+
+      {isAdmin && <CursusShare />}
 
       {/* Porte d'entrée : un seul code pour toute la section */}
       {!access && (

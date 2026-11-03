@@ -105,3 +105,99 @@ html[data-mode="soir"] .srch-back span{color:#0E141A}
  .page-tabs.four .page-tab{padding:8px 4px;font-size:12.5px}
  .srch-row .btn{padding-left:12px;padding-right:12px}
 }
+
+/* ══ Lecteur : feuille « Livres » classée par familles ══════════════════ */
+.bk-search{position:sticky;top:-12px;z-index:2;background:var(--surface);padding:0 0 10px}
+.bk-jump{display:flex;gap:8px;margin:2px 0 12px}
+.bk-jump-b{flex:1;border:1px solid var(--line-2);background:var(--surface-2);color:var(--ink);font:inherit;
+ font-size:13.5px;font-weight:600;border-radius:99px;padding:8px 10px;cursor:pointer}
+.bk-jump-b.ancienne{border-color:color-mix(in srgb,#b08a3e 55%,transparent)}
+.bk-jump-b.nouvelle{border-color:var(--accent-line)}
+.bk-alliance{margin:6px 0 18px;padding-left:12px;border-left:3px solid var(--accent-line);scroll-margin-top:10px}
+.bk-alliance.ancienne{border-left-color:#b08a3e}
+.bk-al-head{display:flex;flex-direction:column;gap:2px;margin:4px 0 10px}
+.bk-al-head b{font-family:var(--serif);font-size:20px;font-weight:600;color:var(--ink)}
+.bk-alliance.ancienne .bk-al-head b{color:#b08a3e}
+.bk-alliance.nouvelle .bk-al-head b{color:var(--accent)}
+.bk-al-head span{font-size:12.5px;color:var(--ink-3)}
+.bk-group{margin:10px 0 4px}
+.bk-group-h{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;font-size:11.5px;font-weight:660;
+ letter-spacing:.09em;text-transform:uppercase;color:var(--ink-2);margin:12px 0 4px}
+.bk-group-h span{font-size:11.5px;font-weight:500;letter-spacing:0;text-transform:none;color:var(--ink-4);font-style:italic}
+.bk-tag{display:block;font-size:11.5px;font-weight:500;color:var(--ink-4);margin-top:2px}
+.bk-direct{width:100%;margin:0 0 8px;border:1px solid var(--accent);background:var(--accent);color:#fff;
+ font:inherit;font-size:15px;font-weight:600;border-radius:14px;padding:12px;cursor:pointer}
+html[data-mode="soir"] .bk-direct{color:#0E141A}
+
+/* ══ Sagesse du jour (Proverbes) ═══════════════════════════════════════ */
+.pv-days{display:flex;gap:6px;overflow-x:auto;padding:4px 2px 12px;margin:0 0 14px;scrollbar-width:none}
+.pv-days::-webkit-scrollbar{display:none}
+.pv-day{flex:none;width:36px;height:36px;display:grid;place-items:center;border-radius:99px;border:1px solid var(--line);
+ font-size:13.5px;font-weight:600;color:var(--ink-2);text-decoration:none;background:var(--surface)}
+.pv-day.today{border-color:var(--accent);color:var(--accent)}
+.pv-day.on{background:var(--accent);border-color:var(--accent);color:#fff}
+html[data-mode="soir"] .pv-day.on{color:#0E141A}
+.pv-prayer p{margin:0}
+.pv-prayer p + p{margin-top:8px}
+.pv-hint{font-size:12.5px;color:var(--ink-3);margin:4px 0 12px}
+.pv-retenir{margin-top:18px;padding:14px 16px;border-radius:16px;background:var(--accent-soft);border:1px solid var(--accent-line)}
+.pv-retenir span{display:block;font-size:11px;font-weight:660;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:4px}
+.pv-retenir b{font-family:var(--serif);font-size:18px;font-weight:600;line-height:1.45;color:var(--ink)}
+.pv-nav{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:22px 0 10px}
+
+/* ══ Volets dépliables (profil, cursus) ════════════════════════════════ */
+.volets{display:flex;flex-direction:column;gap:12px;margin-top:22px}
+.volet{padding:0;overflow:hidden}
+.volet-h{width:100%;display:flex;align-items:center;gap:12px;border:0;background:transparent;font:inherit;
+ color:inherit;text-align:left;padding:18px 22px;cursor:pointer}
+.volet-h:hover{background:var(--surface-2)}
+.volet-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.volet-t b{font-family:var(--serif);font-size:19px;font-weight:600;color:var(--ink)}
+.volet-t small{font-size:13px;color:var(--ink-3)}
+.volet-n{flex:none;min-width:28px;height:24px;padding:0 8px;display:grid;place-items:center;border-radius:99px;
+ background:var(--accent-soft);color:var(--accent);font-size:12.5px;font-weight:660}
+.volet-chev{flex:none;color:var(--ink-4);font-size:13px}
+.volet-b{padding:4px 22px 22px;border-top:1px solid var(--line)}
+.volet-b > .field:first-child{margin-top:14px}
+.volet-list{margin-top:10px}
+.qa{border-bottom:1px solid var(--line)}
+.qa:last-child{border-bottom:0}
+.qa-q{width:100%;display:flex;flex-direction:column;gap:2px;border:0;background:transparent;font:inherit;color:var(--ink);
+ text-align:left;padding:12px 0;cursor:pointer}
+.qa-q span{font-size:15.5px;font-weight:560;line-height:1.4}
+.qa-q small{font-size:12px;color:var(--ink-4)}
+.qa.open .qa-q span{color:var(--accent)}
+.qa-a{font-size:15px;line-height:1.6;color:var(--ink-2);padding:0 0 14px;white-space:pre-line}
+@media(max-width:560px){.volet-h{padding:16px}.volet-b{padding:4px 16px 18px}}
+
+/* ══ Versets coloriés : filtres par catégorie et par livres ═════════════ */
+.sl-filters .field + .sl-k{margin-top:14px}
+.sl-k{font-size:11px;font-weight:640;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin:14px 0 8px}
+.sl-cats{display:flex;flex-wrap:wrap;gap:6px}
+.sl-cat{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line-2);background:var(--surface);color:var(--ink);
+ font:inherit;font-size:13px;font-weight:560;border-radius:99px;padding:5px 11px;cursor:pointer}
+.sl-cat .swatch{width:12px;height:12px;margin:0}
+.sl-cat > span:last-child{font-size:11.5px;color:var(--ink-4);font-weight:600}
+.sl-cat.on{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.sl-cat:disabled{opacity:.4;cursor:default}
+.sl-fam{width:100%}
+.sl-volet .sl-th{width:100%;border:0;background:transparent;font:inherit;color:inherit;text-align:left;cursor:pointer;padding:0}
+.sl-sec{border-top:1px solid var(--line);padding-top:12px}
+.sl-fam-tag{display:block;font-style:normal;font-size:11px;font-weight:500;color:var(--ink-4);margin-top:1px}
+
+/* ══ Cursus : partager l'accès ═════════════════════════════════════════ */
+.cs-block{padding:16px 0 4px}
+.cs-block + .cs-block{border-top:1px solid var(--line)}
+.cs-k{font-size:12px;font-weight:660;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:4px}
+.cs-link{margin:10px 0;padding:10px 12px;border-radius:12px;background:var(--surface-2);font-size:13px;color:var(--ink-2);word-break:break-all}
+.cs-actions{display:flex;flex-wrap:wrap;gap:8px}
+.cs-form{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.cs-form .field{flex:1 1 160px;min-width:0}
+.cs-members{list-style:none;margin:12px 0 0;padding:0}
+.cs-members li{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.cs-members li:last-child{border-bottom:0}
+.cs-who{flex:1;min-width:0;display:flex;flex-direction:column}
+.cs-who small{font-size:12.5px;color:var(--ink-3);overflow:hidden;text-overflow:ellipsis}
+.cs-x{border:0;background:transparent;color:var(--ink-4);font-size:20px;cursor:pointer;padding:0 6px}
+.cs-x:hover{color:#b3413a}
+.cs-msg{margin-top:12px;font-size:14px;color:var(--accent);font-weight:560}

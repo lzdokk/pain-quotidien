@@ -47,7 +47,7 @@ async function handle(date: string) {
   await admin.from('daily_bread').update({ published: true }).eq('date', date);
   revalidatePath('/pain');
   revalidatePath('/priere');
-  revalidatePath('/soir');
+  revalidatePath('/sagesse');
   revalidatePath(`/jour/${date}`);
   revalidatePath('/');
 

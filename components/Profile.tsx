@@ -1,6 +1,7 @@
 'use client';
 import { useMemo, useState } from 'react';
 import { supabase } from '@/lib/supabase/client';
+import SurlignesView from './SurlignesView';
 
 function answerText(content: string) {
   try {
@@ -11,8 +12,29 @@ function answerText(content: string) {
   }
 }
 
+const norm = (s: string) => (s ?? '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+
+/** Un volet qui se déplie : titre, petite phrase, compteur. */
+function Volet({ title, sub, count, children, defaultOpen = false }: {
+  title: string; sub: string; count?: number; children: React.ReactNode; defaultOpen?: boolean;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <section className={`card volet${open ? ' open' : ''}`}>
+      <button className="volet-h" onClick={() => setOpen(o => !o)} aria-expanded={open}>
+        <span className="volet-t"><b>{title}</b><small>{sub}</small></span>
+        {count !== undefined && <span className="volet-n">{count}</span>}
+        <span className="volet-chev">{open ? '▾' : '▸'}</span>
+      </button>
+      {open && <div className="volet-b">{children}</div>}
+    </section>
+  );
+}
+
 export default function Profile({ user, profile, plan, notes, highlights, conversations }: any) {
   const [search, setSearch] = useState('');
+  const [qSearch, setQSearch] = useState('');
+  const [openQ, setOpenQ] = useState<string | null>(null);
   const [myNotes, setMyNotes] = useState(notes);
   const [reminder, setReminder] = useState(Boolean(profile?.wants_reading_reminder));
   const [hour, setHour] = useState<number>(profile?.reminder_hour ?? 18);
@@ -29,15 +51,25 @@ export default function Profile({ user, profile, plan, notes, highlights, conver
   };
 
   const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
+    const q = norm(search.trim());
     if (!q) return myNotes;
     return myNotes.filter((n: any) =>
-      n.reference?.toLowerCase().includes(q) ||
-      n.body?.toLowerCase().includes(q) ||
-      n.verse_text?.toLowerCase().includes(q));
+      norm(n.reference).includes(q) || norm(n.body).includes(q) || norm(n.verse_text).includes(q));
   }, [myNotes, search]);
 
-  const questions = conversations.filter((c: any) => c.role === 'user');
+  // Mes questions : chaque question avec la réponse qui la suit.
+  const questions = useMemo(() => conversations
+    .filter((c: any) => c.role === 'user')
+    .map((q: any) => {
+      const rep = conversations.find((c: any) =>
+        c.role === 'assistant' && new Date(c.created_at).getTime() >= new Date(q.created_at).getTime());
+      return { id: String(q.id), q: q.content as string, a: rep ? answerText(rep.content) : '', at: q.created_at };
+    }), [conversations]);
+  const qFiltered = useMemo(() => {
+    const q = norm(qSearch.trim());
+    return q ? questions.filter((x: any) => norm(`${x.q} ${x.a}`).includes(q)) : questions;
+  }, [questions, qSearch]);
+  const fdate = (d: string) => new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date(d));
 
   return (
     <main className="wrap">
@@ -51,8 +83,6 @@ export default function Profile({ user, profile, plan, notes, highlights, conver
         <div className="mini"><strong>Parcours en cours</strong><span>{plan?.reading_plans?.name ?? 'Aucun parcours choisi'}</span></div>
         <div className="mini" style={{ marginTop: 10 }}><strong>Jour</strong><span>{plan?.current_day ?? 1}</span></div>
         <div className="mini" style={{ marginTop: 10 }}><strong>Jours d&rsquo;affilée</strong><span>{plan?.streak ?? 0}</span></div>
-        <div className="mini" style={{ marginTop: 10 }}><strong>Notes enregistrées</strong><span>{notes.length}</span></div>
-        <div className="mini" style={{ marginTop: 10 }}><strong>Versets surlignés</strong><span>{highlights.length}</span></div>
 
         <div className="mini" style={{ marginTop: 18, alignItems: 'center' }}>
           <strong>Rappel quotidien par email</strong>
@@ -60,7 +90,7 @@ export default function Profile({ user, profile, plan, notes, highlights, conver
                   style={{ background: reminder ? 'var(--accent)' : 'transparent',
                            color: reminder ? '#fff' : 'var(--ink-2)',
                            borderColor: reminder ? 'var(--accent)' : 'var(--line-2)' }}>
-            {reminder ? 'Active' : 'Desactive'}
+            {reminder ? 'Activé' : 'Désactivé'}
           </button>
         </div>
         {reminder && (
@@ -79,60 +109,60 @@ export default function Profile({ user, profile, plan, notes, highlights, conver
           Heure de Paris.
         </p>
 
-        <button
-          className="btn"
-          style={{ marginTop: 20 }}
-          onClick={async () => { await supabase.auth.signOut(); location.href = '/'; }}
-        >
+        <button className="btn" style={{ marginTop: 20 }}
+                onClick={async () => { await supabase.auth.signOut(); location.href = '/'; }}>
           Se déconnecter
         </button>
       </div>
 
-      <h2 className="sect">Mon carnet de bord</h2>
-      <p className="sub">Recherchez dans vos notes, par référence ou par mot-clé.</p>
-      <div className="card" style={{ padding: '24px 30px' }}>
-        <input className="field" type="search" value={search}
-               onChange={e => setSearch(e.target.value)}
-               placeholder="Rechercher, par exemple grâce, Jean 3, pardon…" />
-      </div>
-
-      <div className="card pad" style={{ marginTop: 12 }}>
-        {filtered.length === 0 ? (
-          <p className="empty">
-            {search ? 'Aucune note ne correspond a cette recherche.' : 'Rien pour l’instant. Ouvrez la Bible et notez ce qui vous parle.'}
-          </p>
-        ) : filtered.map((n: any) => (
-          <div className="entry" key={n.id}>
-            <div className="eref">{n.reference}</div>
-            <div className="etext">{n.verse_text}</div>
-            <div className="enote">{n.body}</div>
-            <button className="edel" onClick={async () => {
-              await supabase.from('notes').delete().eq('id', n.id);
-              setMyNotes((l: any[]) => l.filter(x => x.id !== n.id));
-            }}>Supprimer</button>
+      <div className="volets">
+        <Volet title="Mon carnet de bord" sub="Mes notes, par référence ou par mot" count={myNotes.length}>
+          <input className="field" type="search" value={search}
+                 onChange={e => setSearch(e.target.value)}
+                 placeholder="Rechercher : grâce, Jean 3, pardon…" />
+          <div className="volet-list">
+            {filtered.length === 0 ? (
+              <p className="empty">
+                {search ? 'Aucune note ne correspond à cette recherche.' : 'Rien pour l’instant. Ouvrez la Bible et notez ce qui vous parle.'}
+              </p>
+            ) : filtered.map((n: any) => (
+              <div className="entry" key={n.id}>
+                <div className="eref">{n.reference}</div>
+                <div className="etext">{n.verse_text}</div>
+                <div className="enote">{n.body}</div>
+                <button className="edel" onClick={async () => {
+                  await supabase.from('notes').delete().eq('id', n.id);
+                  setMyNotes((l: any[]) => l.filter(x => x.id !== n.id));
+                }}>Supprimer</button>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+        </Volet>
 
-      {questions.length > 0 && (
-        <>
-          <h2 className="sect">Mes questions</h2>
-          <p className="sub">L&rsquo;historique de ce que vous avez demandé.</p>
-          <div className="card pad">
-            {questions.map((q: any) => {
-              const rep = conversations.find((c: any) =>
-                c.role === 'assistant' &&
-                new Date(c.created_at).getTime() >= new Date(q.created_at).getTime());
-              return (
-                <div className="entry" key={q.id}>
-                  <div className="eref">{q.content}</div>
-                  {rep && <div className="enote">{answerText(rep.content)}</div>}
-                </div>
-              );
-            })}
+        <Volet title="Mes versets coloriés" sub="Par catégorie, par livre ou par mot" count={highlights.length}>
+          <SurlignesView items={highlights} userId={user.id} compact />
+          <a className="btn sm" href="/surlignes" style={{ marginTop: 14 }}>Ouvrir en pleine page ›</a>
+        </Volet>
+
+        <Volet title="Mes questions" sub="Tout ce que j’ai demandé, avec les réponses" count={questions.length}>
+          <input className="field" type="search" value={qSearch}
+                 onChange={e => setQSearch(e.target.value)}
+                 placeholder="Chercher dans mes questions et les réponses…" />
+          <div className="volet-list">
+            {qFiltered.length === 0 ? (
+              <p className="empty">{qSearch ? 'Aucune question ne correspond.' : 'Aucune question pour l’instant.'}</p>
+            ) : qFiltered.map((x: any) => (
+              <div key={x.id} className={`qa${openQ === x.id ? ' open' : ''}`}>
+                <button className="qa-q" onClick={() => setOpenQ(openQ === x.id ? null : x.id)}>
+                  <span>{x.q}</span>
+                  <small>{fdate(x.at)}</small>
+                </button>
+                {openQ === x.id && x.a && <div className="qa-a">{x.a}</div>}
+              </div>
+            ))}
           </div>
-        </>
-      )}
+        </Volet>
+      </div>
     </main>
   );
 }

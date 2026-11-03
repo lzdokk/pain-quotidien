@@ -9,7 +9,7 @@ import MusicPlayer from './MusicPlayer';
 const TABS = [
   { href: '/pain',      label: 'Matin' },
   { href: '/priere',    label: 'Prière' },
-  { href: '/soir',      label: 'Soir' },
+  { href: '/sagesse',   label: 'Sagesse' },
   { href: '/lire',      label: 'Lire' },
   { href: '/paraboles', label: 'Apprendre', match: ['/paraboles', '/fondements', '/mots', '/versets', '/questions', '/etude'] },
   // Lexique masque tant que la mise en francais n'est pas complete.
@@ -27,6 +27,7 @@ const ICONS: Record<string, JSX.Element> = {
   '/priere': <path d="M12 3c-1.6 2.8-4.2 4.7-4.2 8a4.2 4.2 0 008.4 0c0-3.3-2.6-5.2-4.2-8z" />,
   '/temoigner': <path d="M21 12a8 8 0 01-11.6 7.1L4 20l1-4.4A8 8 0 1121 12z" />,
   '/soir': <path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z" />,
+  '/sagesse': <path d="M9 18h6M10 21h4M12 3a6 6 0 00-3.6 10.8c.7.5 1.1 1.3 1.1 2.2h5c0-.9.4-1.7 1.1-2.2A6 6 0 0012 3z" />,
   '/lire': <path d="M12 6.5C10.5 5 8 4.5 4 5v13c4-.5 6.5 0 8 1.5 1.5-1.5 4-2 8-1.5V5c-4-.5-6.5 0-8 1.5zM12 6.5V19" />,
   '/mots': <path d="M7 8h10M7 12h6M5 4h14a1 1 0 011 1v11a1 1 0 01-1 1H9l-4 3V5a1 1 0 011-1z" />,
   '/versets': <path d="M12 3l2.09 4.26 4.7.68-3.4 3.32.8 4.68L12 13.9l-4.19 2.2.8-4.68-3.4-3.32 4.7-.68L12 3z" />,

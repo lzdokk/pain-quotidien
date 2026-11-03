@@ -8,6 +8,8 @@
  */
 export function relabelCode(code: string): string {
   if (!code) return code;
+  const icc = code.match(/^ICC(001|101|201|RTT|POI)([A-Z])$/);
+  if (icc) return `RC${({ '001': 1, '101': 2, '201': 3, RTT: 4, POI: 5 } as Record<string, number>)[icc[1]]}-${icc[2]}`;
   if (code.startsWith('UGC')) return 'EGA' + code.slice(3);
   if (code.startsWith('UB')) return 'NB' + code.slice(2);
   const m = code.match(/^U([1-9].*)$/);

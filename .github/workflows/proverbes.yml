@@ -1,0 +1,28 @@
+name: Sagesse du jour (Proverbes)
+
+# Rédige les fiches des 31 chapitres des Proverbes (prière avant, méditation,
+# prière après), deux par appel, une seule fois.
+#  - Lancement manuel (Run workflow) : enchaîne jusqu'aux 31 chapitres.
+#  - Automatique chaque nuit : complète ce qui manque (sans effet ensuite).
+on:
+  schedule:
+    - cron: '41 2 * * *'
+  workflow_dispatch: {}
+
+jobs:
+  gen:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Rédiger les chapitres manquants
+        run: |
+          for i in $(seq 1 25); do
+            echo "→ Passage $i"
+            OUT=$(curl -s --max-time 300 "${{ secrets.SITE_URL }}/api/cron/proverbes?n=2" \
+              -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" || echo '{}')
+            echo "$OUT"
+            if echo "$OUT" | grep -q '"done":\[\]' && ! echo "$OUT" | grep -q '"errors"'; then
+              echo "Les 31 chapitres sont prêts."; break
+            fi
+            sleep 5
+          done
