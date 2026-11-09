@@ -29,6 +29,19 @@ export default function VerseActions({ book, chapter, bookName, verses, user }: 
   const [wbw, setWbw] = useState<number | null>(null);
   const [cmp, setCmp] = useState<number | null>(null);
   const [multi, setMulti] = useState<Set<number>>(new Set());
+  // Mode « Approfondir » (Strong), le meme que dans /lire.
+  const [deep, setDeep] = useState(false);
+  useEffect(() => {
+    try { setDeep(localStorage.getItem('pq-strong') === '1'); } catch {}
+    const on = (e: any) => setDeep(!!e.detail);
+    window.addEventListener('pq-strong', on);
+    return () => window.removeEventListener('pq-strong', on);
+  }, []);
+  const toggleDeep = () => {
+    const next = !deep; setDeep(next);
+    try { localStorage.setItem('pq-strong', next ? '1' : '0'); } catch {}
+    window.dispatchEvent(new CustomEvent('pq-strong', { detail: next }));
+  };
 
   useEffect(() => {
     if (!user || !book || !chapter) return;
@@ -94,13 +107,21 @@ export default function VerseActions({ book, chapter, bookName, verses, user }: 
 
   return (
     <>
+      <button className={`deep-chip${deep ? ' on' : ''}`} onClick={toggleDeep}
+              title="Toucher un verset ouvre l'hébreu ou le grec, mot par mot">
+        <span className="rfab-he">א</span>{deep ? 'Mode Strong activé · touchez un verset' : 'Approfondir avec le Strong'}
+      </button>
       <div className="scripture">
         {verses.map(([n, t]) => {
           const c = hl[n];
           return (
             <Fragment key={n}>
               <span className={`vs${c ? ` h${c}` : ''}${sel === n ? ' sel' : ''}${multi.has(n) ? ' multi' : ''}`}
-                    onClick={() => { setSel(sel === n ? null : n); setEditing(false); setNoteText(noteFor(n)?.body ?? ''); }}>
+                    onClick={() => {
+                      const opening = sel !== n;
+                      setSel(opening ? n : null); setEditing(false); setNoteText(noteFor(n)?.body ?? '');
+                      if (deep) setWbw(opening ? n : null);
+                    }}>
                 <span className="vn">{n}</span>{t}
                 {noteFor(n) && <span className="noteflag">note</span>}
               </span>
@@ -130,7 +151,7 @@ export default function VerseActions({ book, chapter, bookName, verses, user }: 
                       {noteFor(n) ? 'Modifier la note' : 'Ajouter une note'}
                     </button>
                     <button className="btn sm" onClick={() => setExplain(explain === n ? null : n)}>Expliquer</button>
-                    <button className="btn sm" onClick={() => setWbw(wbw === n ? null : n)}>Mot à mot</button>
+                    <button className="btn sm" onClick={() => setWbw(wbw === n ? null : n)}>Strong · mot à mot</button>
                     <button className="btn sm" onClick={() => setCmp(cmp === n ? null : n)}>Comparer</button>
                     <button className="btn sm" onClick={() => shareOne(n)}>Partager</button>
                     <button className="btn sm" onClick={() => navigator.clipboard?.writeText(`« ${t} » ${bookName} ${chapter}.${n}`)}>Copier</button>
@@ -157,7 +178,8 @@ export default function VerseActions({ book, chapter, bookName, verses, user }: 
                     </div>
                   )}
 
-                  {wbw === n && <WordByWord book={book} chapter={chapter} verse={n} onClose={() => setWbw(null)} />}
+                  {wbw === n && <WordByWord book={book} chapter={chapter} verse={n} frText={t}
+                                          prefer={deep ? 'grec' : undefined} onClose={() => setWbw(null)} />}
                   {cmp === n && (
                     <Compare book={book} chapter={chapter} verse={n}
                              refLabel={`${bookName} ${chapter}.${n}`} onClose={() => setCmp(null)} />

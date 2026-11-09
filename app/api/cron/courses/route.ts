@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { admin } from '@/lib/supabase/admin';
 import { callJSON, cost, PROVIDER, modelName } from '@/lib/llm';
 import { citedVerse } from '@/lib/bible';
@@ -87,7 +87,7 @@ export async function GET(req: NextRequest) {
   const { count: remaining } = await admin.from('courses')
     .select('code', { count: 'exact', head: true }).eq('status', 'planned');
 
-  revalidatePath('/cursus');
+  revalidatePath('/cursus'); revalidateTag('cursus');
   return NextResponse.json({
     ok: generated > 0,
     generated,

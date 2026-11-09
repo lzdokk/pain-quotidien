@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { supabase } from '@/lib/supabase/client';
 import { relabelCode } from '@/lib/cursus-code';
 import { courseTitle } from '@/lib/course-titles';
 import CursusShare from './CursusShare';
@@ -8,7 +9,13 @@ import CursusShare from './CursusShare';
 const KIND: Record<string, string> = { E: 'Exegese', D: 'Doctrine', P: 'Pratique', G: 'Langue' };
 
 export default function CursusBrowser({ cursus, levels, groups, courses, done, user, isAdmin, isMember }: any) {
-  const [validated] = useState<Set<string>>(new Set(done));
+  const [validated, setValidated] = useState<Set<string>>(new Set(done));
+  // Progression relue à l'affichage (la page peut venir de la mémoire du navigateur).
+  useEffect(() => {
+    if (!user) return;
+    supabase.from('course_progress').select('code')
+      .then(({ data }) => { if (data) setValidated(new Set(data.map((p: any) => p.code))); });
+  }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
   const [curId, setCurId] = useState<string>(cursus[0]?.id);
   const [level, setLevel] = useState<string | undefined>(undefined);
   const [gateOk, setGateOk] = useState(false);

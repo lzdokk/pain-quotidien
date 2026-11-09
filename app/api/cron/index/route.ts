@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { admin } from '@/lib/supabase/admin';
 import { callJSON } from '@/lib/llm';
 import { parseShortRef } from '@/lib/refs';
@@ -75,7 +75,7 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  if (done.length) { revalidatePath('/etude'); }
+  if (done.length) { revalidatePath('/etude'); revalidateTag('etude'); }
   const total = (existing?.length ?? 0) + (only ? 0 : done.length);
   return NextResponse.json({
     ok: done.length > 0 || todo.length === 0,

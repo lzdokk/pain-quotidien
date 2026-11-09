@@ -48,11 +48,27 @@ const LANG_LABELS: Record<string, string> = {
 };
 const LANG_ORDER = ['fr', 'en', 'he', 'el', 'la', 'de', 'ru', 'pl', 'ar', 'zh'];
 
+// Chapitres deja charges : relecture instantanee, et chapitre suivant pre-charge.
+const chapterCache = new Map<string, V[]>();
+
 export default function Reader({ books: booksIn, translations, plans, steps, plan, notes, highlights, intros, user }: any) {
   // Noms des livres AVEC accents (Genèse, Lévitique, Deutéronome…).
   const books = useMemo(() => (booksIn ?? []).map((b: any) => ({ ...b, name: accentName(b.id, b.name) })), [booksIn]);
   // Recherche rapide d'un livre dans la feuille « Livres » (« gen » -> Genèse).
   const [bookQ, setBookQ] = useState('');
+  // Mode « Approfondir » (Strong) : partage avec les autres pages via localStorage.
+  const [deep, setDeep] = useState(false);
+  useEffect(() => {
+    try { setDeep(localStorage.getItem('pq-strong') === '1'); } catch {}
+    const on = (e: any) => setDeep(!!e.detail);
+    window.addEventListener('pq-strong', on);
+    return () => window.removeEventListener('pq-strong', on);
+  }, []);
+  const toggleDeep = () => {
+    const next = !deep; setDeep(next); setWbw(null);
+    try { localStorage.setItem('pq-strong', next ? '1' : '0'); } catch {}
+    window.dispatchEvent(new CustomEvent('pq-strong', { detail: next }));
+  };
   // Segond 1910 (FRLSG) par defaut partout, sauf si l'utilisateur a memorise un autre choix.
   const [trad, setTrad] = useState('FRLSG');
   const [book, setBook] = useState(43);
@@ -72,6 +88,19 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
   const [hl, setHl] = useState<Record<string, number>>(
     Object.fromEntries((highlights ?? []).map((h: any) => [`${h.book}-${h.chapter}-${h.verse}`, h.color])));
   const [myNotes, setMyNotes] = useState<any[]>(notes ?? []);
+  // Page gardée en mémoire par le navigateur : on relit couleurs et notes
+  // pour qu'elles soient toujours à jour (sans recharger toute la page).
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      const [{ data: h }, { data: n }] = await Promise.all([
+        supabase.from('highlights').select('book, chapter, verse, color'),
+        supabase.from('notes').select('*').order('created_at', { ascending: false }).limit(60)
+      ]);
+      if (h) setHl(Object.fromEntries(h.map((x: any) => [`${x.book}-${x.chapter}-${x.verse}`, x.color])));
+      if (n) setMyNotes(n);
+    })();
+  }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
   const [results, setResults] = useState<any[] | null>(null);
   const [searching, setSearching] = useState(false);
   const [backTo, setBackTo] = useState<string | null>(null); // retour (ex. parabole)
@@ -161,6 +190,21 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
   const forgot = plan?.last_read_on && plan.last_read_on !== iso(new Date());
 
   const load = useCallback(async () => {
+    const ck = `${trad}|${book}|${chapter}`;
+    // Pre-charge le chapitre suivant en arriere-plan (lecture suivie sans attente).
+    const prefetchNext = () => {
+      const nb = chapter < chapters ? book : book + 1;
+      const nc = chapter < chapters ? chapter + 1 : 1;
+      const nk = `${trad}|${nb}|${nc}`;
+      if (nb > 66 || chapterCache.has(nk)) return;
+      setTimeout(async () => {
+        const { data } = await supabase.from('verses').select('verse, text')
+          .eq('translation', trad).eq('book', nb).eq('chapter', nc).order('verse');
+        if (data?.length) chapterCache.set(nk, data as V[]);
+      }, 900);
+    };
+    const hit = chapterCache.get(ck);
+    if (hit) { setSel(null); setVerses(hit); setLoading(false); prefetchNext(); return; }
     setLoading(true); setSel(null);
     const t = translations.find((x: any) => x.code === trad);
     if (REMOTE_SRC(t)) {
@@ -173,8 +217,10 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
     }
     const { data } = await supabase.from('verses').select('verse, text')
       .eq('translation', trad).eq('book', book).eq('chapter', chapter).order('verse');
+    if (data?.length) chapterCache.set(ck, data as V[]);
     setVerses((data ?? []) as V[]); setLoading(false);
-  }, [trad, book, chapter, translations]);
+    prefetchNext();
+  }, [trad, book, chapter, translations, chapters]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => { load(); }, [load]);
 
@@ -705,6 +751,12 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
           </div>
         )}
 
+        {deep && (
+          <div className="deep-bar">
+            <span><b>Mode Strong</b> · touchez un verset : l&rsquo;hébreu ou le grec s&rsquo;ouvre, mot par mot.</span>
+            <button className="btn sm" onClick={toggleDeep}>Quitter</button>
+          </div>
+        )}
         <div className="chap-nav">
           <button className="nav-day" onClick={() => chapter > 1 ? setChapter(chapter - 1) : book > 1 && (setBook(book - 1), setChapter(1))} aria-label="Precedent">‹</button>
           <span className="chap-title">
@@ -760,7 +812,10 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
                <Fragment key={v.verse}>
                  <span id={`v-${v.verse}`}
                        className={`vs${c ? ` h${c}` : ''}${sel === v.verse ? ' sel' : ''}${multi.has(v.verse) ? ' multi' : ''}${famous[v.verse] ? ' famous' : ''}${jesusV.has(v.verse) ? ' jesus' : ''}`}
-                       onClick={() => { setSel(sel === v.verse ? null : v.verse); setEditing(false); setNoteText(noteFor(v.verse)?.body ?? ''); }}>
+                       onClick={() => {
+                         if (deep) { setSel(null); setWbw(wbw === v.verse ? null : v.verse); return; }
+                         setSel(sel === v.verse ? null : v.verse); setEditing(false); setNoteText(noteFor(v.verse)?.body ?? '');
+                       }}>
                    {famous[v.verse] && <span className="vstar" title={`Verset connu · ${famous[v.verse]}`}>★</span>}
                    <span className="vn">{v.verse}</span>{v.text}
                    {noteFor(v.verse) && <span className="noteflag">note</span>}
@@ -770,7 +825,7 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
                             text={v.text} inline onClose={() => setExplain(null)} onGoto={go} />
                  )}
                  {wbw === v.verse && (
-                   <WordByWord book={book} chapter={chapter} verse={v.verse}
+                   <WordByWord book={book} chapter={chapter} verse={v.verse} prefer={deep ? 'grec' : undefined}
                                frText={v.text} onClose={() => setWbw(null)} />
                  )}
                  {cmp === v.verse && (
@@ -825,7 +880,7 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
                 {noteFor(s) ? 'Modifier la note' : 'Ajouter une note'}
               </button>
               <button className="btn sm" onClick={() => setExplain({ kind: 'v', verse: s })}>Expliquer</button>
-              <button className="btn sm" onClick={() => setWbw(wbw === s ? null : s)}>Mot à mot</button>
+              <button className="btn sm" onClick={() => setWbw(wbw === s ? null : s)}>Strong · mot à mot</button>
               <button className="btn sm" onClick={() => setCmp(cmp === s ? null : s)}>Comparer</button>
               <button className="btn sm" onClick={() =>
                 navigator.clipboard?.writeText(`« ${sv.text} » ${bookName} ${chapter}.${s}`)}>Copier</button>
@@ -1022,6 +1077,10 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
       {/* Bulles flottantes : comment lire / rechercher + historique. */}
       {tab === 'bible' && sel === null && multi.size === 0 && !sheet && (
         <div className="rfabs">
+          <button className={`rfab rfab-deep${deep ? ' on' : ''}`} aria-label="Mode Strong : approfondir les mots"
+                  title="Mode Strong : toucher un verset ouvre l'hébreu ou le grec" onClick={toggleDeep}>
+            <span className="rfab-he">א</span>
+          </button>
           <button className={`rfab${bubble === 'method' ? ' on' : ''}`} aria-label="Comment lire"
                   onClick={() => setBubble(bubble === 'method' ? null : 'method')}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">

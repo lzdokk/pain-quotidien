@@ -150,7 +150,7 @@ export default function SurlignesView({ items, userId, compact = false }: { item
                               <span key={c} className={`swatch s${c}${it.color === c ? ' cur' : ''}`}
                                     title={themeOf(c)?.label} onClick={() => changeColor(it, c)} />)}
                             <button className="btn sm" onClick={() => setNoteOpen(o => !o)}>Note</button>
-                            <button className="btn sm" onClick={() => setWbwOpen(o => !o)}>Mot à mot</button>
+                            <button className="btn sm" onClick={() => setWbwOpen(o => !o)}>Strong · mot à mot</button>
                             <button className="btn sm" onClick={() => setCmpOpen(o => !o)}>Comparer</button>
                             <button className="btn sm" onClick={() => goto(it.ref)}>Ouvrir dans le lecteur ›</button>
                             <button className="btn sm" onClick={() => changeColor(it, 0)}>Retirer</button>
@@ -172,7 +172,7 @@ export default function SurlignesView({ items, userId, compact = false }: { item
                                    text={it.text} inline onClose={() => setOpenKey(null)} onGoto={goto} />
 
                           {wbwOpen && (
-                            <WordByWord book={it.book} chapter={it.chapter} verse={it.verse}
+                            <WordByWord book={it.book} chapter={it.chapter} verse={it.verse} frText={it.text}
                                         onClose={() => setWbwOpen(false)} />
                           )}
                           {cmpOpen && (

@@ -64,7 +64,7 @@ export default function Nav({ user }: { user: any }) {
 
           <div className="tabs" role="tablist">
             {TABS.map(t => (
-              <Link key={t.href} href={t.href} className="tab" aria-selected={isActive(t)}>{t.label}</Link>
+              <Link key={t.href} href={t.href} prefetch className="tab" aria-selected={isActive(t)}>{t.label}</Link>
             ))}
           </div>
 

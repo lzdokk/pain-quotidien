@@ -46,7 +46,31 @@ ${data.kjv_def ? `Traductions retenues : ${data.kjv_def}` : ''}`,
         }
       } catch { /* on renvoie l'entree sans traduction plutot que d'echouer */ }
     }
-    return NextResponse.json(data);
+
+    // ?usage=1 : ou ce mot apparait dans la Bible et comment il est traduit.
+    let usage: any;
+    if (searchParams.get('usage')) {
+      const { data: occ, count } = await admin.from('verse_words')
+        .select('book, chapter, verse, gloss_fr', { count: 'exact' })
+        .eq('strong', data.code).order('book').order('chapter').order('verse').limit(800);
+      const seen = new Set<string>();
+      const refs: Array<{ b: number; c: number; v: number }> = [];
+      const tally = new Map<string, number>();
+      for (const o of (occ ?? []) as any[]) {
+        const k = `${o.book}-${o.chapter}-${o.verse}`;
+        if (!seen.has(k) && refs.length < 80) { seen.add(k); refs.push({ b: o.book, c: o.chapter, v: o.verse }); }
+        const fr = String(o.gloss_fr ?? '').replace(/[\[\]«»"]/g, '').trim().toLowerCase();
+        if (fr && fr.length < 40 && fr !== 'objet') tally.set(fr, (tally.get(fr) ?? 0) + 1);
+      }
+      const renderings = [...tally.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8).map(([fr, n]) => ({ fr, n }));
+      usage = { count: count ?? refs.length, refs, renderings };
+    }
+
+    // Une fiche complete ne change plus : on la garde en cache cote serveur et navigateur.
+    const headers = data.definition_fr
+      ? { 'Cache-Control': 'public, max-age=86400, s-maxage=604800, stale-while-revalidate=2592000' }
+      : undefined;
+    return NextResponse.json(usage ? { ...data, usage } : data, { headers });
   }
 
   if (q.length < 2) return NextResponse.json({ results: [] });

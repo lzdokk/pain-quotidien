@@ -11,13 +11,14 @@ importScripts("https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js");
    ══════════════════════════════════════════════════════════════════════ */
 const PDV_PAGES = 'pdv-pages-v1';
 const PDV_ASSETS = 'pdv-assets-v1';
-const PDV_DATA = 'pdv-data-v1';
+const PDV_DATA = 'pdv-data-v2';
+const PDV_API = 'pdv-api-v1';
 
 self.addEventListener('install', () => { self.skipWaiting(); });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil((async () => {
-    const keep = new Set([PDV_PAGES, PDV_ASSETS, PDV_DATA]);
+    const keep = new Set([PDV_PAGES, PDV_ASSETS, PDV_DATA, PDV_API]);
     const keys = await caches.keys();
     await Promise.all(keys.filter(k => k.startsWith('pdv-') && !keep.has(k)).map(k => caches.delete(k)));
     await self.clients.claim();
@@ -42,9 +43,21 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 2) Lecture des versets (Supabase REST) -> cache + rafraichissement.
+  // 2) Supabase REST.
+  //    Textes bibliques et contenus publics -> cache immediat + rafraichissement.
+  //    Donnees personnelles (couleurs, notes, progression) -> reseau d'abord
+  //    (toujours a jour), cache seulement hors ligne.
   if (url.hostname.endsWith('.supabase.co') && url.pathname.includes('/rest/v1/')) {
-    event.respondWith(staleWhileRevalidate(req, PDV_DATA));
+    const table = url.pathname.split('/rest/v1/')[1] || '';
+    const PUBLIC = /^(verses|books|translations|famous_verses|jesus_verses|book_intros|strongs|verse_words|verse_words_he|bible_index|proverbes_daily|bible_words|reading_plans|plan_steps|faq)\b/;
+    event.respondWith(PUBLIC.test(table) ? staleWhileRevalidate(req, PDV_DATA) : networkFirstData(req, PDV_DATA));
+    return;
+  }
+
+  // 2 bis) API publiques du site (fiches Strong, passages de l'index) -> cache + rafraichissement.
+  if (url.origin === self.location.origin &&
+      (url.pathname === '/api/strongs' || url.pathname === '/api/passage')) {
+    event.respondWith(staleWhileRevalidate(req, PDV_API));
     return;
   }
 
@@ -82,6 +95,17 @@ async function networkFirst(req, name) {
     return fallback || new Response(
       '<meta charset="utf-8"><div style="font-family:system-ui;padding:40px;text-align:center;color:#4E6A85">Hors ligne — cette page n’a pas encore été ouverte. Reconnectez-vous une fois pour la garder.</div>',
       { headers: { 'content-type': 'text/html; charset=utf-8' } });
+  }
+}
+
+async function networkFirstData(req, name) {
+  const cache = await caches.open(name);
+  try {
+    const res = await fetch(req);
+    if (res && res.ok) cache.put(req, res.clone());
+    return res;
+  } catch {
+    return (await cache.match(req)) || Response.error();
   }
 }
 

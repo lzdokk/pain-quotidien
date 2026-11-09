@@ -5,6 +5,7 @@ import VerseActions from '@/components/VerseActions';
 import { contentDate } from '@/lib/date';
 import { rich } from '@/lib/rich';
 import { polishDeep } from '@/lib/accents';
+import { getProverbe } from '@/lib/cache';
 
 export const dynamic = 'force-dynamic'; // toujours le chapitre du jour
 export const metadata = { title: 'Sagesse du jour · Proverbes' };
@@ -37,16 +38,8 @@ export default async function Sagesse({ searchParams }: { searchParams: Promise<
   const ch = asked >= 1 && asked <= 31 ? asked : todayCh;
 
   const sb = await supabaseServer();
-  const { data: { user } } = await sb.auth.getUser();
-  let { data: vs } = await sb.from('verses').select('verse, text')
-    .eq('translation', 'S21').eq('book', 20).eq('chapter', ch).order('verse');
-  let trName = 'Segond 21';
-  if (!vs?.length) {
-    ({ data: vs } = await sb.from('verses').select('verse, text')
-      .eq('translation', 'FRLSG').eq('book', 20).eq('chapter', ch).order('verse'));
-    trName = 'Segond 1910';
-  }
-  const { data: rawFiche } = await sb.from('proverbes_daily').select('*').eq('chapter', ch).maybeSingle();
+  const [{ data: { user } }, pv] = await Promise.all([sb.auth.getUser(), getProverbe(ch)]);
+  const { verses: vs, trName, fiche: rawFiche } = pv;
   const f: any = rawFiche ? polishDeep(rawFiche) : null;
 
   const verses = (vs ?? []).map((v: any) => [v.verse, v.text] as [number, string]);

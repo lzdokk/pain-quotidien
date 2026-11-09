@@ -3,6 +3,7 @@ import Nav from '@/components/Nav';
 import CursusBrowser from '@/components/CursusBrowser';
 import { admin } from '@/lib/supabase/admin';
 import { isCursusAdmin } from '@/lib/cursus-admins';
+import { getCursusStatic } from '@/lib/cache';
 
 export const revalidate = 0;
 export const dynamic = 'force-dynamic';
@@ -11,24 +12,13 @@ export const metadata = { title: 'Cursus theologique' };
 
 export default async function Cursus() {
   const sb = await supabaseServer();
-  const { data: { user } } = await sb.auth.getUser();
-
-  const [{ data: cursusRows }, { data: levels }, { data: groups }, { data: courses }] = await Promise.all([
-    sb.from('cursus').select('id, name, subtitle, source_url, password, order_index').order('order_index'),
-    sb.from('cursus_levels').select('*').order('order_index'),
-    sb.from('cursus_groups').select('*').order('order_index'),
-    sb.from('courses').select('code, group_id, title, kind, hook, hours, order_index, status').order('order_index')
-  ]);
+  const [{ data: { user } }, stat] = await Promise.all([sb.auth.getUser(), getCursusStatic()]);
+  const { cursus, levels, groups, courses } = stat;
 
   const { data: progress } = user
     ? await sb.from('course_progress').select('code')
     : { data: [] };
 
-  // On n'envoie JAMAIS le mot de passe au navigateur : juste « verrouillé ou non ».
-  const cursus = (cursusRows ?? []).map(c => ({
-    id: c.id, name: c.name, subtitle: c.subtitle, source_url: c.source_url,
-    order_index: c.order_index, locked: !!c.password
-  }));
 
   const isAdmin = isCursusAdmin(user?.email);
   // Frère ou sœur à qui le responsable a donné l'accès par email.
