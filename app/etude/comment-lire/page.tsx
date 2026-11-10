@@ -13,7 +13,7 @@ export default async function CommentLire() {
   return (
     <>
       <main className="wrap">
-        <Link href="/etude" className="back-parable">‹ Index d&rsquo;étude</Link>
+        <Link href="/lire?tab=etude" className="back-parable">‹ Bible d&rsquo;étude</Link>
         <header className="hero">
           <div className="eyebrow">Guide</div>
           <h1>Comment lire<br />la Bible chaque jour ?</h1>
@@ -47,7 +47,7 @@ export default async function CommentLire() {
 
         <div className="share-grid" style={{ marginTop: 18 }}>
           <Link href="/lire" className="btn primary">Ouvrir la Bible ›</Link>
-          <Link href="/etude" className="btn">Chercher un thème ›</Link>
+          <Link href="/lire?tab=etude" className="btn">Ouvrir la Bible d’étude ›</Link>
         </div>
       </main>
     </>

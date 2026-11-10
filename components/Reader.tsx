@@ -11,6 +11,11 @@ import OfflineDownload from './OfflineDownload';
 import { themeOf, suggestTheme, matchThemeQuery } from '@/lib/highlight-themes';
 import { QUATRE_TEMPS, QUESTIONS, POUR_PRIER } from '@/lib/reading-guide';
 import { ALLIANCES, BOOK_GROUPS, groupOf, searchBooks, bookName as accentName } from '@/lib/bible-books';
+import StudyIndex from './StudyIndex';
+import FicheSheet from './FicheSheet';
+import ChapterStudy from './ChapterStudy';
+import WordsBrowser from './WordsBrowser';
+import { getStudyList, kindLabel, type StudyList } from '@/lib/study-client';
 
 type V = { verse: number; text: string };
 const iso = (d: Date) => d.toISOString().slice(0, 10);
@@ -119,11 +124,39 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
   const [sheet, setSheet] = useState<null | 'book' | 'version' | 'verse'>(null); // feuilles (livre / version / aller au verset)
   const [sheetBook, setSheetBook] = useState<number | null>(null); // livre deplie dans la feuille
   // Onglets de la page : lecture du jour / parcours / Bible.
-  type Tab = 'jour' | 'parcours' | 'bible' | 'recherche';
+  type Tab = 'jour' | 'parcours' | 'bible' | 'recherche' | 'etude';
   const [tab, setTabState] = useState<Tab>('bible');
   const setTab = (t: Tab) => {
-    setTabState(t);
-    try { sessionStorage.setItem('pq-tab', t); } catch {}
+    const v: Tab = t === 'jour' ? 'parcours' : t;
+    setTabState(v);
+    try { sessionStorage.setItem('pq-tab', v); } catch {}
+  };
+  // Bible d'étude : mode lecture enrichie, fiche ouverte, liste des fiches.
+  const [etudeOn, setEtudeOn] = useState(false);
+  const [fiche, setFiche] = useState<string | null>(null);
+  const [studyList, setStudyList] = useState<StudyList | null>(null);
+  const [studyVerses, setStudyVerses] = useState<Set<number>>(new Set());
+  const [studyMap, setStudyMap] = useState<Record<number, string>>({});
+  const [lexique, setLexique] = useState<any[] | null>(null);
+  const [lexOpen, setLexOpen] = useState(false);
+  const [wordHits, setWordHits] = useState<any[]>([]);
+  const [bookFamous, setBookFamous] = useState<Array<{ chapter: number; verse: number; title: string }>>([]);
+  useEffect(() => {
+    try { setEtudeOn(localStorage.getItem('pq-etude') === '1'); } catch {}
+  }, []);
+  const toggleEtude = (on?: boolean) => {
+    const next = on ?? !etudeOn;
+    setEtudeOn(next);
+    try { localStorage.setItem('pq-etude', next ? '1' : '0'); } catch {}
+  };
+  const loadStudy = () => { if (!studyList) getStudyList().then(setStudyList); };
+  const loadLexique = async () => {
+    if (lexique) return lexique;
+    const { data } = await supabase.from('bible_words')
+      .select('slug, term, translit, lang, gloss, theme, sense, christ, refs').order('translit');
+    const list = (data ?? []).filter((w: any) => !/grec/i.test(w.lang ?? ''));
+    setLexique(list);
+    return list;
   };
   // Recherche : derniere requete lancee, historique des mots cherches,
   // et verset a ouvrir quand on touche un resultat.
@@ -131,7 +164,7 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
   const [qHist, setQHist] = useState<string[]>([]);
   const [target, setTarget] = useState<number | null>(null);
   // Bulles flottantes : methode de lecture / recherche + historique.
-  const [bubble, setBubble] = useState<null | 'method' | 'search' | 'versions'>(null);
+  const [bubble, setBubble] = useState<null | 'method' | 'search' | 'versions' | 'importants'>(null);
   const [guideTab, setGuideTab] = useState<'court' | 'questions' | 'prier'>('court');
   // Emplacement dans la barre du haut (a cote de l'avatar) pour livre · version · v.
   const [slot, setSlot] = useState<HTMLElement | null>(null);
@@ -299,11 +332,27 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
         setSearch(saved.q ?? ''); setDoneQ(saved.q ?? '');
         setResults(saved.results); setThemeMode(!!saved.themeMode); setSearchedIn(saved.searchedIn ?? null);
       }
-      const hasRef = new URLSearchParams(location.search).get('ref');
-      if (!hasRef && sessionStorage.getItem('pq-tab') === 'recherche') setTabState('recherche');
+      const qs = new URLSearchParams(location.search);
+      const hasRef = qs.get('ref');
+      const savedTab = sessionStorage.getItem('pq-tab');
+      const wanted = qs.get('tab');
+      if (wanted === 'etude' || wanted === 'recherche' || wanted === 'parcours') setTabState(wanted as Tab);
+      else if (!hasRef && (savedTab === 'recherche' || savedTab === 'etude')) setTabState(savedTab as Tab);
+      if (qs.get('fiche')) setFiche(qs.get('fiche'));
+      if (qs.get('lexique')) { setTabState('recherche'); setLexOpen(true); }
+      if (qs.get('q') && wanted === 'recherche') setSearch(qs.get('q')!);
       setQHist(JSON.parse(localStorage.getItem('pq-search-hist') ?? '[]'));
     } catch {}
   }, []);
+  useEffect(() => { if (tab === 'etude' || tab === 'recherche') loadStudy(); }, [tab]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (lexOpen) loadLexique(); }, [lexOpen]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Versets importants du livre (bulle ★)
+  useEffect(() => {
+    let alive = true;
+    supabase.from('famous_verses').select('chapter, verse_start, title').eq('book', book).order('chapter').order('verse_start')
+      .then(({ data }) => { if (alive) setBookFamous((data ?? []).map((f: any) => ({ chapter: f.chapter, verse: f.verse_start, title: f.title }))); });
+    return () => { alive = false; };
+  }, [book]);
   useEffect(() => {
     if (searching) return;
     try {
@@ -492,6 +541,14 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
     if (!q) { setResults(null); return; }
     remember(q);
     if (q.startsWith('★')) { searchFamous(); return; }
+    // En parallèle : mots hébreux du lexique (sans attendre les versets).
+    if (q.length >= 2) {
+      loadLexique().then(list => {
+        const n = q.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        const nm = (x: string) => (x ?? '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        setWordHits(list.filter((w: any) => nm(`${w.translit} ${w.term} ${w.gloss}`).includes(n)).slice(0, 8));
+      });
+    } else setWordHits([]);
     const themeColor = matchThemeQuery(q);
     if (themeColor) { searchTheme(themeColor); return; }
     setThemeMode(false);
@@ -512,20 +569,19 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
 
   return (
     <main className="wrap">
-      <header className="hero">
+      <header className="hero compact">
         <div className="eyebrow">Lire la Bible</div>
-        <h1>Un chapitre<br />par jour</h1>
-        <p className="lede">Un parcours qui commence là où il faut commencer, et un carnet qui garde tout ce que vous notez.</p>
+        <h1>La Parole</h1>
       </header>
 
       <div className="page-tabs four" role="tablist">
-        {([['bible', 'Bible'], ['recherche', 'Recherche'], ['jour', 'Lecture du jour'], ['parcours', 'Parcours']] as const).map(([k, l]) => (
+        {([['bible', 'Bible'], ['etude', 'Étude'], ['recherche', 'Recherche'], ['parcours', 'Parcours']] as const).map(([k, l]) => (
           <button key={k} role="tab" className="page-tab" aria-selected={tab === k}
                   onClick={() => { setTab(k); setBubble(null); }}>{l}</button>
         ))}
       </div>
 
-      {tab === 'jour' && (
+      {tab === 'parcours' && (
         <>
       {P && position.step && (
         <div className="card">
@@ -659,6 +715,26 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
         </>
       )}
 
+      {tab === 'etude' && (
+        <>
+          <div className="study-intro card pad">
+            <div>
+              <span className="kicker">Bible d&rsquo;étude</span>
+              <p className="fine">Thèmes, personnages, lieux et mots hébreux : chaque fiche renvoie aux passages, qui se lisent d&rsquo;un toucher.</p>
+            </div>
+            <label className="switch">
+              <input type="checkbox" checked={etudeOn} onChange={e => toggleEtude(e.target.checked)} />
+              <span className="switch-ui" />
+              <span className="switch-l">Pendant la lecture</span>
+            </label>
+          </div>
+          {studyList
+            ? <StudyIndex embedded plan={studyList.plan} ready={studyList.ready} sujets={studyList.sujets}
+                          renvois={studyList.renvois} onOpen={setFiche} />
+            : <div className="skel skel-card" />}
+        </>
+      )}
+
       {tab === 'recherche' && (
         <>
           <div className="card pad srch-card">
@@ -693,11 +769,47 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
               </>
             )}
 
-            <a className="srch-index"
-               href={`/etude${search.trim() && !search.startsWith('★') ? `?q=${encodeURIComponent(search.trim())}` : ''}`}>
-              {search.trim() && !search.startsWith('★') ? `Voir « ${search.trim()} » dans l’Index d’étude ›` : 'Chercher un thème dans l’Index d’étude ›'}
-            </a>
+            <div className="srch-more">
+              <button className="btn sm" onClick={() => setLexOpen(true)}>א Mots hébreux</button>
+              <button className="btn sm" onClick={() => setTab('etude')}>Bible d&rsquo;étude</button>
+            </div>
           </div>
+
+          {doneQ && !doneQ.startsWith('★') && (() => {
+            const n = doneQ.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+            const nm = (x: string) => (x ?? '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+            const fiches = studyList ? studyList.plan
+              .filter(e => studyList.ready[e.slug] !== undefined && nm(e.title).includes(n)).slice(0, 8) : [];
+            if (!fiches.length && !wordHits.length) return null;
+            return (
+              <div className="card pad srch-groups">
+                {fiches.length > 0 && (
+                  <>
+                    <div className="srch-k">Dans la Bible d&rsquo;étude</div>
+                    <div className="ix-chips">
+                      {fiches.map(f => (
+                        <button key={f.slug} className="ix-chip" onClick={() => setFiche(f.slug)}>
+                          {f.title}<small className="chip-k"> · {kindLabel(f.kind)}</small>
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+                {wordHits.length > 0 && (
+                  <>
+                    <div className="srch-k">Mots hébreux</div>
+                    <div className="ix-chips">
+                      {wordHits.map((w: any) => (
+                        <button key={w.slug} className="ix-chip" onClick={() => setLexOpen(true)}>
+                          {w.translit}<small className="chip-k"> · {w.gloss}</small>
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+            );
+          })()}
 
           {results !== null && (
             <>
@@ -749,6 +861,20 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
         <button className="srch-back" onClick={() => { setTab('recherche'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
           ‹ Résultats « {doneQ} » <span>{results.length}</span>
         </button>
+      )}
+
+      <div className="mode-switch" role="tablist" aria-label="Mode de lecture">
+        <button role="tab" aria-selected={!etudeOn} onClick={() => toggleEtude(false)}>Lecture</button>
+        <button role="tab" aria-selected={etudeOn} onClick={() => toggleEtude(true)}>Bible d&rsquo;étude</button>
+      </div>
+      {etudeOn && !compareWith && (
+        <ChapterStudy book={book} chapter={chapter} label={`${bookName} ${chapter}`}
+                      onOpen={setFiche}
+                      onList={list => {
+                        const map: Record<number, string> = {};
+                        for (const it of list) for (const v of it.verses) if (!map[v]) map[v] = it.slug;
+                        setStudyMap(map); setStudyVerses(new Set(Object.keys(map).map(Number)));
+                      }} />
       )}
 
       <div className="card" id="lecteur" style={{ scrollMarginTop: 70 }}>
@@ -819,13 +945,17 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
              return (
                <Fragment key={v.verse}>
                  <span id={`v-${v.verse}`}
-                       className={`vs${c ? ` h${c}` : ''}${sel === v.verse ? ' sel' : ''}${multi.has(v.verse) ? ' multi' : ''}${famous[v.verse] ? ' famous' : ''}${jesusV.has(v.verse) ? ' jesus' : ''}`}
+                       className={`vs${c ? ` h${c}` : ''}${sel === v.verse ? ' sel' : ''}${multi.has(v.verse) ? ' multi' : ''}${famous[v.verse] ? ' famous' : ''}${jesusV.has(v.verse) ? ' jesus' : ''}${etudeOn && studyVerses.has(v.verse) ? ' stud' : ''}`}
                        onClick={() => {
                          if (deep) { setSel(null); setWbw(wbw === v.verse ? null : v.verse); return; }
                          setSel(sel === v.verse ? null : v.verse); setEditing(false); setNoteText(noteFor(v.verse)?.body ?? '');
                        }}>
                    {famous[v.verse] && <span className="vstar" title={`Verset connu · ${famous[v.verse]}`}>★</span>}
                    <span className="vn">{v.verse}</span>{v.text}
+                   {etudeOn && studyMap[v.verse] && (
+                     <button className="vstud" title="Fiche de la Bible d’étude"
+                             onClick={e => { e.stopPropagation(); setFiche(studyMap[v.verse]); }}>✦</button>
+                   )}
                    {noteFor(v.verse) && <span className="noteflag">note</span>}
                  </span>
                  {showExplain && (
@@ -1089,6 +1219,10 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
                   title="Mode Strong : toucher un verset ouvre l'hébreu ou le grec" onClick={toggleDeep}>
             <span className="rfab-he">א</span>
           </button>
+          <button className={`rfab rfab-star${bubble === 'importants' ? ' on' : ''}`} aria-label="Versets importants"
+                  title="Versets importants" onClick={() => setBubble(bubble === 'importants' ? null : 'importants')}>
+            <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 3.2l2.6 5.5 6 .7-4.5 4.1 1.2 5.9L12 16.5 6.7 19.4l1.2-5.9L3.4 9.4l6-.7z" /></svg>
+          </button>
           <button className={`rfab${bubble === 'method' ? ' on' : ''}`} aria-label="Comment lire"
                   onClick={() => setBubble(bubble === 'method' ? null : 'method')}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
@@ -1151,6 +1285,39 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
             </>
           )}
 
+          {bubble === 'importants' && (
+            <>
+              <h3 className="rbubble-t">Versets importants</h3>
+              {Object.keys(famous).length > 0 ? (
+                <>
+                  <div className="rbubble-k" style={{ marginTop: 0 }}>{bookName} {chapter}</div>
+                  <div className="imp-list">
+                    {Object.entries(famous)
+                      .filter(([v, t], i, arr) => i === 0 || arr[i - 1][1] !== t)
+                      .map(([v, t]) => (
+                        <button key={v} className="imp-it" onClick={() => { setBubble(null); setTarget(Number(v)); }}>
+                          <b>v. {v}</b><span>{t}</span>
+                        </button>
+                      ))}
+                  </div>
+                </>
+              ) : <p className="rbubble-sub">Pas de verset célèbre repéré dans ce chapitre.</p>}
+              {bookFamous.filter(f => f.chapter !== chapter).length > 0 && (
+                <>
+                  <div className="rbubble-k">Dans tout le livre</div>
+                  <div className="imp-list">
+                    {bookFamous.filter(f => f.chapter !== chapter).slice(0, 30).map(f => (
+                      <button key={`${f.chapter}-${f.verse}`} className="imp-it"
+                              onClick={() => { setBubble(null); setChapter(f.chapter); setTarget(f.verse); }}>
+                        <b>{f.chapter}.{f.verse}</b><span>{f.title}</span>
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </>
+          )}
+
           {bubble === 'versions' && (
             <>
               <h3 className="rbubble-t">Versions</h3>
@@ -1191,6 +1358,18 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
         </div>
       )}
 
+      <FicheSheet slug={fiche} onClose={() => setFiche(null)} />
+
+      {lexOpen && (
+        <div className="rsheet-back" onClick={() => setLexOpen(false)}>
+          <div className="rsheet lex-sheet" onClick={e => e.stopPropagation()}>
+            <div className="rsheet-grip" />
+            <div className="fiche-top"><span className="kicker">Mots hébreux et araméens</span>
+              <button className="vbar-x" onClick={() => setLexOpen(false)} aria-label="Fermer">✕</button></div>
+            {lexique ? <WordsBrowser words={lexique} embedded /> : <p className="empty">Ouverture du lexique…</p>}
+          </div>
+        </div>
+      )}
     </main>
   );
 }

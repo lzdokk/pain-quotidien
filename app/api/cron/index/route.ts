@@ -3,6 +3,7 @@ import { revalidatePath, revalidateTag } from 'next/cache';
 import { admin } from '@/lib/supabase/admin';
 import { callJSON } from '@/lib/llm';
 import { parseShortRef } from '@/lib/refs';
+import { allRows } from '@/lib/supabase/all-rows';
 import {
   allEntries, IndexEntrySchema, INDEX_SYSTEM, INDEX_GEMINI_SCHEMA, indexUserPrompt, slugify
 } from '@/lib/prompts/study-index';
@@ -25,7 +26,8 @@ export async function GET(req: NextRequest) {
   const only = sp.get('slug');
 
   const planned = allEntries();
-  const { data: existing } = await admin.from('bible_index').select('slug');
+  // Toutes les fiches déjà écrites (au-delà de 1 000) : on ne réécrit jamais une fiche existante.
+  const existing = await allRows(from => admin.from('bible_index').select('slug').order('slug').range(from, from + 999));
   const have = new Set((existing ?? []).map((e: any) => e.slug));
   const todo = only ? planned.filter(e => e.slug === only) : planned.filter(e => !have.has(e.slug)).slice(0, n);
   const titles = new Map(planned.map(e => [slugify(e.title), e.title]));

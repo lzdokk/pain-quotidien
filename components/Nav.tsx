@@ -12,7 +12,7 @@ const TABS = [
   { href: '/priere',    label: 'Prière' },
   { href: '/sagesse',   label: 'Sagesse' },
   { href: '/lire',      label: 'Lire', match: ['/lire', '/etude', '/mots', '/versets'] },
-  { href: '/paraboles', label: 'Récits', match: ['/paraboles'] },
+  { href: '/paraboles', label: 'Récits', match: ['/paraboles', '/fondements', '/questions'] },
   { href: '/cursus',    label: 'Cursus' }
 ];
 

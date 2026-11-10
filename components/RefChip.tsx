@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase/client';
 import { parseShortRef, readerHref } from '@/lib/refs';
@@ -39,7 +40,7 @@ export default function RefChip({ r, from }: { r: string; from?: string }) {
   return (
     <>
       <button className="refchip" onClick={show}>{parsed.label}</button>
-      {open && (
+      {open && typeof document !== 'undefined' && createPortal(
         <div className="rsheet-back" onClick={() => setOpen(false)}>
           <div className="rsheet refsheet" onClick={e => e.stopPropagation()}>
             <div className="rsheet-grip" />
@@ -60,7 +61,7 @@ export default function RefChip({ r, from }: { r: string; from?: string }) {
               <button className="btn sm" onClick={() => setOpen(false)}>Fermer</button>
             </div>
           </div>
-        </div>
+        </div>, document.body
       )}
     </>
   );

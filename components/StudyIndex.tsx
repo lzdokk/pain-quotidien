@@ -1,27 +1,30 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import LearnTabs from './LearnTabs';
+import type { StudyEntry } from '@/lib/study-client';
+import { kindLabel } from '@/lib/study-client';
 
-type Entry = { slug: string; kind: 'theme' | 'personne' | 'lieu'; title: string; category: string; subcategory: string | null };
+type Kind = StudyEntry['kind'];
 
 /**
- * INDEX D'ETUDE : comme l'annexe d'une Bible d'etude. Recherche, classement
- * par grands sujets, personnages et lieux. Un toucher ouvre la fiche, ou
- * chaque reference se lit d'un clic.
+ * BIBLE D'ÉTUDE : recherche, thèmes (de A à Z ou par grands sujets),
+ * personnages, lieux et mots hébreux. Un toucher ouvre la fiche
+ * (dans une feuille quand c'est intégré au lecteur, sinon sur sa page).
  */
-export default function StudyIndex({ plan, ready, sujets, renvois }: {
-  plan: Entry[]; ready: Record<string, string>;
+export default function StudyIndex({ plan, ready, sujets, renvois, embedded = false, onOpen, initialQuery = '' }: {
+  plan: StudyEntry[]; ready: Record<string, string>;
   sujets: Array<{ id: string; title: string; groups: string[] }>;
   renvois: Array<{ from: string; to: string; slug: string }>;
+  embedded?: boolean; onOpen?: (slug: string) => void; initialQuery?: string;
 }) {
-  const [tab, setTab] = useState<'theme' | 'personne' | 'lieu'>('theme');
+  const [tab, setTab] = useState<Kind>('theme');
   const [view, setView] = useState<'az' | 'sujets'>('az');
-  const [q, setQ] = useState('');
+  const [q, setQ] = useState(initialQuery);
   useEffect(() => {
+    if (embedded) return;
     const p = new URLSearchParams(location.search).get('q');
     if (p) setQ(p);
-  }, []);
+  }, [embedded]);
 
   const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
   const count = Object.keys(ready).length;
@@ -32,81 +35,89 @@ export default function StudyIndex({ plan, ready, sujets, renvois }: {
     return plan
       .filter(e => ready[e.slug] !== undefined)
       .map(e => {
-        const inTitle = norm(e.title).includes(n);
+        const t = norm(e.title);
+        const inTitle = t.includes(n);
         const inDef = norm(ready[e.slug] ?? '').includes(n);
-        return { e, score: inTitle ? (norm(e.title).startsWith(n) ? 3 : 2) : inDef ? 1 : 0 };
+        return { e, score: inTitle ? (t.startsWith(n) ? 3 : 2) : inDef ? 1 : 0 };
       })
       .filter(x => x.score > 0)
       .sort((a, b) => b.score - a.score || a.e.title.localeCompare(b.e.title))
-      .slice(0, 40);
+      .slice(0, 50);
   }, [q, plan, ready]);
 
-  // Renvois (« Affection : voir Amour du prochain »)
   const seeRefs = useMemo(() => {
     const n = norm(q.trim());
     if (n.length < 2) return [];
     return renvois.filter(r => norm(r.from).includes(n)).slice(0, 8);
   }, [q, renvois]);
 
-  // Themes de A a Z, groupes par lettre (accents ignores)
   const letters = useMemo(() => {
-    const m = new Map<string, Entry[]>();
-    for (const e of plan.filter(x => x.kind === 'theme').sort((a, b) => a.title.localeCompare(b.title, 'fr'))) {
+    const m = new Map<string, StudyEntry[]>();
+    for (const e of plan.filter(x => x.kind === tab).sort((a, b) => a.title.localeCompare(b.title, 'fr'))) {
       const l = norm(e.title)[0]?.toUpperCase() ?? '#';
       if (!m.has(l)) m.set(l, []);
       m.get(l)!.push(e);
     }
     return [...m.entries()];
-  }, [plan]);
+  }, [plan, tab]);
 
-  const chip = (e: Entry) => ready[e.slug] !== undefined
-    ? <Link key={e.slug} href={`/etude/${e.slug}`} className="ix-chip">{e.title}</Link>
-    : <span key={e.slug} className="ix-chip soon" title="Fiche en préparation">{e.title}</span>;
+  const open = (slug: string) => onOpen?.(slug);
+  const chip = (e: StudyEntry) => ready[e.slug] === undefined
+    ? <span key={e.slug} className="ix-chip soon" title="Fiche en préparation">{e.title}</span>
+    : onOpen
+      ? <button key={e.slug} className="ix-chip" onClick={() => open(e.slug)}>{e.title}</button>
+      : <Link key={e.slug} href={`/etude/${e.slug}`} className="ix-chip">{e.title}</Link>;
 
-  const kindLabel = (k: Entry['kind']) => k === 'personne' ? 'Personnage' : k === 'lieu' ? 'Lieu' : 'Thème';
+  const result = (key: string, slug: string, children: React.ReactNode) => onOpen
+    ? <button key={key} className="ix-res" onClick={() => open(slug)}>{children}</button>
+    : <Link key={key} href={`/etude/${slug}`} className="ix-res">{children}</Link>;
+
+  const TABS: Array<[Kind, string]> = [['theme', 'Thèmes'], ['personne', 'Personnages'], ['lieu', 'Lieux'], ['mot', 'Mots hébreux']];
 
   return (
-    <main className="wrap">
-      <LearnTabs />
-      <header className="hero">
-        <div className="eyebrow">Index d&rsquo;étude</div>
-        <h1>Toute la Bible<br />par thèmes</h1>
-        <p className="lede">Cherche un thème, un personnage ou un lieu : tout est classé, et chaque passage se lit d&rsquo;un toucher.</p>
-      </header>
+    <div className={embedded ? 'study-embedded' : 'wrap'}>
+      {!embedded && (
+        <header className="hero">
+          <div className="eyebrow">Bible d&rsquo;étude</div>
+          <h1>Toute la Bible<br />par thèmes</h1>
+          <p className="lede">Cherche un thème, un personnage, un lieu ou un mot hébreu : chaque passage se lit d&rsquo;un toucher.</p>
+        </header>
+      )}
 
-      <Link href="/etude/comment-lire" className="card pad ix-guide">
-        <span className="kicker">Guide</span>
-        <b>Comment lire la Bible chaque jour ?</b>
-        <span className="ix-guide-go">La méthode, les questions à se poser, et comment en faire une prière ›</span>
-      </Link>
-
-      <div className="card pad">
+      <div className="card pad study-search">
         <input className="field" type="search" value={q} onChange={e => setQ(e.target.value)}
-               placeholder="Chercher : alliance, prière, Abraham, Jérusalem…" />
-        <p className="ix-count">{count} fiche{count > 1 ? 's' : ''} disponible{count > 1 ? 's' : ''} sur {plan.length}</p>
+               placeholder="Chercher : alliance, prière, Abraham, Jérusalem, hessed…" />
+        <div className="study-meta">
+          <span>{count} fiche{count > 1 ? 's' : ''} prête{count > 1 ? 's' : ''}</span>
+          <span className="study-bar"><i style={{ width: `${Math.min(100, Math.round(count / Math.max(1, plan.length) * 100))}%` }} /></span>
+          <span>{plan.length} prévues</span>
+        </div>
+        {!embedded && (
+          <Link href="/etude/comment-lire" className="study-guide-link">Comment lire la Bible chaque jour ›</Link>
+        )}
       </div>
 
       {results ? (
         <div className="card">
           {results.length === 0 && seeRefs.length === 0 && <p className="empty" style={{ padding: 22 }}>Aucune fiche ne correspond pour l&rsquo;instant.</p>}
-          {seeRefs.map(r => (
-            <Link key={r.from} href={`/etude/${r.slug}`} className="ix-res">
+          {seeRefs.map(r => result(`r-${r.from}`, r.slug, (
+            <>
               <span className="ix-res-k">Renvoi</span>
               <span className="ix-res-t">{r.from} <i className="ix-voir">voir</i> {r.to}</span>
-            </Link>
-          ))}
-          {results.map(({ e }) => (
-            <Link key={e.slug} href={`/etude/${e.slug}`} className="ix-res">
+            </>
+          )))}
+          {results.map(({ e }) => result(e.slug, e.slug, (
+            <>
               <span className="ix-res-k">{kindLabel(e.kind)}{e.kind === 'theme' ? ` · ${e.category}` : ''}</span>
               <span className="ix-res-t">{e.title}</span>
               {ready[e.slug] && <span className="ix-res-d">{ready[e.slug].slice(0, 150)}{ready[e.slug].length > 150 ? '…' : ''}</span>}
-            </Link>
-          ))}
+            </>
+          )))}
         </div>
       ) : (
         <>
-          <div className="page-tabs" role="tablist">
-            {([['theme', 'Thèmes'], ['personne', 'Personnages'], ['lieu', 'Lieux']] as const).map(([k, l]) => (
+          <div className="page-tabs four study-tabs" role="tablist">
+            {TABS.map(([k, l]) => (
               <button key={k} role="tab" className="page-tab" aria-selected={tab === k} onClick={() => setTab(k)}>{l}</button>
             ))}
           </div>
@@ -118,13 +129,18 @@ export default function StudyIndex({ plan, ready, sujets, renvois }: {
             </div>
           )}
 
-          {tab === 'theme' && view === 'az' && (
+          {(tab !== 'theme' || view === 'az') && (
             <>
               <div className="ix-letters">
-                {letters.map(([l]) => <a key={l} href={`#l-${l}`}>{l}</a>)}
+                {letters.map(([l]) => (
+                  <a key={l} href={`#l-${tab}-${l}`} onClick={e => {
+                    e.preventDefault();
+                    document.getElementById(`l-${tab}-${l}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }}>{l}</a>
+                ))}
               </div>
               {letters.map(([l, list]) => (
-                <section className="card pad ix-sujet" key={l} id={`l-${l}`} style={{ scrollMarginTop: 70 }}>
+                <section className="card pad ix-sujet" key={l} id={`l-${tab}-${l}`} style={{ scrollMarginTop: 80 }}>
                   <h2 className="ix-sujet-t">{l}</h2>
                   <div className="ix-chips">{list.map(chip)}</div>
                 </section>
@@ -133,8 +149,8 @@ export default function StudyIndex({ plan, ready, sujets, renvois }: {
           )}
 
           {tab === 'theme' && view === 'sujets' && sujets.map(s => (
-            <section className="card pad ix-sujet" key={s.id}>
-              <h2 className="ix-sujet-t">{s.title}</h2>
+            <details className="card pad ix-sujet ix-fold" key={s.id}>
+              <summary className="ix-sujet-t">{s.title}</summary>
               {s.groups.map(g => (
                 <div key={g} className="ix-group">
                   <h3>{g}</h3>
@@ -143,18 +159,10 @@ export default function StudyIndex({ plan, ready, sujets, renvois }: {
                   </div>
                 </div>
               ))}
-            </section>
+            </details>
           ))}
-
-          {tab !== 'theme' && (
-            <div className="card pad">
-              <div className="ix-chips">
-                {plan.filter(e => e.kind === tab).sort((a, b) => a.title.localeCompare(b.title, 'fr')).map(chip)}
-              </div>
-            </div>
-          )}
         </>
       )}
-    </main>
+    </div>
   );
 }

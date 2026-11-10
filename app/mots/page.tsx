@@ -1,30 +1,6 @@
-import { supabasePublic } from '@/lib/supabase/public';
-import WordsBrowser from '@/components/WordsBrowser';
+import { redirect } from 'next/navigation';
 
-export const revalidate = 3600;
-export const metadata = { title: 'Les mots hébreu & grec' };
-
-const THEME_ORDER = [
-  'Noms de Dieu', 'La personne de Christ', 'Le Saint-Esprit',
-  'Le salut et la grâce', 'La foi et l’alliance', 'La création et l’homme',
-  'L’Église et la vie chrétienne', 'Prière et louange', 'Adoration'
-];
-
-export default async function Mots() {
-  const sb = await supabasePublic();
-  const user: any = null; // lu dans le navigateur (useUser)
-  const { data: words } = await sb.from('bible_words')
-    .select('slug, term, translit, lang, gloss, theme, sense, christ, refs')
-    .order('translit');
-
-  const sorted = (words ?? []).slice().sort((a, b) => {
-    const ia = THEME_ORDER.indexOf(a.theme), ib = THEME_ORDER.indexOf(b.theme);
-    return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
-  });
-
-  return (
-    <>
-      <WordsBrowser words={sorted} />
-    </>
-  );
+// Les mots hébreux sont maintenant dans Lire › Recherche.
+export default function Mots() {
+  redirect('/lire?tab=recherche&lexique=1');
 }

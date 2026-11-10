@@ -3,9 +3,9 @@ name: Paraboles (catalogue Apprendre)
 # Remplit le catalogue de paraboles theme par theme (vagues). Le palier
 # gratuit Gemini limite a ~20 requetes/minute : on avance par petits paquets,
 # plusieurs fois par jour, jusqu'a un catalogue complet.
+# ARRÊTÉ (novembre 2026) : on garde 3 histoires par thème, plus aucune
+# génération automatique. Lancement manuel seulement si on le décide.
 on:
-  schedule:
-    - cron: '24 6,14,22 * * *'
   workflow_dispatch: {}
 
 jobs:

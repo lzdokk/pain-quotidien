@@ -1,5 +1,6 @@
 import { unstable_cache } from 'next/cache';
 import { admin } from '@/lib/supabase/admin';
+import { allRows } from '@/lib/supabase/all-rows';
 
 /**
  * CACHE SERVEUR des contenus publics (identiques pour tout le monde).
@@ -23,8 +24,8 @@ export const getReaderStatic = unstable_cache(async () => {
 
 // Index d'étude : la liste des fiches (définition raccourcie pour la recherche).
 export const getIndexList = unstable_cache(async () => {
-  const { data } = await admin.from('bible_index').select('slug, definition');
-  return (data ?? []).map((e: any) => [e.slug, String(e.definition ?? '').slice(0, 240)] as [string, string]);
+  const data = await allRows(from => admin.from('bible_index').select('slug, definition').order('slug').range(from, from + 999));
+  return data.map((e: any) => [e.slug, String(e.definition ?? '').slice(0, 240)] as [string, string]);
 }, ['etude-list-v1'], { revalidate: 900, tags: ['etude'] });
 
 // Cursus : la structure (cursus, niveaux, groupes, cours), sans les mots de passe.

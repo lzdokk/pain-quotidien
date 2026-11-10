@@ -2,13 +2,10 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-/** Onglets internes de la section « Apprendre » : Paraboles, Mots, Versets. */
+/** Onglets internes de la section « Récits » : Théologie racontée, Fondements, Questions. */
 const SUBTABS = [
-  { href: '/etude', label: 'Index' },
-  { href: '/paraboles', label: 'Paraboles' },
+  { href: '/paraboles', label: 'Théologie racontée' },
   { href: '/fondements', label: 'Fondements' },
-  { href: '/mots', label: 'Mots' },
-  { href: '/versets', label: 'Versets' },
   { href: '/questions', label: 'Questions' }
 ];
 

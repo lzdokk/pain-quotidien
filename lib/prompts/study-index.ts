@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { VOICE } from './voice';
+import { GRANDS_SUJETS_PLUS, GRANDS_SUJETS_DETAIL, PERSONNAGES_PLUS, PERSONNAGES_DETAIL, LIEUX_PLUS, LIEUX_DETAIL, MOTS } from './study-index-plus';
 
 /**
  * INDEX D'ETUDE — l'equivalent de l'annexe d'une Bible d'etude, ecrit par
@@ -63,6 +64,9 @@ export const GRANDS_SUJETS: Array<{ id: string; title: string; groups: Array<{ t
   ]}
 ];
 
+/** Tous les grands sujets (affichage « Par grands sujets »). */
+export const ALL_SUJETS = () => [...GRANDS_SUJETS, ...GRANDS_SUJETS_PLUS, ...GRANDS_SUJETS_DETAIL];
+
 /** Renvois (« Affection : voir Amour du prochain »), comme dans une Bible d'étude. */
 export const RENVOIS: Record<string, string> = {
   'Affection': 'Amour du prochain', 'Charité': 'Amour du prochain', 'Abstinence': 'Alcool', 'Ivresse': 'Alcool',
@@ -118,7 +122,7 @@ export const slugify = (s: string) =>
     .replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 
 export type PlannedEntry = {
-  slug: string; kind: 'theme' | 'personne' | 'lieu'; title: string;
+  slug: string; kind: 'theme' | 'personne' | 'lieu' | 'mot'; title: string;
   category: string; subcategory: string | null;
 };
 
@@ -129,6 +133,16 @@ export function allEntries(): PlannedEntry[] {
     out.push({ slug: slugify(t), kind: 'theme', title: t, category: g.title, subcategory: sub.title });
   for (const p of PERSONNAGES) out.push({ slug: slugify(p), kind: 'personne', title: p, category: 'Personnages', subcategory: null });
   for (const l of LIEUX) out.push({ slug: slugify(l), kind: 'lieu', title: l, category: 'Lieux', subcategory: null });
+  // Deuxième vague : objectif plus de 3 000 fiches (remplissage doux, chaque nuit).
+  for (const g of GRANDS_SUJETS_PLUS) for (const sub of g.groups) for (const t of sub.themes)
+    out.push({ slug: slugify(t), kind: 'theme', title: t, category: g.title, subcategory: sub.title });
+  for (const p of PERSONNAGES_PLUS) out.push({ slug: slugify(p), kind: 'personne', title: p, category: 'Personnages', subcategory: null });
+  for (const l of LIEUX_PLUS) out.push({ slug: slugify(l), kind: 'lieu', title: l, category: 'Lieux', subcategory: null });
+  for (const g of GRANDS_SUJETS_DETAIL) for (const sub of g.groups) for (const t of sub.themes)
+    out.push({ slug: slugify(t), kind: 'theme', title: t, category: g.title, subcategory: sub.title });
+  for (const p of PERSONNAGES_DETAIL) out.push({ slug: slugify(p), kind: 'personne', title: p, category: 'Personnages', subcategory: null });
+  for (const l of LIEUX_DETAIL) out.push({ slug: slugify(l), kind: 'lieu', title: l, category: 'Lieux', subcategory: null });
+  for (const m of MOTS) out.push({ slug: slugify(m), kind: 'mot', title: m, category: 'Mots hébreux et araméens', subcategory: null });
   const seen = new Set<string>();
   return out.filter(e => (seen.has(e.slug) ? false : (seen.add(e.slug), true)));
 }
@@ -187,6 +201,11 @@ entièrement rédigée par toi) :
 - definition : deux à quatre phrases claires. Pour un personnage : qui il est,
   son époque, son rôle dans l'histoire du salut. Pour un lieu : où il se trouve
   et ce qui s'y passe. Pour un thème : ce que la Bible entend par ce mot.
+  Pour un MOT hébreu ou araméen : sa racine, son sens premier et ses nuances,
+  ce que le français ne rend pas ; sections conseillées « A. Sens et racine »,
+  « B. Emplois marquants dans l'Ancien Testament », « C. Dans la bouche de
+  Yéchoua (Jésus) et des apôtres » (le mot français correspondant), « D. Pour
+  notre vie ». Jamais de mot grec : le Nouveau Testament est cité en français.
 - RICHESSE : une fiche aussi complète qu'une vraie Bible d'étude. Pour un grand
   sujet (Alliance, Prière, Foi, Salut, Abraham, David, Jérusalem…) : 5 à 10
   sections, 4 à 12 items chacune, 40 à 90 références au total. Pour un sujet
@@ -216,7 +235,7 @@ RÉFÉRENCES (RÈGLE ABSOLUE) :
 Réponds uniquement par un objet JSON conforme au schéma, sans texte autour.`;
 
 export function indexUserPrompt(e: PlannedEntry) {
-  const k = e.kind === 'personne' ? 'PERSONNAGE' : e.kind === 'lieu' ? 'LIEU' : 'THÈME';
+  const k = e.kind === 'personne' ? 'PERSONNAGE' : e.kind === 'lieu' ? 'LIEU' : e.kind === 'mot' ? 'MOT HÉBREU OU ARAMÉEN' : 'THÈME';
   return `Rédige la fiche d'index pour ce ${k} : « ${e.title} »
 (classement : ${e.category}${e.subcategory ? ` › ${e.subcategory}` : ''}).
 Renvoie { "definition": "...", "sections": [ { "title": "A. ...", "items": [ { "label": "...", "refs": ["Gn 1.1"] } ] } ], "see_also": [] }.`;

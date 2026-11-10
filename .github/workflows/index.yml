@@ -1,31 +1,28 @@
-name: Index d'étude (génération des fiches)
+name: Bible d'étude (remplissage doux chaque nuit)
 
-# Rédige les fiches de l'Index d'étude (thèmes, personnages, lieux) qui
-# manquent encore, deux par appel.
-#  - Lancement manuel (Run workflow) : enchaîne les appels jusqu'à tout remplir.
-#  - Automatique toutes les 2 heures : complète ce qui manque (sans effet
-#    une fois l'index complet).
+# Rédige les fiches de la Bible d'étude qui manquent encore (objectif : plus de
+# 3 000 fiches), un peu chaque nuit pour ménager les crédits de l'IA.
+#  - Automatique chaque nuit : 24 fiches (12 passages de 2).
+#  - Lancement manuel (Run workflow) : 24 fiches de plus, si on veut accélérer.
 on:
   schedule:
-    - cron: '17 */2 * * *'
+    - cron: '23 1 * * *'
   workflow_dispatch: {}
 
 jobs:
   gen:
     runs-on: ubuntu-latest
-    timeout-minutes: 340
+    timeout-minutes: 90
     steps:
-      - name: Générer les fiches manquantes
+      - name: Rédiger quelques fiches
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then ROUNDS=160; else ROUNDS=25; fi
-          for i in $(seq 1 $ROUNDS); do
-            echo "→ Passage $i/$ROUNDS"
+          for i in $(seq 1 12); do
+            echo "→ Passage $i/12"
             OUT=$(curl -s --max-time 300 "${{ secrets.SITE_URL }}/api/cron/index?n=2" \
               -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" || echo '{}')
             echo "$OUT"
-            # Index complet : plus rien a faire.
             if echo "$OUT" | grep -q '"done":\[\]' && ! echo "$OUT" | grep -q '"errors"'; then
-              echo "Index complet."; break
+              echo "Bible d'étude complète."; break
             fi
             sleep 5
           done

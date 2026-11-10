@@ -35,7 +35,7 @@ export default async function Fiche({ params }: { params: Promise<{ slug: string
   return (
     <>
       <main className="wrap">
-        <Link href="/etude" className="back-parable">‹ Index d&rsquo;étude</Link>
+        <Link href="/lire?tab=etude" className="back-parable">‹ Bible d&rsquo;étude</Link>
 
         <header className="ix-head">
           <span className="kicker">{kind}{e.kind === 'theme' && e.category ? ` · ${e.category}` : ''}{e.subcategory ? ` › ${e.subcategory}` : ''}</span>

@@ -1,13 +1,12 @@
 'use client';
 import { useMemo, useState } from 'react';
-import LearnTabs from './LearnTabs';
 
 /**
  * Base des mots importants (hebreu / arameen / grec), tiree des livrets de
  * Mickael A. Recherche + filtre par theme, chaque mot depliable pour lire le
  * sens profond et son accomplissement en Christ.
  */
-export default function WordsBrowser({ words }: { words: any[] }) {
+export default function WordsBrowser({ words, embedded = false }: { words: any[]; embedded?: boolean }) {
   const [theme, setTheme] = useState('Tout');
   const [q, setQ] = useState('');
   const [open, setOpen] = useState<string | null>(null);
@@ -27,20 +26,19 @@ export default function WordsBrowser({ words }: { words: any[] }) {
     /grec/i.test(l) ? 'gr' : /aram/i.test(l) ? 'ar' : 'he';
 
   return (
-    <main className="wrap">
-      <LearnTabs />
-      <header className="hero">
+    <main className={embedded ? 'words-embedded' : 'wrap'}>
+      {!embedded && <header className="hero">
         <div className="eyebrow">Les mots</div>
         <h1>Le sens profond<br />des mots d&rsquo;origine</h1>
         <p className="lede">
           Les mots hébreu, araméen et grec qui portent le cœur du texte. Ce que le
           français ne rend pas toujours, et comment chacun trouve son sommet en Christ.
         </p>
-      </header>
+      </header>}
 
       <div className="card pad">
         <input className="field" type="search" value={q} onChange={e => setQ(e.target.value)}
-               placeholder="Chercher un mot (agapè, hesed, grâce, alliance…)" />
+               placeholder="Chercher un mot (hessed, chalom, grâce, alliance…)" />
         <div className="chips" style={{ marginTop: 16 }}>
           {themes.map(t => (
             <button key={t} className="chip" aria-selected={t === theme} onClick={() => setTheme(t)}>{t}</button>

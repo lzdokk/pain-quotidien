@@ -13,3 +13,237 @@
 .skel-card.short{height:110px}
 @keyframes skel{0%{background-position:100% 0}100%{background-position:-100% 0}}
 @media(prefers-reduced-motion:reduce){.skel{animation:none}}
+
+/* ── 1. Palette : ardoise (marque) + or doux (lumière), verre ──────── */
+:root{
+  --gold: #C9A15B;
+  --gold-soft: color-mix(in srgb, #C9A15B 14%, transparent);
+  --glass: rgba(255,255,255,.72);
+  --glass-2: rgba(255,255,255,.52);
+  --glass-line: rgba(255,255,255,.75);
+  --hi: inset 0 1px 0 rgba(255,255,255,.95);
+  --lift: 0 1px 0 rgba(255,255,255,.95) inset, 0 16px 36px -22px rgba(30,48,66,.38), 0 3px 8px -4px rgba(30,48,66,.10);
+  --lift-2: 0 1px 0 rgba(255,255,255,.95) inset, 0 26px 48px -24px rgba(30,48,66,.45), 0 4px 10px -4px rgba(30,48,66,.12);
+  --grad: linear-gradient(135deg, #6283A3 0%, #4E6A85 52%, #3D566E 100%);
+  --grad-gold: linear-gradient(135deg, #DDB978 0%, #C9A15B 55%, #B08744 100%);
+  --r: 24px;
+  --spring: cubic-bezier(.2,.8,.2,1);
+}
+html[data-mode="soir"]{
+  --gold: #E0BE7E;
+  --gold-soft: color-mix(in srgb, #E0BE7E 14%, transparent);
+  --glass: rgba(30,38,48,.72);
+  --glass-2: rgba(30,38,48,.52);
+  --glass-line: rgba(255,255,255,.09);
+  --hi: inset 0 1px 0 rgba(255,255,255,.07);
+  --lift: 0 1px 0 rgba(255,255,255,.06) inset, 0 18px 40px -20px rgba(0,0,0,.7);
+  --lift-2: 0 1px 0 rgba(255,255,255,.08) inset, 0 26px 50px -22px rgba(0,0,0,.8);
+  --grad: linear-gradient(135deg, #A9C2DA 0%, #8FA9C4 55%, #7590AC 100%);
+}
+
+/* ── 2. Fond : deux halos très doux qui respirent ─────────────────── */
+body{background:linear-gradient(170deg, color-mix(in srgb,var(--brand) 6%,#fff) 0%, #FCFCFD 40%, #fff 65%, color-mix(in srgb,var(--gold) 5%,#fff) 100%) fixed}
+html[data-mode="soir"] body{background:var(--bg)}
+body::before{content:'';position:fixed;inset:-20vmax;z-index:-1;pointer-events:none;
+ background:
+  radial-gradient(44vmax 32vmax at 10% -4%, color-mix(in srgb,var(--brand) 13%,transparent), transparent 70%),
+  radial-gradient(34vmax 28vmax at 100% 24%, color-mix(in srgb,var(--gold) 9%,transparent), transparent 72%),
+  radial-gradient(40vmax 30vmax at 50% 110%, color-mix(in srgb,var(--brand) 8%,transparent), transparent 70%);
+ animation:halo 20s ease-in-out infinite alternate}
+html[data-mode="soir"] body::before{background:
+  radial-gradient(44vmax 32vmax at 10% -4%, rgba(143,169,196,.14), transparent 70%),
+  radial-gradient(34vmax 28vmax at 100% 24%, rgba(224,190,126,.07), transparent 72%)}
+@keyframes halo{from{transform:translate3d(0,0,0) scale(1)}to{transform:translate3d(0,1.5vmax,0) scale(1.05)}}
+.hero::before{display:none}
+
+/* ── 3. Barre du haut : verre clair ─────────────────────────────────── */
+.nav{background:color-mix(in srgb,var(--bg) 70%,transparent);border-bottom:1px solid color-mix(in srgb,var(--line) 70%,transparent);
+ backdrop-filter:blur(26px) saturate(190%);-webkit-backdrop-filter:blur(26px) saturate(190%)}
+.tabs{background:var(--glass-2);border:1px solid var(--glass-line);box-shadow:var(--hi),0 4px 14px -10px rgba(30,48,66,.3);
+ backdrop-filter:blur(16px) saturate(170%);-webkit-backdrop-filter:blur(16px) saturate(170%)}
+.tab{transition:color .25s var(--spring),background .3s var(--spring),box-shadow .3s}
+.tab[aria-selected="true"]{background:var(--grad);color:#fff;box-shadow:0 1px 0 rgba(255,255,255,.25) inset,0 8px 18px -10px rgba(78,106,133,.95)}
+html[data-mode="soir"] .tab[aria-selected="true"]{color:#0E141A}
+.icon-btn{background:var(--glass-2);border-color:var(--glass-line);box-shadow:var(--hi)}
+.icon-btn.avatar{background:var(--grad);border-color:transparent;box-shadow:0 6px 14px -8px rgba(78,106,133,.9)}
+
+/* ── 4. Barre d'onglets mobile : îlot de verre flottant ─────────────── */
+@media(max-width:700px){
+ body{padding-bottom:110px}
+ .tabbar{left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom));border-radius:28px;padding:6px;
+  background:var(--glass);border:1px solid var(--glass-line);
+  box-shadow:var(--hi),0 18px 40px -16px rgba(30,48,66,.45),0 2px 6px -2px rgba(30,48,66,.12);
+  backdrop-filter:blur(28px) saturate(200%);-webkit-backdrop-filter:blur(28px) saturate(200%)}
+ .tabbar a{position:relative;border-radius:22px;padding:7px 2px 6px;color:var(--ink-3);transition:color .25s,transform .2s var(--spring)}
+ .tabbar a:active{transform:scale(.92)}
+ .tabbar a[aria-current="true"]{color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,transparent)}
+ .tabbar a svg{width:23px;height:23px}
+}
+
+/* ── 5. Cartes : blanc nacré, reflet en haut, ombre colorée ─────────── */
+.card{background:color-mix(in srgb,var(--surface) 90%,transparent);border:1px solid var(--glass-line);border-radius:var(--r);
+ box-shadow:var(--lift);transition:transform .35s var(--spring),box-shadow .35s ease}
+html[data-mode="soir"] .card{background:var(--surface)}
+a.card:hover,.card.tap:hover{transform:translateY(-2px);box-shadow:var(--lift-2)}
+
+/* ── 6. Boutons : verre ou dégradé, réaction au toucher ─────────────── */
+.btn{background:var(--glass);border:1px solid var(--glass-line);box-shadow:var(--hi),0 6px 16px -12px rgba(30,48,66,.4);
+ backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);
+ transition:transform .18s var(--spring),box-shadow .25s ease,background .25s}
+.btn:hover{transform:translateY(-1px);box-shadow:var(--hi),0 12px 22px -14px rgba(30,48,66,.5);border-color:var(--glass-line)}
+.btn:active{transform:scale(.96)}
+.btn.primary{background:var(--grad);border-color:transparent;color:#fff;
+ box-shadow:0 1px 0 rgba(255,255,255,.28) inset,0 12px 24px -12px rgba(78,106,133,.95)}
+html[data-mode="soir"] .btn.primary{color:#0E141A}
+.btn.gold{background:var(--grad-gold);border-color:transparent;color:#fff;box-shadow:0 1px 0 rgba(255,255,255,.35) inset,0 12px 24px -12px rgba(176,135,68,.9)}
+
+/* Pastilles, segments, onglets de page */
+.chip,.cmp-chip{transition:all .22s var(--spring)}
+.chip[aria-selected="true"],.cmp-chip.on{background:var(--grad);border-color:transparent;color:#fff;box-shadow:0 8px 16px -10px rgba(78,106,133,.9)}
+html[data-mode="soir"] .chip[aria-selected="true"],html[data-mode="soir"] .cmp-chip.on{color:#0E141A}
+.page-tabs{background:var(--glass-2);border:1px solid var(--glass-line);box-shadow:var(--hi),0 6px 18px -14px rgba(30,48,66,.4);
+ backdrop-filter:blur(16px) saturate(170%);-webkit-backdrop-filter:blur(16px) saturate(170%)}
+.page-tab[aria-selected="true"]{background:var(--grad);box-shadow:0 1px 0 rgba(255,255,255,.25) inset,0 8px 18px -10px rgba(78,106,133,.95)}
+
+/* Champs */
+.field{border-radius:14px;background:color-mix(in srgb,var(--surface) 75%,transparent);transition:box-shadow .2s,border-color .2s,background .2s}
+.field:focus{outline:none;background:var(--surface);border-color:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 16%,transparent)}
+
+/* ── 7. Titres : grand titre façon iOS ──────────────────────────────── */
+.hero{padding:44px 0 30px}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:5px 12px;border-radius:99px;margin-bottom:16px;
+ background:var(--glass-2);border:1px solid var(--glass-line);box-shadow:var(--hi);font-size:11px}
+h1{letter-spacing:-.032em}
+
+/* ── 8. Prières : panneaux de lumière ───────────────────────────────── */
+.prayer{border-left:0;border-radius:var(--r);border:1px solid var(--glass-line);padding:26px 26px 24px;
+ background:linear-gradient(160deg, color-mix(in srgb,var(--gold) 10%,var(--surface)) 0%, var(--surface) 60%);
+ box-shadow:var(--lift);position:relative;overflow:hidden}
+.prayer::after{content:'';position:absolute;inset:0 0 auto 0;height:50%;pointer-events:none;
+ background:linear-gradient(180deg,rgba(255,255,255,.55),transparent);opacity:.6}
+html[data-mode="soir"] .prayer::after{opacity:.05}
+.prayer .kicker{color:var(--gold)}
+.verse{border-radius:var(--r);background:linear-gradient(160deg, color-mix(in srgb,var(--brand) 9%,var(--surface)), var(--surface) 70%)}
+
+/* ── 9. Feuilles et bulles : verre ──────────────────────────────────── */
+.rsheet,.vbar-inline{background:var(--glass);backdrop-filter:blur(30px) saturate(190%);-webkit-backdrop-filter:blur(30px) saturate(190%);
+ border:1px solid var(--glass-line)}
+.rsheet-back{background:rgba(14,20,26,.28);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+
+/* ── 10. Entrée des pages : fondu et montée légère ──────────────────── */
+main.wrap{animation:entree .35s ease-out}
+@keyframes entree{from{opacity:0}to{opacity:1}}
+
+/* ── 11. TUILES (accueil du jour) ───────────────────────────────────── */
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:6px 0 22px}
+@media(max-width:620px){.tiles{grid-template-columns:repeat(2,1fr);gap:10px}}
+.tile{position:relative;display:flex;flex-direction:column;justify-content:space-between;gap:16px;min-height:118px;
+ padding:16px 16px 14px;border-radius:24px;text-decoration:none;color:#fff;overflow:hidden;isolation:isolate;
+ background:var(--tile, var(--grad));box-shadow:0 1px 0 rgba(255,255,255,.3) inset,0 18px 34px -18px var(--tile-sh, rgba(61,86,110,.9));
+ transition:transform .35s var(--spring),box-shadow .35s ease}
+.tile::before{content:'';position:absolute;inset:-40% -20% auto -20%;height:90%;z-index:-1;
+ background:radial-gradient(60% 60% at 30% 20%,rgba(255,255,255,.45),transparent 70%);transform:rotate(-8deg)}
+.tile::after{content:'';position:absolute;inset:0;z-index:-1;border-radius:inherit;
+ background:linear-gradient(180deg,rgba(255,255,255,.18),transparent 45%)}
+@media(hover:hover){.tile:hover{transform:translateY(-3px) scale(1.01);box-shadow:0 1px 0 rgba(255,255,255,.3) inset,0 26px 44px -20px var(--tile-sh, rgba(61,86,110,.95))}}
+.tile:active{transform:scale(.97);transition-duration:.12s}
+.tile-ic{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:rgba(255,255,255,.22);
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.35);backdrop-filter:blur(6px)}
+.tile-ic svg{width:21px;height:21px}
+.tile-t{font-size:16.5px;font-weight:680;letter-spacing:-.02em;line-height:1.15}
+.tile-s{font-size:12.5px;opacity:.86;margin-top:2px;line-height:1.3}
+.tile.t-pain{--tile:linear-gradient(140deg,#E3B86E,#C9A15B 55%,#A9813F);--tile-sh:rgba(169,129,63,.85)}
+.tile.t-priere{--tile:linear-gradient(140deg,#7C98B6,#5B7896 55%,#45607B);--tile-sh:rgba(69,96,123,.9)}
+.tile.t-sagesse{--tile:linear-gradient(140deg,#8FB7A4,#5F9580 55%,#467A66);--tile-sh:rgba(70,122,102,.85)}
+.tile.t-lire{--tile:linear-gradient(140deg,#6E8FB1,#4E6A85 55%,#38506A);--tile-sh:rgba(56,80,106,.9)}
+.tile.t-recits{--tile:linear-gradient(140deg,#C89A8E,#A8766A 55%,#8A5C52);--tile-sh:rgba(138,92,82,.85)}
+.tile.t-cursus{--tile:linear-gradient(140deg,#9C95C4,#77709F 55%,#5D5784);--tile-sh:rgba(93,87,132,.85)}
+html[data-mode="soir"] .tile{filter:saturate(.9) brightness(.92)}
+
+@media(prefers-reduced-motion:reduce){
+ body::before,main.wrap{animation:none!important}
+ .tile,.card,.btn{transition:none!important}
+}
+
+/* ── 12. Lire : titre compact, interrupteurs, Bible d'étude ─────────── */
+.hero.compact{padding:22px 0 14px}
+.hero.compact h1{font-size:clamp(30px,6vw,40px);margin:6px 0 4px}
+.mode-switch{display:flex;gap:4px;width:fit-content;margin:6px auto 14px;padding:4px;border-radius:99px;
+ background:var(--glass-2);border:1px solid var(--glass-line);box-shadow:var(--hi),0 6px 16px -12px rgba(30,48,66,.4);
+ backdrop-filter:blur(16px) saturate(170%);-webkit-backdrop-filter:blur(16px) saturate(170%)}
+.mode-switch button{border:0;background:transparent;font:inherit;font-size:13.5px;font-weight:600;color:var(--ink-3);
+ padding:7px 16px;border-radius:99px;cursor:pointer;transition:all .25s var(--spring)}
+.mode-switch button[aria-selected="true"]{background:var(--grad-gold);color:#fff;box-shadow:0 1px 0 rgba(255,255,255,.3) inset,0 8px 16px -10px rgba(176,135,68,.9)}
+.mode-switch button:first-child[aria-selected="true"]{background:var(--grad);box-shadow:0 1px 0 rgba(255,255,255,.25) inset,0 8px 16px -10px rgba(78,106,133,.9)}
+
+/* Interrupteur iOS */
+.switch{display:inline-flex;align-items:center;gap:10px;cursor:pointer;flex:none}
+.switch input{position:absolute;opacity:0;pointer-events:none}
+.switch-ui{width:46px;height:28px;border-radius:99px;background:var(--line-2);position:relative;transition:background .25s}
+.switch-ui::after{content:'';position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:99px;background:#fff;
+ box-shadow:0 2px 6px rgba(0,0,0,.2);transition:transform .28s var(--spring)}
+.switch input:checked + .switch-ui{background:var(--gold)}
+.switch input:checked + .switch-ui::after{transform:translateX(18px)}
+.switch-l{font-size:13px;font-weight:560;color:var(--ink-2)}
+.study-intro{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.study-intro .fine{margin-top:2px}
+
+/* Fiches du chapitre */
+.cstudy{background:linear-gradient(160deg,color-mix(in srgb,var(--gold) 10%,var(--surface)),var(--surface) 70%)}
+.cstudy .kicker{color:var(--gold)}
+.cstudy-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.cstudy-it{display:flex;flex-direction:column;align-items:flex-start;gap:1px;text-align:left;border:1px solid var(--glass-line);
+ background:var(--glass);border-radius:16px;padding:8px 12px;cursor:pointer;font:inherit;box-shadow:var(--hi),0 6px 14px -12px rgba(30,48,66,.5);
+ transition:transform .18s var(--spring)}
+.cstudy-it:active{transform:scale(.96)}
+.cstudy-k{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gold)}
+.cstudy-it.k-personne .cstudy-k{color:#7C6BB0}.cstudy-it.k-lieu .cstudy-k{color:#4F8F7A}.cstudy-it.k-mot .cstudy-k{color:var(--accent)}
+.cstudy-t{font-size:14.5px;font-weight:620;color:var(--ink)}
+.cstudy-v{font-size:11.5px;color:var(--ink-4)}
+.cstudy-hint{font-size:12px;color:var(--ink-4);margin-top:10px}
+.vs.stud{text-decoration:underline dotted color-mix(in srgb,var(--gold) 70%,transparent);text-underline-offset:5px;text-decoration-thickness:1.5px}
+.vstud{display:inline-grid;place-items:center;width:20px;height:20px;margin-left:4px;border-radius:99px;border:0;cursor:pointer;
+ background:var(--gold-soft);color:var(--gold);font-size:11px;vertical-align:.15em;transition:transform .15s var(--spring)}
+.vstud:active{transform:scale(.85)}
+
+/* Feuille de fiche et lexique */
+.fiche-sheet,.lex-sheet{max-height:88vh}
+.fiche-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.fiche-back{border:0;background:transparent;color:var(--accent);font:inherit;font-weight:600;cursor:pointer;padding:4px 0}
+.fiche-title{font-family:var(--serif);font-size:clamp(26px,5vw,34px);font-weight:600;letter-spacing:-.02em;line-height:1.15;margin:2px 0 10px}
+.fiche-sec{margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}
+.fiche-sec h3{font-family:var(--serif);font-size:18px;color:var(--accent);margin-bottom:6px}
+.words-embedded .card{box-shadow:none}
+
+/* Recherche : groupes de résultats */
+.srch-more{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.srch-groups .ix-chips{margin-bottom:6px}
+.chip-k{font-size:11.5px;color:var(--ink-4);font-weight:500}
+
+/* Versets importants */
+.imp-list{display:flex;flex-direction:column;gap:6px;margin-top:6px;max-height:42vh;overflow:auto}
+.imp-it{display:flex;gap:10px;align-items:baseline;text-align:left;border:1px solid var(--line);background:var(--surface);
+ border-radius:14px;padding:9px 12px;cursor:pointer;font:inherit;transition:background .15s}
+.imp-it:hover{background:var(--surface-2)}
+.imp-it b{flex:none;font-size:12.5px;color:var(--gold);min-width:44px}
+.imp-it span{font-size:14px;color:var(--ink-2);line-height:1.35}
+.rfab-star svg{width:20px;height:20px;color:var(--gold)}
+.rfab-star.on svg{color:#fff}
+
+/* Bible d'étude intégrée */
+.study-embedded .card{margin:12px 0}
+.study-meta{display:flex;align-items:center;gap:10px;margin-top:12px;font-size:12px;color:var(--ink-3)}
+.study-bar{flex:1;height:6px;border-radius:99px;background:var(--surface-2);overflow:hidden}
+.study-bar i{display:block;height:100%;border-radius:99px;background:var(--grad-gold)}
+.study-guide-link{display:inline-block;margin-top:12px;font-size:14px;color:var(--accent);text-decoration:none}
+.study-tabs{margin-top:14px}
+.ix-fold > summary{cursor:pointer;list-style:none}
+.ix-fold > summary::-webkit-details-marker{display:none}
+.ix-fold > summary::after{content:' ›';color:var(--ink-4)}
+.ix-fold[open] > summary::after{content:' ⌄'}
+button.ix-chip{font:inherit;cursor:pointer}
+button.ix-res{width:100%;text-align:left;border:0;background:transparent;font:inherit;cursor:pointer}
+
+/* Notre Père */
+.np-apple{padding:6px 4px}
+.np-ref{text-align:center;font-size:12.5px;color:var(--ink-4);margin-top:6px}

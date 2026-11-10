@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { supabasePublic } from '@/lib/supabase/public';
-import PageTabs from '@/components/PageTabs';
 import { contentDate } from '@/lib/date';
 import ResumeReading from '@/components/ResumeReading';
 import { rich } from '@/lib/rich';
@@ -9,20 +8,7 @@ import { polishDeep } from '@/lib/accents';
 export const revalidate = 300;
 export const metadata = { title: 'Prière' };
 
-type Axe = {
-  axis: string; lines?: string[]; prayer?: string;
-  word?: string; word_lang?: string; word_meaning?: string;
-};
 type Demande = { demande: string; lines?: string[]; prayer?: string };
-
-/* Les cinq etapes, toujours dans cet ordre. */
-const ETAPES = [
-  { nom: 'Adorer', aide: 'Dire à Dieu qui il est.', ex: 'Tu es bon, tu es fidèle…' },
-  { nom: 'Louer', aide: 'Le remercier pour ce qu’il a fait.', ex: 'Merci pour…' },
-  { nom: 'Confesser', aide: 'Reconnaître ce qui n’a pas été juste, et recevoir son pardon.' },
-  { nom: 'Demander', aide: 'Lui confier mes besoins et ceux des autres.' },
-  { nom: 'Écouter', aide: 'Rester un moment en silence devant lui.' }
-] as const;
 
 /* Le Notre Pere complet (Matthieu 6.9-13), phrase par phrase. L'indice
    renvoie a la demande priee du jour (0 a 6), -1 = pas de phrase du jour. */
@@ -44,29 +30,6 @@ const toLines = (t?: string | null): string[] =>
     .split(/\n+|(?<=[.!?…])\s+(?=[A-ZÀÂÉÈÊÎÔÛÇ«])/)
     .map(s => s.trim()).filter(Boolean);
 
-/* Construit les cinq etapes, format nouveau ou ancien (repli). */
-function etapesDuJour(day: any): Record<string, string[]> {
-  const axes = (day?.prayer_axes ?? []) as Axe[];
-  const out: Record<string, string[]> = {};
-  if (axes.some(a => a.axis === 'Adorer')) {
-    for (const a of axes) out[a.axis] = a.lines ?? toLines(a.prayer);
-    return out;
-  }
-  // Ancien format (Adoration / Louange / Intercession + confession + supplication)
-  const find = (n: string) => axes.find(a => a.axis?.toLowerCase() === n);
-  const clean = (a?: Axe) => {
-    if (!a) return [];
-    const t = a.prayer ?? '';
-    return toLines(a.word ? t.replace(a.word, `**${a.word}**`) : t);
-  };
-  out['Adorer'] = clean(find('adoration'));
-  out['Louer'] = clean(find('louange'));
-  out['Confesser'] = toLines(day?.prayer_confession);
-  out['Demander'] = [...toLines(day?.prayer_supplication), ...clean(find('intercession'))];
-  out['Écouter'] = ['Parle, Seigneur, je t’écoute.'];
-  return out;
-}
-
 function Lignes({ l }: { l: string[] }) {
   if (!l.length) return null;
   return (
@@ -79,7 +42,7 @@ function Lignes({ l }: { l: string[] }) {
 export default async function Priere_() {
   const sb = await supabasePublic();
   const today = contentDate();
-  const cols = 'date, theme_title, prayer_axes, prayer_notre_pere, prayer_confession, prayer_supplication, spirit_invitation';
+  const cols = 'date, theme_title, prayer_notre_pere';
   let { data: day } = await sb.from('daily_bread')
     .select(cols).eq('date', today).eq('published', true).maybeSingle();
   if (!day) {
@@ -93,80 +56,33 @@ export default async function Priere_() {
   if (day) day = polishDeep(day);
   const user: any = null; // lu dans le navigateur (useUser)
 
-  const duJour = !!day && ((day.prayer_axes ?? []) as Axe[]).length > 0;
-  const etapes = duJour ? etapesDuJour(day) : {};
-  const esprit = toLines(day?.spirit_invitation);
   const np = ((day?.prayer_notre_pere ?? []) as Demande[])
     .map(d => d.lines ?? toLines(d.prayer));
-
-  const prier = (
-    <>
-      <div className="card pray-steps">
-        {ETAPES.map((e, i) => (
-          <section className="pstep" key={e.nom}>
-            <div className="pstep-h">
-              <span className="pstep-n">{i + 1}</span>
-              <div>
-                <h3>{e.nom}</h3>
-                <p className="pstep-aide">
-                  {e.aide}{'ex' in e && e.ex ? <> <i>« {e.ex} »</i></> : null}
-                </p>
-              </div>
-            </div>
-            {e.nom === 'Écouter' ? (
-              <>
-                <Lignes l={etapes['Écouter'] ?? []} />
-                <div className="breathe sm"><div className="orb"><span>Silence</span></div></div>
-              </>
-            ) : <Lignes l={etapes[e.nom] ?? []} />}
-          </section>
-        ))}
-      </div>
-
-      {esprit.length > 0 && (
-        <div className="prayer spirit">
-          <span className="kicker">Viens, Saint-Esprit</span>
-          {esprit.map((x, i) => <p key={i} dangerouslySetInnerHTML={{ __html: rich(x) }} />)}
-        </div>
-      )}
-    </>
-  );
-
-  const notrePere = (
-    <div className="card np-full">
-      {NOTRE_PERE.map(([phrase, k], i) => (
-        <div className={`npf${k < 0 ? ' edge' : ''}`} key={i}>
-          <h3>{phrase}</h3>
-          {k >= 0 && np[k]?.length ? <Lignes l={np[k]} /> : null}
-        </div>
-      ))}
-    </div>
-  );
+  const duJour = np.some(l => l.length > 0);
 
   return (
     <>
       <main className="wrap">
         <header className="hero">
           <div className="eyebrow">Prière</div>
-          <h1>Parler<br />avec Dieu</h1>
-          <p className="lede">Des mots simples, pour être avec lui.</p>
+          <h1>Notre Père</h1>
+          <p className="lede">La prière que Yéchoua (Jésus) nous a donnée, phrase par phrase, avec des mots simples pour aujourd’hui.</p>
         </header>
 
         <ResumeReading />
 
-        {!duJour ? (
-          <div className="card pad">
-            <span className="kicker">La prière du jour</span>
-            <p className="empty" style={{ marginTop: 8 }}>
-              Elle se prépare avec la lecture du jour. Revenez dans un instant.
-            </p>
-          </div>
-        ) : (
-          <PageTabs id="priere" tabs={[
-            { key: 'prier', label: 'Prier', content: prier },
-            { key: 'notre-pere', label: 'Notre Père', content: notrePere }
-          ]} />
+        <div className="card np-full np-apple">
+          {NOTRE_PERE.map(([phrase, k], i) => (
+            <div className={`npf${k < 0 ? ' edge' : ''}`} key={i}>
+              <h3>{phrase}</h3>
+              {k >= 0 && np[k]?.length ? <Lignes l={np[k]} /> : null}
+            </div>
+          ))}
+        </div>
+        {!duJour && (
+          <p className="ix-note">Les phrases du jour se préparent avec la lecture du jour.</p>
         )}
+        <p className="np-ref">Matthieu 6.9-13</p>
 
         <Link href="/pain" className="to-pain">
           <span className="tp-k">Le pain quotidien</span>

@@ -1,11 +1,11 @@
 import Link from 'next/link';
 import { supabasePublic } from '@/lib/supabase/public';
-import LearnTabs from '@/components/LearnTabs';
 import { ParableReadMarks } from '@/components/ParableRead';
+import LearnTabs from '@/components/LearnTabs';
 import { THEMES } from '@/lib/prompts/parable';
 
 export const revalidate = 3600;
-export const metadata = { title: 'Paraboles' };
+export const metadata = { title: 'Théologie racontée' };
 
 export default async function Paraboles() {
   const sb = await supabasePublic();
@@ -16,9 +16,10 @@ export default async function Paraboles() {
 
   const parTheme = new Map<string, typeof rows>();
   for (const t of THEMES) parTheme.set(t, []);
-  for (const r of rows ?? []) parTheme.get(r.theme)?.push(r as any);
+  // Trois histoires par thème, pas plus.
+  for (const r of rows ?? []) { const l = parTheme.get(r.theme); if (l && l.length < 3) l.push(r as any); }
 
-  const total = rows?.length ?? 0;
+  const total = [...parTheme.values()].reduce((n, l) => n + (l?.length ?? 0), 0);
 
   return (
     <>
@@ -26,11 +27,11 @@ export default async function Paraboles() {
         <ParableReadMarks />
         <LearnTabs />
         <header className="hero">
-          <div className="eyebrow">Apprendre · Paraboles</div>
-          <h1>La théologie<br />racontée</h1>
+          <div className="eyebrow">Récits</div>
+          <h1>Théologie<br />racontée</h1>
           <p className="lede">
-            Un point à la fois, une histoire pour le faire sentir avant de l&rsquo;expliquer.
-            Un ou deux épisodes par semaine, classés par thème pour ne jamais s&rsquo;y perdre.
+            Une histoire pour sentir une vérité avant de l&rsquo;expliquer. Trois récits par thème,
+            à lire dans l&rsquo;ordre.
           </p>
         </header>
 
@@ -43,7 +44,7 @@ export default async function Paraboles() {
         {total > 0 && (
           <>
             <h2 className="sect">Le parcours</h2>
-            <p className="sub">Les quatorze thèmes du parcours, dans l&rsquo;ordre. Touchez-en un pour aller directement à ses épisodes.</p>
+            <p className="sub">Touchez un thème pour aller directement à ses trois récits.</p>
             <div className="card">
               {THEMES.map((t, i) => {
                 const n = parTheme.get(t)?.length ?? 0;
@@ -51,7 +52,7 @@ export default async function Paraboles() {
                   <a key={t} href={`#${slugTheme(t)}`} className="pth" aria-disabled={n === 0}>
                     <span className="pth-n">{i + 1}</span>
                     <span className="pth-t">{t}</span>
-                    <span className="pth-c">{n > 0 ? `${n} épisode${n > 1 ? 's' : ''}` : 'à venir'}</span>
+                    <span className="pth-c">{n > 0 ? `${n} récit${n > 1 ? 's' : ''}` : '—'}</span>
                   </a>
                 );
               })}
