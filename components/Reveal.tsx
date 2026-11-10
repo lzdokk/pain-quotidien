@@ -1,55 +1,64 @@
 'use client';
 import { useEffect } from 'react';
-import { usePathname } from 'next/navigation';
 
 /**
- * Les blocs s'ouvrent et se déroulent quand on arrive dessus : à l'ouverture
- * de la page (en cascade) puis au fil du défilement. Les blocs ajoutés plus
- * tard (lecteur, volets) sont pris en compte aussi.
+ * Les blocs (tuiles, encadrés, volets, cartes) glissent en place quand ils
+ * arrivent à l'écran, en légère cascade quand plusieurs arrivent ensemble.
+ *
+ * Un SEUL observateur pour toute la visite (jamais coupé en changeant de
+ * page) : aucun bloc ne peut rester invisible. Les blocs ajoutés plus tard
+ * (changement de page, lecteur, volets) sont suivis automatiquement.
  * Respecte « réduire les animations » (CSS).
  */
-const SELECTOR = '.card, .hero, .home-head, .home-verse, .tile, h2.sect, .prayer, .rc-volet, .np-phase, .agenda-day, .step, .cstudy, .imp-it, .page-tabs, .mode-switch';
+const SELECTOR = '.card, .hero, .home-head, .home-verse, .tile, h2.sect, .prayer, .rc-volet, .np-phase, .agenda-day, .cstudy, .page-tabs, .mode-switch, .to-pain';
+const SKIP = '.rsheet, .rbubble, .vbar-inline, .sheet, .modal, .skel-page';
+
+let started = false;
+
+function start() {
+  if (started || typeof window === 'undefined' || !('IntersectionObserver' in window)) return;
+  started = true;
+
+  const io = new IntersectionObserver(entries => {
+    // Les blocs qui arrivent ensemble entrent l'un après l'autre.
+    let i = 0;
+    entries
+      .filter(e => e.isIntersecting)
+      .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)
+      .forEach(e => {
+        const el = e.target as HTMLElement;
+        el.style.setProperty('--rd', `${Math.min(i++, 6) * 70}ms`);
+        el.classList.add('in');
+        io.unobserve(el);
+      });
+  }, { rootMargin: '0px 0px -6% 0px', threshold: 0.01 });
+
+  const prepare = (root: Element | Document) => {
+    const list = Array.from(root.querySelectorAll(SELECTOR)) as HTMLElement[];
+    if (root instanceof HTMLElement && root.matches(SELECTOR)) list.unshift(root);
+    for (const el of list) {
+      if (el.classList.contains('in') || el.closest(SKIP)) continue;
+      el.classList.add('reveal');
+      io.observe(el); // sans effet si déjà suivi
+    }
+  };
+
+  prepare(document);
+  new MutationObserver(muts => {
+    for (const m of muts) m.addedNodes.forEach(n => { if (n.nodeType === 1) prepare(n as Element); });
+  }).observe(document.body, { childList: true, subtree: true });
+
+  // Filet de sécurité : rien ne reste caché plus de 2 secondes à l'écran.
+  window.addEventListener('scroll', () => {
+    const h = window.innerHeight;
+    document.querySelectorAll<HTMLElement>('.reveal:not(.in)').forEach(el => {
+      const r = el.getBoundingClientRect();
+      if (r.top < h && r.bottom > 0) setTimeout(() => el.classList.add('in'), 600);
+    });
+  }, { passive: true });
+}
 
 export default function Reveal() {
-  const path = usePathname();
-
-  useEffect(() => {
-    let raf = 0;
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach(e => {
-        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
-      });
-    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.05 });
-
-    const prepare = (root: ParentNode) => {
-      const els = Array.from(root.querySelectorAll(SELECTOR)) as HTMLElement[];
-      if ((root as HTMLElement).matches?.(SELECTOR)) els.unshift(root as HTMLElement);
-      const h = window.innerHeight;
-      let i = 0;
-      els.forEach(el => {
-        if (el.classList.contains('reveal')) return;
-        // Pas d'animation dans les feuilles et bulles (elles ont la leur).
-        if (el.closest('.rsheet, .rbubble, .vbar-inline, .sheet, .modal')) return;
-        el.classList.add('reveal');
-        const r = el.getBoundingClientRect();
-        if (r.top < h && r.bottom > 0) {
-          // Déjà à l'écran : arrivée en cascade, très courte.
-          el.style.setProperty('--rd', `${Math.min(i++, 8) * 55}ms`);
-          requestAnimationFrame(() => el.classList.add('in'));
-        } else {
-          io.observe(el);
-        }
-      });
-    };
-
-    raf = requestAnimationFrame(() => prepare(document));
-    const mo = new MutationObserver(muts => {
-      for (const m of muts) m.addedNodes.forEach(n => { if (n.nodeType === 1) prepare(n as HTMLElement); });
-    });
-    mo.observe(document.body, { childList: true, subtree: true });
-
-    return () => { cancelAnimationFrame(raf); io.disconnect(); mo.disconnect(); };
-  }, [path]);
-
+  useEffect(() => { start(); }, []);
   return null;
 }
