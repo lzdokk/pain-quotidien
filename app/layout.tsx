@@ -25,6 +25,10 @@ export const metadata: Metadata = {
   },
   twitter: { card: 'summary_large_image' },
   manifest: '/manifest.webmanifest',
+  icons: {
+    icon: [{ url: '/icon.svg', type: 'image/svg+xml' }, { url: '/icon-192.png', sizes: '192x192', type: 'image/png' }],
+    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180' }]
+  },
   appleWebApp: { capable: true, title: 'Pain de Vie', statusBarStyle: 'default' },
   other: { 'instagram:creator': `@${INSTA}` }
 };

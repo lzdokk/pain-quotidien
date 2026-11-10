@@ -1,9 +1,17 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="114" fill="#FFFFFF"/>
-  <g transform="translate(256 256) scale(5.6) translate(-32 -32)"
-     fill="none" stroke="#4E6A85" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M10 16.5 30.5 12v40L10 56.5z"/>
-    <path d="M30.5 12 51 16.5v40L30.5 52z" opacity=".55"/>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#6E8FB0"/><stop offset=".55" stop-color="#4E6A85"/><stop offset="1" stop-color="#36495C"/>
+    </linearGradient>
+    <radialGradient id="hi" cx=".3" cy=".12" r=".75">
+      <stop offset="0" stop-color="#fff" stop-opacity=".30"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="512" height="512" rx="114" fill="url(#bg)"/>
+  <rect width="512" height="512" rx="114" fill="url(#hi)"/>
+  <g transform="translate(256 262) scale(5.9) translate(-30.5 -34)" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M10 16.5 30.5 12v40L10 56.5z" fill="#FFFFFF" fill-opacity=".10"/>
+    <path d="M30.5 12 51 16.5v40L30.5 52z" opacity=".6"/>
     <path d="M30.5 12v40"/>
     <path d="M20.2 26.5v13M15.4 32.2h9.6"/>
   </g>
