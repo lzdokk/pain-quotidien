@@ -1,5 +1,7 @@
 'use client';
-import { useState } from 'react';
+import { useUser } from '@/lib/useUser';
+import { supabase } from '@/lib/supabase/client';
+import { useState , useEffect } from 'react';
 import { relabelCode } from '@/lib/cursus-code';
 import { courseTitle } from '@/lib/course-titles';
 
@@ -165,11 +167,19 @@ function Result({ r, code, title }: { r: any; code: string; title?: string }) {
   );
 }
 
-export default function CourseHomework({ code, user, last, title }: any) {
+export default function CourseHomework({ code, user: userProp, last: lastProp, title }: any) {
+  const user = useUser(userProp); // lu dans le navigateur
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<any>(last ?? null);
+  const [result, setResult] = useState<any>(lastProp ?? null);
   const [error, setError] = useState('');
+  // Dernier devoir rendu, relu dans le navigateur.
+  useEffect(() => {
+    if (!user) return;
+    supabase.from('course_submissions').select('*').eq('code', code)
+      .order('created_at', { ascending: false }).limit(1).maybeSingle()
+      .then(({ data }) => { if (data) setResult(data); });
+  }, [user?.id, code]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!user) {
     return (
@@ -202,7 +212,7 @@ export default function CourseHomework({ code, user, last, title }: any) {
   return (
     <div className="card pad" style={{ marginTop: 12 }}>
       <span className="kicker">Rendre le devoir</span>
-      {last && !text && (
+      {result && !text && (
         <p className="muted" style={{ marginTop: 8 }}>
           Voici ta dernière correction. Tu peux rendre une nouvelle version ci-dessous.
         </p>

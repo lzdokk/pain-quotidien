@@ -1,4 +1,6 @@
-importScripts("https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js");
+// Notifications (OneSignal). Si un bloqueur de contenu l'empêche de charger,
+// le cache de l'app (plus bas) continue de fonctionner normalement.
+try { importScripts("https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js"); } catch (e) { /* notifications indisponibles */ }
 
 /* ══════════════════════════════════════════════════════════════════════
    PAIN DE VIE — cache hors-ligne (par-dessus OneSignal, sans toucher au push)
@@ -9,7 +11,7 @@ importScripts("https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js");
    bug il ne casse rien. Pour tout revenir en arriere : remettre ce fichier a
    la seule ligne importScripts ci-dessus.
    ══════════════════════════════════════════════════════════════════════ */
-const PDV_PAGES = 'pdv-pages-v1';
+const PDV_PAGES = 'pdv-pages-v2';
 const PDV_ASSETS = 'pdv-assets-v1';
 const PDV_DATA = 'pdv-data-v2';
 const PDV_API = 'pdv-api-v1';
@@ -85,7 +87,13 @@ async function cacheFirst(req, name) {
 async function networkFirst(req, name) {
   const cache = await caches.open(name);
   try {
-    const res = await fetch(req);
+    // Réseau lent (> 3 s) : on montre tout de suite la version gardée, si elle existe.
+    const net = fetch(req);
+    const hit = await cache.match(req);
+    const res = hit
+      ? await Promise.race([net, new Promise(r => setTimeout(() => r(null), 3000))]) || (net.then(x => { if (x && x.ok) cache.put(req, x.clone()); }).catch(() => {}), hit)
+      : await net;
+    if (res === hit) return hit;
     if (res && res.ok) cache.put(req, res.clone());
     return res;
   } catch {

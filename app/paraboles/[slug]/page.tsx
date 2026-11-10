@@ -1,7 +1,6 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { supabaseServer } from '@/lib/supabase/server';
-import Nav from '@/components/Nav';
+import { supabasePublic } from '@/lib/supabase/public';
 import { rich } from '@/lib/rich';
 import { citedVerse } from '@/lib/bible';
 import ReadingLinks from '@/components/ReadingLinks';
@@ -9,13 +8,15 @@ import ShareButton from '@/components/ShareButton';
 import { MarkParableRead } from '@/components/ParableRead';
 
 export const revalidate = 86400;
+// Pages générées à la première visite puis gardées en cache (instantanées ensuite).
+export const generateStaticParams = async () => [];
 
 export default async function Episode({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const sb = await supabaseServer();
+  const sb = await supabasePublic();
   const { data: p } = await sb.from('parables').select('*').eq('slug', slug).maybeSingle();
   if (!p) notFound();
-  const { data: { user } } = await sb.auth.getUser();
+  const user: any = null; // lu dans le navigateur (useUser)
 
   const { data: siblings } = await sb.from('parables')
     .select('slug, episode').eq('theme', p.theme).order('episode');
@@ -28,7 +29,6 @@ export default async function Episode({ params }: { params: Promise<{ slug: stri
 
   return (
     <>
-      <Nav user={user} />
       <main className="wrap">
         <header className="hero">
           <div className="eyebrow">{p.theme} · épisode {p.episode}</div>

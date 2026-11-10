@@ -1,6 +1,5 @@
 import Link from 'next/link';
-import { supabaseServer } from '@/lib/supabase/server';
-import Nav from '@/components/Nav';
+import { supabasePublic } from '@/lib/supabase/public';
 import LearnTabs from '@/components/LearnTabs';
 import { ParableReadMarks } from '@/components/ParableRead';
 import { THEMES } from '@/lib/prompts/parable';
@@ -9,8 +8,8 @@ export const revalidate = 3600;
 export const metadata = { title: 'Paraboles' };
 
 export default async function Paraboles() {
-  const sb = await supabaseServer();
-  const { data: { user } } = await sb.auth.getUser();
+  const sb = await supabasePublic();
+  const user: any = null; // lu dans le navigateur (useUser)
   const { data: rows } = await sb.from('parables')
     .select('slug, theme, theme_order, episode, title, hook, published_at')
     .order('theme_order').order('episode');
@@ -23,7 +22,6 @@ export default async function Paraboles() {
 
   return (
     <>
-      <Nav user={user} />
       <main className="wrap">
         <ParableReadMarks />
         <LearnTabs />

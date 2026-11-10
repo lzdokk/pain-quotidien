@@ -1,4 +1,5 @@
 'use client';
+import { useUser } from '@/lib/useUser';
 import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { supabase } from '@/lib/supabase/client';
@@ -51,7 +52,14 @@ const LANG_ORDER = ['fr', 'en', 'he', 'el', 'la', 'de', 'ru', 'pl', 'ar', 'zh'];
 // Chapitres deja charges : relecture instantanee, et chapitre suivant pre-charge.
 const chapterCache = new Map<string, V[]>();
 
-export default function Reader({ books: booksIn, translations, plans, steps, plan, notes, highlights, intros, user }: any) {
+export default function Reader({ books: booksIn, translations, plans, steps, plan: planProp, notes, highlights, intros, user: userProp }: any) {
+  const user = useUser(userProp); // lu dans le navigateur
+  // Parcours de lecture personnel, relu dans le navigateur.
+  const [plan, setPlan] = useState<any>(planProp);
+  useEffect(() => {
+    if (!user) return;
+    supabase.from('user_plan').select('*').maybeSingle().then(({ data }) => { if (data) setPlan(data); });
+  }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
   // Noms des livres AVEC accents (Genèse, Lévitique, Deutéronome…).
   const books = useMemo(() => (booksIn ?? []).map((b: any) => ({ ...b, name: accentName(b.id, b.name) })), [booksIn]);
   // Recherche rapide d'un livre dans la feuille « Livres » (« gen » -> Genèse).

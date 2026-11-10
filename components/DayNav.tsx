@@ -1,6 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
+import { useIsAdmin } from '@/lib/useUser';
 
 /**
  * Navigation des jours, groupee par mois (et par annee au changement d'annee).
@@ -19,8 +20,9 @@ const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 const label = (k: string) => { const [y, m] = k.split('-').map(Number); return `${cap(MOIS[m - 1])} ${y}`; };
 
 export default function DayNav({
-  days, current, missingDays = [], isAdmin = false,
+  days, current, missingDays = [], isAdmin: _a = false,
 }: { days: string[]; current: string; missingDays?: string[]; isAdmin?: boolean }) {
+  const isAdmin = useIsAdmin();
   const [busy, setBusy] = useState<string | null>(null);
   const [err, setErr] = useState<string>('');
 

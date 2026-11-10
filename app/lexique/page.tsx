@@ -1,18 +1,16 @@
-import { supabaseServer } from '@/lib/supabase/server';
-import Nav from '@/components/Nav';
+import { supabasePublic } from '@/lib/supabase/public';
 import Lexique from '@/components/Lexique';
 
+export const revalidate = 300;
 export const metadata = { title: 'Lexique hébreu et grec' };
-export const dynamic = 'force-dynamic';
 
 export default async function LexiquePage() {
-  const sb = await supabaseServer();
-  const { data: { user } } = await sb.auth.getUser();
+  const sb = await supabasePublic();
+  const user: any = null; // lu dans le navigateur (useUser)
   const { count } = await sb.from('strongs').select('code', { count: 'exact', head: true });
 
   return (
     <>
-      <Nav user={user} />
       <main className="wrap">
         <header className="hero">
           <div className="eyebrow">Lexique</div>

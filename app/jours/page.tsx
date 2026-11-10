@@ -1,6 +1,5 @@
 import Link from 'next/link';
-import { supabaseServer } from '@/lib/supabase/server';
-import Nav from '@/components/Nav';
+import { supabasePublic } from '@/lib/supabase/public';
 
 export const revalidate = 3600;
 export const metadata = { title: 'Les jours passes' };
@@ -9,8 +8,8 @@ const MOIS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin',
   'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
 
 export default async function Jours() {
-  const sb = await supabaseServer();
-  const { data: { user } } = await sb.auth.getUser();
+  const sb = await supabasePublic();
+  const user: any = null; // lu dans le navigateur (useUser)
   const { data: days } = await sb.from('daily_bread')
     .select('date, theme_title')
     .eq('published', true).order('date', { ascending: false }).limit(400);
@@ -25,7 +24,6 @@ export default async function Jours() {
 
   return (
     <>
-      <Nav user={user} />
       <main className="wrap">
         <header className="hero">
           <div className="eyebrow">Archive</div>

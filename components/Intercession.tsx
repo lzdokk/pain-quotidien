@@ -1,11 +1,18 @@
 'use client';
-import { useState } from 'react';
+import { useUser } from '@/lib/useUser';
+import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase/client';
 
 const BASE = "Seigneur, je te confie NOM. Tu le connais mieux que moi. Ote ce qui l'empeche de voir, mets sur sa route ceux qu'il faut, et préparé le moment. Donne-moi les mots justes et la patience de me taire quand il le faut. Que ta bonte le conduise a la repentance. Au nom de Jésus, amen.";
 
-export default function Intercession({ user, initial }: { user: any; initial: string }) {
+export default function Intercession({ user: userProp, initial }: { user: any; initial: string }) {
+  const user = useUser(userProp); // lu dans le navigateur
   const [name, setName] = useState(initial);
+  useEffect(() => {
+    if (!user) { try { const v = localStorage.getItem('pq-name'); if (v) setName(v); } catch {} return; }
+    supabase.from('profiles').select('intercession_name').eq('id', user.id).maybeSingle()
+      .then(({ data }) => { if (data?.intercession_name) setName(data.intercession_name); });
+  }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const save = async (v: string) => {
     setName(v);

@@ -1,5 +1,4 @@
-import { supabaseServer } from '@/lib/supabase/server';
-import Nav from '@/components/Nav';
+import { supabasePublic } from '@/lib/supabase/public';
 import Openers from '@/components/Openers';
 import Intercession from '@/components/Intercession';
 import ShareBar from '@/components/ShareBar';
@@ -17,11 +16,11 @@ const GOSPEL = [
 ];
 
 export default async function Témoigner() {
-  const sb = await supabaseServer();
+  const sb = await supabasePublic();
   const today = parisDate();
   const { data: day } = await sb.from('daily_bread')
     .select('*').eq('date', today).eq('published', true).maybeSingle();
-  const { data: { user } } = await sb.auth.getUser();
+  const user: any = null; // lu dans le navigateur (useUser)
   const { data: profile } = user
     ? await sb.from('profiles').select('intercession_name').eq('id', user.id).maybeSingle()
     : { data: null };
@@ -31,7 +30,6 @@ export default async function Témoigner() {
 
   return (
     <>
-      <Nav user={user} />
       <main className="wrap">
         <header className="hero">
           <div className="eyebrow">Témoigner · chaque jour</div>

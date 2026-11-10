@@ -1,5 +1,4 @@
-import { supabaseServer } from '@/lib/supabase/server';
-import Nav from '@/components/Nav';
+import { supabasePublic } from '@/lib/supabase/public';
 import LearnTabs from '@/components/LearnTabs';
 
 export const revalidate = 86400;
@@ -70,12 +69,11 @@ const SOLAE: Sola[] = [
 ];
 
 export default async function Fondements() {
-  const sb = await supabaseServer();
-  const { data: { user } } = await sb.auth.getUser();
+  const sb = await supabasePublic();
+  const user: any = null; // lu dans le navigateur (useUser)
 
   return (
     <>
-      <Nav user={user} />
       <main className="wrap">
         <LearnTabs />
         <header className="hero">

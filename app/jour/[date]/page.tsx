@@ -1,15 +1,15 @@
+export const revalidate = 300;
+// Pages générées à la première visite puis gardées en cache (instantanées ensuite).
+export const generateStaticParams = async () => [];
 import { notFound } from 'next/navigation';
 import { polishDeep } from '@/lib/accents';
-import { supabaseServer } from '@/lib/supabase/server';
+import { supabasePublic } from '@/lib/supabase/public';
 import { bdsTranslation, readingsWithTranslation, citedVerse } from '@/lib/bible';
 import { contentDate } from '@/lib/date';
 import Shell from '@/components/Shell';
 
 // Une page admin peut charger un jour manquant : pas de cache fige.
-export const dynamic = 'force-dynamic';
 
-const ADMINS = (process.env.CURSUS_ADMINS ?? 'lzdokk@gmail.com')
-  .split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
 
 function lastDates(today: string, n: number): string[] {
   const [y, m, d] = today.split('-').map(Number);
@@ -20,7 +20,7 @@ function lastDates(today: string, n: number): string[] {
 
 export default async function Jour({ params }: { params: Promise<{ date: string }> }) {
   const { date } = await params;
-  const sb = await supabaseServer();
+  const sb = await supabasePublic();
 
   const { data: day } = await sb.from('daily_bread')
     .select('*').eq('date', date).eq('published', true).maybeSingle();
@@ -29,9 +29,9 @@ export default async function Jour({ params }: { params: Promise<{ date: string 
   const { data: readings } = await sb.from('readings').select('*').eq('date', date).order('position');
   const bds = await bdsTranslation();
   const readingsBds = await readingsWithTranslation(readings ?? [], bds.code);
-  const { data: { user } } = await sb.auth.getUser();
+  const user: any = null; // lu dans le navigateur (useUser)
 
-  const isAdmin = !!user?.email && ADMINS.includes(user.email.toLowerCase());
+  const isAdmin = true; // jours manquants calculés pour tous, affichés au seul responsable (AdminOnly)
   const today = contentDate();
 
   const { data: recent } = await sb.from('daily_bread')

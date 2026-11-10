@@ -1,4 +1,4 @@
-import { supabaseServer } from '@/lib/supabase/server';
+import { supabasePublic } from '@/lib/supabase/public';
 import { polishDeep } from '@/lib/accents';
 import Shell from '@/components/Shell';
 import { contentDate } from '@/lib/date';
@@ -6,11 +6,9 @@ import { bdsTranslation, readingsWithTranslation, citedVerse } from '@/lib/bible
 
 // Toujours frais : le jour affiche depend de l'heure (contentDate), donc on
 // ne met jamais cette page en cache — sinon elle peut montrer la veille.
-export const dynamic = 'force-dynamic';
+export const revalidate = 300;
 export const metadata = { title: 'Le pain du matin' };
 
-const ADMINS = (process.env.CURSUS_ADMINS ?? 'lzdokk@gmail.com')
-  .split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
 
 // Dates attendues sur les N derniers jours (jusqu'a aujourd'hui inclus).
 function lastDates(today: string, n: number): string[] {
@@ -23,7 +21,7 @@ function lastDates(today: string, n: number): string[] {
 }
 
 export default async function Pain() {
-  const sb = await supabaseServer();
+  const sb = await supabasePublic();
   const today = contentDate();
 
   // Le pain du jour ; s'il n'est pas encore genere, on retombe sur le DERNIER
@@ -44,8 +42,8 @@ export default async function Pain() {
   const bds = await bdsTranslation();
   const readingsBds = await readingsWithTranslation(readings ?? [], bds.code);
 
-  const { data: { user } } = await sb.auth.getUser();
-  const isAdmin = !!user?.email && ADMINS.includes(user.email.toLowerCase());
+  const user: any = null; // lu dans le navigateur (useUser)
+  const isAdmin = true; // jours manquants calculés pour tous, affichés au seul responsable (AdminOnly)
 
   const { data: recent } = await sb.from('daily_bread')
     .select('date').eq('published', true).lte('date', today)

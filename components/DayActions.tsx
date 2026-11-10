@@ -1,10 +1,12 @@
 'use client';
+import { useUser } from '@/lib/useUser';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase/client';
 import Checklist from './Checklist';
 
-export default function DayActions({ date, actions, user }:
+export default function DayActions({ date, actions, user: userProp }:
   { date: string; actions: Array<{ title: string; body: string }>; user: any }) {
+  const user = useUser(userProp); // lu dans le navigateur
   const [initial, setInitial] = useState<number[]>([]);
 
   useEffect(() => {

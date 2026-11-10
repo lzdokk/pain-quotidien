@@ -1,4 +1,5 @@
 'use client';
+import { useUser } from '@/lib/useUser';
 import { Fragment, useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase/client';
 import { themeOf, suggestTheme } from '@/lib/highlight-themes';
@@ -19,7 +20,8 @@ type Props = {
  * du jour : le volet s'ouvre juste SOUS le verset tapé, avec surlignage,
  * thème, note, explication, mot-à-mot, comparaison, partage et multi-sélection.
  */
-export default function VerseActions({ book, chapter, bookName, verses, user }: Props) {
+export default function VerseActions({ book, chapter, bookName, verses, user: userProp }: Props) {
+  const user = useUser(userProp); // lu dans le navigateur
   const [sel, setSel] = useState<number | null>(null);
   const [hl, setHl] = useState<Record<number, number>>({});
   const [myNotes, setMyNotes] = useState<any[]>([]);

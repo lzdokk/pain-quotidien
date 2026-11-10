@@ -1,12 +1,19 @@
 'use client';
-import { useState } from 'react';
+import { useUser } from '@/lib/useUser';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase/client';
 
-export default function ValidateCourse({ code, user, initial, next }:
+export default function ValidateCourse({ code, user: userProp, initial, next }:
   { code: string; user: any; initial: boolean; next?: { code: string; title: string } | null }) {
+  const user = useUser(userProp); // lu dans le navigateur
   const [done, setDone] = useState(initial);
+  useEffect(() => {
+    if (!user) return;
+    supabase.from('course_progress').select('code').eq('code', code).maybeSingle()
+      .then(({ data }) => setDone(!!data));
+  }, [user?.id, code]); // eslint-disable-line react-hooks/exhaustive-deps
   const [saving, setSaving] = useState(false);
   const router = useRouter();
 

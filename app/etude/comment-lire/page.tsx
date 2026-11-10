@@ -1,18 +1,17 @@
 import Link from 'next/link';
-import { supabaseServer } from '@/lib/supabase/server';
-import Nav from '@/components/Nav';
+import { supabasePublic } from '@/lib/supabase/public';
 import RefChip from '@/components/RefChip';
 import { METHODE, QUESTIONS, POUR_PRIER } from '@/lib/reading-guide';
 
+export const revalidate = 300;
 export const metadata = { title: 'Comment lire la Bible chaque jour' };
 
 export default async function CommentLire() {
-  const sb = await supabaseServer();
-  const { data: { user } } = await sb.auth.getUser();
+  const sb = await supabasePublic();
+  const user: any = null; // lu dans le navigateur (useUser)
 
   return (
     <>
-      <Nav user={user} />
       <main className="wrap">
         <Link href="/etude" className="back-parable">‹ Index d&rsquo;étude</Link>
         <header className="hero">

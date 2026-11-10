@@ -1,7 +1,6 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { supabaseServer } from '@/lib/supabase/server';
-import Nav from '@/components/Nav';
+import { supabasePublic } from '@/lib/supabase/public';
 import ValidateCourse from '@/components/ValidateCourse';
 import CourseHomework from '@/components/CourseHomework';
 import ReadingLinks from '@/components/ReadingLinks';
@@ -11,15 +10,17 @@ import { courseTitle } from '@/lib/course-titles';
 import { citedVerse } from '@/lib/bible';
 
 export const revalidate = 86400;
+// Pages générées à la première visite puis gardées en cache (instantanées ensuite).
+export const generateStaticParams = async () => [];
 const KIND: Record<string, string> = { E: 'Exegese', D: 'Doctrine', P: 'Pratique', G: 'Langue' };
 
 export default async function Fiche({ params }: { params: Promise<{ code: string }> }) {
   const { code } = await params;
-  const sb = await supabaseServer();
+  const sb = await supabasePublic();
 
   const { data: c } = await sb.from('courses').select('*').eq('code', code).maybeSingle();
   if (!c) notFound();
-  const { data: { user } } = await sb.auth.getUser();
+  const user: any = null; // lu dans le navigateur (useUser)
   const { data: g } = await sb.from('cursus_groups').select('level_id').eq('id', c.group_id).maybeSingle();
   const { data: lvl } = await sb.from('cursus_levels').select('name').eq('id', g?.level_id ?? '').maybeSingle();
   const { data: prog } = user
@@ -40,7 +41,6 @@ export default async function Fiche({ params }: { params: Promise<{ code: string
 
   return (
     <>
-      <Nav user={user} />
       <main className="wrap">
         <header className="hero">
           <div className="eyebrow">{lvl?.name} · {relabelCode(c.code)}</div>

@@ -1,5 +1,4 @@
-import { supabaseServer } from '@/lib/supabase/server';
-import Nav from '@/components/Nav';
+import { supabasePublic } from '@/lib/supabase/public';
 import WordsBrowser from '@/components/WordsBrowser';
 
 export const revalidate = 3600;
@@ -12,8 +11,8 @@ const THEME_ORDER = [
 ];
 
 export default async function Mots() {
-  const sb = await supabaseServer();
-  const { data: { user } } = await sb.auth.getUser();
+  const sb = await supabasePublic();
+  const user: any = null; // lu dans le navigateur (useUser)
   const { data: words } = await sb.from('bible_words')
     .select('slug, term, translit, lang, gloss, theme, sense, christ, refs')
     .order('translit');
@@ -25,7 +24,6 @@ export default async function Mots() {
 
   return (
     <>
-      <Nav user={user} />
       <WordsBrowser words={sorted} />
     </>
   );

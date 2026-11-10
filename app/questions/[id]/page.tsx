@@ -1,20 +1,20 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { supabaseServer } from '@/lib/supabase/server';
-import Nav from '@/components/Nav';
+import { supabasePublic } from '@/lib/supabase/public';
 
 export const revalidate = 86400;
+// Pages générées à la première visite puis gardées en cache (instantanées ensuite).
+export const generateStaticParams = async () => [];
 
 export default async function Réponse({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const sb = await supabaseServer();
+  const sb = await supabasePublic();
   const { data: f } = await sb.from('faq').select('*').eq('id', Number(id)).eq('reviewed', true).maybeSingle();
   if (!f) notFound();
-  const { data: { user } } = await sb.auth.getUser();
+  const user: any = null; // lu dans le navigateur (useUser)
 
   return (
     <>
-      <Nav user={user} />
       <main className="wrap">
         <header className="hero">
           <div className="eyebrow">{f.category}</div>

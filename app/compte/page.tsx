@@ -1,6 +1,5 @@
 import { redirect } from 'next/navigation';
 import { supabaseServer } from '@/lib/supabase/server';
-import Nav from '@/components/Nav';
 import Profile from '@/components/Profile';
 import NotifyButton from '@/components/NotifyButton';
 import ShareButton from '@/components/ShareButton';
@@ -28,7 +27,6 @@ export default async function Compte() {
 
   return (
     <>
-      <Nav user={user} />
       <div className="wrap" style={{ marginTop: 20 }}>
         <NotifyButton />
         <div className="profile-actions">

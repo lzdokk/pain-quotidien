@@ -2,13 +2,22 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase/client';
+import { useUser } from '@/lib/useUser';
 import { relabelCode } from '@/lib/cursus-code';
 import { courseTitle } from '@/lib/course-titles';
 import CursusShare from './CursusShare';
 
 const KIND: Record<string, string> = { E: 'Exegese', D: 'Doctrine', P: 'Pratique', G: 'Langue' };
 
-export default function CursusBrowser({ cursus, levels, groups, courses, done, user, isAdmin, isMember }: any) {
+export default function CursusBrowser({ cursus, levels, groups, courses, done, user: userProp, isAdmin: adminProp, isMember: memberProp }: any) {
+  // Utilisateur et droits lus dans le navigateur (la page est pré-générée).
+  const user = useUser(userProp);
+  const [rights, setRights] = useState({ isAdmin: !!adminProp, isMember: !!memberProp });
+  useEffect(() => {
+    if (!user) return;
+    fetch('/api/me').then(r => r.json()).then(j => setRights({ isAdmin: !!j.isAdmin, isMember: !!j.isMember })).catch(() => {});
+  }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+  const { isAdmin, isMember } = rights;
   const [validated, setValidated] = useState<Set<string>>(new Set(done));
   // Progression relue à l'affichage (la page peut venir de la mémoire du navigateur).
   useEffect(() => {

@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useUser } from '@/lib/useUser';
 import SignIn from './SignIn';
 import Brand from './Brand';
 import MusicPlayer from './MusicPlayer';
@@ -10,15 +11,9 @@ const TABS = [
   { href: '/pain',      label: 'Matin' },
   { href: '/priere',    label: 'Prière' },
   { href: '/sagesse',   label: 'Sagesse' },
-  { href: '/lire',      label: 'Lire' },
-  { href: '/paraboles', label: 'Apprendre', match: ['/paraboles', '/fondements', '/mots', '/versets', '/questions', '/etude'] },
-  // Lexique masque tant que la mise en francais n'est pas complete.
-  // Pour le reactiver : remettre la ligne ci-dessous.
-  // { href: '/lexique',   label: 'Lexique' },
+  { href: '/lire',      label: 'Lire', match: ['/lire', '/etude', '/mots', '/versets'] },
+  { href: '/paraboles', label: 'Récits', match: ['/paraboles'] },
   { href: '/cursus',    label: 'Cursus' }
-  // Temoigner masque de la navigation (l'objection du jour a rejoint le pain
-  // quotidien, en bas de la page d'accueil). La page /temoigner reste
-  // accessible directement si besoin de la reactiver.
 ];
 
 /* Icones de la barre mobile, une par onglet. */
@@ -37,7 +32,8 @@ const ICONS: Record<string, JSX.Element> = {
   '/cursus': <path d="M22 10 12 5 2 10l10 5 10-5zM6 12v5c0 1 2.7 2.5 6 2.5s6-1.5 6-2.5v-5" />
 };
 
-export default function Nav({ user }: { user: any }) {
+export default function Nav(_props: { user?: any }) {
+  const user = useUser();
   const [sheet, setSheet] = useState(false);
   const path = usePathname();
   const initial = user?.user_metadata?.full_name?.[0] ?? user?.email?.[0] ?? '';
@@ -96,7 +92,7 @@ export default function Nav({ user }: { user: any }) {
       {/* Barre d'onglets mobile, en bas comme une application */}
       <nav className="tabbar">
         {TABS.map(t => (
-          <Link key={t.href} href={t.href} aria-current={isActive(t)}>
+          <Link key={t.href} href={t.href} prefetch aria-current={isActive(t)}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"
                  strokeLinecap="round" strokeLinejoin="round">{ICONS[t.href]}</svg>
             <span>{t.label}</span>

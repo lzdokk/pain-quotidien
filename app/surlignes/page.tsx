@@ -1,7 +1,6 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { supabaseServer } from '@/lib/supabase/server';
-import Nav from '@/components/Nav';
 import SurlignesView from '@/components/SurlignesView';
 import { loadHighlightItems } from '@/lib/highlight-items';
 
@@ -17,7 +16,6 @@ export default async function Surlignes() {
 
   return (
     <>
-      <Nav user={user} />
       <main className="wrap">
         <header className="hero">
           <div className="eyebrow">Mon carnet</div>

@@ -1,16 +1,19 @@
 /**
- * Écran de chargement affiché automatiquement par Next.js pendant la
- * navigation d'une page à l'autre : un logo qui tourne, au centre.
- * Améliore nettement la sensation de rapidité.
+ * Pendant le passage d'une page à l'autre : la barre du haut reste en place
+ * (elle vit dans le layout) et une fine barre de progression glisse en haut,
+ * avec un squelette léger. Plus d'écran blanc avec une roue qui tourne.
  */
 export default function Loading() {
   return (
-    <div className="route-loading" aria-busy="true" aria-label="Chargement">
-      <svg className="route-spin" viewBox="0 0 50 50" width="46" height="46" aria-hidden="true">
-        <circle cx="25" cy="25" r="20" fill="none" stroke="var(--line-2)" strokeWidth="4" />
-        <circle cx="25" cy="25" r="20" fill="none" stroke="var(--accent)" strokeWidth="4"
-                strokeLinecap="round" strokeDasharray="90 150" />
-      </svg>
-    </div>
+    <>
+      <div className="route-loading" aria-busy="true" aria-label="Chargement"><div className="rl-bar" /></div>
+      <main className="wrap skel-page" aria-hidden="true">
+        <div className="skel skel-eyebrow" />
+        <div className="skel skel-title" />
+        <div className="skel skel-lede" />
+        <div className="skel skel-card" />
+        <div className="skel skel-card short" />
+      </main>
+    </>
   );
 }

@@ -1,9 +1,9 @@
-import Nav from './Nav';
 import Readings from './Readings';
 import DayNav from './DayNav';
 import ShareButton from './ShareButton';
 import DayLoadButton from './DayLoadButton';
 import { rich } from '@/lib/rich';
+import AdminOnly from './AdminOnly';
 
 type Props = {
   day: any; readings: any[]; user: any; archive?: boolean;
@@ -51,12 +51,11 @@ export default function Shell({ day, readings, user, archive, recentDays, transl
   const vName = (verseName ?? 'Segond').toUpperCase();
   // Aujourd'hui n'est pas encore genere : on affiche un repli (archive) mais,
   // en admin, on propose de charger le pain du jour d'un seul geste.
-  const showLoadToday = isAdmin && archive && !!todayDate && day.date !== todayDate;
+  const showLoadToday = archive && !!todayDate && day.date !== todayDate;
   return (
     <>
-      <Nav user={user} />
       <main className="wrap">
-        {showLoadToday && (
+        {showLoadToday && (<AdminOnly>
           <div className="admin-bar">
             <div>
               <b>Le pain d&rsquo;aujourd&rsquo;hui n&rsquo;est pas encore généré.</b>
@@ -64,7 +63,7 @@ export default function Shell({ day, readings, user, archive, recentDays, transl
             </div>
             <DayLoadButton date={todayDate!} label="Charger le pain d’aujourd’hui" className="btn" />
           </div>
-        )}
+        </AdminOnly>)}
         <header className="hero">
           <div className="eyebrow">Le pain du matin{archive ? ' · archive' : ''}</div>
           <div className="date">{fdate(day.date)}</div>
@@ -77,13 +76,13 @@ export default function Shell({ day, readings, user, archive, recentDays, transl
                   missingDays={missingDays} isAdmin={isAdmin} />
         )}
 
-        {isAdmin && (
+        <AdminOnly>
           <div className="admin-regen">
             <span className="ar-tag">Admin</span>
             <span className="ar-txt">Ce jour est déjà généré. Le régénérer écrase le contenu actuel.</span>
             <DayLoadButton date={day.date} label="Régénérer ce jour" className="btn sm" />
           </div>
-        )}
+        </AdminOnly>
 
         <div className="prayer opening">
           <span className="kicker">Prière d&rsquo;ouverture</span>

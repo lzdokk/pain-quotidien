@@ -1,5 +1,3 @@
-import { supabaseServer } from '@/lib/supabase/server';
-import Nav from '@/components/Nav';
 import StudyIndex from '@/components/StudyIndex';
 import { getIndexList } from '@/lib/cache';
 import { allEntries, GRANDS_SUJETS, RENVOIS, slugify } from '@/lib/prompts/study-index';
@@ -8,8 +6,7 @@ export const revalidate = 600;
 export const metadata = { title: 'Index d’étude' };
 
 export default async function Etude() {
-  const sb = await supabaseServer();
-  const [{ data: { user } }, list] = await Promise.all([sb.auth.getUser(), getIndexList()]);
+  const list = await getIndexList();
 
   // Les fiches deja redigees, et le plan complet (pour afficher l'ordre des grands sujets).
   const ready = Object.fromEntries(list);
@@ -18,7 +15,6 @@ export default async function Etude() {
 
   return (
     <>
-      <Nav user={user} />
       <StudyIndex plan={plan} ready={ready} sujets={sujets}
         renvois={Object.entries(RENVOIS).map(([from, to]) => ({ from, to, slug: slugify(to) }))} />
     </>

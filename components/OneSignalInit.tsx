@@ -27,11 +27,21 @@ export default function OneSignalInit() {
       });
     });
 
-    const s = document.createElement('script');
-    s.id = 'onesignal-sdk';
-    s.src = 'https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js';
-    s.defer = true;
-    document.head.appendChild(s);
+    // Chargé APRÈS l'affichage (quand le navigateur est libre) : les
+    // notifications ne retardent jamais l'ouverture de l'app, et un bloqueur
+    // de contenu qui les refuse ne bloque rien.
+    const load = () => {
+      if (document.getElementById('onesignal-sdk')) return;
+      const s = document.createElement('script');
+      s.id = 'onesignal-sdk';
+      s.src = 'https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js';
+      s.async = true;
+      s.onerror = () => { /* bloqué : on continue sans notifications */ };
+      document.head.appendChild(s);
+    };
+    const w2 = window as any;
+    const t = setTimeout(() => (w2.requestIdleCallback ? w2.requestIdleCallback(load, { timeout: 4000 }) : load()), 2500);
+    return () => clearTimeout(t);
   }, []);
 
   return null;

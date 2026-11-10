@@ -1,13 +1,12 @@
 import Link from 'next/link';
-import { supabaseServer } from '@/lib/supabase/server';
-import Nav from '@/components/Nav';
+import { supabasePublic } from '@/lib/supabase/public';
 import PageTabs from '@/components/PageTabs';
 import { contentDate } from '@/lib/date';
 import ResumeReading from '@/components/ResumeReading';
 import { rich } from '@/lib/rich';
 import { polishDeep } from '@/lib/accents';
 
-export const dynamic = 'force-dynamic'; // toujours le jour courant, jamais du cache
+export const revalidate = 300;
 export const metadata = { title: 'Prière' };
 
 type Axe = {
@@ -78,7 +77,7 @@ function Lignes({ l }: { l: string[] }) {
 }
 
 export default async function Priere_() {
-  const sb = await supabaseServer();
+  const sb = await supabasePublic();
   const today = contentDate();
   const cols = 'date, theme_title, prayer_axes, prayer_notre_pere, prayer_confession, prayer_supplication, spirit_invitation';
   let { data: day } = await sb.from('daily_bread')
@@ -92,7 +91,7 @@ export default async function Priere_() {
   }
   // Les journees deja ecrites sans accents sont reparees a l'affichage.
   if (day) day = polishDeep(day);
-  const { data: { user } } = await sb.auth.getUser();
+  const user: any = null; // lu dans le navigateur (useUser)
 
   const duJour = !!day && ((day.prayer_axes ?? []) as Axe[]).length > 0;
   const etapes = duJour ? etapesDuJour(day) : {};
@@ -146,7 +145,6 @@ export default async function Priere_() {
 
   return (
     <>
-      <Nav user={user} />
       <main className="wrap">
         <header className="hero">
           <div className="eyebrow">Prière</div>
