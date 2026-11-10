@@ -8,16 +8,17 @@ import Brand from './Brand';
 import MusicPlayer from './MusicPlayer';
 
 const TABS = [
-  { href: '/pain',      label: 'Matin' },
-  { href: '/priere',    label: 'Prière' },
-  { href: '/sagesse',   label: 'Sagesse' },
-  { href: '/lire',      label: 'Lire', match: ['/lire', '/etude', '/mots', '/versets'] },
-  { href: '/paraboles', label: 'Récits', match: ['/paraboles', '/fondements', '/questions'] },
-  { href: '/cursus',    label: 'Cursus' }
+  { href: '/',          label: 'Accueil', c: 'c-slate' },
+  { href: '/pain',      label: 'Matin',   c: 'c-sand', match: ['/pain', '/jour'] },
+  { href: '/priere',    label: 'Prière',  c: 'c-teal' },
+  { href: '/sagesse',   label: 'Sagesse', c: 'c-sage' },
+  { href: '/lire',      label: 'Lire',    c: 'c-slate', match: ['/lire', '/etude', '/mots', '/versets'] },
+  { href: '/paraboles', label: 'Récits',  c: 'c-rose', match: ['/paraboles', '/fondements', '/questions'] }
 ];
 
 /* Icones de la barre mobile, une par onglet. */
 const ICONS: Record<string, JSX.Element> = {
+  '/': <path d="M4 11.5 12 5l8 6.5V19a1 1 0 01-1 1h-4.5v-5h-5v5H5a1 1 0 01-1-1v-7.5z" />,
   '/pain': <path d="M12 3v2M5 12H3m18 0h-2M6 6 4.5 4.5M18 6l1.5-1.5M12 8a4 4 0 100 8 4 4 0 000-8zM4 20h16" />,
   '/priere': <path d="M12 3c-1.6 2.8-4.2 4.7-4.2 8a4.2 4.2 0 008.4 0c0-3.3-2.6-5.2-4.2-8z" />,
   '/temoigner': <path d="M21 12a8 8 0 01-11.6 7.1L4 20l1-4.4A8 8 0 1121 12z" />,
@@ -46,7 +47,7 @@ export default function Nav(_props: { user?: any }) {
   const path = usePathname();
   const initial = user?.user_metadata?.full_name?.[0] ?? user?.email?.[0] ?? '';
   const isActive = (t: { href: string; match?: string[] }) => {
-    if (t.match) return t.match.some(m => path === m || path.startsWith(m + '/') || path.startsWith(m));
+    if (t.match) return t.match.some(m => path === m || path.startsWith(m + '/'));
     return t.href === '/' ? path === '/' : path.startsWith(t.href);
   };
 
@@ -98,6 +99,17 @@ export default function Nav(_props: { user?: any }) {
 
           <MusicPlayer />
         </div>
+      </nav>
+
+      {/* Barre d'onglets en bas : îlot de verre flottant */}
+      <nav className="tabbar" aria-label="Navigation">
+        {TABS.map(t => (
+          <Link key={t.href} href={t.href} prefetch className={t.c} aria-current={isActive(t)}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"
+                 strokeLinecap="round" strokeLinejoin="round">{ICONS[t.href]}</svg>
+            <span>{t.label}</span>
+          </Link>
+        ))}
       </nav>
 
       {sheet && !user && (

@@ -42,29 +42,19 @@ export default async function Paraboles() {
         )}
 
         {total > 0 && (
-          <>
-            <h2 className="sect">Le parcours</h2>
-            <p className="sub">Touchez un thème pour aller directement à ses trois récits.</p>
-            <div className="card">
-              {THEMES.map((t, i) => {
-                const n = parTheme.get(t)?.length ?? 0;
-                return (
-                  <a key={t} href={`#${slugTheme(t)}`} className="pth" aria-disabled={n === 0}>
-                    <span className="pth-n">{i + 1}</span>
-                    <span className="pth-t">{t}</span>
-                    <span className="pth-c">{n > 0 ? `${n} récit${n > 1 ? 's' : ''}` : '—'}</span>
-                  </a>
-                );
-              })}
-            </div>
-
-            {THEMES.map(t => {
+          <div className="rc-list">
+            {THEMES.map((t, i) => {
               const list = parTheme.get(t) ?? [];
               if (list.length === 0) return null;
               return (
-                <section key={t} id={slugTheme(t)} style={{ marginTop: 34 }}>
-                  <h2 className="sect" style={{ margin: '0 0 14px' }}>{t}</h2>
-                  <div className="card">
+                <details key={t} id={slugTheme(t)} className="card rc-volet">
+                  <summary>
+                    <span className="rc-n">{i + 1}</span>
+                    <span className="rc-t">{t}</span>
+                    <span className="rc-c">{list.length} récit{list.length > 1 ? 's' : ''}</span>
+                    <span className="rc-chev" aria-hidden="true">›</span>
+                  </summary>
+                  <div className="rc-body">
                     {list.map(p => (
                       <Link key={p.slug} href={`/paraboles/${p.slug}`} className="pep" data-parable={p.slug}>
                         <span className="pep-n">{p.episode}</span>
@@ -75,10 +65,10 @@ export default async function Paraboles() {
                       </Link>
                     ))}
                   </div>
-                </section>
+                </details>
               );
             })}
-          </>
+          </div>
         )}
       </main>
     </>

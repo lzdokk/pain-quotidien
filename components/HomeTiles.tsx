@@ -22,18 +22,18 @@ export default function HomeTiles({ theme }: { theme: string | null }) {
   }, []);
 
   const tiles = [
-    { href: '/pain', ic: I.pain, t: 'Pain du jour', s: theme ?? 'La méditation du matin' },
-    { href: '/priere', ic: I.priere, t: 'Notre Père', s: 'Prier avec les mots du jour' },
-    { href: '/sagesse', ic: I.sagesse, t: 'Sagesse', s: ch ? `Proverbes ${ch}` : 'Proverbes du jour' },
-    { href: '/lire', ic: I.lire, t: 'Lire', s: resume ? `Reprendre ${resume}` : 'La Bible et la Bible d’étude' },
-    { href: '/paraboles', ic: I.recits, t: 'Récits', s: 'Théologie racontée' },
-    { href: '/cursus', ic: I.cursus, t: 'Cursus', s: 'Se former' }
+    { href: '/pain', c: 'c-sand wide', ic: I.pain, t: 'Pain du jour', s: theme ?? 'La méditation du matin' },
+    { href: '/priere', c: 'c-teal', ic: I.priere, t: 'Notre Père', s: 'Louange, adoration, intercession' },
+    { href: '/sagesse', c: 'c-sage', ic: I.sagesse, t: 'Sagesse', s: ch ? `Proverbes ${ch}` : 'Proverbes du jour' },
+    { href: '/lire', c: 'c-slate', ic: I.lire, t: 'Lire', s: resume ? `Reprendre ${resume}` : 'Bible et Bible d’étude' },
+    { href: '/paraboles', c: 'c-rose', ic: I.recits, t: 'Récits', s: 'Théologie racontée' },
+    { href: '/cursus', c: 'c-lav wide slim', ic: I.cursus, t: 'Cursus', s: 'Se former, pas à pas' }
   ];
 
   return (
     <nav className="tiles" aria-label="Menu">
       {tiles.map(x => (
-        <Link key={x.href} href={x.href} prefetch className="tile">
+        <Link key={x.href} href={x.href} prefetch className={`tile ${x.c}`}>
           <span className="tile-ic">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">{x.ic}</svg>
           </span>
@@ -41,6 +41,7 @@ export default function HomeTiles({ theme }: { theme: string | null }) {
             <span className="tile-t">{x.t}</span>
             <span className="tile-s">{x.s}</span>
           </span>
+          <span className="tile-go" aria-hidden="true">›</span>
         </Link>
       ))}
     </nav>

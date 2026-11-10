@@ -252,3 +252,92 @@ button.ix-res{width:100%;text-align:left;border:0;background:transparent;font:in
 /* Notre Père */
 .np-apple{padding:6px 4px}
 .np-ref{text-align:center;font-size:12.5px;color:var(--ink-4);margin-top:6px}
+
+/* ══ Novembre : un peu de couleur, sans guirlande ═══════════════════════
+   Six tons doux, tous désaturés, qui s'accordent avec l'ardoise. Chaque
+   partie a le sien (tuile, onglet du bas, temps de prière). */
+:root{
+  --c-slate:#4E6A85; --c-sand:#B08A57; --c-teal:#4F8590; --c-sage:#6A8C6F; --c-rose:#A67379; --c-lav:#76729E;
+}
+html[data-mode="soir"]{
+  --c-slate:#8FA9C4; --c-sand:#D2B07E; --c-teal:#86B5BD; --c-sage:#9DBE9F; --c-rose:#D3A2A7; --c-lav:#ABA7D2;
+}
+.c-slate{--c:var(--c-slate)} .c-sand{--c:var(--c-sand)} .c-teal{--c:var(--c-teal)}
+.c-sage{--c:var(--c-sage)} .c-rose{--c:var(--c-rose)} .c-lav{--c:var(--c-lav)}
+
+/* Tuiles : verre teinté de leur couleur, icône pleine, petite flèche */
+.tiles{grid-template-columns:repeat(2,1fr)!important;max-width:640px;margin-left:auto;margin-right:auto}
+.tile{background:linear-gradient(150deg, color-mix(in srgb,var(--c,var(--accent)) 12%,var(--glass)) 0%, var(--glass) 70%);min-height:132px}
+.tile.wide{grid-column:span 2;min-height:118px;flex-direction:row;align-items:center;gap:16px}
+.tile.wide .tile-txt{margin-top:0}
+.tile.wide .tile-t{font-size:18px}
+.tile.c-sand.wide .tile-s{font-family:var(--serif);font-size:16px;color:var(--ink-2);-webkit-line-clamp:2}
+.tile.slim{min-height:78px}
+.tile-ic{background:linear-gradient(140deg, color-mix(in srgb,var(--c,var(--accent)) 82%,#fff) 0%, var(--c,var(--accent)) 100%);
+ box-shadow:0 1px 0 rgba(255,255,255,.35) inset,0 10px 18px -10px var(--c,var(--accent))}
+.tile.wide .tile-ic{width:50px;height:50px;border-radius:16px}
+.tile.wide .tile-ic svg{width:25px;height:25px}
+.tile-go{position:absolute;top:12px;right:16px;font-size:20px;color:color-mix(in srgb,var(--c,var(--accent)) 60%,transparent)}
+.tile.wide .tile-go{position:static;margin-left:auto;font-size:24px}
+
+/* Barre d'onglets en bas : îlot de verre flottant, la partie active prend sa couleur */
+.tabbar{display:flex!important;position:fixed;z-index:70;left:50%;transform:translateX(-50%);
+ bottom:calc(12px + env(safe-area-inset-bottom));width:min(560px,calc(100% - 20px));gap:2px;justify-content:space-around;
+ padding:6px;border-radius:28px;background:var(--glass);border:1px solid var(--glass-line);
+ box-shadow:var(--hi),0 18px 40px -16px rgba(30,48,66,.45),0 2px 6px -2px rgba(30,48,66,.12);
+ backdrop-filter:blur(28px) saturate(200%);-webkit-backdrop-filter:blur(28px) saturate(200%)}
+.tabbar a{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px 2px 6px;border-radius:22px;
+ color:var(--ink-3);font-size:10.5px;font-weight:620;text-decoration:none;transition:color .25s,background .25s,transform .2s var(--spring)}
+.tabbar a svg{width:22px;height:22px}
+.tabbar a:active{transform:scale(.92)}
+.tabbar a[aria-current="true"]{color:var(--c);background:color-mix(in srgb,var(--c) 14%,transparent)}
+body{padding-bottom:calc(100px + env(safe-area-inset-bottom))!important}
+.rfabs{bottom:calc(96px + env(safe-area-inset-bottom))!important}
+.vbar-inline{bottom:0;z-index:75}
+
+/* Lire et méditer : étapes simples */
+.rsteps{list-style:none;margin:8px 0 0;padding:0;display:flex;flex-direction:column;gap:8px;counter-reset:st}
+.rsteps li{position:relative;display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:10px 12px 10px 44px;
+ border-radius:14px;background:var(--surface-2);counter-increment:st}
+.rsteps li::before{content:counter(st);position:absolute;left:12px;top:11px;width:22px;height:22px;border-radius:99px;
+ display:grid;place-items:center;font-size:12px;font-weight:700;color:#fff;background:var(--grad)}
+.rsteps b{font-size:14.5px;color:var(--ink)}
+.rsteps span{grid-column:1/2;font-size:13.5px;color:var(--ink-2);line-height:1.4}
+.rsteps i{grid-row:1/3;grid-column:2;align-self:center;font-style:normal;font-size:11.5px;color:var(--ink-4)}
+
+/* Récits : chaque thème en volet fermé */
+.rc-list{display:flex;flex-direction:column;gap:10px;margin-top:8px}
+.rc-volet{margin:0;padding:0}
+.rc-volet > summary{list-style:none;display:flex;align-items:center;gap:12px;padding:16px 20px;cursor:pointer;user-select:none}
+.rc-volet > summary::-webkit-details-marker{display:none}
+.rc-n{flex:none;width:28px;height:28px;border-radius:99px;display:grid;place-items:center;font-size:12.5px;font-weight:700;
+ color:var(--c-rose);background:color-mix(in srgb,var(--c-rose) 14%,transparent)}
+.rc-t{flex:1;font-family:var(--serif);font-size:18px;font-weight:600;color:var(--ink)}
+.rc-c{font-size:12.5px;color:var(--ink-4)}
+.rc-chev{font-size:20px;color:var(--ink-4);transition:transform .3s var(--spring)}
+.rc-volet[open] .rc-chev{transform:rotate(90deg)}
+.rc-body{border-top:1px solid var(--line);animation:entree .3s ease-out}
+
+/* Notre Père en trois temps (louange, adoration, intercession) */
+.ph-louange{--c:var(--c-sand)} .ph-adoration{--c:var(--c-slate)} .ph-intercession{--c:var(--c-teal)}
+.pr-guide .kicker{margin-bottom:12px}
+.pr-bar{display:flex;height:10px;border-radius:99px;overflow:hidden;gap:3px;margin:4px 0 14px}
+.pr-bar i{display:block;height:100%;background:var(--c);border-radius:99px;opacity:.85}
+.pr-legend{list-style:none;margin:0 0 10px;padding:0;display:flex;flex-direction:column;gap:7px}
+.pr-legend li{font-size:14.5px;color:var(--ink-2);line-height:1.4}
+.pr-legend b{color:var(--ink);margin-right:6px}
+.ph-dot{display:inline-block;width:10px;height:10px;border-radius:99px;background:var(--c);margin-right:8px;vertical-align:0}
+.np-phase{padding:0;border-left:0;position:relative}
+.np-phase::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--c);opacity:.8}
+.ph-head{display:flex;gap:14px;align-items:flex-start;padding:20px 26px 6px;
+ background:linear-gradient(180deg,color-mix(in srgb,var(--c) 10%,transparent),transparent)}
+.ph-head h2{font-family:var(--serif);font-size:22px;font-weight:600;color:var(--ink);line-height:1.2}
+.ph-head p{font-size:14px;color:var(--ink-3);margin-top:2px}
+.ph-num{flex:none;width:32px;height:32px;border-radius:99px;display:grid;place-items:center;font-weight:700;font-size:14px;color:#fff;
+ background:var(--c);box-shadow:0 8px 16px -10px var(--c)}
+html[data-mode="soir"] .ph-num{color:#0E141A}
+.np-phase .npf{padding:14px 26px}
+.np-phase .npf .pl-lines{margin-top:6px}
+.np-end{opacity:.95}
+.np-ref a{color:var(--accent)}
+@media(max-width:560px){.ph-head{padding:18px 18px 6px}.np-phase .npf{padding:12px 18px}}

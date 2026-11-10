@@ -9,7 +9,7 @@ import Compare from './Compare';
 import VerseCompare from './VerseCompare';
 import OfflineDownload from './OfflineDownload';
 import { themeOf, suggestTheme, matchThemeQuery } from '@/lib/highlight-themes';
-import { QUATRE_TEMPS, QUESTIONS, POUR_PRIER } from '@/lib/reading-guide';
+import { QUATRE_TEMPS } from '@/lib/reading-guide';
 import { ALLIANCES, BOOK_GROUPS, groupOf, searchBooks, bookName as accentName } from '@/lib/bible-books';
 import StudyIndex from './StudyIndex';
 import FicheSheet from './FicheSheet';
@@ -1220,7 +1220,13 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
                   title="Versets importants" onClick={() => setBubble(bubble === 'importants' ? null : 'importants')}>
             <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 3.2l2.6 5.5 6 .7-4.5 4.1 1.2 5.9L12 16.5 6.7 19.4l1.2-5.9L3.4 9.4l6-.7z" /></svg>
           </button>
-          <button className={`rfab${bubble === 'versions' ? ' on' : ''}`} aria-label="Plus : versions, hors ligne, méthode"
+          <button className={`rfab${bubble === 'method' ? ' on' : ''}`} aria-label="Lire et méditer : les étapes"
+                  onClick={() => setBubble(bubble === 'method' ? null : 'method')}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 18h6M10 21h4M12 3a6 6 0 00-3.6 10.8c.7.5 1.1 1.3 1.1 2.2h5c0-.9.4-1.7 1.1-2.2A6 6 0 0012 3z" />
+            </svg>
+          </button>
+          <button className={`rfab${bubble === 'versions' ? ' on' : ''}`} aria-label="Plus : versions et lecture hors ligne"
                   onClick={() => setBubble(bubble === 'versions' ? null : 'versions')}>
             <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="6" cy="12" r="1.8" /><circle cx="12" cy="12" r="1.8" /><circle cx="18" cy="12" r="1.8" /></svg>
           </button>
@@ -1233,38 +1239,13 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
 
           {bubble === 'method' && (
             <>
-              <h3 className="rbubble-t">Comment lire</h3>
-              <div className="rb-tabs">
-                {([['court', '4 temps'], ['questions', 'Questions'], ['prier', 'Pour prier']] as const).map(([k, l]) => (
-                  <button key={k} className={`cmp-chip${guideTab === k ? ' on' : ''}`} onClick={() => setGuideTab(k)}>{l}</button>
+              <h3 className="rbubble-t">Lire et méditer</h3>
+              <p className="rbubble-sub">Un petit moment chaque jour vaut mieux qu’une longue lecture de temps en temps.</p>
+              <ol className="rsteps">
+                {QUATRE_TEMPS.map(([t, q, d]) => (
+                  <li key={t}><b>{t}</b><span>{q}</span><i>{d}</i></li>
                 ))}
-              </div>
-              {guideTab === 'court' && (
-                <>
-                  <p className="rbubble-sub">Le plus important n&rsquo;est pas de lire beaucoup, mais de lire chaque jour.</p>
-                  <div className="rmethod">
-                    {QUATRE_TEMPS.map(([t, q, d]) => (
-                      <div className="rm-row" key={t}><b>{t}</b><span>{q}</span><i>{d}</i></div>
-                    ))}
-                  </div>
-                </>
-              )}
-              {guideTab === 'questions' && (
-                <>
-                  <p className="rbubble-sub">Réponds au moins à une question.</p>
-                  <ul className="rb-list">{QUESTIONS.map((q, i) => <li key={i}>{q}</li>)}</ul>
-                </>
-              )}
-              {guideTab === 'prier' && (
-                <div className="rmethod">
-                  {POUR_PRIER.map(p => (
-                    <div className="rm-row" key={p.t} style={{ gridTemplateColumns: '96px 1fr' }}><b>{p.t}</b><span>{p.q}</span></div>
-                  ))}
-                </div>
-              )}
-              <a href="/etude/comment-lire" className="btn sm" style={{ marginTop: 12 }}>
-                Le guide complet ›
-              </a>
+              </ol>
             </>
           )}
 
@@ -1332,8 +1313,6 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
                   {describeTranslation(translations.find((t: any) => t.code === trad) ?? {})}
                 </p>
               )}
-              <div className="rbubble-k">Méthode</div>
-              <a className="btn sm" style={{ marginTop: 8 }} href="/etude/comment-lire">Comment lire la Bible chaque jour ›</a>
               <div className="rbubble-k">Lire hors ligne (avion)</div>
               <OfflineDownload translation={trad}
                 translationName={translations.find((t: any) => t.code === trad)?.name} />
