@@ -854,11 +854,6 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
       {backTo && (
         <a href={backTo} className="back-parable">‹ Revenir à la parabole</a>
       )}
-      {results !== null && results.length > 0 && !searching && (
-        <button className="srch-back" onClick={() => { setTab('recherche'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
-          ‹ Résultats « {doneQ} » <span>{results.length}</span>
-        </button>
-      )}
 
       <div className="mode-switch" role="tablist" aria-label="Mode de lecture">
         <button role="tab" aria-selected={!etudeOn} onClick={() => toggleEtude(false)}>Lecture</button>
@@ -1240,10 +1235,10 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
           {bubble === 'method' && (
             <>
               <h3 className="rbubble-t">Lire et méditer</h3>
-              <p className="rbubble-sub">Un petit moment chaque jour vaut mieux qu’une longue lecture de temps en temps.</p>
+              <p className="rbubble-sub">Chacun son rythme : l’important, c’est la rencontre.</p>
               <ol className="rsteps">
-                {QUATRE_TEMPS.map(([t, q, d]) => (
-                  <li key={t}><b>{t}</b><span>{q}</span><i>{d}</i></li>
+                {QUATRE_TEMPS.map(([t, q]) => (
+                  <li key={t}><b>{t}</b><span>{q}</span></li>
                 ))}
               </ol>
             </>

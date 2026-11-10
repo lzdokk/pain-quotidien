@@ -3,44 +3,52 @@ import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 
 /**
- * Apparition douce au defilement. Observe les blocs principaux et les révélé
- * quand ils entrent dans le champ. Se relance a chaque changement de page.
- * Respecte prefers-reduced-motion via le CSS.
+ * Les blocs s'ouvrent et se déroulent quand on arrive dessus : à l'ouverture
+ * de la page (en cascade) puis au fil du défilement. Les blocs ajoutés plus
+ * tard (lecteur, volets) sont pris en compte aussi.
+ * Respecte « réduire les animations » (CSS).
  */
-const SELECTOR = '.card, .hero, h2.sect, .prayer, .agenda-day, .step, .entry';
+const SELECTOR = '.card, .hero, .home-head, .home-verse, .tile, h2.sect, .prayer, .rc-volet, .np-phase, .agenda-day, .step, .cstudy, .imp-it, .page-tabs, .mode-switch';
 
 export default function Reveal() {
   const path = usePathname();
 
   useEffect(() => {
-    const raf = requestAnimationFrame(() => {
-      const els = Array.from(document.querySelectorAll(SELECTOR)) as HTMLElement[];
-      const io = new IntersectionObserver((entries) => {
-        entries.forEach(e => {
-          if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
-        });
-      }, { rootMargin: '0px 0px -6% 0px', threshold: 0.06 });
+    let raf = 0;
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.05 });
 
+    const prepare = (root: ParentNode) => {
+      const els = Array.from(root.querySelectorAll(SELECTOR)) as HTMLElement[];
+      if ((root as HTMLElement).matches?.(SELECTOR)) els.unshift(root as HTMLElement);
       const h = window.innerHeight;
+      let i = 0;
       els.forEach(el => {
         if (el.classList.contains('reveal')) return;
-        const rect = el.getBoundingClientRect();
-        const alreadyVisible = rect.top < h * 0.92 && rect.bottom > 0;
-        if (alreadyVisible) {
-          // Deja a l'ecran au chargement : on l'affiche sans flash.
-          el.classList.add('reveal', 'in');
+        // Pas d'animation dans les feuilles et bulles (elles ont la leur).
+        if (el.closest('.rsheet, .rbubble, .vbar-inline, .sheet, .modal')) return;
+        el.classList.add('reveal');
+        const r = el.getBoundingClientRect();
+        if (r.top < h && r.bottom > 0) {
+          // Déjà à l'écran : arrivée en cascade, très courte.
+          el.style.setProperty('--rd', `${Math.min(i++, 8) * 55}ms`);
+          requestAnimationFrame(() => el.classList.add('in'));
         } else {
-          el.classList.add('reveal');
           io.observe(el);
         }
       });
-      (window as any).__pqReveal = io;
-    });
-
-    return () => {
-      cancelAnimationFrame(raf);
-      (window as any).__pqReveal?.disconnect?.();
     };
+
+    raf = requestAnimationFrame(() => prepare(document));
+    const mo = new MutationObserver(muts => {
+      for (const m of muts) m.addedNodes.forEach(n => { if (n.nodeType === 1) prepare(n as HTMLElement); });
+    });
+    mo.observe(document.body, { childList: true, subtree: true });
+
+    return () => { cancelAnimationFrame(raf); io.disconnect(); mo.disconnect(); };
   }, [path]);
 
   return null;

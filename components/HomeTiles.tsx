@@ -23,7 +23,7 @@ export default function HomeTiles({ theme }: { theme: string | null }) {
 
   const tiles = [
     { href: '/pain', c: 'c-sand wide', ic: I.pain, t: 'Pain du jour', s: theme ?? 'La méditation du matin' },
-    { href: '/priere', c: 'c-teal', ic: I.priere, t: 'Notre Père', s: 'Louange, adoration, intercession' },
+    { href: '/priere', c: 'c-teal', ic: I.priere, t: 'Notre Père', s: 'Adoration, louange, intercession' },
     { href: '/sagesse', c: 'c-sage', ic: I.sagesse, t: 'Sagesse', s: ch ? `Proverbes ${ch}` : 'Proverbes du jour' },
     { href: '/lire', c: 'c-slate', ic: I.lire, t: 'Lire', s: resume ? `Reprendre ${resume}` : 'Bible et Bible d’étude' },
     { href: '/paraboles', c: 'c-rose', ic: I.recits, t: 'Récits', s: 'Théologie racontée' },

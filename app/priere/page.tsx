@@ -97,30 +97,25 @@ export default async function Priere_() {
 
         <ResumeReading />
 
-        {/* Les trois temps de la prière, et la part de chacun */}
+        {/* Les trois temps de la prière */}
         <div className="card pad pr-guide">
           <span className="kicker">Trois temps pour prier</span>
-          <div className="pr-bar" aria-hidden="true">
-            <i className="ph-louange" style={{ width: '43%' }} />
-            <i className="ph-adoration" style={{ width: '44%' }} />
-            <i className="ph-intercession" style={{ width: '13%' }} />
-          </div>
           <ul className="pr-legend">
-            <li><span className="ph-dot ph-louange" /><b>Louange</b> remercier Dieu pour ce qu’il a fait, fait et fera</li>
             <li><span className="ph-dot ph-adoration" /><b>Adoration</b> le glorifier pour ce qu’il est</li>
+            <li><span className="ph-dot ph-louange" /><b>Louange</b> le remercier pour ce qu’il a fait, fait et fera</li>
             <li><span className="ph-dot ph-intercession" /><b>Intercession</b> lui présenter nos besoins et ceux des autres</li>
           </ul>
-          <p className="fine">Louange et adoration prennent presque tout le temps : sur une heure, environ 52 minutes, et 8 minutes pour l’intercession.</p>
+          <p className="fine">Prends le temps qu’il te faut : chacun son rythme. Donne la plus grande place à l’adoration et à la louange.</p>
         </div>
 
-        <section className="card np-phase ph-louange">
-          <div className="ph-head"><span className="ph-num">1</span><div><h2>Louange</h2><p>Merci pour ce que tu as fait, ce que tu fais, ce que tu feras.</p></div></div>
-          <div className="npf"><Lignes l={louange} /></div>
+        <section className="card np-phase ph-adoration">
+          <div className="ph-head"><span className="ph-num">1</span><div><h2>Adoration</h2><p>Tu es mon Père, tu es saint, tu règnes.</p></div></div>
+          <Phrase k={0} /><Phrase k={1} /><Phrase k={2} /><Phrase k={3} />
         </section>
 
-        <section className="card np-phase ph-adoration">
-          <div className="ph-head"><span className="ph-num">2</span><div><h2>Adoration</h2><p>Tu es mon Père, tu es saint, tu règnes.</p></div></div>
-          <Phrase k={0} /><Phrase k={1} /><Phrase k={2} /><Phrase k={3} />
+        <section className="card np-phase ph-louange">
+          <div className="ph-head"><span className="ph-num">2</span><div><h2>Louange</h2><p>Merci pour ce que tu as fait, ce que tu fais, ce que tu feras.</p></div></div>
+          <div className="npf"><Lignes l={louange} /></div>
         </section>
 
         <section className="card np-phase ph-intercession">
@@ -136,7 +131,6 @@ export default async function Priere_() {
         {!duJour && (
           <p className="ix-note">Les mots du jour se préparent avec la lecture du jour.</p>
         )}
-        <p className="np-ref">Matthieu 6.9-13 · trois temps d’après les enseignements de <a href="https://theonoptie.org/" target="_blank" rel="noreferrer">Theonoptie</a></p>
 
         <Link href="/pain" className="to-pain">
           <span className="tp-k">Le pain quotidien</span>

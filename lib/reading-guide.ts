@@ -34,10 +34,11 @@ export const POUR_PRIER: Array<{ t: string; q: string }> = [
   { t: 'Demander', q: 'Que puis-je lui demander, pour moi et pour les autres ?' }
 ];
 
-/** Version courte (bulle du lecteur) : 4 temps. */
-export const QUATRE_TEMPS: Array<[string, string, string]> = [
-  ['Lire', 'Que dit le texte ? Un passage court, lentement.', '5 min'],
-  ['Méditer', 'Que me dit Dieu à travers ce texte ? Garde un verset.', '5 min'],
-  ['Prier', 'Que vais-je lui répondre ? Transforme le verset en prière.', '3 min'],
-  ['Pratiquer', 'Que vais-je faire aujourd’hui ? Une seule action concrète.', '2 min']
+/** Version courte (bulle du lecteur) : les étapes, sans durée (chacun son rythme). */
+export const QUATRE_TEMPS: Array<[string, string]> = [
+  ['Demander l’Esprit', 'Ruah HaKodech (Saint-Esprit), ouvre mes yeux, mon intelligence et mon cœur : donne-moi de comprendre ta Parole (Ps 119.18 ; Lc 24.45).'],
+  ['Lire', 'Que dit le texte ? Un passage court, lentement.'],
+  ['Méditer', 'Que me dit Dieu à travers ce texte ? Garde un verset.'],
+  ['Prier', 'Que vais-je lui répondre ? Transforme le verset en prière.'],
+  ['Pratiquer', 'Que vais-je faire aujourd’hui ? Une seule action concrète.']
 ];
