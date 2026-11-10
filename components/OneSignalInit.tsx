@@ -23,7 +23,8 @@ export default function OneSignalInit() {
       await OneSignal.init({
         appId: APP_ID,
         // laisse OneSignal gerer le service worker (/OneSignalSDKWorker.js a la racine)
-        allowLocalhostAsSecureOrigin: true
+        allowLocalhostAsSecureOrigin: true,
+        welcomeNotification: { title: 'Pain de Vie', message: 'Merci ! Tu recevras le Pain du jour le matin et la Sagesse du soir.' }
       });
     });
 

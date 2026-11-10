@@ -15,6 +15,7 @@ import StudyIndex from './StudyIndex';
 import FicheSheet from './FicheSheet';
 import ChapterStudy from './ChapterStudy';
 import WordsBrowser from './WordsBrowser';
+import VerseTools from './VerseTools';
 import { getStudyList, kindLabel, type StudyList } from '@/lib/study-client';
 
 type V = { verse: number; text: string };
@@ -996,35 +997,16 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
         const sug = suggestTheme(sv.text);
         return (
           <div className="vbar-inline">
-            <div className="vbar-head">
-              <span className="vref">{bookName} {chapter}.{s}</span>
-              <button className="vbar-x" onClick={() => { setSel(null); setEditing(false); }} aria-label="Fermer">✕</button>
-            </div>
-            {sug && hl[key(s)] !== sug.color && (
-              <button className="btn sm suggest" onClick={() => setColor(s, sug.color)}>✨ Classer en « {sug.label} »</button>
-            )}
-            <div className="vbar-row">
-              {[1, 2, 3, 4, 5, 6, 7].map(c => <span key={c} className={`swatch s${c}`} title={themeOf(c)?.label} onClick={() => setColor(s, c)} />)}
-              <span className="swatch s0" title="Retirer le surlignage" onClick={() => setColor(s, 0)} />
-              <button className="btn sm" style={{ marginLeft: 'auto' }} onClick={() => setEditing(true)}>
-                {noteFor(s) ? 'Modifier la note' : 'Ajouter une note'}
-              </button>
-              <button className="btn sm" onClick={() => setExplain({ kind: 'v', verse: s })}>Expliquer</button>
-              <button className="btn sm" onClick={() => setWbw(wbw === s ? null : s)}>Strong · mot à mot</button>
-              <button className="btn sm" onClick={() => setCmp(cmp === s ? null : s)}>Comparer</button>
-              <button className="btn sm" onClick={() =>
-                navigator.clipboard?.writeText(`« ${sv.text} » ${bookName} ${chapter}.${s}`)}>Copier</button>
-              <button className="btn sm" onClick={() => toggleMulti(s)}>
-                {multi.has(s) ? '− Retirer' : '+ Sélection'}
-              </button>
-            </div>
-            {hl[key(s)] ? (
-              <div className="vbar-theme">
-                <span className={`swatch s${hl[key(s)]}`} /> Thème : <strong>{themeOf(hl[key(s)])?.label}</strong>
-              </div>
-            ) : (
-              <div className="vbar-theme muted">Chaque couleur correspond à un thème — survole pour le voir.</div>
-            )}
+            <VerseTools refLabel={`${bookName} ${chapter}.${s}`} text={sv.text} color={hl[key(s)] ?? 0}
+                        suggestion={sug} hasNote={!!noteFor(s)} multiOn={multi.has(s)}
+                        open={{ note: editing, strong: wbw === s, compare: cmp === s, explain: explain?.kind === 'v' && explain.verse === s }}
+                        onClose={() => { setSel(null); setEditing(false); }}
+                        onColor={c => setColor(s, c)}
+                        onNote={() => setEditing(e => !e)}
+                        onExplain={() => setExplain({ kind: 'v', verse: s })}
+                        onStrong={() => setWbw(wbw === s ? null : s)}
+                        onCompare={() => setCmp(cmp === s ? null : s)}
+                        onMulti={() => toggleMulti(s)} />
             {editing && (
               <div>
                 <textarea className="field" style={{ marginTop: 12 }} autoFocus value={noteText}

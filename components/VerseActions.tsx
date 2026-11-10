@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase/client';
 import { themeOf, suggestTheme } from '@/lib/highlight-themes';
 import Explain from './Explain';
 import WordByWord from './WordByWord';
+import VerseTools from './VerseTools';
 import Compare from './Compare';
 
 type Props = {
@@ -130,44 +131,16 @@ export default function VerseActions({ book, chapter, bookName, verses, user: us
 
               {sel === n && (
                 <div className="vbar-inline">
-                  <div className="vbar-head">
-                    <span className="vref">{bookName} {chapter}.{n}</span>
-                    <button className="vbar-x" onClick={() => { setSel(null); setEditing(false); }} aria-label="Fermer">✕</button>
-                  </div>
-
-                  {(() => {
-                    const sug = suggestTheme(t);
-                    return sug && hl[n] !== sug.color ? (
-                      <button className="btn sm suggest" onClick={() => setColor(n, sug.color)}>
-                        ✨ Classer en « {sug.label} »
-                      </button>
-                    ) : null;
-                  })()}
-
-                  <div className="vbar-row">
-                    {[1, 2, 3, 4, 5, 6, 7].map(cc => (
-                      <span key={cc} className={`swatch s${cc}`} title={themeOf(cc)?.label} onClick={() => setColor(n, cc)} />
-                    ))}
-                    <span className="swatch s0" title="Retirer le surlignage" onClick={() => setColor(n, 0)} />
-                    <button className="btn sm" style={{ marginLeft: 'auto' }} onClick={() => setEditing(true)}>
-                      {noteFor(n) ? 'Modifier la note' : 'Ajouter une note'}
-                    </button>
-                    <button className="btn sm" onClick={() => setExplain(explain === n ? null : n)}>Expliquer</button>
-                    <button className="btn sm" onClick={() => setWbw(wbw === n ? null : n)}>Strong · mot à mot</button>
-                    <button className="btn sm" onClick={() => setCmp(cmp === n ? null : n)}>Comparer</button>
-                    <button className="btn sm" onClick={() => shareOne(n)}>Partager</button>
-                    <button className="btn sm" onClick={() => navigator.clipboard?.writeText(`« ${t} » ${bookName} ${chapter}.${n}`)}>Copier</button>
-                    <button className="btn sm" onClick={() => toggleMulti(n)}>{multi.has(n) ? '− Retirer' : '+ Sélection'}</button>
-                  </div>
-
-                  {hl[n] ? (
-                    <div className="vbar-theme">
-                      <span className={`swatch s${hl[n]}`} />
-                      Thème : <strong>{themeOf(hl[n])?.label}</strong>
-                    </div>
-                  ) : (
-                    <div className="vbar-theme muted">Chaque couleur correspond à un thème — survole pour le voir.</div>
-                  )}
+                  <VerseTools refLabel={`${bookName} ${chapter}.${n}`} text={t} color={hl[n] ?? 0}
+                              suggestion={suggestTheme(t)} hasNote={!!noteFor(n)} multiOn={multi.has(n)}
+                              open={{ note: editing, strong: wbw === n, compare: cmp === n, explain: explain === n }}
+                              onClose={() => { setSel(null); setEditing(false); }}
+                              onColor={c => setColor(n, c)}
+                              onNote={() => setEditing(e => !e)}
+                              onExplain={() => setExplain(explain === n ? null : n)}
+                              onStrong={() => setWbw(wbw === n ? null : n)}
+                              onCompare={() => setCmp(cmp === n ? null : n)}
+                              onMulti={() => toggleMulti(n)} />
 
                   {editing && (
                     <div>

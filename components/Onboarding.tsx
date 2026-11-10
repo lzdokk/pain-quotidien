@@ -17,72 +17,58 @@ const STEPS: Step[] = [
     body: (
       <>
         <p>
-          Heureux de vous accueillir. <b>Pain de Vie</b> est pensé pour une chose :
-          vous mettre devant le texte biblique chaque jour, simplement, et vous
-          donner de quoi le comprendre et le prier.
+          <b>Pain de Vie</b> vous met devant la Parole chaque jour, simplement, avec de
+          quoi la comprendre et la prier.
         </p>
-        <p>Trois minutes suffisent pour commencer. Laissez-moi vous montrer.</p>
+        <p>Tout part de l&rsquo;<b>Accueil</b> : un verset du jour et des tuiles pour aller partout d&rsquo;un toucher. La barre du bas vous suit sur chaque page.</p>
       </>
     )
   },
   {
-    eyebrow: 'Le rythme du jour',
-    title: 'Un matin, un soir',
+    eyebrow: 'Votre temps avec Dieu',
+    title: 'Pain du jour, prière, sagesse',
+    body: (
+      <>
+        <p>Le <b>Pain du jour</b> : le passage, son cœur et une méditation.</p>
+        <p>Le <b>Notre Père</b>, prié en trois temps : <b>adoration</b>, <b>louange</b>, <b>intercession</b>.</p>
+        <p>La <b>Sagesse</b> : chaque jour son chapitre des Proverbes, entre deux prières.</p>
+      </>
+    )
+  },
+  {
+    eyebrow: 'Lire',
+    title: 'La Bible, et la Bible d’étude',
     body: (
       <>
         <p>
-          Le <b>Pain du matin</b> vous donne le passage du jour, son cœur et une
-          courte méditation. La <b>Prière</b> vous guide en quelques axes, et la
-          <b> Veillée du soir</b> vous aide à relire votre journée devant Dieu.
+          Touchez un verset pour le <b>classer par couleur</b> (chaque couleur a son thème),
+          l&rsquo;<b>annoter</b>, l&rsquo;<b>expliquer</b> ou le <b>comparer</b>.
         </p>
-        <p>L'application s'ouvre là où vous vous étiez arrêté.</p>
+        <p>
+          Passez en <b>Bible d&rsquo;étude</b> pour voir les fiches liées au chapitre, et touchez
+          <b> א</b> pour le <b>Strong</b> : l&rsquo;hébreu ou le grec, mot par mot.
+        </p>
       </>
     )
   },
   {
-    eyebrow: 'La Parole en main',
-    title: 'Lire, surligner, annoter',
+    eyebrow: 'Grandir',
+    title: 'Récits et cursus',
     body: (
       <>
-        <p>
-          Dans <b>Lire</b>, toute la Bible est à vous. Touchez un verset pour le
-          <b> surligner par couleur</b> : chaque couleur correspond à un thème
-          (promesses, grâce, prière…), pour retrouver d'un coup d'œil ce qui vous
-          a parlé.
-        </p>
-        <p>
-          Vous pouvez aussi <b>annoter</b>, <b>comparer les traductions</b> et
-          voir le mot à mot hébreu ou grec.
-        </p>
+        <p>Les <b>Récits</b> : la théologie racontée, trois histoires par thème.</p>
+        <p>Le <b>Cursus</b> : une formation biblique complète, fiche après fiche.</p>
       </>
     )
   },
   {
-    eyebrow: 'Aller plus loin',
-    title: 'Comprendre et grandir',
-    body: (
-      <>
-        <p>
-          La section <b>Apprendre</b> réunit les <b>paraboles</b>, les <b>mots</b>
-          d'origine, les <b>versets</b> à connaître, une base de <b>questions</b>,
-          et les <b>cinq fondements</b> de la foi protestante.
-        </p>
-        <p>
-          Le <b>Cursus</b> vous propose, lui, une formation théologique complète,
-          fiche après fiche.
-        </p>
-      </>
-    )
-  },
-  {
-    eyebrow: 'Votre environnement',
+    eyebrow: 'Votre carnet',
     title: 'Retrouvez tout, partout',
     body: (
       <>
         <p>
-          En créant un compte gratuit, vos <b>surlignages</b>, vos <b>notes</b> et
-          votre <b>progression de lecture</b> vous suivent sur tous vos appareils.
-          Sans compte, vous pouvez tout explorer, mais rien n'est sauvegardé.
+          Avec un compte gratuit, vos <b>couleurs</b>, vos <b>notes</b> et votre
+          <b> progression</b> vous suivent sur tous vos appareils.
         </p>
       </>
     )
@@ -95,12 +81,12 @@ export default function Onboarding() {
 
   useEffect(() => {
     try {
-      if (!localStorage.getItem('pq-onboarded')) setOpen(true);
+      if (!localStorage.getItem('pq-onboarded-2')) setOpen(true);
     } catch {}
   }, []);
 
   const close = () => {
-    try { localStorage.setItem('pq-onboarded', '1'); } catch {}
+    try { localStorage.setItem('pq-onboarded-2', '1'); } catch {}
     setOpen(false);
   };
 

@@ -52,7 +52,7 @@ export default function InstallGuide({ compact = false }: { compact?: boolean })
 
   const NotifStep = () => {
     if (notif === 'unsupported') return null;
-    if (notif === 'granted') return <p className="ig-ok">✓ Notifications activées — tu recevras le Pain du matin et la veillée du soir.</p>;
+    if (notif === 'granted') return <p className="ig-ok">✓ Notifications activées — tu recevras le Pain du jour et la Sagesse du soir.</p>;
     if (notif === 'denied') return <p className="ig-note">Les notifications sont bloquées. Autorise-les dans les réglages de ton navigateur pour l'app.</p>;
     if (os === 'ios' && !standalone)
       return <p className="ig-note">Ajoute d'abord l'app à l'écran d'accueil (étapes ci-dessus), ouvre-la depuis l'icône, puis reviens ici pour activer les notifications.</p>;
