@@ -569,10 +569,7 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
 
   return (
     <main className="wrap">
-      <header className="hero compact">
-        <div className="eyebrow">Lire la Bible</div>
-        <h1>La Parole</h1>
-      </header>
+      <div style={{ height: 18 }} />
 
       <div className="page-tabs four" role="tablist">
         {([['bible', 'Bible'], ['etude', 'Étude'], ['recherche', 'Recherche'], ['parcours', 'Parcours']] as const).map(([k, l]) => (
@@ -1223,23 +1220,9 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
                   title="Versets importants" onClick={() => setBubble(bubble === 'importants' ? null : 'importants')}>
             <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 3.2l2.6 5.5 6 .7-4.5 4.1 1.2 5.9L12 16.5 6.7 19.4l1.2-5.9L3.4 9.4l6-.7z" /></svg>
           </button>
-          <button className={`rfab${bubble === 'method' ? ' on' : ''}`} aria-label="Comment lire"
-                  onClick={() => setBubble(bubble === 'method' ? null : 'method')}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M9 18h6M10 21h4M12 3a6 6 0 00-3.6 10.8c.7.5 1.1 1.3 1.1 2.2h5c0-.9.4-1.7 1.1-2.2A6 6 0 0012 3z" />
-            </svg>
-          </button>
-          <button className={`rfab${bubble === 'versions' ? ' on' : ''}`} aria-label="Comparer et lire hors ligne"
+          <button className={`rfab${bubble === 'versions' ? ' on' : ''}`} aria-label="Plus : versions, hors ligne, méthode"
                   onClick={() => setBubble(bubble === 'versions' ? null : 'versions')}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M4 5.5C6.5 5 8.5 5.3 10 6.5V19c-1.5-1.2-3.5-1.5-6-1V5.5zM20 5.5c-2.5-.5-4.5-.2-6 1V19c1.5-1.2 3.5-1.5 6-1V5.5z" />
-            </svg>
-          </button>
-          <button className="rfab" aria-label="Rechercher et historique"
-                  onClick={() => { setBubble(null); setTab('recherche'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-              <circle cx="11" cy="11" r="6.5" /><path d="M20 20l-4.2-4.2" />
-            </svg>
+            <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="6" cy="12" r="1.8" /><circle cx="12" cy="12" r="1.8" /><circle cx="18" cy="12" r="1.8" /></svg>
           </button>
         </div>
       )}
@@ -1320,7 +1303,7 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
 
           {bubble === 'versions' && (
             <>
-              <h3 className="rbubble-t">Versions</h3>
+              <h3 className="rbubble-t">Plus</h3>
               <div className="rbubble-k" style={{ marginTop: 0 }}>Comparer 2 versions</div>
               {compareWith ? (
                 <>
@@ -1349,6 +1332,8 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
                   {describeTranslation(translations.find((t: any) => t.code === trad) ?? {})}
                 </p>
               )}
+              <div className="rbubble-k">Méthode</div>
+              <a className="btn sm" style={{ marginTop: 8 }} href="/etude/comment-lire">Comment lire la Bible chaque jour ›</a>
               <div className="rbubble-k">Lire hors ligne (avion)</div>
               <OfflineDownload translation={trad}
                 translationName={translations.find((t: any) => t.code === trad)?.name} />

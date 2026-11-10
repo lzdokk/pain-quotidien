@@ -32,6 +32,14 @@ const ICONS: Record<string, JSX.Element> = {
   '/cursus': <path d="M22 10 12 5 2 10l10 5 10-5zM6 12v5c0 1 2.7 2.5 6 2.5s6-1.5 6-2.5v-5" />
 };
 
+/* Titre affiché au centre de la barre, selon la page. */
+const TITLES: Array<[string, string]> = [
+  ['/pain', 'Pain du jour'], ['/jour', 'Pain du jour'], ['/jours', 'Les jours'], ['/priere', 'Notre Père'],
+  ['/sagesse', 'Sagesse'], ['/lire', ''], ['/etude', 'Bible d’étude'], ['/paraboles', 'Récits'],
+  ['/fondements', 'Récits'], ['/questions', 'Récits'], ['/cursus', 'Cursus'], ['/compte', 'Mon profil'],
+  ['/surlignes', 'Mes versets'], ['/temoigner', 'Témoigner'], ['/installer', 'Installer']
+];
+
 export default function Nav(_props: { user?: any }) {
   const user = useUser();
   const [sheet, setSheet] = useState(false);
@@ -53,16 +61,19 @@ export default function Nav(_props: { user?: any }) {
     <>
       <nav className="nav">
         <div className="nav-in">
-          <Link href="/" className="brandmark">
-            <Brand />
-            <span>Pain de Vie</span>
-          </Link>
+          {path === '/' ? (
+            <Link href="/" className="brandmark">
+              <Brand />
+              <span>Pain de Vie</span>
+            </Link>
+          ) : (
+            <Link href="/" className="nav-back" aria-label="Retour à l’accueil">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 5l-7 7 7 7" /></svg>
+              <span>Accueil</span>
+            </Link>
+          )}
 
-          <div className="tabs" role="tablist">
-            {TABS.map(t => (
-              <Link key={t.href} href={t.href} prefetch className="tab" aria-selected={isActive(t)}>{t.label}</Link>
-            ))}
-          </div>
+          <span className="nav-title">{TITLES.find(([p]) => path === p || path.startsWith(p + '/'))?.[1] ?? ''}</span>
 
           <button className="icon-btn" onClick={toggleMode} aria-label="Matin ou soir">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -87,17 +98,6 @@ export default function Nav(_props: { user?: any }) {
 
           <MusicPlayer />
         </div>
-      </nav>
-
-      {/* Barre d'onglets mobile, en bas comme une application */}
-      <nav className="tabbar">
-        {TABS.map(t => (
-          <Link key={t.href} href={t.href} prefetch aria-current={isActive(t)}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"
-                 strokeLinecap="round" strokeLinejoin="round">{ICONS[t.href]}</svg>
-            <span>{t.label}</span>
-          </Link>
-        ))}
       </nav>
 
       {sheet && !user && (

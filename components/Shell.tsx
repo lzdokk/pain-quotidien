@@ -4,7 +4,6 @@ import ShareButton from './ShareButton';
 import DayLoadButton from './DayLoadButton';
 import { rich } from '@/lib/rich';
 import AdminOnly from './AdminOnly';
-import TodayTiles from './TodayTiles';
 
 type Props = {
   day: any; readings: any[]; user: any; archive?: boolean;
@@ -71,8 +70,6 @@ export default function Shell({ day, readings, user, archive, recentDays, transl
           <h1 dangerouslySetInnerHTML={{ __html: rich(day.theme_title) }} />
           <p className="lede" dangerouslySetInnerHTML={{ __html: rich(day.theme_lede) }} />
         </header>
-
-        <TodayTiles />
 
         {recentDays && recentDays.length > 0 && (
           <DayNav days={recentDays} current={day.date}

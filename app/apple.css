@@ -16,8 +16,9 @@
 
 /* ── 1. Palette : ardoise (marque) + or doux (lumière), verre ──────── */
 :root{
-  --gold: #C9A15B;
-  --gold-soft: color-mix(in srgb, #C9A15B 14%, transparent);
+  /* Une seule couleur : l'ardoise du thème (les anciens « or » pointent dessus). */
+  --gold: var(--accent);
+  --gold-soft: var(--accent-soft);
   --glass: rgba(255,255,255,.72);
   --glass-2: rgba(255,255,255,.52);
   --glass-line: rgba(255,255,255,.75);
@@ -25,13 +26,13 @@
   --lift: 0 1px 0 rgba(255,255,255,.95) inset, 0 16px 36px -22px rgba(30,48,66,.38), 0 3px 8px -4px rgba(30,48,66,.10);
   --lift-2: 0 1px 0 rgba(255,255,255,.95) inset, 0 26px 48px -24px rgba(30,48,66,.45), 0 4px 10px -4px rgba(30,48,66,.12);
   --grad: linear-gradient(135deg, #6283A3 0%, #4E6A85 52%, #3D566E 100%);
-  --grad-gold: linear-gradient(135deg, #DDB978 0%, #C9A15B 55%, #B08744 100%);
+  --grad-gold: var(--grad);
   --r: 24px;
   --spring: cubic-bezier(.2,.8,.2,1);
 }
 html[data-mode="soir"]{
-  --gold: #E0BE7E;
-  --gold-soft: color-mix(in srgb, #E0BE7E 14%, transparent);
+  --gold: var(--accent);
+  --gold-soft: var(--accent-soft);
   --glass: rgba(30,38,48,.72);
   --glass-2: rgba(30,38,48,.52);
   --glass-line: rgba(255,255,255,.09);
@@ -42,17 +43,17 @@ html[data-mode="soir"]{
 }
 
 /* ── 2. Fond : deux halos très doux qui respirent ─────────────────── */
-body{background:linear-gradient(170deg, color-mix(in srgb,var(--brand) 6%,#fff) 0%, #FCFCFD 40%, #fff 65%, color-mix(in srgb,var(--gold) 5%,#fff) 100%) fixed}
+body{background:linear-gradient(170deg, color-mix(in srgb,var(--brand) 7%,#fff) 0%, #FCFCFD 45%, color-mix(in srgb,var(--brand) 4%,#fff) 100%) fixed}
 html[data-mode="soir"] body{background:var(--bg)}
 body::before{content:'';position:fixed;inset:-20vmax;z-index:-1;pointer-events:none;
  background:
   radial-gradient(44vmax 32vmax at 10% -4%, color-mix(in srgb,var(--brand) 13%,transparent), transparent 70%),
-  radial-gradient(34vmax 28vmax at 100% 24%, color-mix(in srgb,var(--gold) 9%,transparent), transparent 72%),
+  radial-gradient(34vmax 28vmax at 100% 24%, color-mix(in srgb,var(--brand) 6%,transparent), transparent 72%),
   radial-gradient(40vmax 30vmax at 50% 110%, color-mix(in srgb,var(--brand) 8%,transparent), transparent 70%);
  animation:halo 20s ease-in-out infinite alternate}
 html[data-mode="soir"] body::before{background:
   radial-gradient(44vmax 32vmax at 10% -4%, rgba(143,169,196,.14), transparent 70%),
-  radial-gradient(34vmax 28vmax at 100% 24%, rgba(224,190,126,.07), transparent 72%)}
+  radial-gradient(34vmax 28vmax at 100% 24%, rgba(143,169,196,.07), transparent 72%)}
 @keyframes halo{from{transform:translate3d(0,0,0) scale(1)}to{transform:translate3d(0,1.5vmax,0) scale(1.05)}}
 .hero::before{display:none}
 
@@ -67,18 +68,8 @@ html[data-mode="soir"] .tab[aria-selected="true"]{color:#0E141A}
 .icon-btn{background:var(--glass-2);border-color:var(--glass-line);box-shadow:var(--hi)}
 .icon-btn.avatar{background:var(--grad);border-color:transparent;box-shadow:0 6px 14px -8px rgba(78,106,133,.9)}
 
-/* ── 4. Barre d'onglets mobile : îlot de verre flottant ─────────────── */
-@media(max-width:700px){
- body{padding-bottom:110px}
- .tabbar{left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom));border-radius:28px;padding:6px;
-  background:var(--glass);border:1px solid var(--glass-line);
-  box-shadow:var(--hi),0 18px 40px -16px rgba(30,48,66,.45),0 2px 6px -2px rgba(30,48,66,.12);
-  backdrop-filter:blur(28px) saturate(200%);-webkit-backdrop-filter:blur(28px) saturate(200%)}
- .tabbar a{position:relative;border-radius:22px;padding:7px 2px 6px;color:var(--ink-3);transition:color .25s,transform .2s var(--spring)}
- .tabbar a:active{transform:scale(.92)}
- .tabbar a[aria-current="true"]{color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,transparent)}
- .tabbar a svg{width:23px;height:23px}
-}
+/* ── 4. Plus de barre d'onglets : l'accueil sert de menu ── */
+@media(max-width:700px){body{padding-bottom:40px}}
 
 /* ── 5. Cartes : blanc nacré, reflet en haut, ombre colorée ─────────── */
 .card{background:color-mix(in srgb,var(--surface) 90%,transparent);border:1px solid var(--glass-line);border-radius:var(--r);
@@ -95,7 +86,6 @@ a.card:hover,.card.tap:hover{transform:translateY(-2px);box-shadow:var(--lift-2)
 .btn.primary{background:var(--grad);border-color:transparent;color:#fff;
  box-shadow:0 1px 0 rgba(255,255,255,.28) inset,0 12px 24px -12px rgba(78,106,133,.95)}
 html[data-mode="soir"] .btn.primary{color:#0E141A}
-.btn.gold{background:var(--grad-gold);border-color:transparent;color:#fff;box-shadow:0 1px 0 rgba(255,255,255,.35) inset,0 12px 24px -12px rgba(176,135,68,.9)}
 
 /* Pastilles, segments, onglets de page */
 .chip,.cmp-chip{transition:all .22s var(--spring)}
@@ -117,12 +107,13 @@ h1{letter-spacing:-.032em}
 
 /* ── 8. Prières : panneaux de lumière ───────────────────────────────── */
 .prayer{border-left:0;border-radius:var(--r);border:1px solid var(--glass-line);padding:26px 26px 24px;
- background:linear-gradient(160deg, color-mix(in srgb,var(--gold) 10%,var(--surface)) 0%, var(--surface) 60%);
+ background:linear-gradient(160deg, color-mix(in srgb,var(--brand) 7%,var(--glass)) 0%, var(--glass) 60%);
+ backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);
  box-shadow:var(--lift);position:relative;overflow:hidden}
 .prayer::after{content:'';position:absolute;inset:0 0 auto 0;height:50%;pointer-events:none;
  background:linear-gradient(180deg,rgba(255,255,255,.55),transparent);opacity:.6}
 html[data-mode="soir"] .prayer::after{opacity:.05}
-.prayer .kicker{color:var(--gold)}
+.prayer .kicker{color:var(--accent)}
 .verse{border-radius:var(--r);background:linear-gradient(160deg, color-mix(in srgb,var(--brand) 9%,var(--surface)), var(--surface) 70%)}
 
 /* ── 9. Feuilles et bulles : verre ──────────────────────────────────── */
@@ -134,31 +125,46 @@ html[data-mode="soir"] .prayer::after{opacity:.05}
 main.wrap{animation:entree .35s ease-out}
 @keyframes entree{from{opacity:0}to{opacity:1}}
 
-/* ── 11. TUILES (accueil du jour) ───────────────────────────────────── */
-.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:6px 0 22px}
-@media(max-width:620px){.tiles{grid-template-columns:repeat(2,1fr);gap:10px}}
-.tile{position:relative;display:flex;flex-direction:column;justify-content:space-between;gap:16px;min-height:118px;
- padding:16px 16px 14px;border-radius:24px;text-decoration:none;color:#fff;overflow:hidden;isolation:isolate;
- background:var(--tile, var(--grad));box-shadow:0 1px 0 rgba(255,255,255,.3) inset,0 18px 34px -18px var(--tile-sh, rgba(61,86,110,.9));
- transition:transform .35s var(--spring),box-shadow .35s ease}
-.tile::before{content:'';position:absolute;inset:-40% -20% auto -20%;height:90%;z-index:-1;
- background:radial-gradient(60% 60% at 30% 20%,rgba(255,255,255,.45),transparent 70%);transform:rotate(-8deg)}
-.tile::after{content:'';position:absolute;inset:0;z-index:-1;border-radius:inherit;
- background:linear-gradient(180deg,rgba(255,255,255,.18),transparent 45%)}
-@media(hover:hover){.tile:hover{transform:translateY(-3px) scale(1.01);box-shadow:0 1px 0 rgba(255,255,255,.3) inset,0 26px 44px -20px var(--tile-sh, rgba(61,86,110,.95))}}
+/* ── 11. ACCUEIL ET TUILES : une seule couleur, du verre ─────────────── */
+.home{padding-top:8px}
+.home-head{text-align:center;padding:34px 0 18px}
+.home-date{font-size:14px;color:var(--ink-3);font-weight:520}
+.home-head h1{font-size:clamp(34px,7vw,48px);margin:6px 0 0}
+.home-verse{display:block;text-decoration:none;text-align:center;margin:6px auto 22px;max-width:560px;padding:22px 24px;
+ border-radius:24px;background:var(--glass);border:1px solid var(--glass-line);box-shadow:var(--lift);
+ backdrop-filter:blur(20px) saturate(170%);-webkit-backdrop-filter:blur(20px) saturate(170%)}
+.home-verse blockquote{font-family:var(--serif);font-size:clamp(18px,3.6vw,22px);line-height:1.5;color:var(--ink)}
+.home-verse cite{display:block;margin-top:10px;font-style:normal;font-size:12.5px;font-weight:600;letter-spacing:.04em;color:var(--accent)}
+.tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:0 0 26px}
+@media(min-width:760px){.tiles{grid-template-columns:repeat(3,1fr)}}
+.tile{position:relative;display:flex;flex-direction:column;gap:14px;min-height:124px;padding:16px;border-radius:24px;
+ text-decoration:none;color:var(--ink);overflow:hidden;isolation:isolate;
+ background:var(--glass);border:1px solid var(--glass-line);box-shadow:var(--lift);
+ backdrop-filter:blur(20px) saturate(170%);-webkit-backdrop-filter:blur(20px) saturate(170%);
+ transition:transform .3s var(--spring),box-shadow .3s ease}
+.tile::before{content:'';position:absolute;inset:0 0 auto 0;height:55%;z-index:-1;
+ background:linear-gradient(180deg,rgba(255,255,255,.55),transparent);pointer-events:none}
+html[data-mode="soir"] .tile::before{opacity:.08}
+@media(hover:hover){.tile:hover{transform:translateY(-2px);box-shadow:var(--lift-2)}}
 .tile:active{transform:scale(.97);transition-duration:.12s}
-.tile-ic{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;background:rgba(255,255,255,.22);
- box-shadow:inset 0 1px 0 rgba(255,255,255,.35);backdrop-filter:blur(6px)}
+.tile-ic{width:40px;height:40px;border-radius:13px;display:grid;place-items:center;color:#fff;background:var(--grad);
+ box-shadow:0 1px 0 rgba(255,255,255,.3) inset,0 8px 16px -10px rgba(61,86,110,.9)}
+html[data-mode="soir"] .tile-ic{color:#0E141A}
 .tile-ic svg{width:21px;height:21px}
-.tile-t{font-size:16.5px;font-weight:680;letter-spacing:-.02em;line-height:1.15}
-.tile-s{font-size:12.5px;opacity:.86;margin-top:2px;line-height:1.3}
-.tile.t-pain{--tile:linear-gradient(140deg,#E3B86E,#C9A15B 55%,#A9813F);--tile-sh:rgba(169,129,63,.85)}
-.tile.t-priere{--tile:linear-gradient(140deg,#7C98B6,#5B7896 55%,#45607B);--tile-sh:rgba(69,96,123,.9)}
-.tile.t-sagesse{--tile:linear-gradient(140deg,#8FB7A4,#5F9580 55%,#467A66);--tile-sh:rgba(70,122,102,.85)}
-.tile.t-lire{--tile:linear-gradient(140deg,#6E8FB1,#4E6A85 55%,#38506A);--tile-sh:rgba(56,80,106,.9)}
-.tile.t-recits{--tile:linear-gradient(140deg,#C89A8E,#A8766A 55%,#8A5C52);--tile-sh:rgba(138,92,82,.85)}
-.tile.t-cursus{--tile:linear-gradient(140deg,#9C95C4,#77709F 55%,#5D5784);--tile-sh:rgba(93,87,132,.85)}
-html[data-mode="soir"] .tile{filter:saturate(.9) brightness(.92)}
+.tile-txt{display:flex;flex-direction:column;gap:2px;margin-top:auto}
+.tile-t{font-size:16px;font-weight:660;letter-spacing:-.02em;line-height:1.2}
+.tile-s{font-size:12.5px;color:var(--ink-3);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+/* ── Barre du haut façon iOS : ‹ Accueil · titre · réglages ─────────── */
+.nav .tabs{display:none!important}
+.nav-back{display:inline-flex;align-items:center;gap:2px;flex:none;text-decoration:none;color:var(--accent);
+ font-size:15.5px;font-weight:560;padding:6px 10px 6px 4px;border-radius:99px;transition:background .2s}
+.nav-back:hover{background:var(--accent-soft)}
+.nav-back:active{transform:scale(.95)}
+.nav-title{flex:1;min-width:0;text-align:center;font-size:15.5px;font-weight:640;letter-spacing:-.015em;color:var(--ink);
+ white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nav-slot:not(:empty) ~ * {}
+@media(max-width:560px){.nav-back span{display:none}.nav-back{padding:6px 8px}}
 
 @media(prefers-reduced-motion:reduce){
  body::before,main.wrap{animation:none!important}
@@ -173,8 +179,7 @@ html[data-mode="soir"] .tile{filter:saturate(.9) brightness(.92)}
  backdrop-filter:blur(16px) saturate(170%);-webkit-backdrop-filter:blur(16px) saturate(170%)}
 .mode-switch button{border:0;background:transparent;font:inherit;font-size:13.5px;font-weight:600;color:var(--ink-3);
  padding:7px 16px;border-radius:99px;cursor:pointer;transition:all .25s var(--spring)}
-.mode-switch button[aria-selected="true"]{background:var(--grad-gold);color:#fff;box-shadow:0 1px 0 rgba(255,255,255,.3) inset,0 8px 16px -10px rgba(176,135,68,.9)}
-.mode-switch button:first-child[aria-selected="true"]{background:var(--grad);box-shadow:0 1px 0 rgba(255,255,255,.25) inset,0 8px 16px -10px rgba(78,106,133,.9)}
+.mode-switch button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.10)}
 
 /* Interrupteur iOS */
 .switch{display:inline-flex;align-items:center;gap:10px;cursor:pointer;flex:none}
@@ -189,7 +194,7 @@ html[data-mode="soir"] .tile{filter:saturate(.9) brightness(.92)}
 .study-intro .fine{margin-top:2px}
 
 /* Fiches du chapitre */
-.cstudy{background:linear-gradient(160deg,color-mix(in srgb,var(--gold) 10%,var(--surface)),var(--surface) 70%)}
+.cstudy{background:var(--glass);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
 .cstudy .kicker{color:var(--gold)}
 .cstudy-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
 .cstudy-it{display:flex;flex-direction:column;align-items:flex-start;gap:1px;text-align:left;border:1px solid var(--glass-line);
@@ -197,7 +202,7 @@ html[data-mode="soir"] .tile{filter:saturate(.9) brightness(.92)}
  transition:transform .18s var(--spring)}
 .cstudy-it:active{transform:scale(.96)}
 .cstudy-k{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gold)}
-.cstudy-it.k-personne .cstudy-k{color:#7C6BB0}.cstudy-it.k-lieu .cstudy-k{color:#4F8F7A}.cstudy-it.k-mot .cstudy-k{color:var(--accent)}
+
 .cstudy-t{font-size:14.5px;font-weight:620;color:var(--ink)}
 .cstudy-v{font-size:11.5px;color:var(--ink-4)}
 .cstudy-hint{font-size:12px;color:var(--ink-4);margin-top:10px}
@@ -227,7 +232,7 @@ html[data-mode="soir"] .tile{filter:saturate(.9) brightness(.92)}
 .imp-it:hover{background:var(--surface-2)}
 .imp-it b{flex:none;font-size:12.5px;color:var(--gold);min-width:44px}
 .imp-it span{font-size:14px;color:var(--ink-2);line-height:1.35}
-.rfab-star svg{width:20px;height:20px;color:var(--gold)}
+.rfab-star svg{width:20px;height:20px}
 .rfab-star.on svg{color:#fff}
 
 /* Bible d'étude intégrée */
