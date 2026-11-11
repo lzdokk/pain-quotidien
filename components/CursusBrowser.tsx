@@ -99,8 +99,6 @@ export default function CursusBrowser({ cursus, levels, groups, courses, done, u
         <p className="lede">Plusieurs cursus pour grandir, à votre rythme.</p>
       </header>
 
-      {isAdmin && <CursusShare />}
-
       {/* Porte d'entrée : un seul code pour toute la section */}
       {!access && (
         <div className="card pad" style={{ textAlign: 'center' }}>

@@ -28,8 +28,7 @@ export default function OfflineDownload({ translation, translationName }:
     setState('running'); setPct(0);
     try {
       // 1) Toutes les pages fixes + fiches de cursus (HTML).
-      const pages = ['/pain', '/priere', '/sagesse', '/lire', '/cursus', '/paraboles',
-        ...courses.map(c => `/cursus/${c}`)];
+      const pages = ['/pain', '/priere', '/sagesse', '/lire', '/paraboles'];
       // 2) Tous les chapitres de la version, demandes comme le lecteur.
       const chapters: Array<{ b: number; c: number }> = [];
       for (const bk of books) for (let c = 1; c <= bk.chapters; c++) chapters.push({ b: bk.id, c });
@@ -68,7 +67,7 @@ export default function OfflineDownload({ translation, translationName }:
     <div className="offline-dl">
       <div className="odl-txt">
         <b>Lire hors ligne (avion)</b>
-        <span>Télécharge {translationName ?? 'cette version'}, les pages et le cursus sur cet appareil.</span>
+        <span>Télécharge {translationName ?? 'cette version'} et les pages sur cet appareil.</span>
       </div>
       {state === 'running' ? (
         <div className="odl-prog"><div className="odl-bar"><i style={{ width: `${pct}%` }} /></div><span>{pct}%</span></div>

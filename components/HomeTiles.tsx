@@ -1,6 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { useIsAdmin } from '@/lib/useUser';
 
 /** Les tuiles de l'accueil : une seule couleur, du verre, un toucher. */
 const I: Record<string, JSX.Element> = {
@@ -13,6 +14,7 @@ const I: Record<string, JSX.Element> = {
 };
 
 export default function HomeTiles({ theme }: { theme: string | null }) {
+  const isAdmin = useIsAdmin(); // le Cursus n'est visible que du responsable
   const [ch, setCh] = useState<number | null>(null);
   const [resume, setResume] = useState<string | null>(null);
   useEffect(() => {
@@ -26,8 +28,8 @@ export default function HomeTiles({ theme }: { theme: string | null }) {
     { href: '/priere', c: 'c-teal', ic: I.priere, t: 'Notre Père', s: 'Adoration, louange, intercession' },
     { href: '/sagesse', c: 'c-sage', ic: I.sagesse, t: 'Sagesse', s: ch ? `Proverbes ${ch}` : 'Proverbes du jour' },
     { href: '/lire', c: 'c-slate', ic: I.lire, t: 'Lire', s: resume ? `Reprendre ${resume}` : 'Bible et Bible d’étude' },
-    { href: '/paraboles', c: 'c-rose', ic: I.recits, t: 'Récits', s: 'Théologie racontée' },
-    { href: '/cursus', c: 'c-lav wide slim', ic: I.cursus, t: 'Cursus', s: 'Se former, pas à pas' }
+    { href: '/paraboles', c: isAdmin ? 'c-rose' : 'c-rose wide', ic: I.recits, t: 'Récits', s: 'Théologie racontée' },
+    ...(isAdmin ? [{ href: '/cursus', c: 'c-lav wide slim', ic: I.cursus, t: 'Cursus', s: 'Réservé au responsable' }] : [])
   ];
 
   return (

@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { supabasePublic } from '@/lib/supabase/public';
+import { requireAdmin } from '@/lib/admin-guard';
 import ValidateCourse from '@/components/ValidateCourse';
 import CourseHomework from '@/components/CourseHomework';
 import ReadingLinks from '@/components/ReadingLinks';
@@ -9,13 +10,12 @@ import { relabelCode } from '@/lib/cursus-code';
 import { courseTitle } from '@/lib/course-titles';
 import { citedVerse } from '@/lib/bible';
 
-export const revalidate = 86400;
-// Pages générées à la première visite puis gardées en cache (instantanées ensuite).
-export const generateStaticParams = async () => [];
+export const dynamic = 'force-dynamic'; // réservé au responsable
 const KIND: Record<string, string> = { E: 'Exegese', D: 'Doctrine', P: 'Pratique', G: 'Langue' };
 
 export default async function Fiche({ params }: { params: Promise<{ code: string }> }) {
   const { code } = await params;
+  await requireAdmin();
   const sb = await supabasePublic();
 
   const { data: c } = await sb.from('courses').select('*').eq('code', code).maybeSingle();

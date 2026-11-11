@@ -53,11 +53,11 @@ const STEPS: Step[] = [
   },
   {
     eyebrow: 'Grandir',
-    title: 'Récits et cursus',
+    title: 'La théologie racontée',
     body: (
       <>
         <p>Les <b>Récits</b> : la théologie racontée, trois histoires par thème.</p>
-        <p>Le <b>Cursus</b> : une formation biblique complète, fiche après fiche.</p>
+        <p>Une histoire pour sentir une vérité avant de l&rsquo;expliquer, à lire dans l&rsquo;ordre, thème après thème.</p>
       </>
     )
   },

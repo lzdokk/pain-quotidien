@@ -1,11 +1,14 @@
 import CursusBrowser from '@/components/CursusBrowser';
 import { getCursusStatic } from '@/lib/cache';
+import { requireAdmin } from '@/lib/admin-guard';
 
-export const revalidate = 300;
-export const metadata = { title: 'Cursus theologique' };
+// Réservé au responsable : vérifié côté serveur à chaque visite.
+export const dynamic = 'force-dynamic';
+export const metadata = { title: 'Cursus', robots: { index: false, follow: false } };
 
 
 export default async function Cursus() {
+  const me = await requireAdmin();
   const { cursus, levels, groups, courses } = await getCursusStatic();
 
   return (
@@ -16,8 +19,8 @@ export default async function Cursus() {
         groups={groups ?? []}
         courses={courses ?? []}
         done={[]}
-        user={null}
-        isAdmin={false}
+        user={me}
+        isAdmin={true}
         isMember={false}
       />
     </>
