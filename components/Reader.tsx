@@ -379,7 +379,8 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
   useEffect(() => {
     if (sheet !== 'book') return;
     setBookQ('');
-    const t = setTimeout(() => document.getElementById(`bk-${book}`)
+    // Le volet du livre en cours est ouvert : on l'amène en haut de la liste.
+    const t = setTimeout(() => (document.querySelector('.bk-fold.cur') ?? document.getElementById(`bk-${book}`))
       ?.scrollIntoView({ block: 'start' }), 40);
     return () => clearTimeout(t);
   }, [sheet]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -1142,7 +1143,7 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
                             <span>{a.he} · {a.sub}</span>
                           </div>
                           {BOOK_GROUPS.filter(g => g.alliance === a.id).map(g => (
-                            <details key={g.id} className={`bk-group bk-fold${book >= g.from && book <= g.to ? ' cur' : ''}`}>
+                            <details key={g.id} open={book >= g.from && book <= g.to} className={`bk-group bk-fold${book >= g.from && book <= g.to ? ' cur' : ''}`}>
                               <summary className="bk-group-h">
                                 <span className="bk-g-l">{g.label}</span>
                                 {g.he && <span className="bk-g-he">{g.he}</span>}
