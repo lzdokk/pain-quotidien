@@ -35,7 +35,7 @@ const ICONS: Record<string, JSX.Element> = {
 
 /* Titre affiché au centre de la barre, selon la page. */
 const TITLES: Array<[string, string]> = [
-  ['/pain', 'Pain du jour'], ['/jour', 'Pain du jour'], ['/jours', 'Les jours'], ['/priere', 'Notre Père'],
+  ['/pain', 'Pain du jour'], ['/jour', 'Pain du jour'], ['/jours', 'Les jours'], ['/priere', 'Prière'],
   ['/sagesse', 'Sagesse'], ['/lire', ''], ['/etude', 'Bible d’étude'], ['/paraboles', 'Récits'],
   ['/fondements', 'Récits'], ['/questions', 'Récits'], ['/cursus', 'Cursus'], ['/compte', 'Mon profil'],
   ['/surlignes', 'Mes versets'], ['/temoigner', 'Témoigner'], ['/installer', 'Installer']
