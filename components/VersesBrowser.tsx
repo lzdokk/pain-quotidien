@@ -97,7 +97,7 @@ export default function VersesBrowser({ verses, user }: { verses: any[]; user?: 
                     <div className="fv-text fv-actions-text">
                       <VerseActions book={v.book} chapter={v.chapter} bookName={bookNameOf(v.reference)}
                                     verses={vv[v.slug]} user={user} />
-                      <p className="fv-hint">Touchez le verset pour l&rsquo;expliquer, le comparer, le classer ou l&rsquo;annoter.</p>
+                      <p className="fv-hint">Touchez le verset pour le méditer, le comparer, le classer ou l&rsquo;annoter.</p>
                     </div>
                   ) : (
                     <blockquote className="fv-text">{v.verse_text}</blockquote>

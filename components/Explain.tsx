@@ -91,8 +91,8 @@ export default function Explain({ book, chapter, verse, bookName, text, onClose,
       {data === null && needKey && (
         <>
           <h3>{title}</h3>
-          <div className="msub">Explication détaillée</div>
-          <NeedKey what="l’explication de ce verset" />
+          <div className="msub">Méditer ce verset</div>
+          <NeedKey what="la méditation de ce verset" />
         </>
       )}
 
@@ -124,7 +124,7 @@ export default function Explain({ book, chapter, verse, bookName, text, onClose,
       {data && verse !== undefined && (
         <>
           <h3>{title}</h3>
-          <div className="msub">Explication détaillée</div>
+          <div className="msub">Méditer ce verset</div>
           <div className="quoted">{text}</div>
           {data.word_term && (
             <>
@@ -155,7 +155,7 @@ export default function Explain({ book, chapter, verse, bookName, text, onClose,
         <div className="ex-foot">
           <div className="share-grid" style={{ marginTop: 4 }}>
             <button className="btn sm" onClick={shareExplanation}>
-              {shared ? 'Copié ✓' : 'Partager l’explication ›'}
+              {shared ? 'Copié ✓' : 'Partager cette méditation ›'}
             </button>
           </div>
 

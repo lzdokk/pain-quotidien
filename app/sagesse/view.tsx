@@ -66,7 +66,7 @@ export default async function SagesseView({ chapter }: { chapter?: number }) {
 
         <div className="card pad pv-read">
           <span className="kicker">2 · Lire Proverbes {ch}</span>
-          <p className="pv-hint">Touchez un verset pour le classer, le noter, l&rsquo;expliquer, le lire mot à mot…</p>
+          <p className="pv-hint">Touchez un verset pour le classer, le noter, le méditer, le lire mot à mot…</p>
           {verses.length
             ? <VerseActions book={20} chapter={ch} bookName="Proverbes" verses={verses} user={user} />
             : <p className="empty">Texte indisponible pour le moment.</p>}

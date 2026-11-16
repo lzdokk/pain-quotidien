@@ -63,7 +63,7 @@ export default function VerseTools(p: Props) {
         {btn('classer', cur ? 'Classé' : 'Classer',
           <span className={`vt-dot${p.color ? ` s${p.color}` : ''}`} />, () => setClasser(o => !o), classer)}
         {btn('note', p.hasNote ? 'Ma note' : 'Note', <Ic d="M4 20h4L19 9l-4-4L4 16v4zM14 6l4 4" />, p.onNote, !!p.open?.note)}
-        {btn('explain', 'Expliquer', <Ic d="M9.1 9a3 3 0 015.8 1c0 2-3 3-3 3M12 17h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />, p.onExplain, !!p.open?.explain)}
+        {btn('explain', 'Méditer', <Ic d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z M19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8z" />, p.onExplain, !!p.open?.explain)}
         {btn('strong', 'Strong', <span className="vt-he">א</span>, p.onStrong, !!p.open?.strong)}
         {btn('compare', 'Comparer', <Ic d="M4 5.5C6.5 5 8.5 5.3 10 6.5V19c-1.5-1.2-3.5-1.5-6-1V5.5zM20 5.5c-2.5-.5-4.5-.2-6 1V19c1.5-1.2 3.5-1.5 6-1V5.5z" />, p.onCompare, !!p.open?.compare)}
         {btn('share', 'Partager', <Ic d="M12 3v12M8 7l4-4 4 4M5 13v6a2 2 0 002 2h10a2 2 0 002-2v-6" />, share)}

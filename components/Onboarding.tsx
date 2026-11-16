@@ -42,7 +42,7 @@ const STEPS: Step[] = [
       <>
         <p>
           Touchez un verset pour le <b>classer par couleur</b> (chaque couleur a son thème),
-          l&rsquo;<b>annoter</b>, l&rsquo;<b>expliquer</b> ou le <b>comparer</b>.
+          l&rsquo;<b>annoter</b>, le <b>méditer</b> ou le <b>comparer</b>.
         </p>
         <p>
           Passez en <b>Bible d&rsquo;étude</b> pour voir les fiches liées au chapitre, et touchez

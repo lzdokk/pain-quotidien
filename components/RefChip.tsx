@@ -49,7 +49,7 @@ export default function RefChip({ r, from }: { r: string; from?: string }) {
               : !p ? <p className="empty">Chargement…</p>
               : (
                 <>
-                  <p className="refsheet-hint">Touchez un verset pour le classer, l&rsquo;expliquer, le lire mot à mot…</p>
+                  <p className="refsheet-hint">Touchez un verset pour le classer, le méditer, le lire mot à mot…</p>
                   <VerseActions book={parsed.book} chapter={parsed.chapter} bookName={parsed.bookName}
                                 verses={p.verses.map(v => [v.verse, v.text] as [number, string])}
                                 user={user ?? null} />
