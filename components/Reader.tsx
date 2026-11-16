@@ -59,6 +59,7 @@ const LANG_ORDER = ['fr', 'en', 'he', 'el', 'la', 'de', 'ru', 'pl', 'ar', 'zh'];
 // Chapitres deja charges : relecture instantanee, et chapitre suivant pre-charge.
 type Chap = { verses: V[]; famous: Array<{ verse_start: number; verse_end: number; title: string }>; jesus: number[] };
 const chapterCache = new Map<string, Chap>();
+let loadSeq = 0; // numéro de la dernière demande de chapitre
 /** Lecture d'un chapitre par la route mise en cache (CDN + téléphone). */
 async function readChapter(t: string, b: number, c: number): Promise<Chap> {
   const r = await fetch(`/api/bible/read?t=${encodeURIComponent(t)}&b=${b}&c=${c}`);
@@ -248,6 +249,9 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
 
   const load = useCallback(async () => {
     const ck = `${trad}|${book}|${chapter}`;
+    // Seule la DERNIÈRE demande s'affiche : un chapitre précédent qui arrive en
+    // retard ne doit jamais remplacer celui qu'on vient d'ouvrir.
+    const seq = ++loadSeq;
     // Pre-charge le chapitre suivant en arriere-plan (lecture suivie sans attente).
     const prefetchNext = () => {
       const nb = chapter < chapters ? book : book + 1;
@@ -278,6 +282,7 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
     let j: Chap = { verses: [], famous: [], jesus: [] };
     try { j = await readChapter(trad, book, chapter); } catch {}
     if (j.verses.length) chapterCache.set(ck, j);
+    if (seq !== loadSeq) return;
     applyChapter(j); setLoading(false);
     prefetchNext();
   }, [trad, book, chapter, translations, chapters]); // eslint-disable-line react-hooks/exhaustive-deps
