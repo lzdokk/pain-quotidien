@@ -24,7 +24,7 @@ export default function AiKeySheet() {
   if (!open || typeof document === 'undefined') return null;
 
   const save = async () => {
-    const k = val.trim();
+    const k = val.replace(/\s+/g, '');
     if (!KEY_RE.test(k)) { setState('format'); return; }
     setState('test');
     const r = await testAiKey(k);
@@ -40,7 +40,7 @@ export default function AiKeySheet() {
         <button className="ai-x" onClick={() => setOpen(false)} aria-label="Fermer">✕</button>
         <span className="kicker">Mon assistant IA</span>
         <h2 className="ai-h">Ta clé Gemini, gratuite</h2>
-        <p className="ai-lede">Les explications de versets, les questions et le mot à mot utilisent <b>Gemini</b>, l’IA gratuite de Google. Chacun utilise sa propre clé : c’est gratuit pour toi, et l’app reste gratuite pour tous.</p>
+        <p className="ai-lede">La méditation des versets, les questions et le mot à mot utilisent <b>Gemini</b>, l’IA gratuite de Google. Chacun utilise sa propre clé : c’est gratuit pour toi, et l’app reste gratuite pour tous.</p>
 
         {saved && state !== 'bad' ? (
           <div className="ai-ok">
@@ -54,15 +54,15 @@ export default function AiKeySheet() {
             <a className="btn sm primary" href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer">Ouvrir aistudio.google.com ›</a></li>
           <li><b>Connecte-toi</b> avec ton compte Google (ton adresse Gmail).</li>
           <li><b>Touche « Create API key »</b> (Créer une clé API), puis accepte les conditions de Google si elles s’affichent.</li>
-          <li><b>Copie la clé</b> : elle commence par <code>AIza</code>. Reviens ici et colle-la.</li>
+          <li><b>Copie la clé</b> (elle commence par <code>AIza</code> ou <code>AQ.</code>). Reviens ici et colle-la.</li>
         </ol>
 
         <div className="ai-field">
           <input className="field" type={show ? 'text' : 'password'} value={val} autoComplete="off" spellCheck={false}
-                 onChange={e => { setVal(e.target.value); setState('idle'); }} placeholder="Colle ta clé ici (AIza…)" />
+                 onChange={e => { setVal(e.target.value); setState('idle'); }} placeholder="Colle ta clé ici" />
           <button className="ai-eye" onClick={() => setShow(s => !s)} aria-label={show ? 'Masquer' : 'Afficher'}>{show ? 'Masquer' : 'Voir'}</button>
         </div>
-        {state === 'format' && <p className="ai-msg err">Ce n’est pas une clé Gemini : elle doit commencer par « AIza ».</p>}
+        {state === 'format' && <p className="ai-msg err">Ce n’est pas une clé Gemini : elle commence par « AIza » ou « AQ. ». Recopie-la en entier.</p>}
         {state === 'bad' && <p className="ai-msg err">Google refuse cette clé. Recopie-la depuis AI Studio.</p>}
         {state === 'net' && <p className="ai-msg">Clé enregistrée. Impossible de la vérifier pour l’instant (réseau) : elle sera testée à la première question.</p>}
         {state === 'ok' && <p className="ai-msg ok">Clé vérifiée et enregistrée. Tout est prêt.</p>}
@@ -74,7 +74,7 @@ export default function AiKeySheet() {
           {saved && <button className="btn" onClick={remove}>Retirer</button>}
         </div>
 
-        <p className="ai-fine">Ta clé reste sur ce téléphone : elle n’est jamais enregistrée chez nous, elle sert seulement au moment où tu demandes une explication. Le palier gratuit de Google suffit largement pour un usage personnel. Ce qui a déjà été expliqué pour quelqu’un reste disponible pour tous, sans clé.</p>
+        <p className="ai-fine">Ta clé reste sur ce téléphone : elle n’est jamais enregistrée chez nous, elle sert seulement au moment où tu demandes une méditation ou poses une question. Le palier gratuit de Google suffit largement pour un usage personnel. Ce qui a déjà été médité pour quelqu’un reste disponible pour tous, sans clé.</p>
       </div>
     </div>,
     document.body

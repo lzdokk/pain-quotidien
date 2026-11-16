@@ -138,9 +138,11 @@ function geminiToJsonSchema(s: any): any {
 /* ── Google AI Studio ─────────────────────────────────────────────── */
 async function gemini(c: Call, key: string, model: string): Promise<Raw> {
   const r = await fetchT(
-    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
     {
-      method: 'POST', headers: { 'content-type': 'application/json' },
+      // Clé dans l'en-tête (et non dans l'adresse) : marche pour les deux formats
+      // de clé Google (AIza… et AQ.…) et n'apparaît jamais dans les journaux.
+      method: 'POST', headers: { 'content-type': 'application/json', 'x-goog-api-key': key },
       body: JSON.stringify({
         system_instruction: { parts: [{ text: c.system }] },
         contents: [{ role: 'user', parts: [{ text: c.user }] }],

@@ -15,7 +15,8 @@ import { isCursusAdmin } from '@/lib/cursus-admins';
  */
 export type AIAccess = { userKey?: string; admin: boolean; user: { id: string; email?: string | null } | null };
 
-const KEY_RE = /^AIza[0-9A-Za-z_\-]{30,60}$/;
+// Formats Google : l'ancien « AIza… » et le nouveau « AQ.… ».
+const KEY_RE = /^(AIza[0-9A-Za-z_\-]{30,60}|AQ\.[0-9A-Za-z_\-.]{20,300})$/;
 
 export async function aiAccess(req: NextRequest): Promise<AIAccess | null> {
   const raw = (req.headers.get('x-gemini-key') ?? '').trim();
