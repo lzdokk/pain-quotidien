@@ -338,6 +338,10 @@ body{padding-bottom:calc(100px + env(safe-area-inset-bottom))!important}
 .mo-parole blockquote{margin:0 0 12px;padding:0 0 0 14px;border-left:2px solid color-mix(in srgb,var(--c) 45%,transparent)}
 .mo-parole blockquote:last-child{margin-bottom:0}
 .mo-parole blockquote p{font-family:var(--serif);font-size:16.5px;line-height:1.55;color:var(--ink-2);margin:0 0 6px}
+.mo-proc{margin:12px 0;padding:10px 0 10px 14px;border-left:2px solid color-mix(in srgb,var(--c) 60%,transparent)}
+.mo-pri .mo-verset{font-style:normal;font-size:16px;color:var(--ink-2)}
+.mo-verset .refchip{vertical-align:2px;margin-left:4px;font-style:normal}
+.mo-pri .mo-ancre{font-weight:600;margin-top:6px}
 .pr-close p{font-size:15.5px;line-height:1.65;color:var(--ink-2);margin:0}
 @media(max-width:560px){.mo-np-k{padding:10px 18px 0}.mo-np-k.inl{padding:0 0 4px}}
 .pr-guide .kicker{margin-bottom:12px}
