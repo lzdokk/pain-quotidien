@@ -1,4 +1,5 @@
 'use client';
+import { aiFetch, openAiSetup } from '@/lib/ai-key';
 import { useEffect, useMemo, useState } from 'react';
 import RefChip from './RefChip';
 import { bookAbbr } from '@/lib/bible-books';
@@ -46,7 +47,7 @@ export default function WordByWord({ book, chapter, verse, frText, prefer, onClo
     (async () => {
       setWords(null); setOpen(null); setEntry(null);
       try {
-        const r = await fetch(`/api/verse-words?book=${book}&chapter=${chapter}&verse=${verse}${nt && src === 'grec' ? '&src=grec' : ''}`);
+        const r = await aiFetch(`/api/verse-words?book=${book}&chapter=${chapter}&verse=${verse}${nt && src === 'grec' ? '&src=grec' : ''}`);
         const j = await r.json();
         if (alive) { setWords(j.words ?? []); setLine(j.line ?? ''); setComplete(j.complete !== false); }
       } catch { if (alive) setWords([]); }
@@ -84,7 +85,7 @@ export default function WordByWord({ book, chapter, verse, frText, prefer, onClo
     if (hit) { setEntry(hit); return; }
     setEntry(null); setLoadingEntry(true);
     try {
-      const r = await fetch(`/api/strongs?code=${encodeURIComponent(w.strong)}&usage=1`);
+      const r = await aiFetch(`/api/strongs?code=${encodeURIComponent(w.strong)}&usage=1`);
       if (r.ok) { const d = await r.json(); entryCache.set(w.strong, d); setEntry(d); }
     } catch { /* fiche indisponible */ }
     setLoadingEntry(false);
@@ -120,7 +121,7 @@ export default function WordByWord({ book, chapter, verse, frText, prefer, onClo
            {frText && linked > 0 ? 'Touchez un mot souligné, ou un mot d’origine ci-dessous. '
              : 'Touchez un mot d’origine pour ouvrir sa fiche. '}
            {rtl ? 'L’hébreu se lit de droite à gauche.' : ''}
-           {!complete && ' Connectez-vous pour la traduction française complète.'}
+           {!complete && <> <button className="linkbtn" onClick={openAiSetup}>Ajoute ta clé Gemini</button> pour la traduction française complète.</>}
          </p>
 
          {/* 2. Le texte d'origine, mot par mot */}

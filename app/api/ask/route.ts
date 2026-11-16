@@ -2,10 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabase/server';
 import { admin } from '@/lib/supabase/admin';
 import { callText, cost, PROVIDER } from '@/lib/llm';
+import { aiAccess, needKey, keyError } from '@/lib/ai-access';
 import { VOICE } from '@/lib/prompts/voice';
 
 export const maxDuration = 60;
-const DAILY_LIMIT = Number(process.env.AI_DAILY_LIMIT ?? 50);
 /** off = base de questions uniquement, aucun appel modèle, cout garanti nul. */
 const MODE = (process.env.AI_ASSISTANT ?? 'on') as 'on' | 'off';
 
@@ -61,27 +61,14 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  // ── 3. Quota par utilisateur, puis plafond global du jour ────────
-  const { data: allowed } = await admin.rpc('consume_ai_quota', { p_user: user.id, p_limit: DAILY_LIMIT });
-  if (!allowed) {
-    return NextResponse.json({
-      source: 'quota',
-      message: `Vous avez utilise vos ${DAILY_LIMIT} questions du jour. La base de questions reste accessible sans limite, et le compteur repart demain matin.`
-    }, { status: 429 });
-  }
-
-  const { data: budget } = await admin.rpc('consume_global_budget', {
-    p_limit: Number(process.env.AI_GLOBAL_DAILY_CAP ?? 400)
-  });
-  if (!budget) {
-    return NextResponse.json({
-      source: 'quota',
-      message: "Le plafond quotidien du site est atteint. La base de questions reste accessible, et le compteur repart demain."
-    }, { status: 429 });
-  }
+  // ── 3. Clé Gemini du lecteur (ou pool du site pour l'admin) ─────
+  const access = await aiAccess(req);
+  if (!access) return needKey();
 
   // ── 4. Appel du modele ───────────────────────────────────────────
-  const { text: answer, usage } = await callText({
+  let answer = '', usage = { input: 0, output: 0 };
+  try {
+    ({ text: answer, usage } = await callText({
     system: `Tu reponds a une question de foi pour le lecteur du Pain quotidien.
 
 ${VOICE}
@@ -92,20 +79,18 @@ Puis deux paragraphes de developpement qui reconnaissent honnetement les
 objections serieuses. Termine par deux ou trois références bibliques.
 Si la question touche a un point debattu entre chretiens, dis-le clairement.`,
     user: context ? `Contexte de lecture : ${context}\n\nQuestion : ${question}` : question,
-    maxTokens: 1600
-  });
+    maxTokens: 1600,
+    userKey: access.userKey
+    }));
+  } catch (e) { return keyError(e); }
 
   await admin.from('conversations').insert([
     { user_id: user.id, role: 'user', content: question, context_ref: context ?? null },
     { user_id: user.id, role: 'assistant', content: answer, source: 'ai' }
   ]);
 
-  const { data: used } = await admin.from('ai_usage')
-    .select('count').eq('user_id', user.id).eq('day', new Date().toISOString().slice(0, 10)).single();
-
   return NextResponse.json({
-    source: 'ai', answer, quotaUsed: true,
-    remaining: Math.max(0, DAILY_LIMIT - (used?.count ?? DAILY_LIMIT)),
-    cost_usd: +cost(usage.input, usage.output).toFixed(5)
+    source: 'ai', answer, quotaUsed: !access.userKey,
+    cost_usd: access.userKey ? 0 : +cost(usage.input, usage.output).toFixed(5)
   });
 }

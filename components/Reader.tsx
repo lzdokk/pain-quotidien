@@ -8,6 +8,7 @@ import WordByWord from './WordByWord';
 import Compare from './Compare';
 import VerseCompare from './VerseCompare';
 import OfflineDownload from './OfflineDownload';
+import AiKeyButton from './AiKeyButton';
 import { themeOf, suggestTheme, matchThemeQuery } from '@/lib/highlight-themes';
 import { QUATRE_TEMPS } from '@/lib/reading-guide';
 import { ALLIANCES, BOOK_GROUPS, groupOf, searchBooks, bookName as accentName } from '@/lib/bible-books';
@@ -56,7 +57,14 @@ const LANG_LABELS: Record<string, string> = {
 const LANG_ORDER = ['fr', 'en', 'he', 'el', 'la', 'de', 'ru', 'pl', 'ar', 'zh'];
 
 // Chapitres deja charges : relecture instantanee, et chapitre suivant pre-charge.
-const chapterCache = new Map<string, V[]>();
+type Chap = { verses: V[]; famous: Array<{ verse_start: number; verse_end: number; title: string }>; jesus: number[] };
+const chapterCache = new Map<string, Chap>();
+/** Lecture d'un chapitre par la route mise en cache (CDN + téléphone). */
+async function readChapter(t: string, b: number, c: number): Promise<Chap> {
+  const r = await fetch(`/api/bible/read?t=${encodeURIComponent(t)}&b=${b}&c=${c}`);
+  const j = await r.json();
+  return { verses: j.verses ?? [], famous: j.famous ?? [], jesus: j.jesus ?? [] };
+}
 
 export default function Reader({ books: booksIn, translations, plans, steps, plan: planProp, notes, highlights, intros, user: userProp }: any) {
   const user = useUser(userProp); // lu dans le navigateur
@@ -122,6 +130,13 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
   const [themeMode, setThemeMode] = useState(false);
   const [famous, setFamous] = useState<Record<number, string>>({});
   const [jesusV, setJesusV] = useState<Set<number>>(new Set()); // paroles de Jésus (red-letter)
+  const applyChapter = (j: Chap) => {
+    setVerses(j.verses);
+    const map: Record<number, string> = {};
+    for (const f of j.famous) for (let n = f.verse_start; n <= f.verse_end; n++) map[n] = f.title;
+    setFamous(map);
+    setJesusV(new Set(j.jesus));
+  };
   const [sheet, setSheet] = useState<null | 'book' | 'version' | 'verse'>(null); // feuilles (livre / version / aller au verset)
   const [sheetBook, setSheetBook] = useState<number | null>(null); // livre deplie dans la feuille
   // Onglets de la page : lecture du jour / parcours / Bible.
@@ -240,13 +255,14 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
       const nk = `${trad}|${nb}|${nc}`;
       if (nb > 66 || chapterCache.has(nk)) return;
       setTimeout(async () => {
-        const { data } = await supabase.from('verses').select('verse, text')
-          .eq('translation', trad).eq('book', nb).eq('chapter', nc).order('verse');
-        if (data?.length) chapterCache.set(nk, data as V[]);
+        try {
+          const j = await readChapter(trad, nb, nc);
+          if (j.verses.length) chapterCache.set(nk, j);
+        } catch {}
       }, 900);
     };
     const hit = chapterCache.get(ck);
-    if (hit) { setSel(null); setVerses(hit); setLoading(false); prefetchNext(); return; }
+    if (hit) { setSel(null); applyChapter(hit); setLoading(false); prefetchNext(); return; }
     setLoading(true); setSel(null);
     const t = translations.find((x: any) => x.code === trad);
     if (REMOTE_SRC(t)) {
@@ -257,40 +273,16 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
       setLoading(false);
       return;
     }
-    const { data } = await supabase.from('verses').select('verse, text')
-      .eq('translation', trad).eq('book', book).eq('chapter', chapter).order('verse');
-    if (data?.length) chapterCache.set(ck, data as V[]);
-    setVerses((data ?? []) as V[]); setLoading(false);
+    // Chapitre + versets célèbres + paroles de Jésus : une seule réponse mise
+    // en cache (CDN puis téléphone), au lieu de trois lectures Supabase.
+    let j: Chap = { verses: [], famous: [], jesus: [] };
+    try { j = await readChapter(trad, book, chapter); } catch {}
+    if (j.verses.length) chapterCache.set(ck, j);
+    applyChapter(j); setLoading(false);
     prefetchNext();
   }, [trad, book, chapter, translations, chapters]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => { load(); }, [load]);
-
-  // Versets celebres du chapitre courant : une petite etoile dans la marge.
-  useEffect(() => {
-    let alive = true;
-    (async () => {
-      const { data } = await supabase.from('famous_verses')
-        .select('verse_start, verse_end, title').eq('book', book).eq('chapter', chapter);
-      const map: Record<number, string> = {};
-      for (const f of (data ?? []) as any[]) {
-        for (let n = f.verse_start; n <= f.verse_end; n++) map[n] = f.title;
-      }
-      if (alive) setFamous(map);
-    })();
-    return () => { alive = false; };
-  }, [book, chapter]);
-
-  // Paroles de Jésus du chapitre courant : surlignage dans la couleur du thème.
-  useEffect(() => {
-    let alive = true;
-    (async () => {
-      const { data } = await supabase.from('jesus_verses')
-        .select('verse').eq('book', book).eq('chapter', chapter);
-      if (alive) setJesusV(new Set((data ?? []).map((r: any) => r.verse)));
-    })();
-    return () => { alive = false; };
-  }, [book, chapter]);
 
   // Reprise a l'endroit ou on s'etait arrete, et lien direct ?ref=Jean 15
   useEffect(() => {
@@ -562,11 +554,13 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
     const t = translations.find((x: any) => x.code === trad);
     const searchIn = REMOTE_SRC(t) ? 'FRLSG' : trad;
     setSearchedIn(searchIn === trad ? null : 'Segond 1910');
-    const { data } = await supabase.from('verses')
-      .select('book, chapter, verse, text')
-      .eq('translation', searchIn).ilike('text', `%${q}%`)
-      .order('book').order('chapter').order('verse').limit(400);
-    setResults(data ?? []); setSearching(false);
+    // Concordance mise en cache (CDN) : Supabase n'est sollicité qu'une fois par recherche et par jour.
+    let data: any[] = [];
+    try {
+      const r = await fetch(`/api/bible/find?t=${encodeURIComponent(searchIn)}&q=${encodeURIComponent(q)}`);
+      data = (await r.json()).results ?? [];
+    } catch {}
+    setResults(data); setSearching(false);
   };
 
   return (
@@ -1299,6 +1293,8 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
               <div className="rbubble-k">Lire hors ligne (avion)</div>
               <OfflineDownload translation={trad}
                 translationName={translations.find((t: any) => t.code === trad)?.name} />
+              <div className="rbubble-k">Assistant IA</div>
+              <AiKeyButton compact />
             </>
           )}
 

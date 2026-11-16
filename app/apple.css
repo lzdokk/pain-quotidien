@@ -426,3 +426,44 @@ details[open] > :not(summary){animation:deroule .45s var(--spring)}
 .bk-fold[open]>summary .bk-g-chev{transform:rotate(90deg)}
 .bk-fold.cur>summary .bk-g-l::after{content:'';display:inline-block;width:7px;height:7px;border-radius:99px;background:var(--accent);margin-left:8px;vertical-align:2px}
 .bk-fold>.rsheet-list{border-top:1px solid var(--line);padding:4px 6px 6px}
+
+/* ══ Assistant IA : clé Gemini personnelle ═══════════════════════════ */
+.ai-sheet .sheet-in{position:relative;max-height:88vh;overflow-y:auto;text-align:left;padding-top:22px}
+.ai-x{position:absolute;right:14px;top:14px;width:34px;height:34px;border-radius:99px;border:1px solid var(--line);background:var(--glass);
+ color:var(--ink-3);font-size:15px;line-height:1;display:grid;place-items:center;cursor:pointer}
+.ai-sheet .kicker{display:block;padding-right:44px}
+.ai-h{font-family:var(--serif);font-size:24px;font-weight:600;color:var(--ink);margin:6px 0 8px;line-height:1.2}
+.ai-lede{font-size:15px;line-height:1.6;color:var(--ink-2);margin:0 0 14px}
+.ai-steps{margin:0 0 16px;padding:0;list-style:none;counter-reset:s;display:flex;flex-direction:column;gap:10px}
+.ai-steps li{counter-increment:s;position:relative;padding:12px 14px 12px 50px;border:1px solid var(--line);border-radius:16px;background:var(--glass);
+ font-size:14.5px;line-height:1.5;color:var(--ink-2)}
+.ai-steps li::before{content:counter(s);position:absolute;left:14px;top:12px;width:24px;height:24px;border-radius:99px;display:grid;place-items:center;
+ font-size:12.5px;font-weight:700;color:#fff;background:var(--accent)}
+html[data-mode="soir"] .ai-steps li::before{color:#0E141A}
+.ai-steps b{color:var(--ink)}
+.ai-steps .btn{display:inline-flex;margin-top:8px;text-decoration:none}
+.ai-steps code{font-size:13px;padding:1px 6px;border-radius:6px;background:color-mix(in srgb,var(--accent) 12%,transparent)}
+.ai-field{position:relative}
+.ai-field .field{padding-right:82px;font-family:ui-monospace,Menlo,monospace;font-size:14px}
+.ai-eye{position:absolute;right:8px;top:50%;transform:translateY(-50%);border:0;background:none;color:var(--accent);font:inherit;font-size:13px;font-weight:600;padding:6px 8px;cursor:pointer}
+.ai-msg{font-size:13.5px;line-height:1.5;color:var(--ink-3);margin:8px 2px 0}
+.ai-msg.err{color:var(--c-rose)} .ai-msg.ok{color:var(--c-sage)}
+.ai-actions{display:flex;gap:10px;margin:14px 0}
+.ai-actions .btn.primary{flex:1}
+.ai-fine{font-size:12.5px;line-height:1.55;color:var(--ink-4);margin:4px 0 0}
+.ai-ok{display:flex;gap:12px;align-items:center;padding:12px 14px;border-radius:16px;margin:0 0 14px;
+ background:color-mix(in srgb,var(--c-sage) 12%,transparent);border:1px solid color-mix(in srgb,var(--c-sage) 30%,transparent)}
+.ai-ok b{display:block;font-size:14px;color:var(--ink)} .ai-ok span{font-size:12.5px;color:var(--ink-3);font-family:ui-monospace,Menlo,monospace}
+.ai-ok-dot{flex:none;width:28px;height:28px;border-radius:99px;display:grid;place-items:center;background:var(--c-sage);color:#fff!important;font-size:15px;font-weight:700;font-family:system-ui,sans-serif}
+.needkey{margin:10px 0;padding:14px 16px;border-radius:16px;border:1px dashed color-mix(in srgb,var(--accent) 45%,transparent);
+ background:color-mix(in srgb,var(--accent) 6%,transparent)}
+.needkey p{font-size:14.5px;line-height:1.55;color:var(--ink-2);margin:0 0 10px}
+.aikey-card{display:flex;align-items:center;gap:12px;width:100%;text-align:left;margin:10px 0;padding:14px 16px;border-radius:18px;cursor:pointer;
+ border:1px solid var(--line);background:var(--glass);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);font:inherit;color:inherit}
+.aikey-card.compact{margin:6px 0;padding:11px 14px;border-radius:14px}
+.aikey-ic{flex:none;width:34px;height:34px;border-radius:11px;display:grid;place-items:center;font-size:16px;color:#fff;
+ background:linear-gradient(140deg,var(--c-lav),var(--c-slate))}
+.aikey-t{flex:1;min-width:0;display:flex;flex-direction:column}
+.aikey-t b{font-size:15px;color:var(--ink)} .aikey-t small{font-size:12.5px;color:var(--ink-3);margin-top:1px}
+.aikey-st{flex:none;font-size:18px;color:var(--ink-4)} .aikey-st.ok{color:var(--c-sage);font-weight:700}
+.linkbtn{border:0;background:none;padding:0;font:inherit;color:var(--accent);font-weight:600;text-decoration:underline;cursor:pointer}

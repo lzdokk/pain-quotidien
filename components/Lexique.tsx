@@ -1,4 +1,5 @@
 'use client';
+import { aiFetch } from '@/lib/ai-key';
 import { useState } from 'react';
 
 export default function Lexique() {
@@ -17,7 +18,7 @@ export default function Lexique() {
 
   const open = async (code: string) => {
     setBusy(true);
-    const r = await fetch(`/api/strongs?code=${code}`);
+    const r = await aiFetch(`/api/strongs?code=${code}`);
     setEntry(await r.json()); setBusy(false);
   };
 

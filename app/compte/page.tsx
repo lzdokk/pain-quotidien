@@ -4,6 +4,7 @@ import Profile from '@/components/Profile';
 import NotifyButton from '@/components/NotifyButton';
 import ShareButton from '@/components/ShareButton';
 import SharePitch from '@/components/SharePitch';
+import AiKeyButton from '@/components/AiKeyButton';
 import { loadHighlightItems } from '@/lib/highlight-items';
 
 export const metadata = { title: 'Mon profil' };
@@ -29,6 +30,7 @@ export default async function Compte() {
     <>
       <div className="wrap" style={{ marginTop: 20 }}>
         <NotifyButton />
+        <AiKeyButton />
         <div className="profile-actions">
           <a className="btn" href="/surlignes">
             Versets surlignés{(highlights?.length ?? 0) ? ` · ${highlights!.length}` : ''}

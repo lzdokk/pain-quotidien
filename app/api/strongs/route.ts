@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { admin } from '@/lib/supabase/admin';
 import { callText } from '@/lib/llm';
+import { aiAccess } from '@/lib/ai-access';
 import { VOICE } from '@/lib/prompts/voice';
 
 export const dynamic = 'force-dynamic';
@@ -23,8 +24,9 @@ export async function GET(req: NextRequest) {
     const { data } = await admin.from('strongs').select('*').eq('code', code.toUpperCase()).maybeSingle();
     if (!data) return NextResponse.json({ error: 'Entree introuvable' }, { status: 404 });
 
-    // Traduction francaise a la demande, une seule fois.
-    if (!data.definition_fr && data.definition_en) {
+    // Traduction francaise a la demande, une seule fois (cle du lecteur ou admin).
+    const access = !data.definition_fr && data.definition_en ? await aiAccess(req) : null;
+    if (access) {
       try {
         const { text } = await callText({
           system: `Tu traduis et eclaires une entree du lexique Strong pour un lecteur francophone.
@@ -37,7 +39,8 @@ et ce que le francais courant ne rend pas. Pas de titre, pas de liste, du texte 
 Definition anglaise de Strong : ${data.definition_en}
 ${data.derivation ? `Etymologie : ${data.derivation}` : ''}
 ${data.kjv_def ? `Traductions retenues : ${data.kjv_def}` : ''}`,
-          maxTokens: 700
+          maxTokens: 700,
+          userKey: access.userKey
         });
         const fr = text.trim();
         if (fr) {

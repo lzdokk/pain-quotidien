@@ -49,8 +49,9 @@ export default function OfflineDownload({ translation, translationName }:
         while (idx < chapters.length) {
           const j = chapters[idx++];
           try {
-            await supabase.from('verses').select('verse, text')
-              .eq('translation', translation).eq('book', j.b).eq('chapter', j.c).order('verse');
+            // Même adresse que le lecteur : le cache du téléphone correspond exactement,
+            // et la réponse vient du CDN (pas de Supabase).
+            await fetch(`/api/bible/read?t=${encodeURIComponent(translation)}&b=${j.b}&c=${j.c}`);
           } catch {}
           bump();
         }

@@ -20,7 +20,10 @@ export const PROVIDER = (process.env.LLM_PROVIDER ?? 'gemini') as Provider;
 
 type Call = { system: string; user: string; maxTokens?: number; temperature?: number; responseSchema?: any; json?: boolean; timeoutMs?: number;
   /** false = ne pas ajouter le francais apres les mots hebreux (ex. fiches du lexique) */
-  gloss?: boolean };
+  gloss?: boolean;
+  /** Cle Gemini personnelle du lecteur : l'appel passe par SON quota gratuit,
+      jamais par le pool du site. Jamais enregistree ni journalisee. */
+  userKey?: string };
 type Raw = { text: string; input: number; output: number };
 
 /* Variable d'env de la cle, par fournisseur (valeur par defaut). */
@@ -87,7 +90,7 @@ export const cost = (i: number, o: number) => {
    sur la cle suivante quelle que soit l'erreur : quota (429), panne (5xx),
    mauvaise cle (401/403), modele absent (404), requete refusee (400)… Une
    cle qui echoue ne doit jamais bloquer tout le pool. */
-class LLMError extends Error {
+export class LLMError extends Error {
   status: number;
   constructor(status: number, message: string) { super(message); this.status = status; }
 }
@@ -236,6 +239,8 @@ let cursor = 0;
 const OVERALL_MS = Math.max(CALL_TIMEOUT_MS, Number(process.env.LLM_OVERALL_MS ?? 120_000));
 
 async function raw(c: Call): Promise<Raw> {
+  // Cle personnelle du lecteur : Gemini avec SA cle, sans repli sur le pool.
+  if (c.userKey) return gemini(c, c.userKey, modelFor('gemini'));
   // Mode simple : un seul fournisseur.
   if (POOL.length === 0) {
     if (PROVIDER === 'none') {

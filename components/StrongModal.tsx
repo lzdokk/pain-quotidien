@@ -1,4 +1,5 @@
 'use client';
+import { aiFetch } from '@/lib/ai-key';
 import { useEffect, useState } from 'react';
 
 /**
@@ -21,7 +22,7 @@ export default function StrongModal({ code, onClose }: { code: string | null; on
     setLoading(true);
     (async () => {
       try {
-        const r = await fetch(`/api/strongs?code=${encodeURIComponent(code)}`);
+        const r = await aiFetch(`/api/strongs?code=${encodeURIComponent(code)}`);
         const j = r.ok ? await r.json() : null;
         if (alive) setData(j);
       } catch { if (alive) setData(null); }

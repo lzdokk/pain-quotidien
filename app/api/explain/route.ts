@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabaseServer } from '@/lib/supabase/server';
 import { admin } from '@/lib/supabase/admin';
 import { callJSON } from '@/lib/llm';
+import { aiAccess, needKey, keyError } from '@/lib/ai-access';
 import { VerseNoteSchema, VERSE_SYSTEM } from '@/lib/prompts/verse';
 
 export const maxDuration = 60;
@@ -9,20 +9,18 @@ export const maxDuration = 60;
 /**
  * Explication d'un verset, générée UNE SEULE FOIS puis mise en cache
  * pour tous les lecteurs suivants. Le premier qui la demande declenche
- * l'appel, les autres la lisent gratuitement.
+ * l'appel (avec SA clé Gemini), les autres la lisent gratuitement.
  */
 export async function POST(req: NextRequest) {
   const { book, chapter, verse } = await req.json();
-  const sb = await supabaseServer();
-  const { data: { user } } = await sb.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'Connexion requise' }, { status: 401 });
 
   const { data: cached } = await admin.from('verse_notes')
     .select('*').eq('book', book).eq('chapter', chapter).eq('verse', verse).maybeSingle();
   if (cached) return NextResponse.json(cached);
 
-  const { data: allowed } = await admin.rpc('consume_ai_quota', { p_user: user.id, p_limit: 8 });
-  if (!allowed) return NextResponse.json({ error: 'Quota du jour atteint' }, { status: 429 });
+  // Pas encore écrite : il faut la clé Gemini du lecteur (ou l'admin).
+  const access = await aiAccess(req);
+  if (!access) return needKey();
 
   const [{ data: b }, { data: ctx }] = await Promise.all([
     admin.from('books').select('name').eq('id', book).single(),
@@ -31,14 +29,18 @@ export async function POST(req: NextRequest) {
       .gte('verse', Math.max(1, verse - 3)).lte('verse', verse + 3).order('verse')
   ]);
 
-  const { data } = await callJSON(VerseNoteSchema, {
+  let data: any;
+  try {
+    ({ data } = await callJSON(VerseNoteSchema, {
     system: VERSE_SYSTEM,
     user: `Verset a expliquer : ${b?.name} ${chapter}.${verse}
 
 Contexte immediat, Segond 1910 :
 ${(ctx ?? []).map(v => `${v.verse}. ${v.text}`).join('\n')}`,
-    maxTokens: 2000
-  });
+      maxTokens: 2000,
+      userKey: access.userKey
+    }));
+  } catch (e) { return keyError(e); }
 
   const row = {
     book, chapter, verse,

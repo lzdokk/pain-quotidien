@@ -3,6 +3,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useUser } from '@/lib/useUser';
+import AiKeyButton from './AiKeyButton';
 import SignIn from './SignIn';
 import Brand from './Brand';
 import MusicPlayer from './MusicPlayer';
@@ -114,7 +115,7 @@ export default function Nav(_props: { user?: any }) {
 
       {sheet && !user && (
         <div className="sheet on" onClick={e => { if (e.target === e.currentTarget) setSheet(false); }}>
-          <div className="sheet-in"><SignIn /></div>
+          <div className="sheet-in"><SignIn /><div style={{ marginTop: 14 }}><AiKeyButton compact /></div></div>
         </div>
       )}
     </>

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { admin } from '@/lib/supabase/admin';
-import { supabaseServer } from '@/lib/supabase/server';
+import { aiAccess } from '@/lib/ai-access';
 import { callJSON } from '@/lib/llm';
 
 export const dynamic = 'force-dynamic';
@@ -36,7 +36,7 @@ function quotedFr(def: string | null): string | null {
 const GlossSchema = z.object({ mots: z.array(z.string()) });
 
 async function translateVerse(book: number, chapter: number, verse: number, words: any[],
-  save?: (glosses: string[]) => Promise<unknown>) {
+  save?: (glosses: string[]) => Promise<unknown>, userKey?: string) {
   // Verset en francais (S21 si importee, sinon Segond 1910) pour le contexte.
   const read = (t: string) => admin.from('verses').select('text')
     .eq('translation', t).eq('book', book).eq('chapter', chapter).eq('verse', verse).maybeSingle();
@@ -66,7 +66,8 @@ Renvoie { "mots": [...] } avec ${words.length} éléments.`,
     },
     maxTokens: 1500,
     temperature: 0.2,
-    gloss: false
+    gloss: false,
+    userKey
   });
   if (data.mots.length !== words.length) return null;
   const out = data.mots.map(m => m.replace(/\*/g, '').trim().slice(0, 40));
@@ -79,18 +80,11 @@ Renvoie { "mots": [...] } avec ${words.length} éléments.`,
   return out;
 }
 
-async function isLoggedIn() {
-  try {
-    const sb = await supabaseServer();
-    const { data: { user } } = await sb.auth.getUser();
-    return !!user;
-  } catch { return false; }
-}
 
 /* Nouveau Testament lu en HEBREU (Bible hebraique, code HEB) :
    les mots viennent du texte, la traduction francaise est faite en contexte
    puis gardee dans verse_words_he. */
-async function hebrewNT(book: number, chapter: number, verse: number) {
+async function hebrewNT(book: number, chapter: number, verse: number, req: NextRequest) {
   const { data: cached } = await admin.from('verse_words_he')
     .select('position, word, gloss_fr')
     .eq('book', book).eq('chapter', chapter).eq('verse', verse).order('position');
@@ -105,13 +99,14 @@ async function hebrewNT(book: number, chapter: number, verse: number) {
   }
 
   let complete = rows.every(r => r.gloss_fr);
-  if (!complete && await isLoggedIn()) {
+  const access = complete ? null : await aiAccess(req);
+  if (!complete && access) {
     try {
       const out = await translateVerse(book, chapter, verse,
         rows.map(r => ({ ...r, lang: 'hebreu', gloss: null })),
         g => admin.from('verse_words_he').upsert(rows.map((r, i) => ({
           book, chapter, verse, position: r.position, word: r.word, gloss_fr: g[i]
-        }))) as any);
+        }))) as any, access.userKey);
       if (out) { rows = rows.map((r, i) => ({ ...r, gloss_fr: out[i] })); complete = true; }
     } catch { /* on renvoie les mots sans traduction */ }
   }
@@ -133,7 +128,7 @@ export async function GET(req: NextRequest) {
 
   // Nouveau Testament : hebreu (Delitzsch) par defaut, grec original avec ?src=grec.
   if (book >= 40 && sp.get('src') !== 'grec') {
-    const he = await hebrewNT(book, chapter, verse);
+    const he = await hebrewNT(book, chapter, verse, req);
     if (he) return NextResponse.json(he);
   }
 
@@ -158,10 +153,11 @@ export async function GET(req: NextRequest) {
   const map = new Map<string, any>();
   for (const s of (strongs ?? [])) map.set(norm(s.code), s);
 
-  // Traduction francaise en contexte : en cache, sinon generee (lecteur connecte).
+  // Traduction francaise en contexte : en cache, sinon generee (cle Gemini du lecteur ou admin).
   let ctx: string[] | null = words.every((w: any) => w.gloss_fr) ? words.map((w: any) => w.gloss_fr) : null;
-  if (!ctx && await isLoggedIn()) {
-    try { ctx = await translateVerse(book, chapter, verse, words); } catch { ctx = null; }
+  const access = ctx ? null : await aiAccess(req);
+  if (!ctx && access) {
+    try { ctx = await translateVerse(book, chapter, verse, words, undefined, access.userKey); } catch { ctx = null; }
   }
 
   const out = words.map((w: any, i: number) => {

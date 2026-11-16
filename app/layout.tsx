@@ -9,6 +9,7 @@ import OneSignalInit from '@/components/OneSignalInit';
 import InstallPrompt from '@/components/InstallPrompt';
 import RouteMemory from '@/components/RouteMemory';
 import Onboarding from '@/components/Onboarding';
+import AiKeySheet from '@/components/AiKeySheet';
 import Nav from '@/components/Nav';
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://painquotidien.app';
@@ -54,6 +55,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {children}
         <RouteMemory />
         <Onboarding />
+        <AiKeySheet />
         <NativeInit />
         <OneSignalInit />
         <InstallPrompt />

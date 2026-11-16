@@ -1,6 +1,8 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase/client';
+import { aiFetch } from '@/lib/ai-key';
+import NeedKey from './NeedKey';
 
 type P = {
   book: number; chapter: number; verse?: number; bookName: string; text: string;
@@ -17,6 +19,14 @@ export default function Explain({ book, chapter, verse, bookName, text, onClose,
   const [answer, setAnswer] = useState<string | null>(null);
   const [asking, setAsking] = useState(false);
   const [shared, setShared] = useState(false);
+  const [needKey, setNeedKey] = useState(false);   // explication à générer : clé requise
+  const [askKey, setAskKey] = useState(false);     // question : clé requise
+  const [keyTick, setKeyTick] = useState(0);       // relance après ajout de la clé
+  useEffect(() => {
+    const on = () => setKeyTick(t => t + 1);
+    window.addEventListener('pq-ai-key', on);
+    return () => window.removeEventListener('pq-ai-key', on);
+  }, []);
 
   const reference = verse === undefined ? `${bookName} ${chapter}` : `${bookName} ${chapter}.${verse}`;
 
@@ -33,13 +43,14 @@ export default function Explain({ book, chapter, verse, bookName, text, onClose,
 
   const ask = async () => {
     if (!q.trim() || asking) return;
-    setAsking(true); setAnswer(null);
+    setAsking(true); setAnswer(null); setAskKey(false);
     try {
-      const r = await fetch('/api/verse-ask', {
+      const r = await aiFetch('/api/verse-ask', {
         method: 'POST', headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ reference, text, question: q })
       });
       const j = await r.json();
+      if (j?.needKey) { setAskKey(true); setAsking(false); return; }
       setAnswer(r.ok ? j.answer : (j.error ?? 'La réponse a échoué.'));
     } catch {
       setAnswer('La réponse a échoué, réessayez.');
@@ -57,15 +68,17 @@ export default function Explain({ book, chapter, verse, bookName, text, onClose,
         const { data } = await supabase.from('verse_notes')
           .select('*').eq('book', book).eq('chapter', chapter).eq('verse', verse).maybeSingle();
         if (data) return setData(data);
-        // Genere a la demande, une seule fois, puis mis en cache pour tous
-        const r = await fetch('/api/explain', {
+        // Genere a la demande (cle Gemini du lecteur), une seule fois, puis mis en cache pour tous
+        const r = await aiFetch('/api/explain', {
           method: 'POST', headers: { 'content-type': 'application/json' },
           body: JSON.stringify({ book, chapter, verse })
         });
-        setData(r.ok ? await r.json() : null);
+        const j = await r.json().catch(() => null);
+        setNeedKey(!!j?.needKey);
+        setData(r.ok ? j : null);
       }
     })();
-  }, [book, chapter, verse]);
+  }, [book, chapter, verse, keyTick]);
 
   const title = verse === undefined ? `${bookName} ${chapter}` : `${bookName} ${chapter}.${verse}`;
 
@@ -75,7 +88,15 @@ export default function Explain({ book, chapter, verse, bookName, text, onClose,
 
       {data === undefined && <><h3>{title}</h3><p className="empty">Chargement…</p></>}
 
-      {data === null && (
+      {data === null && needKey && (
+        <>
+          <h3>{title}</h3>
+          <div className="msub">Explication détaillée</div>
+          <NeedKey what="l’explication de ce verset" />
+        </>
+      )}
+
+      {data === null && !needKey && (
         <>
           <h3>{title}</h3>
           <div className="msub">Fiche en préparation</div>
@@ -146,6 +167,7 @@ export default function Explain({ book, chapter, verse, bookName, text, onClose,
             <button className="btn primary sm" onClick={ask} disabled={asking || !q.trim()} style={{ marginTop: 8 }}>
               {asking ? 'Réflexion…' : 'Demander à l’assistant'}
             </button>
+            {askKey && <NeedKey what="une réponse" />}
             {answer && (
               <div className="ex-answer">
                 {answer.split('\n').filter(Boolean).map((p, i) => <p key={i}>{p}</p>)}

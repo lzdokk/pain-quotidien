@@ -15,12 +15,13 @@ const PDV_PAGES = 'pdv-pages-v2';
 const PDV_ASSETS = 'pdv-assets-v1';
 const PDV_DATA = 'pdv-data-v2';
 const PDV_API = 'pdv-api-v1';
+const PDV_BIBLE = 'pdv-bible-v1';
 
 self.addEventListener('install', () => { self.skipWaiting(); });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil((async () => {
-    const keep = new Set([PDV_PAGES, PDV_ASSETS, PDV_DATA, PDV_API]);
+    const keep = new Set([PDV_PAGES, PDV_ASSETS, PDV_DATA, PDV_API, PDV_BIBLE]);
     const keys = await caches.keys();
     await Promise.all(keys.filter(k => k.startsWith('pdv-') && !keep.has(k)).map(k => caches.delete(k)));
     await self.clients.claim();
@@ -52,14 +53,27 @@ self.addEventListener('fetch', (event) => {
   if (url.hostname.endsWith('.supabase.co') && url.pathname.includes('/rest/v1/')) {
     const table = url.pathname.split('/rest/v1/')[1] || '';
     const PUBLIC = /^(verses|books|translations|famous_verses|jesus_verses|book_intros|strongs|verse_words|verse_words_he|bible_index|proverbes_daily|bible_words|reading_plans|plan_steps|faq)\b/;
-    event.respondWith(PUBLIC.test(table) ? staleWhileRevalidate(req, PDV_DATA) : networkFirstData(req, PDV_DATA));
+    // Contenus publics : gardés 12 h sur le téléphone avant de redemander
+    // (moins d'appels Supabase), données personnelles toujours à jour.
+    event.respondWith(PUBLIC.test(table) ? swrFresh(req, PDV_DATA, 12 * 3600e3) : networkFirstData(req, PDV_DATA));
+    return;
+  }
+
+  // 2 ter) Chapitres de la Bible (texte + ★ + paroles de Jésus) : le texte ne
+  //        change pas -> le téléphone répond seul, rafraîchi au plus une fois par semaine.
+  if (url.origin === self.location.origin && url.pathname === '/api/bible/read') {
+    event.respondWith(swrFresh(req, PDV_BIBLE, 7 * 24 * 3600e3));
+    return;
+  }
+  if (url.origin === self.location.origin && url.pathname === '/api/bible/find') {
+    event.respondWith(swrFresh(req, PDV_API, 24 * 3600e3));
     return;
   }
 
   // 2 bis) API publiques du site (fiches Strong, passages de l'index) -> cache + rafraichissement.
   if (url.origin === self.location.origin &&
       (url.pathname === '/api/strongs' || url.pathname === '/api/passage')) {
-    event.respondWith(staleWhileRevalidate(req, PDV_API));
+    event.respondWith(swrFresh(req, PDV_API, 24 * 3600e3));
     return;
   }
 
@@ -122,4 +136,27 @@ async function staleWhileRevalidate(req, name) {
   const hit = await cache.match(req);
   const net = fetch(req).then(res => { if (res && res.ok) cache.put(req, res.clone()); return res; }).catch(() => null);
   return hit || (await net) || Response.error();
+}
+
+/* Comme stale-while-revalidate, mais sans redemander au réseau tant que la
+   copie gardée a moins de maxAge : moins d'appels (Supabase, Vercel). La date
+   de mise en cache est notée dans l'en-tête x-pdv-at. */
+async function swrFresh(req, name, maxAge) {
+  const cache = await caches.open(name);
+  const hit = await cache.match(req);
+  const at = hit ? Number(hit.headers.get('x-pdv-at') || 0) : 0;
+  const refresh = () => fetch(req).then(async res => {
+    if (res && res.ok) {
+      const body = await res.clone().blob();
+      const h = new Headers(res.headers); h.set('x-pdv-at', String(Date.now()));
+      await cache.put(req, new Response(body, { status: res.status, statusText: res.statusText, headers: h }));
+    }
+    return res;
+  }).catch(() => null);
+  if (hit) {
+    // Copie récente : aucun appel réseau. Copie ancienne : on la montre et on rafraîchit derrière.
+    if (Date.now() - at > maxAge) refresh();
+    return hit;
+  }
+  return (await refresh()) || Response.error();
 }
