@@ -30,7 +30,7 @@ const STEPS: Step[] = [
     body: (
       <>
         <p>Le <b>Pain du jour</b> : le passage, son cœur et une méditation.</p>
-        <p>La <b>Prière</b>, en cinq moments inspirés du Notre Père : <b>adorer</b>, <b>louer</b>, <b>confesser</b>, <b>demander</b>, <b>écouter</b>.</p>
+        <p>La <b>Prière</b>, en six moments inspirés du Notre Père : <b>inviter l’Esprit</b>, <b>adorer</b>, <b>louer</b>, <b>confesser</b>, <b>demander</b>, <b>écouter</b>.</p>
         <p>La <b>Sagesse</b> : chaque jour son chapitre des Proverbes, entre deux prières.</p>
       </>
     )
