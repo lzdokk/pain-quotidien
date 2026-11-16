@@ -412,3 +412,17 @@ details[open] > :not(summary){animation:deroule .45s var(--spring)}
 /* l'ancien rappel « survole pour voir » n'existe plus */
 .vbar-inline .vbar-theme{display:none}
 @media(min-width:620px){.vt-grid{grid-template-columns:repeat(8,1fr)}}
+
+/* Livres : groupes en volets repliés */
+.bk-fold{margin:8px 0;border:1px solid var(--line);border-radius:16px;background:var(--glass);overflow:hidden}
+.bk-fold>summary{list-style:none;cursor:pointer;display:flex;flex-wrap:nowrap;align-items:center;gap:10px;padding:14px 16px;margin:0;
+ font-size:14.5px;font-weight:650;letter-spacing:0;text-transform:none;color:var(--ink)}
+.bk-fold>summary::-webkit-details-marker{display:none}
+.bk-fold>summary .bk-g-l{flex:none;white-space:nowrap;color:var(--ink);font-style:normal;font-size:14.5px;font-weight:650}
+.bk-fold>summary .bk-g-he{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12.5px;font-weight:500;color:var(--ink-4);font-style:italic}
+.bk-fold>summary .bk-g-n{margin-left:auto;font-size:12px;font-weight:600;color:var(--ink-3);font-style:normal;
+ min-width:24px;text-align:center;padding:2px 8px;border-radius:99px;background:color-mix(in srgb,var(--accent) 10%,transparent)}
+.bk-fold>summary .bk-g-chev{font-size:20px;line-height:1;color:var(--ink-4);font-style:normal;transition:transform .3s var(--spring,ease)}
+.bk-fold[open]>summary .bk-g-chev{transform:rotate(90deg)}
+.bk-fold.cur>summary .bk-g-l::after{content:'';display:inline-block;width:7px;height:7px;border-radius:99px;background:var(--accent);margin-left:8px;vertical-align:2px}
+.bk-fold>.rsheet-list{border-top:1px solid var(--line);padding:4px 6px 6px}

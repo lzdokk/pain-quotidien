@@ -1142,12 +1142,17 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
                             <span>{a.he} · {a.sub}</span>
                           </div>
                           {BOOK_GROUPS.filter(g => g.alliance === a.id).map(g => (
-                            <div key={g.id} className="bk-group">
-                              <div className="bk-group-h">{g.label}{g.he && <span>{g.he}</span>}</div>
+                            <details key={g.id} className={`bk-group bk-fold${book >= g.from && book <= g.to ? ' cur' : ''}`}>
+                              <summary className="bk-group-h">
+                                <span className="bk-g-l">{g.label}</span>
+                                {g.he && <span className="bk-g-he">{g.he}</span>}
+                                <span className="bk-g-n">{g.to - g.from + 1}</span>
+                                <span className="bk-g-chev">›</span>
+                              </summary>
                               <div className="rsheet-list">
                                 {books.filter((b: any) => b.id >= g.from && b.id <= g.to).map((b: any) => bookRow(b))}
                               </div>
-                            </div>
+                            </details>
                           ))}
                         </section>
                       ))}
