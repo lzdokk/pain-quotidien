@@ -65,9 +65,11 @@ export default function Explain({ book, chapter, verse, bookName, text, onClose,
           .select('*').eq('book', book).eq('chapter', chapter).maybeSingle();
         setData(data ?? null);
       } else {
-        const { data } = await supabase.from('verse_notes')
-          .select('*').eq('book', book).eq('chapter', chapter).eq('verse', verse).maybeSingle();
-        if (data) return setData(data);
+        // Déjà écrite : lue par le CDN (pas de Supabase).
+        try {
+          const g = await fetch(`/api/explain?b=${book}&c=${chapter}&v=${verse}`);
+          if (g.ok) { setNeedKey(false); return setData(await g.json()); }
+        } catch {}
         // Genere a la demande (cle Gemini du lecteur), une seule fois, puis mis en cache pour tous
         const r = await aiFetch('/api/explain', {
           method: 'POST', headers: { 'content-type': 'application/json' },

@@ -6,7 +6,7 @@ import { bdsTranslation, readingsWithTranslation, citedVerse } from '@/lib/bible
 
 // Toujours frais : le jour affiche depend de l'heure (contentDate), donc on
 // ne met jamais cette page en cache — sinon elle peut montrer la veille.
-export const revalidate = 300;
+export const revalidate = 3600; // rafraîchi aussi à la publication du jour (cron daily)
 export const metadata = { title: 'Le pain du matin' };
 
 

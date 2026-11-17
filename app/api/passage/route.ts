@@ -28,5 +28,7 @@ export async function GET(req: NextRequest) {
     ref: r.label, bookName: r.bookName, chapter: r.chapter, vStart: r.vStart, vEnd: r.vEnd,
     translation: translation === 'S21' ? 'Segond 21' : 'Segond 1910',
     verses: data ?? []
-  });
+  }, (data ?? []).length
+    ? { headers: { 'Cache-Control': 'public, max-age=86400, s-maxage=2592000, stale-while-revalidate=31536000' } }
+    : undefined);
 }

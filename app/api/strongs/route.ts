@@ -84,5 +84,6 @@ ${data.kjv_def ? `Traductions retenues : ${data.kjv_def}` : ''}`,
     .or(`lemma.ilike.${like},translit.ilike.${like},definition_en.ilike.${like},definition_fr.ilike.${like}`)
     .limit(40);
 
-  return NextResponse.json({ results: data ?? [] });
+  return NextResponse.json({ results: data ?? [] },
+    { headers: { 'Cache-Control': 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800' } });
 }

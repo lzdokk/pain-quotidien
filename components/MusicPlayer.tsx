@@ -7,10 +7,8 @@ import { useEffect, useRef, useState } from 'react';
  * de temps (utile pour les longues pistes). Détection tolérante des fichiers
  * présents dans public/music/.
  */
-const CANDIDATES = [
-  'paix', 'adoration', 'contemplation', 'louange', 'priere', 'meditation',
-  'worship', 'instrumental', 'musique', 'ambiance', 'fond', '1', '2', '3', '4', '5'
-];
+/* Pistes présentes dans public/music (ajouter le nom ici si on dépose un nouveau mp3). */
+const TRACKS = ['paix', 'adoration', 'contemplation'];
 const NICE: Record<string, string> = {
   paix: 'Paix', adoration: 'Adoration', contemplation: 'Contemplation',
   louange: 'Louange', priere: 'Prière', meditation: 'Méditation',
@@ -36,18 +34,9 @@ export default function MusicPlayer() {
   const [cur, setCur] = useState(0);
   const [dur, setDur] = useState(0);
 
+  // Pistes connues (public/music) : aucune requête tant qu'on n'appuie pas sur lecture.
   useEffect(() => {
-    let alive = true;
-    Promise.all(CANDIDATES.map(async b => {
-      const src = `/music/${b}.mp3`;
-      try {
-        const r = await fetch(src, { method: 'HEAD' });
-        // On vérifie que c'est bien un fichier audio (et non la page 404 en HTML).
-        const ct = (r.headers.get('content-type') || '').toLowerCase();
-        return (r.ok && /(audio|mpeg|octet-stream)/.test(ct)) ? { src, name: label(b) } : null;
-      } catch { return null; }
-    })).then(list => { if (alive) setTracks(list.filter(Boolean) as Track[]); });
-    return () => { alive = false; };
+    setTracks(TRACKS.map(b => ({ src: `/music/${b}.mp3`, name: label(b) })));
   }, []);
 
   // Change de piste : recharge la source, remet le temps à 0, joue si en lecture.
@@ -83,7 +72,7 @@ export default function MusicPlayer() {
 
   return (
     <div className={`music${open ? ' open' : ''}`}>
-      <audio ref={audioRef} preload="metadata"
+      <audio ref={audioRef} preload="none"
              onTimeUpdate={e => setCur(e.currentTarget.currentTime)}
              onLoadedMetadata={e => setDur(e.currentTarget.duration || 0)} />
 

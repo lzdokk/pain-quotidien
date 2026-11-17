@@ -1,4 +1,4 @@
-export const revalidate = 300;
+export const revalidate = 86400; // un jour passé ne change plus ; le jour même est rafraîchi par le cron
 // Pages générées à la première visite puis gardées en cache (instantanées ensuite).
 export const generateStaticParams = async () => [];
 import { notFound } from 'next/navigation';

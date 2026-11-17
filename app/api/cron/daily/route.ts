@@ -36,17 +36,19 @@ export async function GET(req: NextRequest) {
       .select('date').eq('date', today).maybeSingle();
     if (fresh) {
       await admin.from('daily_bread').update({ published: true }).eq('date', today);
-      revalidatePath('/pain'); revalidatePath('/priere'); revalidatePath('/sagesse');
-      revalidatePath(`/jour/${today}`);
+      revalidatePath('/'); revalidatePath('/pain'); revalidatePath('/priere'); revalidatePath('/sagesse');
+      revalidatePath(`/jour/${today}`); revalidatePath(`/priere/${today}`);
       return NextResponse.json({ ok: true, recovered: true, published: today });
     }
     return NextResponse.json({ ok: false, recovered: false, date: today, gen: r });
   }
 
   await admin.from('daily_bread').update({ published: true }).eq('date', today);
+  revalidatePath('/');
   revalidatePath('/pain');
   revalidatePath('/priere');
   revalidatePath('/sagesse');
   revalidatePath(`/jour/${today}`);
+  revalidatePath(`/priere/${today}`);
   return NextResponse.json({ ok: true, published: today });
 }

@@ -50,5 +50,6 @@ export async function GET(req: NextRequest) {
     chapterFor(a, book, chapter),
     chapterFor(b, book, chapter)
   ]);
-  return NextResponse.json({ a: va, b: vb });
+  return NextResponse.json({ a: va, b: vb },
+    { headers: { 'Cache-Control': 'public, max-age=86400, s-maxage=604800, stale-while-revalidate=2592000' } });
 }

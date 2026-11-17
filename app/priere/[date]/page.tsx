@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import PriereView from '../view';
 
-export const revalidate = 3600;
+export const revalidate = 86400;
 // Générée à la première visite puis gardée en cache.
 export const generateStaticParams = async () => [];
 export const metadata = { title: 'Prière' };

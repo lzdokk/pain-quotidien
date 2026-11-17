@@ -57,5 +57,7 @@ export async function GET(req: NextRequest) {
     return { code: t.code, name: t.name, language: t.language, text };
   }));
 
-  return NextResponse.json({ items: items.filter(i => i.text) });
+  // Mis en cache par le CDN : un même verset ne relance ni Supabase ni les sites externes.
+  return NextResponse.json({ items: items.filter(i => i.text) },
+    { headers: { 'Cache-Control': 'public, max-age=86400, s-maxage=604800, stale-while-revalidate=2592000' } });
 }

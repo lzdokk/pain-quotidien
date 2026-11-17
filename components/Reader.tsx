@@ -347,8 +347,9 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
   // Versets importants du livre (bulle ★)
   useEffect(() => {
     let alive = true;
-    supabase.from('famous_verses').select('chapter, verse_start, title').eq('book', book).order('chapter').order('verse_start')
-      .then(({ data }) => { if (alive) setBookFamous((data ?? []).map((f: any) => ({ chapter: f.chapter, verse: f.verse_start, title: f.title }))); });
+    fetch(`/api/bible/famous?b=${book}`).then(r => r.json()).then(({ items }) => {
+      if (alive) setBookFamous((items ?? []).map((f: any) => ({ chapter: f.chapter, verse: f.verse_start, title: f.title })));
+    }).catch(() => {});
     return () => { alive = false; };
   }, [book]);
   useEffect(() => {

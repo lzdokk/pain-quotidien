@@ -4,7 +4,7 @@ import { citedVerse } from '@/lib/bible';
 import { polishDeep } from '@/lib/accents';
 import HomeTiles from '@/components/HomeTiles';
 
-export const revalidate = 300;
+export const revalidate = 3600; // rafraîchi aussi à la publication du jour (cron daily)
 export const metadata = { title: 'Accueil' };
 
 /** ACCUEIL : le verset du jour et les tuiles pour aller partout d'un toucher. */

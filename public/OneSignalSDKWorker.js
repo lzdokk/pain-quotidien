@@ -61,7 +61,7 @@ self.addEventListener('fetch', (event) => {
 
   // 2 ter) Chapitres de la Bible (texte + ★ + paroles de Jésus) : le texte ne
   //        change pas -> le téléphone répond seul, rafraîchi au plus une fois par semaine.
-  if (url.origin === self.location.origin && url.pathname === '/api/bible/read') {
+  if (url.origin === self.location.origin && (url.pathname === '/api/bible/read' || url.pathname === '/api/bible/famous')) {
     event.respondWith(swrFresh(req, PDV_BIBLE, 7 * 24 * 3600e3));
     return;
   }
@@ -72,8 +72,11 @@ self.addEventListener('fetch', (event) => {
 
   // 2 bis) API publiques du site (fiches Strong, passages de l'index) -> cache + rafraichissement.
   if (url.origin === self.location.origin &&
-      (url.pathname === '/api/strongs' || url.pathname === '/api/passage')) {
-    event.respondWith(swrFresh(req, PDV_API, 24 * 3600e3));
+      (url.pathname === '/api/strongs' || url.pathname === '/api/passage' || url.pathname === '/api/verse-words' ||
+       url.pathname === '/api/verse-compare' || url.pathname === '/api/explain' || url.pathname.startsWith('/api/etude/'))) {
+    // Seules les réponses marquées « public » (complètes) sont gardées : une fiche
+    // pas encore traduite sera redemandée, et profitera de la clé Gemini ajoutée.
+    event.respondWith(swrFresh(req, PDV_API, 24 * 3600e3, true));
     return;
   }
 
@@ -141,12 +144,12 @@ async function staleWhileRevalidate(req, name) {
 /* Comme stale-while-revalidate, mais sans redemander au réseau tant que la
    copie gardée a moins de maxAge : moins d'appels (Supabase, Vercel). La date
    de mise en cache est notée dans l'en-tête x-pdv-at. */
-async function swrFresh(req, name, maxAge) {
+async function swrFresh(req, name, maxAge, onlyPublic) {
   const cache = await caches.open(name);
   const hit = await cache.match(req);
   const at = hit ? Number(hit.headers.get('x-pdv-at') || 0) : 0;
   const refresh = () => fetch(req).then(async res => {
-    if (res && res.ok) {
+    if (res && res.ok && (!onlyPublic || /public/.test(res.headers.get('cache-control') || ''))) {
       const body = await res.clone().blob();
       const h = new Headers(res.headers); h.set('x-pdv-at', String(Date.now()));
       await cache.put(req, new Response(body, { status: res.status, statusText: res.statusText, headers: h }));

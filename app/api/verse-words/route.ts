@@ -6,6 +6,8 @@ import { callJSON } from '@/lib/llm';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
+/* Mot à mot complet : il ne change plus, gardé en cache par le CDN (pas de Supabase ni de fonction). */
+const CACHE = 'public, max-age=86400, s-maxage=2592000, stale-while-revalidate=31536000';
 
 /**
  * Mot-à-mot d'un verset : chaque mot d'origine (STEPBible) avec sa
@@ -129,7 +131,7 @@ export async function GET(req: NextRequest) {
   // Nouveau Testament : hebreu (Delitzsch) par defaut, grec original avec ?src=grec.
   if (book >= 40 && sp.get('src') !== 'grec') {
     const he = await hebrewNT(book, chapter, verse, req);
-    if (he) return NextResponse.json(he);
+    if (he) return NextResponse.json(he, he.complete ? { headers: { 'Cache-Control': CACHE } } : undefined);
   }
 
   // select('*') : fonctionne avant ET apres l'ajout de la colonne gloss_fr.
@@ -174,5 +176,5 @@ export async function GET(req: NextRequest) {
     line: words.map((w: any) => w.word).join(' '), // le verset complet dans la langue d'origine
     complete: !!ctx,                                // traduction francaise mot a mot disponible
     source: words[0].lang === 'grec' ? 'grec' : 'he'
-  });
+  }, ctx ? { headers: { 'Cache-Control': CACHE } } : undefined);
 }

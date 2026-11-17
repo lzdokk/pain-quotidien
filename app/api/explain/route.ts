@@ -11,6 +11,19 @@ export const maxDuration = 60;
  * pour tous les lecteurs suivants. Le premier qui la demande declenche
  * l'appel (avec SA clé Gemini), les autres la lisent gratuitement.
  */
+/** Lecture seule d'une explication déjà écrite, mise en cache par le CDN.
+ *  /api/explain?b=43&c=3&v=16  (404 si elle n'existe pas encore) */
+export async function GET(req: NextRequest) {
+  const sp = new URL(req.url).searchParams;
+  const book = Number(sp.get('b')), chapter = Number(sp.get('c')), verse = Number(sp.get('v'));
+  if (!book || !chapter || !verse) return NextResponse.json(null, { status: 400 });
+  const { data } = await admin.from('verse_notes')
+    .select('*').eq('book', book).eq('chapter', chapter).eq('verse', verse).maybeSingle();
+  if (!data) return NextResponse.json(null, { status: 404 });
+  return NextResponse.json(data,
+    { headers: { 'Cache-Control': 'public, max-age=86400, s-maxage=2592000, stale-while-revalidate=31536000' } });
+}
+
 export async function POST(req: NextRequest) {
   const { book, chapter, verse } = await req.json();
 

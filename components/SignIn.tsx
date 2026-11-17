@@ -10,6 +10,11 @@ function messageErreur(code?: string) {
       return 'Un compte existe déjà avec cet email. Connectez-vous plutot.';
     case 'weak_password':
       return 'Le mot de passe doit contenir au moins 6 caracteres.';
+    case 'over_email_send_rate_limit':
+    case 'over_request_rate_limit':
+      return 'Trop d’inscriptions en ce moment. Réessayez dans quelques minutes.';
+    case 'email_not_confirmed':
+      return 'Confirmez d’abord votre adresse avec le lien reçu par mail.';
     default:
       return 'Une erreur est survenue. Reessayez.';
   }
@@ -51,9 +56,11 @@ export default function SignIn({ user }: { user?: any }) {
       if (error) { setError(messageErreur(error.code)); return; }
       location.reload();
     } else {
-      const { error } = await supabase.auth.signUp({ email, password });
+      const { data, error } = await supabase.auth.signUp({ email, password });
       setLoading(false);
       if (error) { setError(messageErreur(error.code)); return; }
+      // Confirmation par mail désactivée dans Supabase : le compte est ouvert tout de suite.
+      if (data.session) { location.reload(); return; }
       setSent(true);
     }
   };
