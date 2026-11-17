@@ -310,7 +310,8 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
         }
       }
       const saved = JSON.parse(localStorage.getItem('pq-pos') ?? 'null');
-      const savedT = saved?.t && saved.t !== 'FRLSG' ? saved.t : preferred;
+      // Version gardée seulement si elle existe encore (certaines ont été retirées pour la place).
+      const savedT = saved?.t && saved.t !== 'FRLSG' && translations.some((t: any) => t.code === saved.t) ? saved.t : preferred;
       if (saved?.b) {
         setBook(saved.b); setChapter(saved.c ?? 1);
         setTrad(savedT);
