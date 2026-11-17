@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useUser } from '@/lib/useUser';
@@ -46,6 +46,19 @@ export default function Nav(_props: { user?: any }) {
   const user = useUser();
   const [sheet, setSheet] = useState(false);
   const path = usePathname();
+
+  // Jour choisi (Pain ou Prière d'un autre jour) : les onglets Pain et Prière
+  // restent sur CE jour, pour prier avec le thème du jour sélectionné.
+  const [selDay, setSelDay] = useState<string | null>(null);
+  useEffect(() => {
+    const m = path.match(/^\/(jour|priere)\/(\d{4}-\d{2}-\d{2})$/);
+    try {
+      if (m) { sessionStorage.setItem('pq-day', m[2]); setSelDay(m[2]); }
+      else if (path === '/pain' || path === '/priere') { sessionStorage.removeItem('pq-day'); setSelDay(null); }
+      else setSelDay(sessionStorage.getItem('pq-day'));
+    } catch { setSelDay(m ? m[2] : null); }
+  }, [path]);
+  const tabHref = (h: string) => !selDay ? h : h === '/pain' ? `/jour/${selDay}` : h === '/priere' ? `/priere/${selDay}` : h;
   const initial = user?.user_metadata?.full_name?.[0] ?? user?.email?.[0] ?? '';
   const isActive = (t: { href: string; match?: string[] }) => {
     if (t.match) return t.match.some(m => path === m || path.startsWith(m + '/'));
@@ -105,7 +118,7 @@ export default function Nav(_props: { user?: any }) {
       {/* Barre d'onglets en bas : îlot de verre flottant */}
       <nav className="tabbar" aria-label="Navigation">
         {TABS.map(t => (
-          <Link key={t.href} href={t.href} prefetch className={t.c} aria-current={isActive(t)}>
+          <Link key={t.href} href={tabHref(t.href)} prefetch className={t.c} aria-current={isActive(t)}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"
                  strokeLinecap="round" strokeLinejoin="round">{ICONS[t.href]}</svg>
             <span>{t.label}</span>

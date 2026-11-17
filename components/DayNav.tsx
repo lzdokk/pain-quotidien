@@ -20,15 +20,15 @@ const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 const label = (k: string) => { const [y, m] = k.split('-').map(Number); return `${cap(MOIS[m - 1])} ${y}`; };
 
 export default function DayNav({
-  days, current, missingDays = [], isAdmin: _a = false,
-}: { days: string[]; current: string; missingDays?: string[]; isAdmin?: boolean }) {
+  days, current, missingDays = [], isAdmin: _a = false, base = '/jour',
+}: { days: string[]; current: string; missingDays?: string[]; isAdmin?: boolean; base?: string }) {
   const isAdmin = useIsAdmin();
   const [busy, setBusy] = useState<string | null>(null);
   const [err, setErr] = useState<string>('');
 
   const parsed = useMemo<D[]>(() => {
     const pub = new Set(days);
-    const miss = isAdmin ? missingDays.filter(d => !pub.has(d)) : [];
+    const miss = isAdmin && base === '/jour' ? missingDays.filter(d => !pub.has(d)) : [];
     const all = [...new Set([...days, ...miss])];
     return all.map(date => {
       const [y, m, d] = date.split('-').map(Number);
@@ -84,7 +84,7 @@ export default function DayNav({
       ) : null}
 
       <div className="day-pills">
-        {selDays.map(it => it.missing ? (
+        {selDays.map(it => it.missing && base === '/jour' ? (
           <button
             key={it.date}
             className={`day-pill missing${busy === it.date ? ' loading' : ''}`}
@@ -95,12 +95,12 @@ export default function DayNav({
             {busy === it.date ? '…' : it.d}
           </button>
         ) : (
-          <Link key={it.date} href={`/jour/${it.date}`}
+          <Link key={it.date} href={`${base}/${it.date}`}
                 className={`day-pill${it.date === current ? ' active' : ''}`} title={it.date}>
             {it.d}
           </Link>
         ))}
-        <Link href="/jours" className="day-pill more" title="Tous les jours">›</Link>
+        {base === '/jour' && <Link href="/jours" className="day-pill more" title="Tous les jours">›</Link>}
       </div>
 
       {isAdmin && missingDays.filter(d => !days.includes(d)).length > 0 && (
