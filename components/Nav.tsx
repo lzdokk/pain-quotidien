@@ -6,7 +6,6 @@ import { useUser } from '@/lib/useUser';
 import AiKeyButton from './AiKeyButton';
 import SignIn from './SignIn';
 import Brand from './Brand';
-import MusicPlayer from './MusicPlayer';
 
 const TABS = [
   { href: '/',          label: 'Accueil', c: 'c-slate' },
@@ -111,7 +110,6 @@ export default function Nav(_props: { user?: any }) {
               rempli par un portail React ; invisible quand il est vide. */}
           <div id="nav-slot" className="nav-slot" />
 
-          <MusicPlayer />
         </div>
       </nav>
 

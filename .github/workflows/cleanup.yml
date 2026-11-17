@@ -1,0 +1,17 @@
+name: Ménage — garder 3 mois
+
+# Chaque lundi à 03:17 UTC : supprime les pains du jour (et journaux) plus
+# anciens que le mois en cours + les 2 mois précédents.
+on:
+  schedule:
+    - cron: '17 3 * * 1'
+  workflow_dispatch: {}
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ménage de la base
+        run: |
+          curl -sf --max-time 90 "https://paindevie.vercel.app/api/cron/cleanup" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"

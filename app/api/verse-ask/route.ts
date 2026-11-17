@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { admin } from '@/lib/supabase/admin';
 import { callText } from '@/lib/llm';
 import { aiAccess, needKey, keyError } from '@/lib/ai-access';
 import { VOICE } from '@/lib/prompts/voice';
@@ -32,14 +31,7 @@ Question : ${question}`,
       userKey: access.userKey
     });
 
-    if (access.user) {
-      const uid = access.user.id;
-      await admin.from('conversations').insert([
-        { user_id: uid, role: 'user', content: question, context_ref: reference ?? null },
-        { user_id: uid, role: 'assistant', content: answer, source: 'verse-ask' }
-      ]).then(() => {}, () => {});
-    }
-
+    // Les questions ne sont plus enregistrées en base (place et confidentialité).
     return NextResponse.json({ answer });
   } catch (e) {
     return keyError(e);
