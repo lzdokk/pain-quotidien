@@ -12,5 +12,5 @@ jobs:
     steps:
       - name: Envoyer la notification du matin
         run: |
-          curl -sf -X GET "${{ secrets.SITE_URL }}/api/cron/notify?slot=matin" \
+          curl -sf -X GET "https://paindevie.vercel.app/api/cron/notify?slot=matin" \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"

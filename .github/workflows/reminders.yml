@@ -17,5 +17,5 @@ jobs:
     steps:
       - name: Appeler /api/cron/reminders
         run: |
-          curl -sf -X GET "${{ secrets.SITE_URL }}/api/cron/reminders" \
+          curl -sf -X GET "https://paindevie.vercel.app/api/cron/reminders" \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { admin } from '@/lib/supabase/admin';
 import { contentDate } from '@/lib/date';
+import { SITE_URL } from '@/lib/site';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,8 +20,7 @@ function clip(s: string, n = 140) {
  *   ONESIGNAL_APP_ID    (ou NEXT_PUBLIC_ONESIGNAL_APP_ID)
  *   CRON_SECRET         (deja utilise par les autres crons)
  */
-const SITE =
-  process.env.NEXT_PUBLIC_SITE_URL ?? 'https://pain-quotidien-france.vercel.app';
+const SITE = SITE_URL;
 const APP_ID =
   process.env.ONESIGNAL_APP_ID ??
   process.env.NEXT_PUBLIC_ONESIGNAL_APP_ID ??

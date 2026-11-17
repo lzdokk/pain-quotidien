@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
 import { supabaseServer } from '@/lib/supabase/server';
 import { admin } from '@/lib/supabase/admin';
+import { SITE_URL } from '@/lib/site';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -24,10 +25,10 @@ async function handle(date: string) {
     return NextResponse.json({ ok: false, error: 'date invalide (AAAA-MM-JJ)' }, { status: 400 });
   }
 
-  const base = process.env.NEXT_PUBLIC_SITE_URL;
-  if (!base || !process.env.CRON_SECRET) {
+  const base = SITE_URL;
+  if (!process.env.CRON_SECRET) {
     return NextResponse.json({
-      ok: false, error: 'NEXT_PUBLIC_SITE_URL ou CRON_SECRET manquant cote serveur',
+      ok: false, error: 'CRON_SECRET manquant cote serveur',
     }, { status: 500 });
   }
 

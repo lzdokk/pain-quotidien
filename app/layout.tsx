@@ -11,8 +11,9 @@ import RouteMemory from '@/components/RouteMemory';
 import Onboarding from '@/components/Onboarding';
 import AiKeySheet from '@/components/AiKeySheet';
 import Nav from '@/components/Nav';
+import { SITE_URL } from '@/lib/site';
 
-const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://painquotidien.app';
+const SITE = SITE_URL;
 const INSTA = process.env.NEXT_PUBLIC_INSTAGRAM ?? 'lepainquotidien';
 
 export const metadata: Metadata = {

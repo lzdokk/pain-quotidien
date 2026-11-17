@@ -15,7 +15,7 @@ const config: CapacitorConfig = {
   webDir: 'www',
   server: {
     // Ta production. Change-la si tu branches un domaine personnalise.
-    url: 'https://pain-quotidien-france.vercel.app',
+    url: 'https://paindevie.vercel.app',
     cleartext: false
   },
   backgroundColor: '#0E141A',

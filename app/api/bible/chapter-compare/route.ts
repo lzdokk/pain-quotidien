@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { admin } from '@/lib/supabase/admin';
+import { SITE_URL } from '@/lib/site';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,8 +16,7 @@ const REMOTE = new Set(['bolls', 'apibible', 'getbible', 'youversion']);
 
 function origin(): string {
   // Parenthèses obligatoires : on ne peut pas mélanger ?? et && sans elles.
-  return process.env.NEXT_PUBLIC_SITE_URL
-    ?? (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+  return process.env.NODE_ENV === 'production' ? SITE_URL : 'http://localhost:3000';
 }
 
 async function chapterFor(code: string, book: number, chapter: number): Promise<Array<[number, string]>> {

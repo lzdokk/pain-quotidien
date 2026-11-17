@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { admin } from '@/lib/supabase/admin';
 import { parisDate, parisHour } from '@/lib/date';
+import { SITE_URL } from '@/lib/site';
 
 export const dynamic = 'force-dynamic';
 
@@ -46,7 +47,7 @@ export async function GET(req: NextRequest) {
       html: `<p>Bonjour ${r.profiles.display_name ?? ''},</p>
         <p>Vous n'avez pas encore lu aujourd'hui. Un chapitre prend sept minutes.</p>
         ${streak > 1 ? `<p>Vous en êtes a <strong>${streak} jours d'affilee</strong>.</p>` : ''}
-        <p><a href="${process.env.NEXT_PUBLIC_SITE_URL}/lire">Ouvrir ma lecture</a></p>
+        <p><a href="${SITE_URL}/lire">Ouvrir ma lecture</a></p>
         <p style="font-size:12px;color:#888">Pour ne plus recevoir ce rappel, rendez-vous dans votre compte.</p>`
     });
     sent++;

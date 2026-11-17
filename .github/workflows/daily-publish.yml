@@ -20,5 +20,5 @@ jobs:
     steps:
       - name: Appeler /api/cron/daily
         run: |
-          curl -sf -X GET "${{ secrets.SITE_URL }}/api/cron/daily" \
+          curl -sf -X GET "https://paindevie.vercel.app/api/cron/daily" \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"

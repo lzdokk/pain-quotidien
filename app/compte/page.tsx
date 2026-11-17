@@ -6,11 +6,12 @@ import ShareButton from '@/components/ShareButton';
 import SharePitch from '@/components/SharePitch';
 import AiKeyButton from '@/components/AiKeyButton';
 import { loadHighlightItems } from '@/lib/highlight-items';
+import { SITE_URL } from '@/lib/site';
 
 export const metadata = { title: 'Mon profil' };
 export const dynamic = 'force-dynamic';
 
-const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://pain-quotidien-france.vercel.app';
+const SITE = SITE_URL;
 
 export default async function Compte() {
   const sb = await supabaseServer();

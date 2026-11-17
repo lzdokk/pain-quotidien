@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
 import { admin } from '@/lib/supabase/admin';
 import { contentDate } from '@/lib/date';
+import { SITE_URL } from '@/lib/site';
 
 export const dynamic = 'force-dynamic';
 
@@ -27,7 +28,7 @@ export async function GET(req: NextRequest) {
   // sur « le pain arrive bientot ».
   if (!data) {
     const r = await fetch(
-      `${process.env.NEXT_PUBLIC_SITE_URL}/api/cron/weekly?from=today&days=1&skip=0`,
+      `${SITE_URL}/api/cron/weekly?from=today&days=1&skip=0`,
       { headers: { authorization: `Bearer ${process.env.CRON_SECRET}` } }
     ).then(x => x.json()).catch(() => null);
     // Si la generation a reussi, on publie dans la foulee.

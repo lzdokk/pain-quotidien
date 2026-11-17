@@ -18,11 +18,11 @@ jobs:
           for skip in 0 1 2 3 4 5 6; do
             echo "→ Jour $((skip + 1))/7"
             curl -s --max-time 300 \
-              "${{ secrets.SITE_URL }}/api/cron/weekly?from=today&days=1&skip=${skip}" \
+              "https://paindevie.vercel.app/api/cron/weekly?from=today&days=1&skip=${skip}" \
               -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" || echo "  (jour $((skip + 1)) : échec, on continue)"
             sleep 3
           done
       - name: Republier aujourd'hui
         run: |
-          curl -s --max-time 120 "${{ secrets.SITE_URL }}/api/cron/daily" \
+          curl -s --max-time 120 "https://paindevie.vercel.app/api/cron/daily" \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" || true

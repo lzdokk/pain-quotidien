@@ -38,7 +38,7 @@ cp ~/Desktop/Pain-de-Vie.apk public/Pain-de-Vie.apk
 git add public/Pain-de-Vie.apk && git commit -m "APK Android a telecharger" && git push
 ```
 
-→ disponible sur `https://pain-quotidien-france.vercel.app/Pain-de-Vie.apk`
+→ disponible sur `https://paindevie.vercel.app/Pain-de-Vie.apk`
 
 ## Notes
 - L'APK **debug** suffit pour ton entourage (installation directe). Une version
