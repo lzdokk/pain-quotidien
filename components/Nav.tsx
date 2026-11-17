@@ -10,7 +10,7 @@ import MusicPlayer from './MusicPlayer';
 
 const TABS = [
   { href: '/',          label: 'Accueil', c: 'c-slate' },
-  { href: '/pain',      label: 'Matin',   c: 'c-sand', match: ['/pain', '/jour'] },
+  { href: '/pain',      label: 'Pain',      c: 'c-sand', match: ['/pain', '/jour'] },
   { href: '/priere',    label: 'Prière',  c: 'c-teal' },
   { href: '/sagesse',   label: 'Sagesse', c: 'c-sage' },
   { href: '/lire',      label: 'Lire',    c: 'c-slate', match: ['/lire', '/etude', '/mots', '/versets'] },
