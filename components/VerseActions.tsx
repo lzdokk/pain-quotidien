@@ -110,10 +110,7 @@ export default function VerseActions({ book, chapter, bookName, verses, user: us
 
   return (
     <>
-      <button className={`deep-chip${deep ? ' on' : ''}`} onClick={toggleDeep}
-              title="Toucher un verset ouvre l'hébreu ou le grec, mot par mot">
-        <span className="rfab-he">א</span>{deep ? 'Mode Strong activé · touchez un verset' : 'Approfondir avec le Strong'}
-      </button>
+      {/* Le Strong s'ouvre depuis le volet du verset (bouton Strong) : plus de bouton en double ici. */}
       <div className="scripture">
         {verses.map(([n, t]) => {
           const c = hl[n];

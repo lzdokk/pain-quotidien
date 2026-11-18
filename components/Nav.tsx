@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useUser } from '@/lib/useUser';
 import AiKeyButton from './AiKeyButton';
 import SignIn from './SignIn';
@@ -57,6 +57,23 @@ export default function Nav(_props: { user?: any }) {
       else setSelDay(sessionStorage.getItem('pq-day'));
     } catch { setSelDay(m ? m[2] : null); }
   }, [path]);
+  // Bouton retour : revient à la page précédente de l'app (sinon à l'accueil).
+  const router = useRouter();
+  const [canBack, setCanBack] = useState(false);
+  useEffect(() => {
+    try {
+      const st: string[] = JSON.parse(sessionStorage.getItem('pq-hist') || '[]');
+      if (st[st.length - 2] === path) st.pop();          // on vient de revenir en arrière
+      else if (st[st.length - 1] !== path) st.push(path); // nouvelle page
+      sessionStorage.setItem('pq-hist', JSON.stringify(st.slice(-30)));
+      setCanBack(st.length > 1);
+    } catch { setCanBack(false); }
+  }, [path]);
+  const goBack = (e: React.MouseEvent) => {
+    if (!canBack) return;           // pas d'historique : le lien mène à l'accueil
+    e.preventDefault();
+    router.back();
+  };
   const tabHref = (h: string) => !selDay ? h : h === '/pain' ? `/jour/${selDay}` : h === '/priere' ? `/priere/${selDay}` : h;
   const initial = user?.user_metadata?.full_name?.[0] ?? user?.email?.[0] ?? '';
   const isActive = (t: { href: string; match?: string[] }) => {
@@ -81,9 +98,9 @@ export default function Nav(_props: { user?: any }) {
               <span>Pain de Vie</span>
             </Link>
           ) : (
-            <Link href="/" className="nav-back" aria-label="Retour à l’accueil">
+            <Link href="/" className="nav-back" onClick={goBack} aria-label={canBack ? 'Revenir à la page précédente' : 'Retour à l’accueil'}>
               <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 5l-7 7 7 7" /></svg>
-              <span>Accueil</span>
+              <span>{canBack ? 'Retour' : 'Accueil'}</span>
             </Link>
           )}
 
