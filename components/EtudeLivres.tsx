@@ -232,6 +232,8 @@ export default function EtudeLivres({ onRead, plans, steps, activePlanId, active
               <button className="btn" onClick={() => sure('Remettre ce parcours à zéro ? Les chapitres lus de ses livres seront décochés.') && reprendre(p.id, 0)}>↺ Recommencer du début</button>
             </div>
           )}
+          {p.qui && <div className="pe-row" style={{ marginTop: 12 }}><dt>Pour qui</dt><dd>{p.qui}</dd></div>}
+          {p.mot && <p style={{ marginTop: 10 }}>{p.mot}</p>}
         </div>
         <div className="card pad">
           {etapes.map(s => {

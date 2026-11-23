@@ -6,7 +6,7 @@
 import { BOOKS } from './refs';
 
 export type Groupe = 'fondations' | 'livres' | 'themes';
-export type Parcours = { id: string; titre: string; pour: string; groupe: Groupe; etapes: string[] };
+export type Parcours = { id: string; titre: string; pour: string; groupe: Groupe; etapes: string[]; qui?: string; mot?: string };
 
 export const GROUPES: Array<{ id: Groupe; label: string }> = [
   { id: 'fondations', label: 'Fondations' },
@@ -58,6 +58,91 @@ export const PARCOURS: Parcours[] = [
   { id: 'epreuve-confiance', groupe: 'themes', titre: 'Épreuve, peur, confiance', pour: 'Tenir quand tout vacille',
     etapes: ['Psaumes 23', 'Psaumes 27', 'Psaumes 46', 'Psaumes 121', 'Ésaïe 40-43', 'Habacuc', '2 Corinthiens 1 et 4', 'Philippiens 4', 'Matthieu 6:25-34'] }
 ];
+
+/** Un petit mot et « Pour qui », comme pour les parcours au quotidien. */
+const MOTS: Record<string, { qui: string; mot: string }> = {
+  'premiers-pas': {
+    qui: "Vous découvrez Jésus, ou vous voulez repartir sur des bases solides.",
+    mot: "On commence par Jean, l’Évangile écrit « afin que vous croyiez ». Puis 1 Jean pour l’assurance du salut, Marc pour voir Jésus à l’œuvre, et les Actes pour la naissance de l’Église. Les lettres, les Psaumes et les Proverbes nourrissent ensuite la vie de tous les jours. Pas besoin de tout comprendre : lisez, priez, et laissez-le vous parler."
+  },
+  'fil-rouge': {
+    qui: "Vous connaissez des passages, mais vous voulez voir comment tout s’enchaîne.",
+    mot: "De la Genèse à l’Apocalypse, un seul fil traverse la Bible : Dieu qui vient sauver son peuple. Création, chute, promesse à Abraham, sortie d’Égypte, royaume de David, prophètes, puis Jésus qui accomplit tout. En dix livres, on voit le dessin d’ensemble, et chaque histoire trouve sa place."
+  },
+  'bible-dans-lordre': {
+    qui: "Vous voulez lire toute la Bible, au moins une fois, sans rien sauter.",
+    mot: "Les 66 livres, de la Genèse à l’Apocalypse, dans l’ordre de nos Bibles. Certains passages sont arides : c’est normal, tenez bon. Un chapitre par jour suffit, et l’on découvre en chemin des trésors qu’on n’aurait jamais cherchés. C’est un marathon, pas un sprint."
+  },
+  'connaitre-jesus': {
+    qui: "Vous voulez mieux connaître la personne de Jésus, pas seulement des idées sur lui.",
+    mot: "Les quatre Évangiles le montrent sous quatre angles : le serviteur en action (Marc), le roi promis (Matthieu), le sauveur des perdus (Luc), le Fils éternel (Jean). Les Actes le montrent vivant par son Esprit, Hébreux en grand prêtre, l’Apocalypse dans sa gloire. Lisez lentement : c’est une rencontre."
+  },
+  'paul': {
+    qui: "Vous voulez comprendre la doctrine chrétienne là où elle a été écrite.",
+    mot: "Les lettres de Paul dans l’ordre où il les a écrites, de Galates aux dernières lettres à Timothée. On suit un homme réel : ses voyages, ses combats, ses larmes, sa prison. La grâce, la foi, l’Église, la vie dans l’Esprit : tout prend du relief quand on sait d’où il écrit et à qui."
+  },
+  'priere-sagesse': {
+    qui: "Vous traversez une saison où vous avez besoin de prier vrai et de vivre sagement.",
+    mot: "Les Psaumes apprennent à tout dire à Dieu, même la colère et la peine. Les Proverbes éclairent les choix de chaque jour. Job et l’Ecclésiaste osent les grandes questions, les Lamentations pleurent, le Cantique célèbre l’amour, et Jacques ramène la foi dans le concret."
+  },
+  'prophetes': {
+    qui: "Vous voulez entendre la voix de Dieu qui appelle, avertit et console.",
+    mot: "Les prophètes ne prédisent pas seulement l’avenir : ils rappellent un peuple infidèle à l’alliance. On y trouve le jugement, mais aussi les plus belles promesses : le Messie, la nouvelle alliance, le cœur nouveau. Lisez-les en gardant Jésus en vue, car beaucoup de leurs paroles parlent de lui."
+  },
+  'loi-alliance': {
+    qui: "Vous vous demandez ce que l’Ancien Testament et la Loi ont à voir avec vous aujourd’hui.",
+    mot: "Les cinq livres de Moïse posent les fondations : la création, l’alliance, la Loi, le sacrifice, la présence de Dieu au milieu de son peuple. Galates, Romains et Hébreux montrent ensuite comment tout cela s’accomplit en Christ. On ne lit plus le Lévitique de la même façon après Hébreux."
+  },
+  'foi-quotidien': {
+    qui: "Vous voulez que votre foi se voie au travail, en famille, dans les petites choses.",
+    mot: "Le Sermon sur la montagne pour le cœur de Jésus, Jacques pour une foi qui agit, 1 Pierre pour tenir quand c’est dur, Philippiens pour la joie. Puis des récits de vies ordinaires et fidèles : Ruth, Néhémie, Esther. La sainteté se vit aussi un mardi matin."
+  },
+  'esperance': {
+    qui: "Vous voulez comprendre ce que la Bible dit du retour de Jésus, sans peur ni spéculation.",
+    mot: "Daniel et Zacharie annoncent le règne de Dieu, Jésus en parle lui-même (Matthieu 24-25), Paul encourage les Thessaloniciens, Pierre et Jude avertissent, et l’Apocalypse lève le voile sur la fin. Le but n’est pas de deviner des dates, mais de vivre éveillé, avec espérance."
+  },
+  'couple': {
+    qui: "Vous êtes en couple, fiancé ou marié, et vous voulez bâtir sur Dieu.",
+    mot: "Le mariage commence dans la Genèse, avant la chute : c’est une idée de Dieu. On lit la fidélité (Proverbes), la tendresse (Cantique), l’engagement (Ruth), l’amour qui supporte tout (1 Corinthiens 13), puis l’appel d’Éphésiens 5 : s’aimer comme Christ aime l’Église. À lire à deux, si possible."
+  },
+  'famille': {
+    qui: "Vous êtes parent, grand-parent, ou vous voulez transmettre la foi à la génération suivante.",
+    mot: "« Tu les inculqueras à tes enfants » (Deutéronome 6) : la foi se transmet à la maison, dans la vie de tous les jours. Anne qui prie pour Samuel, Jésus enfant au temple, les conseils de Paul aux parents et aux enfants, la foi de Timothée reçue de sa mère et de sa grand-mère. Un parcours d’encouragement plus que de culpabilité."
+  },
+  'israel': {
+    qui: "Vous voulez comprendre la place d’Israël dans le plan de Dieu et le lien avec l’Église.",
+    mot: "Dieu choisit Abraham et fait alliance avec Israël, puis promet une nouvelle alliance et un cœur nouveau. Paul, en Romains 9-11, montre que Dieu n’a pas rejeté son peuple et que les nations sont greffées sur l’olivier. Éphésiens 2 parle d’un seul peuple en Christ. Un sujet qui demande humilité et amour."
+  },
+  'amour': {
+    qui: "Vous voulez apprendre à aimer comme Dieu aime, pas seulement en parler.",
+    mot: "« Dieu est amour » (1 Jean 4). On le voit dans Jésus qui lave les pieds de ses disciples, dans le Samaritain qui s’arrête, dans 1 Corinthiens 13 qui décrit l’amour qui dure. Osée termine le parcours : l’amour fidèle de Dieu pour un peuple qui ne le méritait pas. C’est de là que tout part."
+  },
+  'pardon': {
+    qui: "Vous portez une blessure, une rancune, ou un poids que vous n’arrivez pas à déposer.",
+    mot: "Joseph pardonne à ses frères, David confesse son péché (Psaumes 32 et 51), le père court vers le fils prodigue. Jésus appelle à pardonner « soixante-dix fois sept fois », et Paul à pardonner comme Christ nous a pardonné. Le pardon n’efface pas le mal : il libère celui qui pardonne."
+  },
+  'combat': {
+    qui: "Vous traversez une épreuve et vous sentez que le combat est aussi spirituel.",
+    mot: "Job montre que l’adversaire existe, mais qu’il ne fait rien sans la permission de Dieu. Jésus résiste au diable avec la Parole (Luc 4), le Psaume 91 promet la protection, Éphésiens 6 donne l’armure. « Résistez au diable, et il fuira loin de vous » (Jacques 4) : la victoire est déjà acquise à la croix."
+  },
+  'esprit': {
+    qui: "Vous voulez connaître le Saint-Esprit comme une personne, et vivre de sa présence.",
+    mot: "Jésus promet un autre Consolateur (Jean 14-16), l’Esprit vient à la Pentecôte (Actes 2), il nous rend enfants de Dieu (Romains 8), donne des dons pour l’Église (1 Corinthiens 12-14) et produit son fruit en nous (Galates 5). Lisez en priant : « Viens, Saint-Esprit »."
+  },
+  'temoigner': {
+    qui: "Vous voulez parler de Jésus autour de vous, simplement et sans forcer.",
+    mot: "Jésus parle à une femme au puits, Philippe à un voyageur sur la route, Paul aux philosophes d’Athènes. Romains 10 rappelle que la foi vient de ce qu’on entend, et 1 Pierre 3 invite à rendre compte de l’espérance avec douceur. Même Jonas, le prophète qui fuyait, a été utilisé. Dieu peut vous utiliser aussi."
+  },
+  'travail-argent': {
+    qui: "Vous voulez vivre votre foi au travail et avoir un rapport sain avec l’argent.",
+    mot: "Joseph reste intègre chez Potiphar, les Proverbes louent le travail bien fait, l’Ecclésiaste avertit contre l’amour de l’argent, Néhémie bâtit et dirige avec droiture. Jésus appelle à chercher d’abord le royaume, et Paul à travailler « comme pour le Seigneur ». Le travail devient un lieu de culte."
+  },
+  'epreuve-confiance': {
+    qui: "Vous traversez la peur, le deuil, la maladie ou l’incertitude, et vous avez besoin de tenir.",
+    mot: "Des textes à lire lentement, peut-être à voix haute : « L’Éternel est mon berger », « Dieu est pour nous un refuge », « Ne crains rien, car je suis avec toi ». Habacuc apprend à se réjouir quand tout manque, Paul trouve la force dans la faiblesse, Jésus dit de ne pas s’inquiéter du lendemain. Vous n’êtes pas seul."
+  },
+};
+for (const p of PARCOURS) Object.assign(p, MOTS[p.id] ?? {});
 
 export const parcoursById = (id: string) => PARCOURS.find(p => p.id === id);
 
