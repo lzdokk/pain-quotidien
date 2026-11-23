@@ -54,21 +54,31 @@ export default function EtudeLivres({ onRead, plans, steps, activePlanId, active
   const sure = (q: string) => { try { return window.confirm(q); } catch { return true; } };
   const planActif = actif ? undefined : activePlanId;
 
+  // En changeant de vue, on place le haut des parcours juste sous la barre,
+  // d'un coup (pas de remontée en haut de page puis de redescente).
+  const toTop = useCallback(() => {
+    requestAnimationFrame(() => {
+      const el = document.getElementById('mes-parcours');
+      if (!el) { window.scrollTo({ top: 0 }); return; }
+      const y = el.getBoundingClientRect().top + window.scrollY - 76;
+      window.scrollTo({ top: Math.max(0, y), behavior: 'instant' as ScrollBehavior });
+    });
+  }, []);
   const go = useCallback((v: View, scroll = true) => {
     setView(v);
     try { window.history.pushState(null, '', urlOf(v)); pushes.current++; } catch {}
-    if (scroll) window.scrollTo({ top: 0 });
-  }, []);
+    if (scroll) toTop();
+  }, [toTop]);
   const back = useCallback(() => {
     if (pushes.current > 0) { pushes.current--; window.history.back(); return; }
     const p = parent(view);
     setView(p);
     try { window.history.replaceState(null, '', urlOf(p)); } catch {}
-    window.scrollTo({ top: 0 });
-  }, [view]);
+    toTop();
+  }, [view, toTop]);
 
   useEffect(() => {
-    const onPop = () => { setView(parse()); window.scrollTo({ top: 0 }); };
+    const onPop = () => { setView(parse()); toTop(); };
     const onGo = (ev: Event) => {
       const v = parse((ev as CustomEvent<string>).detail);
       go(v, false);
@@ -77,7 +87,7 @@ export default function EtudeLivres({ onRead, plans, steps, activePlanId, active
     window.addEventListener('popstate', onPop);
     window.addEventListener('pq-etude-go', onGo);
     return () => { window.removeEventListener('popstate', onPop); window.removeEventListener('pq-etude-go', onGo); };
-  }, [go]);
+  }, [go, toTop]);
 
   const key = enc(view) || 'list';
   const Back = ({ label }: { label: string }) => (

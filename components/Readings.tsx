@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import VerseActions from './VerseActions';
 
@@ -7,16 +7,28 @@ import VerseActions from './VerseActions';
 export default function Readings({ readings, user, translationName }:
   { readings: any[]; user?: any; translationName?: string }) {
   const [open, setOpen] = useState<number | null>(null);
+  // La lecture touchée reste à sa place à l'écran, même si celle du dessus se referme.
+  const anchor = useRef<{ el: HTMLElement; top: number } | null>(null);
+  const toggle = (i: number, on: boolean, el: HTMLElement) => {
+    anchor.current = { el, top: el.getBoundingClientRect().top };
+    setOpen(on ? null : i);
+  };
+  useLayoutEffect(() => {
+    const a = anchor.current; anchor.current = null;
+    if (!a) return;
+    const d = a.el.getBoundingClientRect().top - a.top;
+    if (Math.abs(d) > 1) window.scrollBy({ top: d, behavior: 'instant' as ScrollBehavior });
+  }, [open]);
 
   return (
-    <div className="card">
+    <div className="card" style={{ overflowAnchor: 'none' }}>
       {readings.map((r, i) => {
         const verses = (r.verses ?? []) as Array<[number, string]>;
         const on = open === i;
         return (
           <article className={`rd${on ? ' open' : ''}`} key={r.id ?? i}>
             <div className="rd-head">
-              <button className="rd-toggle" onClick={() => setOpen(on ? null : i)}>
+              <button className="rd-toggle" onClick={e => toggle(i, on, e.currentTarget)}>
                 <span className="num">{i + 1}</span>
                 <span>
                   <span className="rd-ref">{r.reference.toUpperCase()}</span>
