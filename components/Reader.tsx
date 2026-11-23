@@ -15,6 +15,9 @@ import { ALLIANCES, BOOK_GROUPS, groupOf, searchBooks, bookName as accentName } 
 import StudyIndex from './StudyIndex';
 import FicheSheet from './FicheSheet';
 import dynamic from 'next/dynamic';
+import CarteEtude from './CarteEtude';
+import { useSuivi } from './EtudierProgress';
+import { chapitreDuJour } from '@/lib/parcours';
 const EtudeLivres = dynamic(() => import('./EtudeLivres'), { ssr: false, loading: () => <div className="skel skel-card" /> });
 import ChapterStudy from './ChapterStudy';
 import WordsBrowser from './WordsBrowser';
@@ -234,6 +237,7 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
     [intros, book]
   );
 
+  const { actif: parcoursEtude } = useSuivi();
   const planId = plan?.plan_id ?? 'fondement';
   const P = plans.find((p: any) => p.id === planId) ?? plans[0];
   const mySteps = steps.filter((s: any) => s.plan_id === P?.id);
@@ -246,6 +250,12 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
     }
     return { step: mySteps[mySteps.length - 1], index: mySteps.length - 1, chapter: 1 };
   }, [plan, mySteps]);
+
+  const jourEtape = useMemo(() => {
+    if (!position?.step) return null;
+    try { return chapitreDuJour(position.step, position.chapter); } catch { return null; }
+  }, [position]);
+  const nomLivreJour = jourEtape ? (books.find((b: any) => b.id === jourEtape.book)?.name ?? '') : '';
 
   const forgot = plan?.last_read_on && plan.last_read_on !== iso(new Date());
 
@@ -430,6 +440,10 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
     setEditing(false); setSel(null); setNoteText('');
   };
 
+  const etudeGo = (e: string) => {
+    try { window.dispatchEvent(new CustomEvent('pq-etude-go', { detail: e })); } catch {}
+  };
+
   const markRead = async () => {
     if (!user) return alert('Connectez-vous pour suivre votre parcours.');
     await supabase.rpc('mark_read', { p_user: user.id });
@@ -586,14 +600,21 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
 
       {tab === 'parcours' && (
         <>
-      {P && position.step && (
+      {parcoursEtude && (
+        <CarteEtude
+          onRead={(b, c) => { setBook(b); setChapter(c); setTarget(null); setTab('bible'); }}
+          onStudy={(b, c) => etudeGo(`c:${b}:${c}`)}
+          onFiche={(b) => etudeGo(`l:${b}`)}
+          onList={() => etudeGo('')} />
+      )}
+      {!parcoursEtude && P && position.step && (
         <div className="card">
           <div className="today-read tr-flex">
             <div className="tr-main">
               <span className="kicker">Votre lecture du jour</span>
-              <div className="big-ref">{position.step.label} {position.chapter}</div>
+              <div className="big-ref">{nomLivreJour && jourEtape ? `${nomLivreJour} ${jourEtape.chapter}` : `${position.step.label}`}</div>
               <p style={{ color: 'var(--ink-2)', fontSize: 15.5 }}>
-                Jour {plan?.current_day ?? 1}{P.days ? ` sur ${P.days}` : ''} · Étape {position.index + 1} sur {mySteps.length}, {position.step.title}
+                Jour {plan?.current_day ?? 1}{P.days ? ` sur ${P.days}` : ''} · Étape {position.index + 1} sur {mySteps.length}, {position.step.label}{position.step.title ? ` (${position.step.title})` : ''}
                 {plan?.streak > 1 ? ` · ${plan.streak} jours d'affilee` : ''}
               </p>
               {P.days ? (
@@ -604,12 +625,13 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
               ) : null}
               <div className="share-grid" style={{ marginTop: 20 }}>
                 <button className="btn primary" onClick={() => {
-                  setBook(position.step.book); setChapter(position.chapter); setTab('bible');
+                  setBook(jourEtape?.book ?? position.step.book); setChapter(jourEtape?.chapter ?? 1); setTab('bible');
                   setTimeout(() => document.getElementById('lecteur')
                     ?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
                 }}>
                   Ouvrir la lecture
                 </button>
+                <button className="btn" onClick={() => etudeGo(jourEtape ? `c:${jourEtape.book}:${jourEtape.chapter}` : `l:${position.step.book}`)}>Étudier ce chapitre</button>
                 <button className="btn" onClick={markRead}>J&rsquo;ai lu, chapitre suivant</button>
               </div>
             </div>

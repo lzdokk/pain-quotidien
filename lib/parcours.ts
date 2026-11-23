@@ -79,3 +79,54 @@ export function resoudreEtape(label: string): Etape | null {
   const nom = BOOKS[hit.id - 1][1];
   return { label, book: hit.id, chapter, href: `/lire?ref=${encodeURIComponent(`${nom} ${chapter ?? 1}`)}` };
 }
+
+/**
+ * Chapitres couverts par une étape : « Matthieu 5-7 » -> [5,6,7], « 2 Corinthiens 1 et 4 » -> [1,4],
+ * « Jean » -> tous les chapitres. Liste vide si l'étape est une sélection (« Psaumes choisis »).
+ */
+export function chapitresEtape(label: string): { book: number; chapters: number[] } | null {
+  const n = norm(label);
+  const hit = NOMS.find(b => n === b.n || n.startsWith(b.n + ' '));
+  if (!hit) return null;
+  const total = BOOKS[hit.id - 1][2];
+  const rest = n.slice(hit.n.length).replace(/[:.]\d+(?:\s*[-–]\s*\d+)?/g, '');
+  if (/choisi/.test(rest)) return { book: hit.id, chapters: [] };
+  const out = new Set<number>();
+  for (const m of rest.matchAll(/(\d+)(?:\s*(?:-|–|a)\s*(\d+))?/g)) {
+    const a = +m[1], b = m[2] ? +m[2] : a;
+    for (let c = a; c <= Math.min(b, total); c++) if (c >= 1) out.add(c);
+  }
+  const chapters = out.size ? [...out].sort((x, y) => x - y) : Array.from({ length: total }, (_, i) => i + 1);
+  return { book: hit.id, chapters };
+}
+
+/** Chapitre à lire un jour donné d'une étape de plan quotidien (répartition régulière). */
+export function chapitreDuJour(step: { book: number; label: string; chapters: number; key_passages?: string[] }, jour: number): { book: number; chapter: number } {
+  let info = chapitresEtape(step.label);
+  let liste = info?.chapters ?? [];
+  if (!info || liste.length === 0) {
+    const kp = (step.key_passages ?? []).map(k => resoudreEtape(k.split(',')[0])).filter((e): e is Etape => !!e);
+    if (kp.length) {
+      const e = kp[Math.min(kp.length - 1, Math.floor((jour - 1) * kp.length / Math.max(1, step.chapters)))];
+      return { book: e.book, chapter: e.chapter ?? 1 };
+    }
+    return { book: step.book, chapter: 1 };
+  }
+  const idx = Math.min(liste.length - 1, Math.floor((jour - 1) * liste.length / Math.max(1, step.chapters)));
+  return { book: info.book, chapter: liste[idx] };
+}
+
+/** Section du plan d'un livre où se trouve un chapitre (« 5-8 : la vie nouvelle… »). */
+export function sectionDuChapitre(pl: string[], c: number): string | null {
+  let found: string | null = null;
+  for (const it of pl) {
+    let a: number, b: number, m: RegExpMatchArray | null;
+    if ((m = it.match(/^(\d+):\d+\s*-\s*(\d+):\d+/))) { a = +m[1]; b = +m[2]; }
+    else if ((m = it.match(/^(\d+):\d+\s*-\s*\d+/))) { a = b = +m[1]; }
+    else if ((m = it.match(/^(\d+)\s*-\s*(\d+)/))) { a = +m[1]; b = +m[2]; }
+    else if ((m = it.match(/^(\d+)/))) { a = b = +m[1]; }
+    else continue;
+    if (c >= a && c <= b) found = it;
+  }
+  return found;
+}

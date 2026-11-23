@@ -1,25 +1,92 @@
 'use client';
 import { useCallback, useEffect, useState } from 'react';
+import { chapitresEtape, parcoursById, resoudreEtape, type Parcours } from '@/lib/parcours';
 
 /**
- * Progression des parcours d'étude, gardée sur l'appareil (aucune base).
- * { [idParcours]: [index d'étapes terminées] }
+ * SUIVI UNIQUE (gardé sur l'appareil, aucune base) :
+ *  - actif : le parcours d'étude suivi (affiché en haut de Lire > Parcours)
+ *  - lus   : chapitres lus par livre   { "43": [1,2,3] }
+ *  - done  : étapes cochées à la main  { "premiers-pas": [0,2] }
  */
-const KEY = 'pq-etudier';
+type S = { actif: string | null; done: Record<string, number[]>; lus: Record<string, number[]> };
+const KEY = 'pq-suivi', OLD = 'pq-etudier';
+const VIDE: S = { actif: null, done: {}, lus: {} };
+let cache: S | null = null;
+const subs = new Set<() => void>();
 
-export function useProgression() {
-  const [done, setDone] = useState<Record<string, number[]>>({});
+function load(): S {
+  if (cache) return cache;
+  try {
+    const raw = JSON.parse(localStorage.getItem(KEY) ?? 'null');
+    const old = JSON.parse(localStorage.getItem(OLD) ?? '{}');
+    cache = { actif: raw?.actif ?? null, done: raw?.done ?? old, lus: raw?.lus ?? {} };
+  } catch { cache = { ...VIDE }; }
+  return cache!;
+}
+function save(n: S) {
+  cache = n;
+  try { localStorage.setItem(KEY, JSON.stringify(n)); } catch {}
+  subs.forEach(f => f());
+}
+
+export type EtapeEtat = {
+  i: number; label: string; book: number; chapters: number[];
+  lus: number; complete: boolean; prochain: number;
+};
+
+/** État des étapes d'un parcours d'étude d'après les chapitres lus et les cases cochées. */
+export function etatParcours(p: Parcours, s: S): { etapes: EtapeEtat[]; courant: number; faites: number } {
+  const etapes: EtapeEtat[] = [];
+  p.etapes.forEach((label, i) => {
+    const r = resoudreEtape(label);
+    if (!r) return;
+    const ci = chapitresEtape(label);
+    const chapters = ci && ci.chapters.length ? ci.chapters : [r.chapter ?? 1];
+    const lusLivre = new Set(s.lus[String(r.book)] ?? []);
+    const lus = chapters.filter(c => lusLivre.has(c)).length;
+    const manuel = (s.done[p.id] ?? []).includes(i);
+    const complete = manuel || lus === chapters.length;
+    const prochain = chapters.find(c => !lusLivre.has(c)) ?? chapters[0];
+    etapes.push({ i, label, book: r.book, chapters, lus, complete, prochain });
+  });
+  const courant = etapes.findIndex(e => !e.complete);
+  return { etapes, courant, faites: etapes.filter(e => e.complete).length };
+}
+
+export function useSuivi() {
+  const [s, setS] = useState<S>(VIDE);
   useEffect(() => {
-    try { setDone(JSON.parse(localStorage.getItem(KEY) ?? '{}')); } catch {}
+    const f = () => setS(load());
+    f();
+    subs.add(f);
+    const st = (e: StorageEvent) => { if (e.key === KEY) { cache = null; f(); } };
+    window.addEventListener('storage', st);
+    return () => { subs.delete(f); window.removeEventListener('storage', st); };
   }, []);
-  const toggle = useCallback((id: string, i: number) => {
-    setDone(prev => {
-      const cur = new Set(prev[id] ?? []);
-      cur.has(i) ? cur.delete(i) : cur.add(i);
-      const next = { ...prev, [id]: [...cur].sort((a, b) => a - b) };
-      try { localStorage.setItem(KEY, JSON.stringify(next)); } catch {}
-      return next;
-    });
+
+  const setActif = useCallback((id: string | null) => save({ ...load(), actif: id }), []);
+  const lire = useCallback((book: number, ch: number, lu = true) => {
+    const cur = load(); const k = String(book);
+    const set = new Set(cur.lus[k] ?? []);
+    lu ? set.add(ch) : set.delete(ch);
+    save({ ...cur, lus: { ...cur.lus, [k]: [...set].sort((a, b) => a - b) } });
   }, []);
-  return { done, toggle };
+  const toggleEtape = useCallback((id: string, i: number) => {
+    const cur = load(); const p = parcoursById(id);
+    const set = new Set(cur.done[id] ?? []);
+    const e = p ? etatParcours(p, cur).etapes.find(x => x.i === i) : undefined;
+    if (e?.complete) {
+      // décocher : on retire aussi les chapitres lus de cette étape
+      set.delete(i);
+      const k = String(e.book);
+      const lus = new Set(cur.lus[k] ?? []);
+      e.chapters.forEach(c => lus.delete(c));
+      save({ ...cur, done: { ...cur.done, [id]: [...set] }, lus: { ...cur.lus, [k]: [...lus].sort((a, b) => a - b) } });
+    } else {
+      set.add(i);
+      save({ ...cur, done: { ...cur.done, [id]: [...set].sort((a, b) => a - b) } });
+    }
+  }, []);
+  const estLu = useCallback((book: number, ch: number) => (s.lus[String(book)] ?? []).includes(ch), [s]);
+  return { ...s, setActif, lire, toggleEtape, estLu };
 }
