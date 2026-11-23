@@ -29,6 +29,17 @@ const entryCache = new Map<string, Entry>();
  * 3. La fiche du mot : forme d'origine, prononciation, sens, comment il est
  *    traduit ailleurs, et les autres passages où il apparaît (un toucher les lit).
  */
+/* Fiche Strong : on garde le SENS du mot (2 à 3 phrases), sans les
+   conseils d'application qu'ajoutaient certaines anciennes fiches. */
+function lexSense(def?: string | null): string {
+  if (!def) return '';
+  const parts = def.replace(/\s+/g, ' ').trim().split(/(?<=[.!?…])\s+(?=[A-ZÀÂÉÈÊÎÔÛÇ«])/);
+  const APPLI = /(aujourd|dans (ta|votre|ma|notre) vie|au quotidien|concrètement|pratique|essaie|essayez|demande-toi|demandez-vous|prends le temps|prenez le temps|cette semaine|tu peux|vous pouvez|invite-toi|pour toi|pour vous)/i;
+  const out: string[] = [];
+  for (const p of parts) { if (APPLI.test(p)) break; out.push(p); if (out.length >= 3) break; }
+  return out.join(' ') || parts[0];
+}
+
 export default function WordByWord({ book, chapter, verse, frText, prefer, onClose }:
   { book: number; chapter: number; verse: number; frText?: string; prefer?: 'he' | 'grec'; onClose: () => void }) {
   const nt = book >= 40;
@@ -36,7 +47,8 @@ export default function WordByWord({ book, chapter, verse, frText, prefer, onClo
   const [line, setLine] = useState('');
   const [complete, setComplete] = useState(true);
   // Nouveau Testament : les numéros Strong existent sur le grec original.
-  const [src, setSrc] = useState<'he' | 'grec'>(prefer ?? 'he');
+  // Nouveau Testament : le GREC original par défaut (l'hébreu de Delitzsch reste au choix).
+  const [src, setSrc] = useState<'he' | 'grec'>(prefer ?? 'grec');
   const [open, setOpen] = useState<number | null>(null);
   const [entry, setEntry] = useState<Entry | null>(null);
   const [loadingEntry, setLoadingEntry] = useState(false);
@@ -130,7 +142,7 @@ export default function WordByWord({ book, chapter, verse, frText, prefer, onClo
            {words.map(w => (
              <button key={w.position} className={`wbw-tok${open === w.position ? ' on' : ''}${w.strong ? ' has' : ''}`}
                      onClick={() => openWord(w.position)}>
-               <span className="wbw-fr">{w.gloss_fr || w.translit || w.gloss || w.word}</span>
+               <span className={`wbw-fr${w.gloss_fr ? '' : ' tr'}`}>{w.gloss_fr || w.translit || '·'}</span>
                <span className="wbw-src" dir={rtl ? 'rtl' : 'ltr'}>{w.word}</span>
              </button>
            ))}
@@ -158,7 +170,7 @@ export default function WordByWord({ book, chapter, verse, frText, prefer, onClo
              {entry && (
                <>
                  <div className="sx-k">Le sens</div>
-                 <p className="sx-def">{entry.definition_fr || active.definition_fr || 'Sens français en préparation…'}</p>
+                 <p className="sx-def">{lexSense(entry.definition_fr || active.definition_fr) || 'Sens français en préparation…'}</p>
 
                  {entry.usage && entry.usage.renderings.length > 1 && (
                    <>

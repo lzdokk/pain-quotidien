@@ -35,7 +35,7 @@ export default function VerseActions({ book, chapter, bookName, verses, user: us
   // Mode « Approfondir » (Strong), le meme que dans /lire.
   const [deep, setDeep] = useState(false);
   useEffect(() => {
-    try { setDeep(localStorage.getItem('pq-strong') === '1'); } catch {}
+    // ancien mode Strong permanent : retiré (le Strong s'ouvre par le bouton du verset)
     const on = (e: any) => setDeep(!!e.detail);
     window.addEventListener('pq-strong', on);
     return () => window.removeEventListener('pq-strong', on);

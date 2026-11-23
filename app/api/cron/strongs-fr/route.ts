@@ -20,12 +20,11 @@ export const dynamic = 'force-dynamic';
  *
  *   ?n=20   nombre d'entrees traduites par appel (defaut 20, max 50)
  */
-const SYSTEM = `Tu traduis et eclaires une entree du lexique Strong pour un lecteur francophone.
-
-${VOICE}
-
-Donne en trois a quatre phrases : le sens du mot en francais, sa nuance propre,
-et ce que le francais courant ne rend pas. Pas de titre, pas de liste, du texte suivi.`;
+const SYSTEM = `Tu rédiges une entrée de LEXIQUE biblique (concordance Strong) pour un lecteur francophone.
+En deux à trois phrases, en français simple et exact : le sens précis du mot, sa nuance propre,
+et ses principales traductions possibles selon le contexte. Reste fidèle à la définition de Strong.
+INTERDIT : conseils, applications pratiques, exhortations, tutoiement ou vouvoiement du lecteur,
+titres, listes. Uniquement le sens du mot.`;
 
 export async function GET(req: NextRequest) {
   if (req.headers.get('authorization') !== `Bearer ${process.env.CRON_SECRET}`) {

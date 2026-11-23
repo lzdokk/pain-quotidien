@@ -467,3 +467,8 @@ html[data-mode="soir"] .ai-steps li::before{color:#0E141A}
 .aikey-t b{font-size:15px;color:var(--ink)} .aikey-t small{font-size:12.5px;color:var(--ink-3);margin-top:1px}
 .aikey-st{flex:none;font-size:18px;color:var(--ink-4)} .aikey-st.ok{color:var(--c-sage);font-weight:700}
 .linkbtn{border:0;background:none;padding:0;font:inherit;color:var(--accent);font-weight:600;text-decoration:underline;cursor:pointer}
+
+/* Mot à mot : translittération (pas encore de traduction en contexte) */
+.wbw-fr.tr{font-style:italic;font-weight:500;color:var(--ink-3)}
+.rsheet-extra{margin-top:18px;padding-top:6px;border-top:1px solid var(--line)}
+.rsheet-extra .btn{margin-top:8px}

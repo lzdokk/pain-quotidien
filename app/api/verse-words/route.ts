@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { admin } from '@/lib/supabase/admin';
 import { aiAccess } from '@/lib/ai-access';
+import { glossFr } from '@/lib/gloss-fr';
 import { callJSON } from '@/lib/llm';
 
 export const dynamic = 'force-dynamic';
@@ -24,16 +25,6 @@ const norm = (c: string) => {
   return m ? m[1].toUpperCase() + m[2] : c;
 };
 
-/* Repli sans IA : le premier sens francais cite entre guillemets dans la
-   definition Strong (« créer », "Dieu"…), sinon rien. */
-function quotedFr(def: string | null): string | null {
-  if (!def) return null;
-  const head = def.slice(0, 400);
-  const m = head.match(/[«"“]\s*([^»"”]{1,40}?)\s*[»"”]/);
-  if (!m) return null;
-  const t = m[1].replace(/\*/g, '').trim();
-  return t.split(/\s+/).length <= 4 ? t : null;
-}
 
 const GlossSchema = z.object({ mots: z.array(z.string()) });
 
@@ -166,7 +157,8 @@ export async function GET(req: NextRequest) {
     const s = w.strong ? map.get(norm(w.strong)) : null;
     return {
       position: w.position, word: w.word, strong: w.strong, gloss: w.gloss, lang: w.lang,
-      gloss_fr: ctx?.[i] ?? (/^\[obj/i.test(w.gloss ?? '') ? '[objet]' : quotedFr(s?.definition_fr ?? null)),
+      // En contexte (IA) si disponible ; sinon petit lexique fiable ; sinon rien (translittération).
+      gloss_fr: ctx?.[i] ?? (/^\[obj/i.test(w.gloss ?? '') ? '[objet]' : glossFr(w.gloss)),
       translit: s?.translit ?? null,
       definition_fr: s?.definition_fr ?? null
     };
