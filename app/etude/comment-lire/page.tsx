@@ -48,7 +48,7 @@ export default async function CommentLire() {
         <div className="share-grid" style={{ marginTop: 18 }}>
           <Link href="/lire" className="btn primary">Ouvrir la Bible ›</Link>
           <Link href="/lire?tab=etude" className="btn">Ouvrir la Bible d’étude ›</Link>
-          <Link href="/etudier" className="btn">Parcours d’étude ›</Link>
+          <Link href="/lire?tab=parcours&vue=livres" className="btn">Étude des livres ›</Link>
         </div>
       </main>
     </>

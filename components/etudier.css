@@ -34,3 +34,18 @@
 .pe-warn{background:color-mix(in srgb,var(--gold,#b8893b) 12%,transparent);border-radius:12px;padding:10px 14px;font-size:14.5px;color:var(--ink-2);margin-top:10px}
 .pe-nav{display:flex;justify-content:space-between;gap:8px;margin-top:14px}
 @media (max-width:520px){.pe-row{grid-template-columns:1fr;gap:2px}}
+
+/* Transitions : le contenu glisse doucement d'une vue à l'autre. */
+.pe-wrap{min-height:40vh}
+.pe-view{animation:pe-in .3s cubic-bezier(.2,.8,.2,1) both}
+@keyframes pe-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.pe-view{animation:none}}
+.pe-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:2px 0 6px}
+.pe-back{background:none;border:0;padding:8px 4px;font:inherit;font-size:15px;font-weight:600;color:var(--accent);cursor:pointer}
+.pe-head{margin:6px 0 14px}
+.pe-head .eyebrow{margin-bottom:8px}
+.pe-head h2{margin:0;font-size:clamp(26px,5.5vw,34px);line-height:1.15}
+.pe-head p{margin:6px 0 0;color:var(--ink-3);font-size:16px}
+button.pe-item{width:100%;text-align:left;font:inherit;cursor:pointer;border:0;display:block}
+button.pe-chap{font:inherit;cursor:pointer;background:transparent}
+.pe-seg{display:flex;justify-content:center;margin:2px 0 14px}

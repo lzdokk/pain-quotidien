@@ -11,7 +11,7 @@ import { useEffect } from 'react';
  * Respecte « réduire les animations » (CSS).
  */
 const SELECTOR = '.card, .hero, .home-head, .home-verse, .tile, h2.sect, .prayer, .rc-volet, .np-phase, .agenda-day, .cstudy, .page-tabs, .mode-switch, .to-pain';
-const SKIP = '.rsheet, .rbubble, .vbar-inline, .sheet, .modal, .skel-page';
+const SKIP = '.rsheet, .rbubble, .vbar-inline, .sheet, .modal, .skel-page, .pe-wrap';
 
 let started = false;
 

@@ -1,5 +1,4 @@
 'use client';
-import Link from 'next/link';
 import { useUser } from '@/lib/useUser';
 import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
@@ -15,6 +14,8 @@ import { QUATRE_TEMPS } from '@/lib/reading-guide';
 import { ALLIANCES, BOOK_GROUPS, groupOf, searchBooks, bookName as accentName } from '@/lib/bible-books';
 import StudyIndex from './StudyIndex';
 import FicheSheet from './FicheSheet';
+import dynamic from 'next/dynamic';
+const EtudeLivres = dynamic(() => import('./EtudeLivres'), { ssr: false, loading: () => <div className="skel skel-card" /> });
 import ChapterStudy from './ChapterStudy';
 import WordsBrowser from './WordsBrowser';
 import VerseTools from './VerseTools';
@@ -144,6 +145,12 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
   // Onglets de la page : lecture du jour / parcours / Bible.
   type Tab = 'jour' | 'parcours' | 'bible' | 'recherche' | 'etude';
   const [tab, setTabState] = useState<Tab>('bible');
+  // Dans l'onglet Parcours : lecture du jour (plans) ou étude des livres (fiches).
+  const [pview, setPviewState] = useState<'jour' | 'livres'>('jour');
+  const setPview = (v: 'jour' | 'livres') => {
+    setPviewState(v);
+    try { sessionStorage.setItem('pq-pview', v); } catch {}
+  };
   const setTab = (t: Tab) => {
     const v: Tab = t === 'jour' ? 'parcours' : t;
     setTabState(v);
@@ -338,6 +345,7 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
       const wanted = qs.get('tab');
       if (wanted === 'etude' || wanted === 'recherche' || wanted === 'parcours') setTabState(wanted as Tab);
       else if (!hasRef && (savedTab === 'recherche' || savedTab === 'etude')) setTabState(savedTab as Tab);
+      if (qs.get('vue') === 'livres') { setTabState('parcours'); setPviewState('livres'); }
       if (qs.get('fiche')) setFiche(qs.get('fiche'));
       if (qs.get('lexique')) { setTabState('recherche'); setLexOpen(true); }
       if (qs.get('q') && wanted === 'recherche') setSearch(qs.get('q')!);
@@ -583,6 +591,18 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
       </div>
 
       {tab === 'parcours' && (
+        <div className="pe-seg">
+          <div className="mode-switch" role="tablist" aria-label="Type de parcours">
+            <button role="tab" aria-selected={pview === 'jour'} onClick={() => { setPview('jour'); try { history.replaceState(null, '', '/lire?tab=parcours'); } catch {} }}>Lecture du jour</button>
+            <button role="tab" aria-selected={pview === 'livres'} onClick={() => { setPview('livres'); try { history.replaceState(null, '', '/lire?tab=parcours&vue=livres'); } catch {} }}>Étude des livres</button>
+          </div>
+        </div>
+      )}
+      {tab === 'parcours' && pview === 'livres' && (
+        <EtudeLivres onRead={(b, c) => { try { history.replaceState(null, '', '/lire'); } catch {} setBook(b); setChapter(c); setTarget(null); setTab('bible'); }} />
+      )}
+
+      {tab === 'parcours' && pview === 'jour' && (
         <>
       {P && position.step && (
         <div className="card">
@@ -659,7 +679,7 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
         </>
       )}
 
-      {tab === 'parcours' && (
+      {tab === 'parcours' && pview === 'jour' && (
         <>
       <div className="card pad">
         <span className="kicker">Choisir un parcours de lecture · {plans.length} disponibles</span>
@@ -729,10 +749,6 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
               <span className="switch-l">Pendant la lecture</span>
             </label>
           </div>
-          <Link href="/etudier" className="card pad tap" style={{ display: 'block', textDecoration: 'none', color: 'inherit' }}>
-            <span className="kicker">Parcours d&rsquo;étude</span>
-            <p className="fine" style={{ margin: '4px 0 0' }}>20 parcours pour méditer les livres dans le bon ordre, avec une fiche par livre et ton carnet. ›</p>
-          </Link>
           {studyList
             ? <StudyIndex embedded plan={studyList.plan} ready={studyList.ready} sujets={studyList.sujets}
                           renvois={studyList.renvois} onOpen={setFiche} />
