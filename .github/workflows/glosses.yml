@@ -1,0 +1,17 @@
+name: Mot à mot — traduction en contexte
+
+# Toutes les heures : traduit en français, en contexte, les mots grecs puis
+# hébreux du mot à mot (Strong). Le Nouveau Testament d'abord.
+on:
+  schedule:
+    - cron: '27 * * * *'
+  workflow_dispatch: {}
+
+jobs:
+  glosses:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Traduire un lot de versets
+        run: |
+          curl -s --max-time 290 "https://paindevie.vercel.app/api/cron/glosses?n=10" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" || true
