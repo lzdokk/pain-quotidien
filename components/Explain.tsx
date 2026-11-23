@@ -5,6 +5,7 @@ import { aiFetch } from '@/lib/ai-key';
 import NeedKey from './NeedKey';
 import R from '@/components/R';
 import { rich } from '@/lib/rich';
+import { SITE_URL } from '@/lib/site';
 
 type P = {
   book: number; chapter: number; verse?: number; bookName: string; text: string;
@@ -32,14 +33,29 @@ export default function Explain({ book, chapter, verse, bookName, text, onClose,
 
   const reference = verse === undefined ? `${bookName} ${chapter}` : `${bookName} ${chapter}.${verse}`;
 
+  // Partage : le verset ET toute la méditation (texte simple, sans balises ni astérisques).
+  const plain = (x?: string | null) => stripTags(String(x ?? '')).replace(/\*+/g, '').replace(/(?<![A-Za-z0-9])_([^_]+?)_(?![A-Za-z0-9])/g, '$1').trim();
   const shareExplanation = async () => {
-    const parts = [`${reference}`];
-    if (text) parts.push(`« ${text} »`);
-    if (data?.says) parts.push(stripTags(data.says));
-    if (data?.parable) parts.push(data.parable);
+    const parts: string[] = [`📖 ${reference}`];
+    if (text) parts.push(`« ${plain(text)} »`);
+    const sec = (t: string, v?: string | null) => { const c = plain(v); if (c) parts.push(`${t}\n${c}`); };
+    if (data && verse !== undefined) {
+      if (data.word_term) parts.push(`LE MOT\n${plain(data.word_term)}${data.word_lang ? ` (${plain(data.word_lang)})` : ''}${data.word_sense ? ` : ${plain(data.word_sense)}` : ''}`);
+      sec('CE QUE DIT LE TEXTE', data.says);
+      sec('UNE IMAGE', data.parable);
+      sec('POUR ALLER PLUS LOIN', data.development);
+      if (Array.isArray(data.cross_refs) && data.cross_refs.length) parts.push(`À CROISER\n${data.cross_refs.join(' · ')}`);
+    } else if (data) {
+      sec('CE QUE FAIT CE CHAPITRE', data.summary);
+      if (Array.isArray(data.outline) && data.outline.length) parts.push(`LE DÉCOUPAGE\n${data.outline.map((x: string) => `• ${plain(x)}`).join('\n')}`);
+      sec('LA CLÉ DE LECTURE', data.reading_key);
+      sec('POURQUOI IL EST LÀ', data.why_here);
+    }
+    if (answer && q.trim()) parts.push(`MA QUESTION\n${q.trim()}\n${plain(answer)}`);
+    parts.push(`Pain de Vie · ${SITE_URL}/lire?ref=${encodeURIComponent(`${bookName} ${chapter}`)}`);
     const body = parts.join('\n\n');
     const nav: any = typeof navigator !== 'undefined' ? navigator : null;
-    if (nav?.share) { try { await nav.share({ title: reference, text: body }); return; } catch { /* repli copie */ } }
+    if (nav?.share) { try { await nav.share({ title: reference, text: body }); return; } catch (e: any) { if (e?.name === 'AbortError') return; } }
     try { await nav?.clipboard?.writeText(body); setShared(true); setTimeout(() => setShared(false), 1800); } catch {}
   };
 
@@ -116,11 +132,11 @@ export default function Explain({ book, chapter, verse, bookName, text, onClose,
           <div className="msub">{data.dating}</div>
           <h4>Ce que fait ce chapitre</h4>
           <p dangerouslySetInnerHTML={{ __html: rich(data.summary) }} />
-          <h4>Le decoupage</h4>
+          <h4>Le découpage</h4>
           <ul className="mlist">{(data.outline as string[]).map((x, i) => <li key={i}>{x}</li>)}</ul>
           <h4>La clé de lecture</h4>
           <div className="par">{<R t={data.reading_key} />}</div>
-          <h4>Pourquoi il est la</h4>
+          <h4>Pourquoi il est là</h4>
           <p dangerouslySetInnerHTML={{ __html: rich(data.why_here) }} />
         </>
       )}
@@ -146,7 +162,7 @@ export default function Explain({ book, chapter, verse, bookName, text, onClose,
           <div className="par">{<R t={data.parable} />}</div>
           <h4>Pour aller plus loin</h4>
           <p dangerouslySetInnerHTML={{ __html: rich(data.development) }} />
-          <h4>A croiser</h4>
+          <h4>À croiser</h4>
           <div className="vrefs">
             {(data.cross_refs as string[]).map(r => (
               <button key={r} onClick={() => onGoto(r)}>{r}</button>
