@@ -243,12 +243,27 @@ const OVERALL_MS = Math.max(CALL_TIMEOUT_MS, Number(process.env.LLM_OVERALL_MS ?
 async function raw(c: Call): Promise<Raw> {
   // Cle personnelle du lecteur : Gemini avec SA cle, sans repli sur le pool.
   if (c.userKey) return gemini(c, c.userKey, modelFor('gemini'));
-  // Mode simple : un seul fournisseur.
+  // Mode simple : un seul fournisseur. Les surcharges passagères (503 « high
+  // demand », 429, 504) sont fréquentes chez Gemini : on patiente et on
+  // retente, puis on bascule sur un autre modèle Gemini avant d'abandonner.
   if (POOL.length === 0) {
     if (PROVIDER === 'none') {
       throw new Error("LLM_PROVIDER vaut 'none'. Configure un fournisseur ou LLM_POOL.");
     }
-    return callProvider(PROVIDER, c, KEY_ENV[PROVIDER]);
+    if (PROVIDER !== 'gemini') return callProvider(PROVIDER, c, KEY_ENV[PROVIDER]);
+    const key = process.env[KEY_ENV.gemini] ?? '';
+    const models = [modelFor('gemini'), modelFor('gemini'), process.env.GEMINI_FALLBACK_MODEL || 'gemini-flash-latest'];
+    let last: any;
+    for (let i = 0; i < models.length; i++) {
+      try { return await gemini(c, key, models[i]); }
+      catch (e: any) {
+        last = e;
+        const st = e?.status;
+        if (!(st === 429 || st === 500 || st === 503 || st === 504)) throw e;
+        if (i < models.length - 1) await new Promise(r => setTimeout(r, 2500 * (i + 1)));
+      }
+    }
+    throw last;
   }
   // Mode pool : on part de la position courante puis on bascule en cas d'echec.
   const n = POOL.length;

@@ -46,7 +46,7 @@ export async function GET(req: NextRequest) {
   }
   const n = Math.min(Math.max(1, Number(new URL(req.url).searchParams.get('n') ?? 10)), 15);
   const started = Date.now(), BUDGET = 200_000;
-  let done = 0, batches = 0;
+  let done = 0, batches = 0, fails = 0;
   const errors: string[] = [];
   const skip = new Set<string>(); // lots refusés pendant cet appel (nombre de mots faux)
 
@@ -115,8 +115,13 @@ export async function GET(req: NextRequest) {
       }
     } catch (e: any) {
       errors.push(String(e?.message ?? e).slice(0, 160));
-      break; // quota ou panne : on reprendra au prochain passage
+      // Surcharge passagère : on patiente et on retente (3 fois max par appel).
+      if (/\b(429|500|503|504)\b|timeout/.test(String(e?.message ?? '')) && ++fails < 3) {
+        await new Promise(r => setTimeout(r, 15_000));
+        continue;
+      }
+      break; // quota épuisé ou panne durable : on reprendra au prochain passage
     }
   }
-  return NextResponse.json({ ok: errors.length === 0, done, batches, errors: errors.length ? errors : undefined });
+  return NextResponse.json({ ok: done > 0 || errors.length === 0, done, batches, errors: errors.length ? errors : undefined });
 }
