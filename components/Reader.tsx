@@ -1,4 +1,5 @@
 'use client';
+import Link from 'next/link';
 import { useUser } from '@/lib/useUser';
 import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
@@ -728,6 +729,10 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
               <span className="switch-l">Pendant la lecture</span>
             </label>
           </div>
+          <Link href="/etudier" className="card pad tap" style={{ display: 'block', textDecoration: 'none', color: 'inherit' }}>
+            <span className="kicker">Parcours d&rsquo;étude</span>
+            <p className="fine" style={{ margin: '4px 0 0' }}>20 parcours pour méditer les livres dans le bon ordre, avec une fiche par livre et ton carnet. ›</p>
+          </Link>
           {studyList
             ? <StudyIndex embedded plan={studyList.plan} ready={studyList.ready} sujets={studyList.sujets}
                           renvois={studyList.renvois} onOpen={setFiche} />
