@@ -46,19 +46,9 @@ const STEPS: Step[] = [
           l&rsquo;<b>annoter</b>, le <b>méditer</b> ou le <b>comparer</b>.
         </p>
         <p>
-          Passez en <b>Bible d&rsquo;étude</b> pour voir les fiches liées au chapitre, et touchez
-          <b> א</b> pour le <b>Strong</b> : l&rsquo;hébreu ou le grec, mot par mot.
+          Le bouton <b>+</b>, en bas à droite, ouvre la <b>Bible d&rsquo;étude</b>, la <b>recherche</b> et la
+          méthode pour <b>méditer</b>. Le <b>Strong</b> donne l&rsquo;hébreu ou le grec, mot par mot.
         </p>
-      </>
-    )
-  },
-  {
-    eyebrow: 'Grandir',
-    title: 'La théologie racontée',
-    body: (
-      <>
-        <p>Les <b>Récits</b> : la théologie racontée, trois histoires par thème.</p>
-        <p>Une histoire pour sentir une vérité avant de l&rsquo;expliquer, à lire dans l&rsquo;ordre, thème après thème.</p>
       </>
     )
   },

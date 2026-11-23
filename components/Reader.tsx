@@ -22,7 +22,7 @@ const EtudeLivres = dynamic(() => import('./EtudeLivres'), { ssr: false, loading
 import ChapterStudy from './ChapterStudy';
 import WordsBrowser from './WordsBrowser';
 import VerseTools from './VerseTools';
-import { getStudyList, kindLabel, type StudyList } from '@/lib/study-client';
+import { getStudyList, getChapterStudy, kindLabel, type StudyList } from '@/lib/study-client';
 import R from '@/components/R';
 
 type V = { verse: number; text: string };
@@ -65,6 +65,15 @@ const LANG_ORDER = ['fr', 'en', 'he', 'el', 'la', 'de', 'ru', 'pl', 'ar', 'zh'];
 // Chapitres deja charges : relecture instantanee, et chapitre suivant pre-charge.
 type Chap = { verses: V[]; famous: Array<{ verse_start: number; verse_end: number; title: string }>; jesus: number[] };
 const chapterCache = new Map<string, Chap>();
+
+/** Les outils du bouton + (Lire), du haut vers le bas. */
+const svg = (d: JSX.Element, sw = 1.8) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round">{d}</svg>;
+const FABS: Array<{ k: 'etude' | 'importants' | 'search' | 'method'; l: string; ic: JSX.Element }> = [
+  { k: 'etude', l: 'Bible d’étude', ic: svg(<><path d="M12 6.5C10.5 5 8 4.5 4 5v13c4-.5 6.5 0 8 1.5 1.5-1.5 4-2 8-1.5V5c-4-.5-6.5 0-8 1.5zM12 6.5V19" /></>) },
+  { k: 'importants', l: 'Versets importants', ic: <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 3.2l2.6 5.5 6 .7-4.5 4.1 1.2 5.9L12 16.5 6.7 19.4l1.2-5.9L3.4 9.4l6-.7z" /></svg> },
+  { k: 'search', l: 'Rechercher', ic: svg(<><circle cx="11" cy="11" r="6.5" /><path d="M20 20l-4.2-4.2" /></>) },
+  { k: 'method', l: 'Méditer', ic: svg(<path d="M9 18h6M10 21h4M12 3a6 6 0 00-3.6 10.8c.7.5 1.1 1.3 1.1 2.2h5c0-.9.4-1.7 1.1-2.2A6 6 0 0012 3z" />, 1.7) }
+];
 let loadSeq = 0; // numéro de la dernière demande de chapitre
 /** Lecture d'un chapitre par la route mise en cache (CDN + téléphone). */
 async function readChapter(t: string, b: number, c: number): Promise<Chap> {
@@ -172,6 +181,17 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
     setEtudeOn(next);
     try { localStorage.setItem('pq-etude', next ? '1' : '0'); } catch {}
   };
+  useEffect(() => {
+    if (!etudeOn) { setStudyMap({}); setStudyVerses(new Set()); return; }
+    let alive = true;
+    getChapterStudy(book, chapter).then(list => {
+      if (!alive) return;
+      const map: Record<number, string> = {};
+      for (const it of list as any[]) for (const v of it.verses) if (!map[v]) map[v] = it.slug;
+      setStudyMap(map); setStudyVerses(new Set(Object.keys(map).map(Number)));
+    });
+    return () => { alive = false; };
+  }, [etudeOn, book, chapter]); // eslint-disable-line react-hooks/exhaustive-deps
   const loadStudy = () => { if (!studyList) getStudyList().then(setStudyList); };
   const loadLexique = async () => {
     if (lexique) return lexique;
@@ -187,7 +207,8 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
   const [qHist, setQHist] = useState<string[]>([]);
   const [target, setTarget] = useState<number | null>(null);
   // Bulles flottantes : methode de lecture / recherche + historique.
-  const [bubble, setBubble] = useState<null | 'method' | 'search' | 'versions' | 'importants'>(null);
+  const [bubble, setBubble] = useState<null | 'method' | 'search' | 'versions' | 'importants' | 'etude'>(null);
+  const [fabOpen, setFabOpen] = useState(false); // bouton + : déplie les autres boutons
   // Recherche rapide dans la bulle loupe (reste dans la bulle, sans changer d'onglet).
   const [bq, setBq] = useState('');
   const [bres, setBres] = useState<any[] | null>(null);
@@ -860,20 +881,6 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
         <a href={backTo} className="back-parable">‹ Revenir à la parabole</a>
       )}
 
-      <div className="mode-switch" role="tablist" aria-label="Mode de lecture">
-        <button role="tab" aria-selected={!etudeOn} onClick={() => toggleEtude(false)}>Lecture</button>
-        <button role="tab" aria-selected={etudeOn} onClick={() => toggleEtude(true)}>Bible d&rsquo;étude</button>
-      </div>
-      {etudeOn && !compareWith && (
-        <ChapterStudy book={book} chapter={chapter} label={`${bookName} ${chapter}`}
-                      onOpen={setFiche}
-                      onList={list => {
-                        const map: Record<number, string> = {};
-                        for (const it of list) for (const v of it.verses) if (!map[v]) map[v] = it.slug;
-                        setStudyMap(map); setStudyVerses(new Set(Object.keys(map).map(Number)));
-                      }} />
-      )}
-
       <div className="card" id="lecteur" style={{ scrollMarginTop: 70 }}>
         {compareWith && (
           <div className="cmp-strip">
@@ -1209,27 +1216,40 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
 
       {/* Bulles flottantes : comment lire / rechercher + historique. */}
       {tab === 'bible' && sel === null && multi.size === 0 && !sheet && (
-        <div className="rfabs">
-          <button className={`rfab rfab-star${bubble === 'importants' ? ' on' : ''}`} aria-label="Versets importants"
-                  title="Versets importants" onClick={() => setBubble(bubble === 'importants' ? null : 'importants')}>
-            <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 3.2l2.6 5.5 6 .7-4.5 4.1 1.2 5.9L12 16.5 6.7 19.4l1.2-5.9L3.4 9.4l6-.7z" /></svg>
-          </button>
-          <button className={`rfab${bubble === 'search' ? ' on' : ''}`} aria-label="Rechercher dans la Bible"
-                  title="Rechercher" onClick={() => setBubble(bubble === 'search' ? null : 'search')}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><circle cx="11" cy="11" r="6.5" /><path d="M20 20l-4.2-4.2" /></svg>
-          </button>
-          <button className={`rfab${bubble === 'method' ? ' on' : ''}`} aria-label="Méditer : les étapes"
-                  title="Méditer : les étapes" onClick={() => setBubble(bubble === 'method' ? null : 'method')}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M9 18h6M10 21h4M12 3a6 6 0 00-3.6 10.8c.7.5 1.1 1.3 1.1 2.2h5c0-.9.4-1.7 1.1-2.2A6 6 0 0012 3z" />
-            </svg>
+        <div className={`rfabs${fabOpen ? ' open' : ''}`}>
+          {fabOpen && FABS.map(f => (
+            <button key={f.k} className="rfab-row" onClick={() => { setBubble(f.k); setFabOpen(false); }}>
+              <span className="rfab-l">{f.l}</span>
+              <span className={`rfab${f.k === 'importants' ? ' rfab-star' : ''}`}>{f.ic}</span>
+            </button>
+          ))}
+          <button className={`rfab rfab-plus${fabOpen || bubble ? ' x' : ''}`}
+                  aria-label={fabOpen || bubble ? 'Fermer' : 'Outils de lecture'} aria-expanded={fabOpen}
+                  onClick={() => { if (bubble) setBubble(null); else setFabOpen(o => !o); }}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
           </button>
         </div>
       )}
+      {fabOpen && <div className="rfab-veil" onClick={() => setFabOpen(false)} />}
 
       {bubble && tab === 'bible' && (
         <div className="rbubble" role="dialog">
           <button className="rbubble-x" onClick={() => setBubble(null)} aria-label="Fermer">×</button>
+
+          {bubble === 'etude' && (
+            <>
+              <h3 className="rbubble-t">Bible d’étude</h3>
+              <p className="rbubble-sub">Les thèmes, personnages, lieux et mots liés à {bookName} {chapter}.</p>
+              <ChapterStudy bare book={book} chapter={chapter} label={`${bookName} ${chapter}`}
+                            onOpen={slug => { setFiche(slug); setBubble(null); }} />
+              <label className="switch rb-switch">
+                <input type="checkbox" checked={etudeOn} onChange={e => toggleEtude(e.target.checked)} />
+                <span className="switch-ui" />
+                <span className="switch-l">Repérer ces versets (✦) dans le texte</span>
+              </label>
+              <button className="linkbtn rb-more" onClick={() => { setBubble(null); setTab('etude'); }}>Toutes les fiches de la Bible d’étude ›</button>
+            </>
+          )}
 
           {bubble === 'method' && (
             <>

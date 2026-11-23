@@ -28,7 +28,7 @@ export default function OfflineDownload({ translation, translationName }:
     setState('running'); setPct(0);
     try {
       // 1) Toutes les pages fixes + fiches de cursus (HTML).
-      const pages = ['/pain', '/priere', '/sagesse', '/lire', '/paraboles'];
+      const pages = ['/pain', '/priere', '/sagesse', '/lire'];
       // 2) Tous les chapitres de la version, demandes comme le lecteur.
       const chapters: Array<{ b: number; c: number }> = [];
       for (const bk of books) for (let c = 1; c <= bk.chapters; c++) chapters.push({ b: bk.id, c });

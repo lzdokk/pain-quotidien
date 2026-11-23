@@ -12,8 +12,7 @@ const TABS = [
   { href: '/pain',      label: 'Pain',      c: 'c-sand', match: ['/pain', '/jour'] },
   { href: '/priere',    label: 'Prière',  c: 'c-teal' },
   { href: '/sagesse',   label: 'Sagesse', c: 'c-sage' },
-  { href: '/lire',      label: 'Lire',    c: 'c-slate', match: ['/lire', '/etude', '/mots', '/versets'] },
-  { href: '/paraboles', label: 'Récits',  c: 'c-rose', match: ['/paraboles', '/fondements', '/questions'] }
+  { href: '/lire',      label: 'Lire',    c: 'c-slate', match: ['/lire', '/etude', '/mots', '/versets'] }
 ];
 
 /* Icones de la barre mobile, une par onglet. */

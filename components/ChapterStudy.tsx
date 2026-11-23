@@ -7,8 +7,8 @@ import { getChapterStudy, kindLabel } from '@/lib/study-client';
  * (thèmes, personnages, lieux, mots), avec les versets concernés.
  */
 type Item = { slug: string; title: string; kind: string; verses: number[] };
-export default function ChapterStudy({ book, chapter, label, onOpen, onList }: {
-  book: number; chapter: number; label: string;
+export default function ChapterStudy({ book, chapter, label, onOpen, onList, bare }: {
+  book: number; chapter: number; label: string; bare?: boolean;
   onOpen: (slug: string) => void; onList?: (list: Item[]) => void;
 }) {
   const [items, setItems] = useState<Array<{ slug: string; title: string; kind: string; verses: number[] }> | null>(null);
@@ -27,10 +27,12 @@ export default function ChapterStudy({ book, chapter, label, onOpen, onList }: {
 
   const shown = items ? (all ? items : items.slice(0, 10)) : [];
   return (
-    <div className="card pad cstudy">
-      <div className="cstudy-h">
-        <span className="kicker">Bible d&rsquo;étude · {label}</span>
-      </div>
+    <div className={bare ? 'cstudy bare' : 'card pad cstudy'}>
+      {!bare && (
+        <div className="cstudy-h">
+          <span className="kicker">Bible d&rsquo;étude · {label}</span>
+        </div>
+      )}
       {items === null ? <p className="fine">Recherche des fiches liées à ce chapitre…</p>
         : items.length === 0 ? <p className="fine">Pas encore de fiche qui cite ce chapitre : la Bible d&rsquo;étude se remplit chaque nuit.</p>
         : (
@@ -49,7 +51,7 @@ export default function ChapterStudy({ book, chapter, label, onOpen, onList }: {
             )}
           </>
         )}
-      <p className="cstudy-hint">Touchez ✦ à côté d&rsquo;un verset pour ouvrir sa fiche.</p>
+      {!bare && <p className="cstudy-hint">Touchez ✦ à côté d&rsquo;un verset pour ouvrir sa fiche.</p>}
     </div>
   );
 }
