@@ -740,17 +740,6 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
 
       {tab === 'etude' && (
         <>
-          <div className="study-intro card pad">
-            <div>
-              <span className="kicker">Bible d&rsquo;étude</span>
-              <p className="fine">Thèmes, personnages, lieux et mots hébreux : chaque fiche renvoie aux passages, qui se lisent d&rsquo;un toucher.</p>
-            </div>
-            <label className="switch">
-              <input type="checkbox" checked={etudeOn} onChange={e => toggleEtude(e.target.checked)} />
-              <span className="switch-ui" />
-              <span className="switch-l">Pendant la lecture</span>
-            </label>
-          </div>
           {studyList
             ? <StudyIndex embedded plan={studyList.plan} ready={studyList.ready} sujets={studyList.sujets}
                           renvois={studyList.renvois} onOpen={setFiche} />
