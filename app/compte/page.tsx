@@ -22,7 +22,7 @@ export default async function Compte() {
     await Promise.all([
       sb.from('profiles').select('*').eq('id', user.id).single(),
       sb.from('user_plan').select('*, reading_plans(name)').eq('user_id', user.id).maybeSingle(),
-      sb.from('notes').select('*').order('created_at', { ascending: false }),
+      sb.from('notes').select('*').not('reference', 'like', '~etude:%').order('created_at', { ascending: false }),
       loadHighlightItems(sb),
       sb.from('conversations').select('*').order('created_at', { ascending: false }).limit(50)
     ]);

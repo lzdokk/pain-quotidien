@@ -123,7 +123,7 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
     (async () => {
       const [{ data: h }, { data: n }] = await Promise.all([
         supabase.from('highlights').select('book, chapter, verse, color'),
-        supabase.from('notes').select('*').order('created_at', { ascending: false }).limit(60)
+        supabase.from('notes').select('*').not('reference', 'like', '~etude:%').order('created_at', { ascending: false }).limit(60)
       ]);
       if (h) setHl(Object.fromEntries(h.map((x: any) => [`${x.book}-${x.chapter}-${x.verse}`, x.color])));
       if (n) setMyNotes(n);

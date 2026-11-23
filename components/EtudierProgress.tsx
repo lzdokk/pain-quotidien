@@ -1,5 +1,6 @@
 'use client';
 import { useCallback, useEffect, useState } from 'react';
+import { getRemote, putRemote } from '@/lib/etude-sync';
 import { chapitresEtape, parcoursById, resoudreEtape, type Parcours } from '@/lib/parcours';
 
 /**
@@ -8,7 +9,7 @@ import { chapitresEtape, parcoursById, resoudreEtape, type Parcours } from '@/li
  *  - lus   : chapitres lus par livre   { "43": [1,2,3] }
  *  - done  : étapes cochées à la main  { "premiers-pas": [0,2] }
  */
-type S = { actif: string | null; done: Record<string, number[]>; lus: Record<string, number[]> };
+type S = { actif: string | null; done: Record<string, number[]>; lus: Record<string, number[]>; t?: number };
 const KEY = 'pq-suivi', OLD = 'pq-etudier';
 const VIDE: S = { actif: null, done: {}, lus: {} };
 let cache: S | null = null;
@@ -19,14 +20,45 @@ function load(): S {
   try {
     const raw = JSON.parse(localStorage.getItem(KEY) ?? 'null');
     const old = JSON.parse(localStorage.getItem(OLD) ?? '{}');
-    cache = { actif: raw?.actif ?? null, done: raw?.done ?? old, lus: raw?.lus ?? {} };
+    cache = { actif: raw?.actif ?? null, done: raw?.done ?? old, lus: raw?.lus ?? {}, t: raw?.t ?? 0 };
   } catch { cache = { ...VIDE }; }
   return cache!;
 }
+let pushTimer: ReturnType<typeof setTimeout> | null = null;
+const persist = (n: S) => { try { localStorage.setItem(KEY, JSON.stringify(n)); } catch {} };
+const vide = (n: S) => !n.actif && !Object.values(n.done).some(a => a.length) && !Object.values(n.lus).some(a => a.length);
+
 function save(n: S) {
-  cache = n;
-  try { localStorage.setItem(KEY, JSON.stringify(n)); } catch {}
+  cache = { ...n, t: Date.now() };
+  persist(cache);
   subs.forEach(f => f());
+  // envoi groupé vers le compte (synchro entre appareils)
+  if (pushTimer) clearTimeout(pushTimer);
+  pushTimer = setTimeout(() => { if (cache) putRemote('suivi', JSON.stringify(cache)); }, 700);
+}
+
+let lastSync = 0;
+/** Récupère le suivi du compte : le plus récent gagne (appareil ou serveur). */
+export async function syncSuivi(force = false) {
+  if (!force && Date.now() - lastSync < 15000) return;
+  lastSync = Date.now();
+  const r = await getRemote('suivi');
+  const cur = load();
+  if (r) {
+    try {
+      const rs = JSON.parse(r.body) as S;
+      const rt = rs.t ?? r.t;
+      if (rt > (cur.t ?? 0)) {
+        cache = { actif: rs.actif ?? null, done: rs.done ?? {}, lus: rs.lus ?? {}, t: rt };
+        persist(cache);
+        subs.forEach(f => f());
+        return;
+      }
+      if ((cur.t ?? 0) > rt) putRemote('suivi', JSON.stringify(cur));
+    } catch {}
+  } else if (!vide(cur)) {
+    putRemote('suivi', JSON.stringify({ ...cur, t: cur.t || Date.now() }));
+  }
 }
 
 export type EtapeEtat = {
@@ -59,9 +91,13 @@ export function useSuivi() {
     const f = () => setS(load());
     f();
     subs.add(f);
+    syncSuivi();
+    const vis = () => { if (document.visibilityState === 'visible') syncSuivi(); };
+    document.addEventListener('visibilitychange', vis);
+    window.addEventListener('focus', vis);
     const st = (e: StorageEvent) => { if (e.key === KEY) { cache = null; f(); } };
     window.addEventListener('storage', st);
-    return () => { subs.delete(f); window.removeEventListener('storage', st); };
+    return () => { subs.delete(f); window.removeEventListener('storage', st); document.removeEventListener('visibilitychange', vis); window.removeEventListener('focus', vis); };
   }, []);
 
   const setActif = useCallback((id: string | null) => save({ ...load(), actif: id }), []);
