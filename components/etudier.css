@@ -56,3 +56,5 @@ button.pe-chap{font:inherit;cursor:pointer;background:transparent}
 .pe-chap.read::after{content:'✓';font-size:9px;margin-left:2px}
 .btn.on{background:var(--accent);color:#fff}
 .pe-step-t .pe-badge{font-size:10.5px;padding:1px 8px}
+
+.pe-champ{display:block;margin:0 0 12px}.pe-champ>span{display:block;font-size:13.5px;line-height:1.35;color:var(--ink-3);margin-bottom:4px}.pe-champ>span b{color:var(--ink)}.pe-champ .pe-note{min-height:56px}

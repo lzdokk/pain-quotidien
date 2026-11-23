@@ -10,7 +10,7 @@ import { FICHES_LIVRES } from '@/lib/fiches-livres';
 import { PLUS } from '@/lib/fiches-contexte';
 import { ficheChapitre, FICHES_CHAPITRES } from '@/lib/fiches-chapitres';
 import R from '@/components/R';
-import { MEDITER_QUESTIONS, MEDITER_ETAPES } from '@/lib/reading-guide';
+import { MEDITER_QUESTIONS, MEDITER_ETAPES, QUATRE_TEMPS } from '@/lib/reading-guide';
 
 /**
  * PARCOURS (Lire > Parcours) : lecture quotidienne + études de livres, un seul suivi.
@@ -352,7 +352,8 @@ export default function EtudeLivres({ onRead, plans, steps, activePlanId, active
       </div>
       <section className="card pad">
         <span className="kicker">① Avant de lire</span>
-        <p>Prie : « Ouvre mes yeux, que je voie les merveilles de ta loi » (Ps 119.18). Lis le chapitre trois fois : d&rsquo;une traite, à voix haute, crayon en main.</p>
+        <p><b>D&rsquo;abord, demande à l&rsquo;Esprit d&rsquo;ouvrir ton intelligence.</b> {QUATRE_TEMPS[0][1]}</p>
+        <p>Lis ensuite le chapitre trois fois : d&rsquo;une traite, à voix haute, crayon en main.</p>
         {x && (
           <>
             <span className="kicker" style={{ marginTop: 12, display: 'block' }}>Le contexte du livre</span>
@@ -369,19 +370,20 @@ export default function EtudeLivres({ onRead, plans, steps, activePlanId, active
             <p>{<R t={f.resume} />}</p>
             <dl className="pe-dl" style={{ marginTop: 8 }}>{f.blocs.map(([v, i]) => <div className="pe-row" key={v}><dt>v. {v}</dt><dd>{i}</dd></div>)}</dl>
           </section>
-          <section className="card pad"><span className="kicker">③ Observer</span><ul className="pe-q">{f.observation.map((q, i) => <li key={i}>{q}</li>)}</ul></section>
-          <section className="card pad"><span className="kicker">④ Comprendre</span><ul className="pe-q">{f.interpretation.map((q, i) => <li key={i}>{q}</li>)}</ul></section>
-          <section className="card pad"><span className="kicker">⑤ Me mettre dans la scène</span><ul className="pe-q">{f.scene.map((q, i) => <li key={i}>{q}</li>)}</ul></section>
           <section className="card pad">
-            <span className="kicker">⑥ Méditer et agir</span>
-            <ul className="pe-q">
-              <li><b>Verset à ruminer :</b> {f.mediter.verset}</li>
-              <li><b>Question :</b> {f.mediter.question}</li>
-              <li><b>Action :</b> {f.mediter.action}</li>
-            </ul>
+            <span className="kicker">③ Se poser les questions</span>
+            <dl className="pe-dl">{MEDITER_QUESTIONS.map((q, i) => <div className="pe-row" key={q}><dt>{q}</dt><dd><R t={f.questions[i]} /></dd></div>)}</dl>
           </section>
           <section className="card pad">
-            <span className="kicker">⑦ Pour en parler autour de moi</span>
+            <span className="kicker">④ Où est Jésus ? Comment Dieu me parle ?</span>
+            <ul className="pe-q">{f.jesus.map((q, i) => <li key={i}><R t={q} /></li>)}</ul>
+          </section>
+          <section className="card pad">
+            <span className="kicker">⑤ Puis, les six étapes</span>
+            <ol className="med-steps" style={{ gap: 10 }}>{MEDITER_ETAPES.map(([t, d], i) => <li key={t}><b>{t}</b> {d}<div style={{ marginTop: 3, color: 'var(--ink-2)' }}><R t={f.etapes[i]} /></div></li>)}</ol>
+          </section>
+          <section className="card pad">
+            <span className="kicker">⑥ Pour en parler autour de moi</span>
             <p className="pe-big">{f.parler.phrase}</p>
             <p><b>Question à poser :</b> {f.parler.question}</p>
           </section>
@@ -414,7 +416,7 @@ export default function EtudeLivres({ onRead, plans, steps, activePlanId, active
       )}
       <section className="card pad">
         <span className="kicker">Mon carnet</span>
-        <p className="pe-prog" style={{ marginTop: 0, marginBottom: 8 }}>Ce que Dieu me dit, ce que je fais, ce que je veux dire à quelqu&rsquo;un.</p>
+        <p className="pe-prog" style={{ marginTop: 0, marginBottom: 8 }}>Les six étapes, une par une : choisir, paraphraser, personnaliser, confesser, m&rsquo;examiner, pratiquer.</p>
         <CarnetChapitre cle={`${n}-${c}`} placeholder="Mes notes sur ce chapitre…" />
       </section>
       <div className="pe-nav">
