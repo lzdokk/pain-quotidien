@@ -472,3 +472,28 @@ html[data-mode="soir"] .ai-steps li::before{color:#0E141A}
 .wbw-fr.tr{font-style:italic;font-weight:500;color:var(--ink-3)}
 .rsheet-extra{margin-top:18px;padding-top:6px;border-top:1px solid var(--line)}
 .rsheet-extra .btn{margin-top:8px}
+
+/* Méditer : questions en pastilles, étapes numérotées sur une ligne */
+.med-q{display:flex;flex-wrap:wrap;gap:5px;margin:4px 0 2px}
+.med-q span{font-size:12.5px;line-height:1.3;padding:4px 9px;border-radius:99px;color:var(--ink-2);
+ background:color-mix(in srgb,var(--accent) 9%,transparent);border:1px solid color-mix(in srgb,var(--accent) 18%,transparent)}
+.med-steps{list-style:none;counter-reset:m;margin:4px 0 0;padding:0;display:flex;flex-direction:column;gap:5px}
+.med-steps li{counter-increment:m;position:relative;padding-left:27px;font-size:13.5px;line-height:1.35;color:var(--ink-3)}
+.med-steps li::before{content:counter(m);position:absolute;left:0;top:0;width:19px;height:19px;border-radius:99px;display:grid;place-items:center;
+ font-size:11px;font-weight:700;color:#fff;background:var(--accent)}
+html[data-mode="soir"] .med-steps li::before{color:#0E141A}
+.med-steps b{color:var(--ink);font-weight:650;margin-right:4px}
+
+/* Bulle loupe : recherche rapide avec historique */
+.qs-row{display:flex;gap:8px;align-items:center;margin-top:4px}
+.qs-row .field{flex:1;min-width:0}
+.qs-hist{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.qs-h{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:99px;background:var(--glass);overflow:hidden}
+.qs-h button{border:0;background:none;font:inherit;font-size:13.5px;color:var(--ink-2);padding:6px 4px 6px 12px;cursor:pointer}
+.qs-h .qs-x{padding:6px 10px 6px 6px;color:var(--ink-4)}
+.qs-list{display:flex;flex-direction:column;gap:6px;margin-top:6px;max-height:46vh;overflow-y:auto}
+.qs-it{display:block;text-align:left;border:1px solid var(--line);background:var(--glass);border-radius:12px;padding:9px 12px;font:inherit;cursor:pointer}
+.qs-it b{display:block;font-size:12.5px;color:var(--accent);margin-bottom:2px}
+.qs-it span{display:block;font-size:14px;line-height:1.45;color:var(--ink-2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+.rbubble .med-q + .rbubble-k{margin-top:10px}

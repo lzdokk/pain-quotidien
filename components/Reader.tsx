@@ -10,7 +10,7 @@ import VerseCompare from './VerseCompare';
 import OfflineDownload from './OfflineDownload';
 import AiKeyButton from './AiKeyButton';
 import { themeOf, suggestTheme, matchThemeQuery } from '@/lib/highlight-themes';
-import { QUATRE_TEMPS } from '@/lib/reading-guide';
+import { MEDITER_QUESTIONS, MEDITER_ETAPES } from '@/lib/reading-guide';
 import { ALLIANCES, BOOK_GROUPS, groupOf, searchBooks, bookName as accentName } from '@/lib/bible-books';
 import StudyIndex from './StudyIndex';
 import FicheSheet from './FicheSheet';
@@ -188,6 +188,10 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
   const [target, setTarget] = useState<number | null>(null);
   // Bulles flottantes : methode de lecture / recherche + historique.
   const [bubble, setBubble] = useState<null | 'method' | 'search' | 'versions' | 'importants'>(null);
+  // Recherche rapide dans la bulle loupe (reste dans la bulle, sans changer d'onglet).
+  const [bq, setBq] = useState('');
+  const [bres, setBres] = useState<any[] | null>(null);
+  const [bload, setBload] = useState(false);
   const [guideTab, setGuideTab] = useState<'court' | 'questions' | 'prier'>('court');
   // Emplacement dans la barre du haut (a cote de l'avatar) pour livre · version · v.
   const [slot, setSlot] = useState<HTMLElement | null>(null);
@@ -503,6 +507,19 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
   });
   const openResult = (r: any) => {
     setBook(r.book); setChapter(r.chapter); setTarget(r.verse); setTab('bible');
+  };
+  const runQuick = async (qIn?: string) => {
+    const q = (qIn ?? bq).trim();
+    if (qIn !== undefined) setBq(qIn);
+    if (q.length < 2) return;
+    remember(q);
+    if (/\S\s+\d/.test(q)) { go(q); setBubble(null); return; }   // « jean 3 » : on y va directement
+    setBload(true); setBres([]);
+    try {
+      const r = await fetch(`/api/bible/find?t=${encodeURIComponent(trad)}&q=${encodeURIComponent(q)}`);
+      setBres((await r.json()).results ?? []);
+    } catch { setBres([]); }
+    setBload(false);
   };
   const clearSearch = () => { setResults(null); setSearch(''); setDoneQ(''); setThemeMode(false); };
   // Met en valeur le mot cherche dans le texte du verset.
@@ -1197,6 +1214,16 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
                   title="Versets importants" onClick={() => setBubble(bubble === 'importants' ? null : 'importants')}>
             <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 3.2l2.6 5.5 6 .7-4.5 4.1 1.2 5.9L12 16.5 6.7 19.4l1.2-5.9L3.4 9.4l6-.7z" /></svg>
           </button>
+          <button className={`rfab${bubble === 'search' ? ' on' : ''}`} aria-label="Rechercher dans la Bible"
+                  title="Rechercher" onClick={() => setBubble(bubble === 'search' ? null : 'search')}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><circle cx="11" cy="11" r="6.5" /><path d="M20 20l-4.2-4.2" /></svg>
+          </button>
+          <button className={`rfab${bubble === 'method' ? ' on' : ''}`} aria-label="Méditer : les étapes"
+                  title="Méditer : les étapes" onClick={() => setBubble(bubble === 'method' ? null : 'method')}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 18h6M10 21h4M12 3a6 6 0 00-3.6 10.8c.7.5 1.1 1.3 1.1 2.2h5c0-.9.4-1.7 1.1-2.2A6 6 0 0012 3z" />
+            </svg>
+          </button>
         </div>
       )}
 
@@ -1206,13 +1233,52 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
 
           {bubble === 'method' && (
             <>
-              <h3 className="rbubble-t">Lire et méditer</h3>
-              <p className="rbubble-sub">Chacun son rythme : l’important, c’est la rencontre.</p>
-              <ol className="rsteps">
-                {QUATRE_TEMPS.map(([t, q]) => (
-                  <li key={t}><b>{t}</b><span>{q}</span></li>
-                ))}
-              </ol>
+              <h3 className="rbubble-t">Méditer</h3>
+              <p className="rbubble-sub">D’abord, demande à l’Esprit d’ouvrir ton intelligence.</p>
+              <div className="rbubble-k">Se poser les questions</div>
+              <div className="med-q">{MEDITER_QUESTIONS.map((q, i) => <span key={i}>{q}</span>)}</div>
+              <div className="rbubble-k">Puis</div>
+              <ol className="med-steps">{MEDITER_ETAPES.map(([t, d]) => <li key={t}><b>{t}</b> {d}</li>)}</ol>
+            </>
+          )}
+
+          {bubble === 'search' && (
+            <>
+              <h3 className="rbubble-t">Rechercher</h3>
+              <div className="qs-row">
+                <input className="field" type="search" autoFocus value={bq} placeholder="Un mot, ou « jean 3 »"
+                       onChange={e => { setBq(e.target.value); if (!e.target.value) setBres(null); }}
+                       onKeyDown={e => { if (e.key === 'Enter') runQuick(); }} />
+                <button className="btn sm primary" onClick={() => runQuick()}>Chercher</button>
+              </div>
+              {bres === null ? (
+                qHist.length > 0 && (
+                  <>
+                    <div className="rbubble-k">Mes dernières recherches</div>
+                    <div className="qs-hist">
+                      {qHist.slice(0, 10).map(h => (
+                        <span key={h} className="qs-h">
+                          <button onClick={() => runQuick(h)}>{h}</button>
+                          <button className="qs-x" onClick={() => forget(h)} aria-label={`Oublier ${h}`}>×</button>
+                        </span>
+                      ))}
+                    </div>
+                  </>
+                )
+              ) : bload ? <p className="rbubble-sub">Recherche…</p> : (
+                <>
+                  <div className="rbubble-k">{bres.length ? `${bres.length >= 400 ? '400+' : bres.length} verset${bres.length > 1 ? 's' : ''}` : 'Aucun verset trouvé'}</div>
+                  <div className="qs-list">
+                    {bres.slice(0, 60).map((r: any) => (
+                      <button key={`${r.book}-${r.chapter}-${r.verse}`} className="qs-it"
+                              onClick={() => { openResult(r); setBubble(null); }}>
+                        <b>{books.find((x: any) => x.id === r.book)?.name} {r.chapter}.{r.verse}</b>
+                        <span>{r.text}</span>
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
             </>
           )}
 

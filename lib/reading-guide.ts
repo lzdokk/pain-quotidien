@@ -42,3 +42,21 @@ export const QUATRE_TEMPS: Array<[string, string]> = [
   ['Prier', 'Que vais-je lui répondre ? Transforme le verset en prière.'],
   ['Pratiquer', 'Que vais-je faire aujourd’hui ? Une seule action concrète.']
 ];
+
+/** MÉDITER UN CHAPITRE (méthode de Mickaël) : d'abord les questions, puis les étapes. */
+export const MEDITER_QUESTIONS: string[] = [
+  'Qui parle ?',
+  'Que se passe-t-il ? Quel est le contexte ?',
+  'À qui s’adresse ce verset ?',
+  'Comment aurais-je réagi dans la même situation ?',
+  'Comment devrais-je réagir ?',
+  'Ce verset est-il d’actualité ?'
+];
+export const MEDITER_ETAPES: Array<[string, string]> = [
+  ['Choisir', 'le verset le plus parlant du chapitre'],
+  ['Paraphraser', 'le redire avec mes mots'],
+  ['Personnaliser', 'le dire à la 1ʳᵉ personne'],
+  ['Confesser', 'le proclamer à haute voix'],
+  ['M’examiner', 'faire une introspection'],
+  ['Pratiquer', 'que dois-je changer dans ma vie aujourd’hui ?']
+];

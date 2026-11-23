@@ -10,6 +10,7 @@ import { FICHES_LIVRES } from '@/lib/fiches-livres';
 import { PLUS } from '@/lib/fiches-contexte';
 import { ficheChapitre, FICHES_CHAPITRES } from '@/lib/fiches-chapitres';
 import R from '@/components/R';
+import { MEDITER_QUESTIONS, MEDITER_ETAPES } from '@/lib/reading-guide';
 
 /**
  * PARCOURS (Lire > Parcours) : lecture quotidienne + études de livres, un seul suivi.
@@ -35,16 +36,6 @@ function parse(e?: string): View {
 }
 const parent = (v: View): View => v.t === 'chap' ? { t: 'livre', n: v.n } : { t: 'list' };
 
-const QUESTIONS = [
-  'Qui parle ? À qui s’adresse-t-on ?',
-  'Que se passe-t-il ? Quel est le contexte ?',
-  'Que m’apprend ce passage sur Dieu, sur Jésus ?',
-  'Comment aurais-je réagi dans la même situation ?',
-  'Comment devrais-je réagir aujourd’hui ?',
-  'Ce passage est-il d’actualité ? Quel équivalent aujourd’hui ?',
-  'Y a-t-il un péché à confesser, une promesse à saisir, un ordre à suivre, un exemple à imiter ?',
-  'À qui puis-je en parler cette semaine ?'
-];
 
 type Props = {
   onRead: (book: number, chapter: number) => void;
@@ -406,8 +397,9 @@ export default function EtudeLivres({ onRead, plans, steps, activePlanId, active
             </section>
           )}
           <section className="card pad">
-            <span className="kicker">③ Questions pour méditer ce chapitre</span>
-            <ul className="pe-q">{QUESTIONS.map((q, i) => <li key={i}>{q}</li>)}</ul>
+            <span className="kicker">③ Méditer ce chapitre</span>
+            <div className="med-q">{MEDITER_QUESTIONS.map((q, i) => <span key={i}>{q}</span>)}</div>
+            <ol className="med-steps">{MEDITER_ETAPES.map(([t, d]) => <li key={t}><b>{t}</b> {d}</li>)}</ol>
           </section>
           <section className="card pad">
             <span className="kicker">④ Où est Jésus ? Comment Dieu me parle ?</span>
