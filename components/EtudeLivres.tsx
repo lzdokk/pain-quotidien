@@ -9,6 +9,7 @@ import { GROUPES, PARCOURS, parcoursById, sectionDuChapitre, type Groupe } from 
 import { FICHES_LIVRES } from '@/lib/fiches-livres';
 import { PLUS } from '@/lib/fiches-contexte';
 import { ficheChapitre, FICHES_CHAPITRES } from '@/lib/fiches-chapitres';
+import R from '@/components/R';
 
 /**
  * PARCOURS (Lire > Parcours) : lecture quotidienne + études de livres, un seul suivi.
@@ -119,7 +120,7 @@ export default function EtudeLivres({ onRead, plans, steps, activePlanId, active
                 return (
                   <button key={p.id} className="card pad pe-item" onClick={() => go({ t: 'plan', id: p.id })}>
                     <h3>{p.name}{en && <span className="pe-badge">En cours</span>}</h3>
-                    <p>{p.subtitle}</p>
+                    <p>{<R t={p.subtitle} />}</p>
                     <div className="pe-prog">{en && p.days ? `Jour ${activeDay} sur ${p.days}` : p.days ? `${p.days} jours` : 'À votre rythme'}</div>
                     {en && p.days && <div className="pe-bar"><i style={{ width: `${Math.min(100, Math.round((activeDay - 1) / p.days * 100))}%` }} /></div>}
                   </button>
@@ -163,7 +164,7 @@ export default function EtudeLivres({ onRead, plans, steps, activePlanId, active
         <div className="pe-head">
           <span className="eyebrow">Au quotidien</span>
           <h2>{P.name}</h2>
-          <p>{P.subtitle}{P.days ? ` · ${P.days} jours` : ''}</p>
+          <p>{<R t={P.subtitle} />}{P.days ? ` · ${P.days} jours` : ''}</p>
         </div>
         <div className="card pad">
           {en ? (
@@ -177,8 +178,8 @@ export default function EtudeLivres({ onRead, plans, steps, activePlanId, active
           ) : (
             <button className="btn primary" onClick={() => { setActif(null); onChoose(P.id); }}>Suivre ce parcours</button>
           )}
-          {P.audience && <div className="pe-row" style={{ marginTop: 12 }}><dt>Pour qui</dt><dd>{P.audience}</dd></div>}
-          {P.rationale && <p style={{ marginTop: 10 }}>{P.rationale}</p>}
+          {P.audience && <div className="pe-row" style={{ marginTop: 12 }}><dt>Pour qui</dt><dd>{<R t={P.audience} />}</dd></div>}
+          {P.rationale && <p style={{ marginTop: 10 }}>{<R t={P.rationale} />}</p>}
         </div>
         <div className="card pad">
           {mine.map((e: any, i: number) => {
@@ -190,7 +191,7 @@ export default function EtudeLivres({ onRead, plans, steps, activePlanId, active
                 <div className="pe-step-main">
                   <div className="pe-step-t">{e.label}</div>
                   {e.title && <div className="pe-prog" style={{ margin: '2px 0 0' }}>{e.title}{e.chapters ? ` · ${e.chapters} jours` : ''}</div>}
-                  {e.description && <p className="pe-prog" style={{ margin: '6px 0 0' }}>{e.description}</p>}
+                  {e.description && <p className="pe-prog" style={{ margin: '6px 0 0' }}>{<R t={e.description} />}</p>}
                   <div className="pe-links">
                     <button className="ix-chip" onClick={() => go({ t: 'livre', n: e.book })}>Fiche du livre</button>
                     <button className="ix-chip" onClick={() => onRead(e.book, 1)}>Lire</button>
@@ -374,7 +375,7 @@ export default function EtudeLivres({ onRead, plans, steps, activePlanId, active
         <>
           <section className="card pad">
             <span className="kicker">② Le chapitre en bref</span>
-            <p>{f.resume}</p>
+            <p>{<R t={f.resume} />}</p>
             <dl className="pe-dl" style={{ marginTop: 8 }}>{f.blocs.map(([v, i]) => <div className="pe-row" key={v}><dt>v. {v}</dt><dd>{i}</dd></div>)}</dl>
           </section>
           <section className="card pad"><span className="kicker">③ Observer</span><ul className="pe-q">{f.observation.map((q, i) => <li key={i}>{q}</li>)}</ul></section>

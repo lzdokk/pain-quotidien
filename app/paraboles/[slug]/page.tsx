@@ -6,6 +6,7 @@ import { citedVerse } from '@/lib/bible';
 import ReadingLinks from '@/components/ReadingLinks';
 import ShareButton from '@/components/ShareButton';
 import { MarkParableRead } from '@/components/ParableRead';
+import R from '@/components/R';
 
 export const revalidate = 86400;
 // Pages générées à la première visite puis gardées en cache (instantanées ensuite).

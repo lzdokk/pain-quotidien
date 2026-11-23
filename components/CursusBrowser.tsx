@@ -6,6 +6,7 @@ import { useUser } from '@/lib/useUser';
 import { relabelCode } from '@/lib/cursus-code';
 import { courseTitle } from '@/lib/course-titles';
 import CursusShare from './CursusShare';
+import R from '@/components/R';
 
 const KIND: Record<string, string> = { E: 'Exegese', D: 'Doctrine', P: 'Pratique', G: 'Langue' };
 
@@ -128,7 +129,7 @@ export default function CursusBrowser({ cursus, levels, groups, courses, done, u
           </div>
 
           <div className="card pad">
-            {cur?.subtitle && <span className="kicker">{cur.subtitle}</span>}
+            {cur?.subtitle && <span className="kicker">{<R t={cur.subtitle} />}</span>}
             <h3 style={{ marginTop: 6 }}>{cur?.name}</h3>
             {total > 0 && (
               <>
@@ -168,8 +169,8 @@ export default function CursusBrowser({ cursus, levels, groups, courses, done, u
               <div className="lvl-head">
                 <div className="ln2">{lvlCourses.filter((c: any) => validated.has(c.code)).length} / {lvlCourses.length} cours</div>
                 <h3>{L.name}</h3>
-                <div className="ls">{L.subtitle}</div>
-                <div className="li">{L.intro}</div>
+                <div className="ls">{<R t={L.subtitle} />}</div>
+                <div className="li">{<R t={L.intro} />}</div>
               </div>
 
               {lvlGroups.map((g: any) => (
@@ -186,7 +187,7 @@ export default function CursusBrowser({ cursus, levels, groups, courses, done, u
                         <span className="code">{ok ? '✓' : relabelCode(c.code)}</span>
                         <span style={{ flex: 1, minWidth: 0 }}>
                           <span className="ct">{courseTitle(c.code, c.title)}{isCurrent && <span className="course-here">Reprendre ici</span>}</span>
-                          <span className="cp">{c.hook}{ready ? '' : ' · fiche a venir'}</span>
+                          <span className="cp">{<R t={c.hook} />}{ready ? '' : ' · fiche a venir'}</span>
                         </span>
                         <span className="ctype">{KIND[c.kind]}{c.hours ? ` · ${c.hours} h` : ''}</span>
                       </Link>

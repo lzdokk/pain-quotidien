@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase/client';
 import { useState , useEffect } from 'react';
 import { relabelCode } from '@/lib/cursus-code';
 import { courseTitle } from '@/lib/course-titles';
+import R from '@/components/R';
 
 const LEVEL_COLOR: Record<string, string> = {
   'Acquis': '#2f8f5b',
@@ -146,7 +147,7 @@ function Result({ r, code, title }: { r: any; code: string; title?: string }) {
           <h3 style={{ marginTop: 18 }}>Explications</h3>
           {r.corrections.map((c: any, i: number) => (
             <div key={i} style={{ marginTop: 12 }}>
-              <p style={{ fontWeight: 640 }}>{c.point}</p>
+              <p style={{ fontWeight: 640 }}>{<R t={c.point} />}</p>
               <p style={{ color: 'var(--ink-2)' }}>{c.explanation}</p>
             </div>
           ))}

@@ -1,5 +1,7 @@
 'use client';
 import { useState } from 'react';
+import R from '@/components/R';
+import { rich } from '@/lib/rich';
 
 export default function Reading({ r, index, open }: { r: any; index: number; open?: boolean }) {
   const [on, setOn] = useState(Boolean(open));
@@ -30,7 +32,7 @@ export default function Reading({ r, index, open }: { r: any; index: number; ope
         )}
         <div className="rd-sum">
           <strong>Le resume</strong>
-          <p dangerouslySetInnerHTML={{ __html: r.summary }} />
+          <p dangerouslySetInnerHTML={{ __html: rich(r.summary) }} />
           <span className="tag">{r.tag}</span>
         </div>
       </div>

@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { rich } from '@/lib/rich';
+import R from '@/components/R';
 
 const Tick = () => (
   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"

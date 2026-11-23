@@ -4,6 +4,7 @@ import Intercession from '@/components/Intercession';
 import ShareBar from '@/components/ShareBar';
 import { parisDate } from '@/lib/date';
 import { citedVerse } from '@/lib/bible';
+import { rich } from '@/lib/rich';
 
 export const revalidate = 3600;
 export const metadata = { title: 'Temoigner' };
@@ -43,7 +44,7 @@ export default async function Témoigner() {
               <span className="kicker">Le fil du jour</span>
               <h3 style={{ marginTop: 6 }}>Ce que le texte d&rsquo;aujourd&rsquo;hui vous donne a dire</h3>
               {(day.witness_thread as string[]).map((p, i) =>
-                <p key={i} style={{ marginTop: 12 }} dangerouslySetInnerHTML={{ __html: p }} />)}
+                <p key={i} style={{ marginTop: 12 }} dangerouslySetInnerHTML={{ __html: rich(p) }} />)}
             </div>
 
             <Openers items={day.witness_openers as string[]} />

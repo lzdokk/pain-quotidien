@@ -2,6 +2,7 @@
 import { useMemo, useState } from 'react';
 import { supabase } from '@/lib/supabase/client';
 import SurlignesView from './SurlignesView';
+import R from '@/components/R';
 
 function answerText(content: string) {
   try {
@@ -129,7 +130,7 @@ export default function Profile({ user, profile, plan, notes, highlights, conver
               <div className="entry" key={n.id}>
                 <div className="eref">{n.reference}</div>
                 <div className="etext">{n.verse_text}</div>
-                <div className="enote">{n.body}</div>
+                <div className="enote">{<R t={n.body} />}</div>
                 <button className="edel" onClick={async () => {
                   await supabase.from('notes').delete().eq('id', n.id);
                   setMyNotes((l: any[]) => l.filter(x => x.id !== n.id));

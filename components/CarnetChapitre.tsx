@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { getRemote, putRemote } from '@/lib/etude-sync';
+import R from '@/components/R';
 
 /** Carnet de méditation : notes privées, gardées sur l'appareil et synchronisées avec le compte. */
 export default function CarnetChapitre({ cle, placeholder }: { cle: string; placeholder: string }) {

@@ -3,6 +3,7 @@ import { supabasePublic } from '@/lib/supabase/public';
 import { ParableReadMarks } from '@/components/ParableRead';
 import LearnTabs from '@/components/LearnTabs';
 import { THEMES } from '@/lib/prompts/parable';
+import R from '@/components/R';
 
 export const revalidate = 3600;
 export const metadata = { title: 'Théologie racontée' };
@@ -60,7 +61,7 @@ export default async function Paraboles() {
                         <span className="pep-n">{p.episode}</span>
                         <div>
                           <span className="pep-t">{p.title}</span>
-                          <span className="pep-h">{p.hook}</span>
+                          <span className="pep-h">{<R t={p.hook} />}</span>
                         </div>
                       </Link>
                     ))}

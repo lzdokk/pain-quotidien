@@ -1,6 +1,8 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { supabasePublic } from '@/lib/supabase/public';
+import R from '@/components/R';
+import { rich } from '@/lib/rich';
 
 export const revalidate = 86400;
 // Pages générées à la première visite puis gardées en cache (instantanées ensuite).
@@ -23,11 +25,11 @@ export default async function Réponse({ params }: { params: Promise<{ id: strin
         <Link href="/questions" className="back">‹ Toutes les questions</Link>
 
         <div className="card pad pq">
-          <div className="mini"><strong>En une phrase</strong><span>{f.short_answer}</span></div>
+          <div className="mini"><strong>En une phrase</strong><span>{<R t={f.short_answer} />}</span></div>
           <h3 style={{ marginTop: 28 }}>La parabole</h3>
-          <p className="parable">{f.parable}</p>
+          <p className="parable">{<R t={f.parable} />}</p>
           <h3>Pour aller plus loin</h3>
-          {(f.body as string[]).map((p, i) => <p key={i} dangerouslySetInnerHTML={{ __html: p }} />)}
+          {(f.body as string[]).map((p, i) => <p key={i} dangerouslySetInnerHTML={{ __html: rich(p) }} />)}
           <div className="keyv">
             <strong>A lire dans la Bible</strong>
             <p style={{ fontFamily: 'var(--sans)', fontSize: 15 }}>

@@ -23,6 +23,7 @@ import ChapterStudy from './ChapterStudy';
 import WordsBrowser from './WordsBrowser';
 import VerseTools from './VerseTools';
 import { getStudyList, kindLabel, type StudyList } from '@/lib/study-client';
+import R from '@/components/R';
 
 type V = { verse: number; text: string };
 const iso = (d: Date) => d.toISOString().slice(0, 10);
@@ -680,7 +681,7 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
           <div className="entry" key={n.id}>
             <div className="eref">{n.reference}</div>
             <div className="etext">{n.verse_text}</div>
-            <div className="enote">{n.body}</div>
+            <div className="enote">{<R t={n.body} />}</div>
             <button className="edel" onClick={async () => {
               await supabase.from('notes').delete().eq('id', n.id);
               setMyNotes(l => l.filter(x => x.id !== n.id));
@@ -887,14 +888,14 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
               <span className="bi-hint">Où sommes-nous&nbsp;?</span>
             </summary>
             <div className="bi-body">
-              <p className="bi-situ">{intro.situ}</p>
+              <p className="bi-situ">{<R t={intro.situ} />}</p>
               <div className="bi-grid">
-                <div><span className="kicker">C&rsquo;est qui</span><p>{intro.who}</p></div>
-                <div><span className="kicker">Pourquoi ce livre</span><p>{intro.why}</p></div>
+                <div><span className="kicker">C&rsquo;est qui</span><p>{<R t={intro.who} />}</p></div>
+                <div><span className="kicker">Pourquoi ce livre</span><p>{<R t={intro.why} />}</p></div>
               </div>
               <div className="bi-christ">
                 <span className="kicker">Le fil vers Jésus</span>
-                <p>{intro.christ}</p>
+                <p>{<R t={intro.christ} />}</p>
               </div>
               {intro.key_verse && (
                 <button className="btn sm" onClick={() => go(intro.key_verse)}>

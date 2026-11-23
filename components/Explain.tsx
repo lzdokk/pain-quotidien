@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase/client';
 import { aiFetch } from '@/lib/ai-key';
 import NeedKey from './NeedKey';
+import R from '@/components/R';
+import { rich } from '@/lib/rich';
 
 type P = {
   book: number; chapter: number; verse?: number; bookName: string; text: string;
@@ -113,13 +115,13 @@ export default function Explain({ book, chapter, verse, bookName, text, onClose,
           <h3>{data.title}</h3>
           <div className="msub">{data.dating}</div>
           <h4>Ce que fait ce chapitre</h4>
-          <p dangerouslySetInnerHTML={{ __html: data.summary }} />
+          <p dangerouslySetInnerHTML={{ __html: rich(data.summary) }} />
           <h4>Le decoupage</h4>
           <ul className="mlist">{(data.outline as string[]).map((x, i) => <li key={i}>{x}</li>)}</ul>
           <h4>La clé de lecture</h4>
-          <div className="par">{data.reading_key}</div>
+          <div className="par">{<R t={data.reading_key} />}</div>
           <h4>Pourquoi il est la</h4>
-          <p dangerouslySetInnerHTML={{ __html: data.why_here }} />
+          <p dangerouslySetInnerHTML={{ __html: rich(data.why_here) }} />
         </>
       )}
 
@@ -134,16 +136,16 @@ export default function Explain({ book, chapter, verse, bookName, text, onClose,
               <div className="wordbox">
                 <span className="wt">{data.word_term}</span>
                 <span className="wl">{data.word_lang}</span>
-                <span className="ws">{data.word_sense}</span>
+                <span className="ws">{<R t={data.word_sense} />}</span>
               </div>
             </>
           )}
           <h4>Ce que dit le texte</h4>
-          <p dangerouslySetInnerHTML={{ __html: data.says }} />
+          <p dangerouslySetInnerHTML={{ __html: rich(data.says) }} />
           <h4>Une image</h4>
-          <div className="par">{data.parable}</div>
+          <div className="par">{<R t={data.parable} />}</div>
           <h4>Pour aller plus loin</h4>
-          <p dangerouslySetInnerHTML={{ __html: data.development }} />
+          <p dangerouslySetInnerHTML={{ __html: rich(data.development) }} />
           <h4>A croiser</h4>
           <div className="vrefs">
             {(data.cross_refs as string[]).map(r => (

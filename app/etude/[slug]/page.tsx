@@ -5,6 +5,7 @@ import RefChip from '@/components/RefChip';
 import { rich } from '@/lib/rich';
 import { polishDeep } from '@/lib/accents';
 import { slugify } from '@/lib/prompts/study-index';
+import R from '@/components/R';
 
 export const revalidate = 3600;
 // Pages générées à la première visite puis gardées en cache (instantanées ensuite).

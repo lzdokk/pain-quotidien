@@ -1,5 +1,6 @@
 import { supabasePublic } from '@/lib/supabase/public';
 import LearnTabs from '@/components/LearnTabs';
+import R from '@/components/R';
 
 export const revalidate = 86400;
 export const metadata = { title: 'Les cinq fondements' };
@@ -100,7 +101,7 @@ export default async function Fondements() {
               <p className="sola-desc">{s.desc}</p>
               <div className="sola-parable">
                 <span className="kicker">Pour le sentir</span>
-                <p>{s.parable}</p>
+                <p>{<R t={s.parable} />}</p>
               </div>
               <blockquote className="sola-verse">
                 {s.verse}

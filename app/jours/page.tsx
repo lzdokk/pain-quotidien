@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { supabasePublic } from '@/lib/supabase/public';
+import { rich } from '@/lib/rich';
 
 export const revalidate = 3600;
 export const metadata = { title: 'Les jours passes' };
@@ -46,7 +47,7 @@ export default async function Jours() {
                 {list.map((d: any) => (
                   <Link key={d.date} href={`/jour/${d.date}`} className="agenda-day" title={d.theme_title}>
                     <span className="ad-n">{+d.date.slice(8, 10)}</span>
-                    <span className="ad-t" dangerouslySetInnerHTML={{ __html: d.theme_title }} />
+                    <span className="ad-t" dangerouslySetInnerHTML={{ __html: rich(d.theme_title) }} />
                   </Link>
                 ))}
               </div>

@@ -1,5 +1,6 @@
 'use client';
 import { useMemo, useState } from 'react';
+import R from '@/components/R';
 
 /**
  * Base des mots importants (hebreu / arameen / grec), tiree des livrets de
@@ -67,11 +68,11 @@ export default function WordsBrowser({ words, embedded = false }: { words: any[]
 
               {on && (
                 <div className="word-body">
-                  <p>{w.sense}</p>
+                  <p>{<R t={w.sense} />}</p>
                   {w.christ && (
                     <div className="word-christ">
                       <span className="kicker">Accompli en Christ</span>
-                      <p>{w.christ}</p>
+                      <p>{<R t={w.christ} />}</p>
                     </div>
                   )}
                   {(w.refs as string[])?.length > 0 && (

@@ -1,6 +1,7 @@
 'use client';
 import { aiFetch } from '@/lib/ai-key';
 import { useState } from 'react';
+import R from '@/components/R';
 
 export default function Lexique() {
   const [q, setQ] = useState('');
@@ -43,7 +44,7 @@ export default function Lexique() {
           {entry.definition_fr ? (
             <>
               <h4 style={{ marginTop: 20 }}>Le sens</h4>
-              <p>{entry.definition_fr}</p>
+              <p>{<R t={entry.definition_fr} />}</p>
             </>
           ) : (
             <p className="fine" style={{ marginTop: 16 }}>
@@ -88,7 +89,7 @@ export default function Lexique() {
           ) : results.map(r => (
             <div className="entry" key={r.code} style={{ cursor: 'pointer' }} onClick={() => open(r.code)}>
               <div className="eref">{r.lemma} · {r.translit} <span className="muted">({r.code}, {r.lang})</span></div>
-              <div className="enote">{r.definition_fr ?? r.definition_en}</div>
+              <div className="enote">{<R t={r.definition_fr ?? r.definition_en} />}</div>
             </div>
           ))}
         </div>

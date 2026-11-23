@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import SignIn from './SignIn';
+import R from '@/components/R';
 
 /**
  * Tour d'accueil, affiché une seule fois à la première ouverture (drapeau
@@ -102,7 +103,7 @@ export default function Onboarding() {
         <div className="ob-body">
           <span className="kicker">{s.eyebrow}</span>
           <h2 className="ob-title">{s.title}</h2>
-          <div className="ob-text">{s.body}</div>
+          <div className="ob-text">{<R t={s.body} />}</div>
 
           {last && (
             <div className="ob-signin">

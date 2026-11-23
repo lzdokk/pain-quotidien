@@ -25,7 +25,8 @@ export async function GET(req: NextRequest) {
     if (!data) return NextResponse.json({ error: 'Entree introuvable' }, { status: 404 });
 
     // Traduction francaise a la demande, une seule fois (cle du lecteur ou admin).
-    const access = !data.definition_fr && data.definition_en ? await aiAccess(req) : null;
+    // Fiche traduite une seule fois, pour tous : clé du lecteur si elle existe, sinon pool du site.
+    const access = !data.definition_fr && data.definition_en ? ((await aiAccess(req)) ?? { admin: false, user: null }) : null;
     if (access) {
       try {
         const { text } = await callText({

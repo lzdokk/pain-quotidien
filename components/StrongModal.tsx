@@ -1,6 +1,7 @@
 'use client';
 import { aiFetch } from '@/lib/ai-key';
 import { useEffect, useState } from 'react';
+import R from '@/components/R';
 
 /**
  * Fenêtre de définition d'un code Strong (G26, H2617…).
@@ -50,7 +51,7 @@ export default function StrongModal({ code, onClose }: { code: string | null; on
               </div>
             )}
             {data.pronunciation && <div className="sw-pron">/{data.pronunciation}/</div>}
-            <p className="sw-def">{data.definition_fr || data.definition_en || 'Définition indisponible.'}</p>
+            <p className="sw-def">{<R t={data.definition_fr || data.definition_en || 'Définition indisponible.'} />}</p>
           </>
         )}
 

@@ -9,6 +9,7 @@ import { rich } from '@/lib/rich';
 import { relabelCode } from '@/lib/cursus-code';
 import { courseTitle } from '@/lib/course-titles';
 import { citedVerse } from '@/lib/bible';
+import R from '@/components/R';
 
 export const dynamic = 'force-dynamic'; // réservé au responsable
 const KIND: Record<string, string> = { E: 'Exegese', D: 'Doctrine', P: 'Pratique', G: 'Langue' };
@@ -45,7 +46,7 @@ export default async function Fiche({ params }: { params: Promise<{ code: string
         <header className="hero">
           <div className="eyebrow">{lvl?.name} · {relabelCode(c.code)}</div>
           <h1>{courseTitle(c.code, c.title)}</h1>
-          <p className="lede">{KIND[c.kind]} · {c.hours} heures · {c.hook}</p>
+          <p className="lede">{KIND[c.kind]} · {c.hours} heures · {<R t={c.hook} />}</p>
         </header>
 
         <Link href="/cursus" className="back">‹ Retour au cursus</Link>
@@ -68,7 +69,7 @@ export default async function Fiche({ params }: { params: Promise<{ code: string
 
             <div className="card pad pq">
               <span className="kicker">Pour entrer dans le sujet</span>
-              <p className="parable">{c.parable}</p>
+              <p className="parable">{<R t={c.parable} />}</p>
             </div>
 
             {(c.body as Array<{ h: string; p: string[] }>).map((sec, i) => (

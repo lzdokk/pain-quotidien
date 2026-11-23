@@ -4,6 +4,7 @@ import { createPortal } from 'react-dom';
 import RefChip from './RefChip';
 import { getFiche, kindLabel } from '@/lib/study-client';
 import { slugify } from '@/lib/prompts/slug';
+import R from '@/components/R';
 
 type Section = { title: string; items: Array<{ label: string; refs: string[] }> };
 

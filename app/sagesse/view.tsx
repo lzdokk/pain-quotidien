@@ -4,6 +4,7 @@ import { contentDate } from '@/lib/date';
 import { rich } from '@/lib/rich';
 import { polishDeep } from '@/lib/accents';
 import { getProverbe } from '@/lib/cache';
+import R from '@/components/R';
 
 
 // Si la fiche du chapitre n'est pas encore redigee : prieres simples.

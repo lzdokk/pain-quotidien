@@ -6,7 +6,7 @@ import { glossFr } from '@/lib/gloss-fr';
 import { callJSON } from '@/lib/llm';
 
 export const dynamic = 'force-dynamic';
-export const maxDuration = 60;
+export const maxDuration = 120;
 /* Mot à mot complet : il ne change plus, gardé en cache par le CDN (pas de Supabase ni de fonction). */
 const CACHE = 'public, max-age=86400, s-maxage=2592000, stale-while-revalidate=31536000';
 
@@ -60,6 +60,7 @@ Renvoie { "mots": [...] } avec ${words.length} éléments.`,
     maxTokens: 1500,
     temperature: 0.2,
     gloss: false,
+    timeoutMs: 25_000,
     userKey
   });
   if (data.mots.length !== words.length) return null;
@@ -92,7 +93,8 @@ async function hebrewNT(book: number, chapter: number, verse: number, req: NextR
   }
 
   let complete = rows.every(r => r.gloss_fr);
-  const access = complete ? null : await aiAccess(req);
+  // Généré à la demande pour tout lecteur (sa clé si elle existe, sinon le pool du site), une seule fois.
+  const access = complete ? null : ((await aiAccess(req)) ?? { admin: false, user: null });
   if (!complete && access) {
     try {
       const out = await translateVerse(book, chapter, verse,
@@ -148,7 +150,8 @@ export async function GET(req: NextRequest) {
 
   // Traduction francaise en contexte : en cache, sinon generee (cle Gemini du lecteur ou admin).
   let ctx: string[] | null = words.every((w: any) => w.gloss_fr) ? words.map((w: any) => w.gloss_fr) : null;
-  const access = ctx ? null : await aiAccess(req);
+  // Généré à la demande pour tout lecteur (sa clé si elle existe, sinon le pool du site), une seule fois.
+  const access = ctx ? null : ((await aiAccess(req)) ?? { admin: false, user: null });
   if (!ctx && access) {
     try { ctx = await translateVerse(book, chapter, verse, words, undefined, access.userKey); } catch { ctx = null; }
   }

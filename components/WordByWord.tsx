@@ -1,8 +1,9 @@
 'use client';
-import { aiFetch, openAiSetup } from '@/lib/ai-key';
+import { aiFetch } from '@/lib/ai-key';
 import { useEffect, useMemo, useState } from 'react';
 import RefChip from './RefChip';
 import { bookAbbr } from '@/lib/bible-books';
+import R from '@/components/R';
 
 type W = {
   position: number; word: string; strong: string | null; gloss: string | null;
@@ -133,7 +134,7 @@ export default function WordByWord({ book, chapter, verse, frText, prefer, onClo
            {frText && linked > 0 ? 'Touchez un mot souligné, ou un mot d’origine ci-dessous. '
              : 'Touchez un mot d’origine pour ouvrir sa fiche. '}
            {rtl ? 'L’hébreu se lit de droite à gauche.' : ''}
-           {!complete && <> <button className="linkbtn" onClick={openAiSetup}>Ajoute ta clé Gemini</button> pour la traduction française complète.</>}
+           {!complete && ' La traduction mot à mot de ce verset se prépare : réessaie dans un instant.'}
          </p>
 
          {/* 2. Le texte d'origine, mot par mot */}
@@ -170,7 +171,7 @@ export default function WordByWord({ book, chapter, verse, frText, prefer, onClo
              {entry && (
                <>
                  <div className="sx-k">Le sens</div>
-                 <p className="sx-def">{lexSense(entry.definition_fr || active.definition_fr) || 'Sens français en préparation…'}</p>
+                 <p className="sx-def">{<R t={lexSense(entry.definition_fr || active.definition_fr) || 'Sens français en préparation…'} />}</p>
 
                  {entry.usage && entry.usage.renderings.length > 1 && (
                    <>
