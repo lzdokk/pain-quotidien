@@ -145,12 +145,6 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
   // Onglets de la page : lecture du jour / parcours / Bible.
   type Tab = 'jour' | 'parcours' | 'bible' | 'recherche' | 'etude';
   const [tab, setTabState] = useState<Tab>('bible');
-  // Dans l'onglet Parcours : lecture du jour (plans) ou étude des livres (fiches).
-  const [pview, setPviewState] = useState<'jour' | 'livres'>('jour');
-  const setPview = (v: 'jour' | 'livres') => {
-    setPviewState(v);
-    try { sessionStorage.setItem('pq-pview', v); } catch {}
-  };
   const setTab = (t: Tab) => {
     const v: Tab = t === 'jour' ? 'parcours' : t;
     setTabState(v);
@@ -345,7 +339,7 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
       const wanted = qs.get('tab');
       if (wanted === 'etude' || wanted === 'recherche' || wanted === 'parcours') setTabState(wanted as Tab);
       else if (!hasRef && (savedTab === 'recherche' || savedTab === 'etude')) setTabState(savedTab as Tab);
-      if (qs.get('vue') === 'livres') { setTabState('parcours'); setPviewState('livres'); }
+      if (qs.get('vue') === 'livres') setTabState('parcours');
       if (qs.get('fiche')) setFiche(qs.get('fiche'));
       if (qs.get('lexique')) { setTabState('recherche'); setLexOpen(true); }
       if (qs.get('q') && wanted === 'recherche') setSearch(qs.get('q')!);
@@ -591,18 +585,6 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
       </div>
 
       {tab === 'parcours' && (
-        <div className="pe-seg">
-          <div className="mode-switch" role="tablist" aria-label="Type de parcours">
-            <button role="tab" aria-selected={pview === 'jour'} onClick={() => { setPview('jour'); try { history.replaceState(null, '', '/lire?tab=parcours'); } catch {} }}>Lecture du jour</button>
-            <button role="tab" aria-selected={pview === 'livres'} onClick={() => { setPview('livres'); try { history.replaceState(null, '', '/lire?tab=parcours&vue=livres'); } catch {} }}>Étude des livres</button>
-          </div>
-        </div>
-      )}
-      {tab === 'parcours' && pview === 'livres' && (
-        <EtudeLivres onRead={(b, c) => { try { history.replaceState(null, '', '/lire'); } catch {} setBook(b); setChapter(c); setTarget(null); setTab('bible'); }} />
-      )}
-
-      {tab === 'parcours' && pview === 'jour' && (
         <>
       {P && position.step && (
         <div className="card">
@@ -651,6 +633,16 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
         </div>
       )}
 
+      <EtudeLivres
+        plans={plans} steps={steps} activePlanId={P?.id}
+        activeIndex={position.index} activeDay={plan?.current_day ?? 1}
+        onRead={(b, c) => { try { history.replaceState(null, '', '/lire'); } catch {} setBook(b); setChapter(c); setTarget(null); setTab('bible'); }}
+        onChoose={async (id) => {
+          if (!user) return alert('Connectez-vous pour changer de parcours.');
+          await supabase.from('user_plan').update({ plan_id: id, current_day: 1 }).eq('user_id', user.id);
+          location.reload();
+        }} />
+
       <h2 className="sect">Mon carnet de bord</h2>
       <p className="sub">{myNotes.length} note{myNotes.length > 1 ? 's' : ''} et {Object.keys(hl).length} surlignage{Object.keys(hl).length > 1 ? 's' : ''}.</p>
       <div className="card pad">
@@ -675,63 +667,6 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
           <div><b>Vos notes ne sont pas encore enregistrées.</b> Creez un compte pour les retrouver partout et ne rien perdre.</div>
         </div>
       )}
-
-        </>
-      )}
-
-      {tab === 'parcours' && pview === 'jour' && (
-        <>
-      <div className="card pad">
-        <span className="kicker">Choisir un parcours de lecture · {plans.length} disponibles</span>
-        <div>
-        <p style={{ color: 'var(--ink-2)', fontSize: 14.5, lineHeight: 1.6, marginBottom: 4 }}>
-          Un <b>parcours</b> vous dit <b>quoi lire chaque jour</b> : il découpe la Bible en étapes et
-          avance tout seul. Choisissez-en un ci-dessous ; ensuite, la carte «&nbsp;Votre lecture du jour&nbsp;»
-          en haut vous indique le passage exact du jour et le bouton «&nbsp;Ouvrir la lecture&nbsp;» vous
-          y emmène. Quand vous avez lu, touchez «&nbsp;J&rsquo;ai lu&nbsp;» pour passer au suivant.
-        </p>
-        {STYLES.map(([sid, label]) => (
-          <div key={sid}>
-            <div className="grp" style={{ padding: '14px 0 4px' }}>{label}</div>
-            <div className="chips" style={{ margin: 0 }}>
-              {plans.filter((p: any) => p.style === sid).map((p: any) => (
-                <button key={p.id} className="chip" aria-selected={p.id === P?.id}
-                        onClick={async () => {
-                          if (!user) return alert('Connectez-vous pour changer de parcours.');
-                          await supabase.from('user_plan').update({ plan_id: p.id, current_day: 1 }).eq('user_id', user.id);
-                          location.reload();
-                        }}>
-                  {p.name}{p.days ? ` · ${p.days} j` : ''}
-                </button>
-              ))}
-            </div>
-          </div>
-        ))}
-        {P && (
-          <>
-            <h3 style={{ marginTop: 26 }}>{P.name}</h3>
-            <p style={{ color: 'var(--ink-3)', fontSize: 14.5, marginTop: 3 }}>
-              {P.subtitle}{P.days ? ` · ${P.days} jours` : ''}
-            </p>
-            <div className="mini" style={{ marginTop: 16 }}><strong>Pour qui</strong><span>{P.audience}</span></div>
-            <p style={{ marginTop: 16 }}>{P.rationale}</p>
-            {mySteps.map((e: any, i: number) => (
-              <div className={`step${i < position.index ? ' done' : ''}`} key={e.position}>
-                <span className="step-n">{i < position.index ? '✓' : i + 1}</span>
-                <div>
-                  <h4>{e.label}{e.chapters ? ` · ${e.chapters} chapitres` : ''}</h4>
-                  <div className="sm">{e.title}</div>
-                  <p>{e.description}</p>
-                  {(e.key_passages as string[])?.length > 0 && (
-                    <div className="clés">{(e.key_passages as string[]).map(c => <span key={c}>{c}</span>)}</div>
-                  )}
-                </div>
-              </div>
-            ))}
-          </>
-        )}
-        </div>
-      </div>
 
         </>
       )}

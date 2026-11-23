@@ -14,16 +14,17 @@ import { ficheChapitre, FICHES_CHAPITRES } from '@/lib/fiches-chapitres';
  * Navigation interne : liste > parcours > livre > chapitre, sans quitter le lecteur.
  * L'adresse change à chaque vue (retour du téléphone et lien direct fonctionnent).
  */
-type View = { t: 'list' } | { t: 'parcours'; id: string } | { t: 'livre'; n: number } | { t: 'chap'; n: number; c: number };
+type View = { t: 'list' } | { t: 'parcours'; id: string } | { t: 'plan'; id: string } | { t: 'livre'; n: number } | { t: 'chap'; n: number; c: number };
 
 const base = '/lire?tab=parcours&vue=livres';
-const enc = (v: View) => v.t === 'list' ? '' : v.t === 'parcours' ? `p:${v.id}` : v.t === 'livre' ? `l:${v.n}` : `c:${v.n}:${v.c}`;
+const enc = (v: View) => v.t === 'list' ? '' : v.t === 'parcours' ? `p:${v.id}` : v.t === 'plan' ? `q:${v.id}` : v.t === 'livre' ? `l:${v.n}` : `c:${v.n}:${v.c}`;
 const urlOf = (v: View) => v.t === 'list' ? base : `${base}&e=${encodeURIComponent(enc(v))}`;
 function parse(): View {
   try {
     const e = new URLSearchParams(location.search).get('e') ?? '';
     const [k, a, b] = e.split(':');
     if (k === 'p' && parcoursById(a)) return { t: 'parcours', id: a };
+    if (k === 'q' && a) return { t: 'plan', id: a };
     if (k === 'l' && BOOKS[+a - 1]) return { t: 'livre', n: +a };
     if (k === 'c' && BOOKS[+a - 1] && +b >= 1 && +b <= BOOKS[+a - 1][2]) return { t: 'chap', n: +a, c: +b };
   } catch {}
@@ -43,10 +44,17 @@ const QUESTIONS = [
   'À qui puis-je en parler cette semaine ?'
 ];
 
-export default function EtudeLivres({ onRead }: { onRead: (book: number, chapter: number) => void }) {
+type Props = {
+  onRead: (book: number, chapter: number) => void;
+  plans: any[]; steps: any[];
+  activePlanId?: string; activeIndex: number; activeDay: number;
+  onChoose: (planId: string) => void;
+};
+
+export default function EtudeLivres({ onRead, plans, steps, activePlanId, activeIndex, activeDay, onChoose }: Props) {
   const [view, setView] = useState<View>(() => (typeof window === 'undefined' ? { t: 'list' } : parse()));
   const pushes = useRef(0);
-  const [filtre, setFiltre] = useState<'all' | Groupe>('all');
+  const [filtre, setFiltre] = useState<'all' | 'jour' | Groupe>('all');
   const { done, toggle } = useProgression();
 
   const go = useCallback((v: View) => {
@@ -78,18 +86,37 @@ export default function EtudeLivres({ onRead }: { onRead: (book: number, chapter
     return (
       <div className="pe-wrap"><div className="pe-view" key={key}>
         <div className="pe-head">
-          <span className="eyebrow">Étude des livres</span>
-          <h2>Quel livre méditer, dans quel ordre ?</h2>
-          <p>Choisis un parcours : chaque livre a sa fiche, ses questions et ton carnet.</p>
+          <span className="eyebrow">Parcours</span>
+          <h2>Quel parcours suivre ?</h2>
+          <p>Lecture quotidienne ou étude des livres : un seul endroit, un seul suivi.</p>
         </div>
         <div className="chips" role="tablist" style={{ margin: '4px 0 0' }}>
-          <button className="chip" aria-selected={filtre === 'all'} onClick={() => setFiltre('all')}>Tous ({PARCOURS.length})</button>
+          <button className="chip" aria-selected={filtre === 'all'} onClick={() => setFiltre('all')}>Tous ({plans.length + PARCOURS.length})</button>
+          <button className="chip" aria-selected={filtre === 'jour'} onClick={() => setFiltre('jour')}>Au quotidien ({plans.length})</button>
           {GROUPES.map(g => (
             <button key={g.id} className="chip" aria-selected={filtre === g.id} onClick={() => setFiltre(g.id)}>
               {g.label} ({PARCOURS.filter(p => p.groupe === g.id).length})
             </button>
           ))}
         </div>
+        {(filtre === 'all' || filtre === 'jour') && (
+          <section>
+            <div className="pe-grp">Au quotidien</div>
+            <div className="pe-list">
+              {plans.map((p: any) => {
+                const actif = p.id === activePlanId;
+                return (
+                  <button key={p.id} className="card pad pe-item" onClick={() => go({ t: 'plan', id: p.id })}>
+                    <h3>{p.name}{actif && <span className="pe-badge">En cours</span>}</h3>
+                    <p>{p.subtitle}</p>
+                    <div className="pe-prog">{actif && p.days ? `Jour ${activeDay} sur ${p.days}` : p.days ? `${p.days} jours` : 'À votre rythme'}</div>
+                    {actif && p.days && <div className="pe-bar"><i style={{ width: `${Math.min(100, Math.round(activeDay / p.days * 100))}%` }} /></div>}
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+        )}
         {GROUPES.filter(g => filtre === 'all' || filtre === g.id).map(g => (
           <section key={g.id}>
             <div className="pe-grp">{g.label}</div>
@@ -108,6 +135,55 @@ export default function EtudeLivres({ onRead }: { onRead: (book: number, chapter
             </div>
           </section>
         ))}
+      </div></div>
+    );
+  }
+
+  /* ───────── 2b. Un parcours de lecture quotidienne ───────── */
+  if (view.t === 'plan') {
+    const P = plans.find((x: any) => x.id === view.id);
+    if (!P) return null;
+    const actif = P.id === activePlanId;
+    const mine = steps.filter((x: any) => x.plan_id === P.id);
+    return (
+      <div className="pe-wrap"><div className="pe-view" key={key}>
+        <Back label="Parcours" />
+        <div className="pe-head">
+          <span className="eyebrow">Au quotidien</span>
+          <h2>{P.name}</h2>
+          <p>{P.subtitle}{P.days ? ` · ${P.days} jours` : ''}</p>
+        </div>
+        <div className="card pad">
+          {actif ? (
+            <>
+              <div className="pe-prog">En cours · {P.days ? `jour ${activeDay} sur ${P.days}` : `étape ${activeIndex + 1} sur ${mine.length}`}</div>
+              {P.days ? <div className="pe-bar"><i style={{ width: `${Math.min(100, Math.round(activeDay / P.days * 100))}%` }} /></div> : null}
+            </>
+          ) : (
+            <button className="btn primary" onClick={() => onChoose(P.id)}>Suivre ce parcours</button>
+          )}
+          {P.audience && <div className="pe-row" style={{ marginTop: 12 }}><dt>Pour qui</dt><dd>{P.audience}</dd></div>}
+          {P.rationale && <p style={{ marginTop: 10 }}>{P.rationale}</p>}
+        </div>
+        <div className="card pad">
+          {mine.map((e: any, i: number) => {
+            const fait = actif && i < activeIndex;
+            return (
+              <div key={e.position} className={`pe-step${fait ? ' done' : ''}`}>
+                <span className="pe-check" aria-hidden>{fait ? '✓' : ''}</span>
+                <div className="pe-step-main">
+                  <div className="pe-step-t">{e.label}{e.chapters ? ` · ${e.chapters} ch.` : ''}</div>
+                  {e.title && <div className="pe-prog" style={{ margin: '2px 0 0' }}>{e.title}</div>}
+                  <div className="pe-links">
+                    <button className="ix-chip" onClick={() => go({ t: 'livre', n: e.book })}>Fiche du livre</button>
+                    <button className="ix-chip" onClick={() => onRead(e.book, 1)}>Lire</button>
+                    <button className="ix-chip" onClick={() => go({ t: 'chap', n: e.book, c: 1 })}>Étudier le chapitre 1</button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div></div>
     );
   }
