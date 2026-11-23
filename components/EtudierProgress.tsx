@@ -87,6 +87,27 @@ export function useSuivi() {
       save({ ...cur, done: { ...cur.done, [id]: [...set].sort((a, b) => a - b) } });
     }
   }, []);
+  /** Remet à zéro les étapes d'un parcours à partir de l'étape `from` (0 = tout le parcours). */
+  const reprendre = useCallback((id: string, from = 0) => {
+    const cur = load(); const p = parcoursById(id);
+    if (!p) return;
+    const { etapes } = etatParcours(p, cur);
+    const aReset = etapes.filter(e => e.i >= from);
+    const done = new Set((cur.done[id] ?? []).filter(i => i < from));
+    const lus = { ...cur.lus };
+    aReset.forEach(e => {
+      const k = String(e.book);
+      const set = new Set(lus[k] ?? []);
+      e.chapters.forEach(c => set.delete(c));
+      lus[k] = [...set].sort((a, b) => a - b);
+    });
+    save({ ...cur, done: { ...cur.done, [id]: [...done].sort((a, b) => a - b) }, lus });
+  }, []);
+  /** Remet un livre à zéro : plus aucun chapitre lu. */
+  const resetLivre = useCallback((book: number) => {
+    const cur = load();
+    save({ ...cur, lus: { ...cur.lus, [String(book)]: [] } });
+  }, []);
   const estLu = useCallback((book: number, ch: number) => (s.lus[String(book)] ?? []).includes(ch), [s]);
-  return { ...s, setActif, lire, toggleEtape, estLu };
+  return { ...s, setActif, lire, toggleEtape, reprendre, resetLivre, estLu };
 }

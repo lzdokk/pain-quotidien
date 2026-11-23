@@ -10,7 +10,7 @@ export default function CarteEtude({ onRead, onStudy, onFiche, onList }: {
   onFiche: (book: number) => void;
   onList: () => void;
 }) {
-  const { actif, done, lus, lire } = useSuivi();
+  const { actif, done, lus, lire, reprendre } = useSuivi();
   const p = actif ? parcoursById(actif) : undefined;
   if (!p) return null;
   const { etapes, courant, faites } = etatParcours(p, { actif, done, lus });
@@ -30,7 +30,7 @@ export default function CarteEtude({ onRead, onStudy, onFiche, onList }: {
             <>
               <div className="big-ref">Parcours terminé</div>
               <p style={{ color: 'var(--ink-2)', fontSize: 15.5 }}>Bravo : {etapes.length} étapes lues. Choisis le parcours suivant dans la liste ci-dessous.</p>
-              <div className="share-grid" style={{ marginTop: 20 }}><button className="btn primary" onClick={onList}>Choisir un parcours</button></div>
+              <div className="share-grid" style={{ marginTop: 20 }}><button className="btn primary" onClick={onList}>Choisir un parcours</button><button className="btn" onClick={() => reprendre(p.id, 0)}>↺ Recommencer</button></div>
             </>
           ) : (
             <>
@@ -48,6 +48,8 @@ export default function CarteEtude({ onRead, onStudy, onFiche, onList }: {
                 <button className="btn" onClick={() => onStudy(e.book, e.prochain)}>Étudier ce chapitre</button>
                 <button className="btn" onClick={() => lire(e.book, e.prochain)}>J&rsquo;ai lu, chapitre suivant</button>
               </div>
+              <button className="pe-back" style={{ marginTop: 10, fontWeight: 500, fontSize: 14 }}
+                onClick={() => { try { if (!window.confirm('Recommencer ce parcours au début ?')) return; } catch {} reprendre(p.id, 0); }}>↺ Recommencer ce parcours</button>
             </>
           )}
         </div>

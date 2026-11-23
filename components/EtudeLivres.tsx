@@ -50,14 +50,16 @@ type Props = {
   plans: any[]; steps: any[];
   activePlanId?: string; activeIndex: number; activeDay: number;
   onChoose: (planId: string) => void;
+  onJump: (planId: string, day: number) => void;
 };
 
-export default function EtudeLivres({ onRead, plans, steps, activePlanId, activeIndex, activeDay, onChoose }: Props) {
+export default function EtudeLivres({ onRead, plans, steps, activePlanId, activeIndex, activeDay, onChoose, onJump }: Props) {
   const [view, setView] = useState<View>(() => (typeof window === 'undefined' ? { t: 'list' } : parse()));
   const pushes = useRef(0);
   const [filtre, setFiltre] = useState<'all' | 'jour' | Groupe>('all');
   const suivi = useSuivi();
-  const { actif, setActif, toggleEtape, lire, estLu } = suivi;
+  const { actif, setActif, toggleEtape, lire, estLu, reprendre, resetLivre } = suivi;
+  const sure = (q: string) => { try { return window.confirm(q); } catch { return true; } };
   const planActif = actif ? undefined : activePlanId;
 
   const go = useCallback((v: View, scroll = true) => {
@@ -119,7 +121,7 @@ export default function EtudeLivres({ onRead, plans, steps, activePlanId, active
                     <h3>{p.name}{en && <span className="pe-badge">En cours</span>}</h3>
                     <p>{p.subtitle}</p>
                     <div className="pe-prog">{en && p.days ? `Jour ${activeDay} sur ${p.days}` : p.days ? `${p.days} jours` : 'À votre rythme'}</div>
-                    {en && p.days && <div className="pe-bar"><i style={{ width: `${Math.min(100, Math.round(activeDay / p.days * 100))}%` }} /></div>}
+                    {en && p.days && <div className="pe-bar"><i style={{ width: `${Math.min(100, Math.round((activeDay - 1) / p.days * 100))}%` }} /></div>}
                   </button>
                 );
               })}
@@ -167,7 +169,10 @@ export default function EtudeLivres({ onRead, plans, steps, activePlanId, active
           {en ? (
             <>
               <div className="pe-prog">En cours · {P.days ? `jour ${activeDay} sur ${P.days}` : `étape ${activeIndex + 1} sur ${mine.length}`}</div>
-              {P.days ? <div className="pe-bar"><i style={{ width: `${Math.min(100, Math.round(activeDay / P.days * 100))}%` }} /></div> : null}
+              {P.days ? <div className="pe-bar"><i style={{ width: `${Math.min(100, Math.round((activeDay - 1) / P.days * 100))}%` }} /></div> : null}
+              <div style={{ marginTop: 12 }}>
+                <button className="btn" onClick={() => sure('Recommencer ce parcours au jour 1 ?') && onJump(P.id, 1)}>↺ Recommencer du début</button>
+              </div>
             </>
           ) : (
             <button className="btn primary" onClick={() => { setActif(null); onChoose(P.id); }}>Suivre ce parcours</button>
@@ -178,6 +183,7 @@ export default function EtudeLivres({ onRead, plans, steps, activePlanId, active
         <div className="card pad">
           {mine.map((e: any, i: number) => {
             const fait = en && i < activeIndex;
+            const jour = 1 + mine.slice(0, i).reduce((t: number, x: any) => t + (x.chapters || 1), 0);
             return (
               <div key={e.position} className={`pe-step${fait ? ' done' : ''}`}>
                 <span className="pe-check" aria-hidden>{fait ? '✓' : ''}</span>
@@ -188,6 +194,7 @@ export default function EtudeLivres({ onRead, plans, steps, activePlanId, active
                   <div className="pe-links">
                     <button className="ix-chip" onClick={() => go({ t: 'livre', n: e.book })}>Fiche du livre</button>
                     <button className="ix-chip" onClick={() => onRead(e.book, 1)}>Lire</button>
+                    <button className="ix-chip" onClick={() => sure(`Reprendre le parcours à « ${e.label} » (jour ${jour}) ?`) && onJump(P.id, jour)}>↺ Reprendre ici</button>
                   </div>
                 </div>
               </div>
@@ -218,6 +225,11 @@ export default function EtudeLivres({ onRead, plans, steps, activePlanId, active
           {en
             ? <p className="pe-prog" style={{ marginTop: 10 }}>Parcours en cours : il s’affiche tout en haut de la page.</p>
             : <div style={{ marginTop: 12 }}><button className="btn primary" onClick={() => { setActif(p.id); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Suivre ce parcours</button></div>}
+          {(faites > 0 || etapes.some(x => x.lus > 0)) && (
+            <div style={{ marginTop: 10 }}>
+              <button className="btn" onClick={() => sure('Remettre ce parcours à zéro ? Les chapitres lus de ses livres seront décochés.') && reprendre(p.id, 0)}>↺ Recommencer du début</button>
+            </div>
+          )}
         </div>
         <div className="card pad">
           {etapes.map(s => {
@@ -234,6 +246,9 @@ export default function EtudeLivres({ onRead, plans, steps, activePlanId, active
                     <button className="ix-chip" onClick={() => go({ t: 'livre', n: s.book })}>Fiche du livre</button>
                     <button className="ix-chip" onClick={() => onRead(s.book, s.prochain)}>Lire {nom} {s.prochain}</button>
                     <button className="ix-chip" onClick={() => go({ t: 'chap', n: s.book, c: s.prochain })}>Étudier le chapitre {s.prochain}</button>
+                    {(s.lus > 0 || s.complete || s.i > courant) && (
+                      <button className="ix-chip" onClick={() => sure(`Reprendre le parcours à « ${s.label} » ? Cette étape et les suivantes seront remises à zéro.`) && reprendre(p.id, s.i)}>↺ Reprendre ici</button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -313,6 +328,7 @@ export default function EtudeLivres({ onRead, plans, steps, activePlanId, active
             ))}
           </div>
           <p className="pe-prog">Les chapitres cochés (✓) sont lus. Chaque chapitre a ses questions de méditation et ton carnet.</p>
+          {lus > 0 && <button className="ix-chip" onClick={() => sure(`Remettre ${nom} à zéro ? Tous ses chapitres seront décochés.`) && resetLivre(view.n)}>↺ Reprendre {nom} du début</button>}
         </section>
         <div className="share-grid" style={{ marginTop: 18 }}>
           <button className="btn primary" onClick={() => onRead(view.n, 1)}>Lire {nom} ›</button>

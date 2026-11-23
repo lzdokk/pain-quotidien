@@ -619,8 +619,8 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
               </p>
               {P.days ? (
                 <div className="progress-wrap">
-                  <div className="bar"><i style={{ width: `${Math.min(100, Math.round((plan?.current_day ?? 1) / P.days * 100))}%` }} /></div>
-                  <span className="pct">{Math.min(100, Math.round((plan?.current_day ?? 1) / P.days * 100))} %</span>
+                  <div className="bar"><i style={{ width: `${Math.min(100, Math.round(((plan?.current_day ?? 1) - 1) / P.days * 100))}%` }} /></div>
+                  <span className="pct">{Math.min(100, Math.round(((plan?.current_day ?? 1) - 1) / P.days * 100))} %</span>
                 </div>
               ) : null}
               <div className="share-grid" style={{ marginTop: 20 }}>
@@ -634,6 +634,7 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
                 <button className="btn" onClick={() => etudeGo(jourEtape ? `c:${jourEtape.book}:${jourEtape.chapter}` : `l:${position.step.book}`)}>Étudier ce chapitre</button>
                 <button className="btn" onClick={markRead}>J&rsquo;ai lu, chapitre suivant</button>
               </div>
+              <button className="pe-back" style={{ marginTop: 10, fontWeight: 500, fontSize: 14 }} onClick={() => etudeGo(`q:${P.id}`)}>↺ Recommencer ou reprendre à une étape</button>
             </div>
 
             {(position.step.key_passages as string[])?.length > 0 && (
@@ -659,6 +660,11 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
         plans={plans} steps={steps} activePlanId={P?.id}
         activeIndex={position.index} activeDay={plan?.current_day ?? 1}
         onRead={(b, c) => { try { history.replaceState(null, '', '/lire'); } catch {} setBook(b); setChapter(c); setTarget(null); setTab('bible'); }}
+        onJump={async (id, day) => {
+          if (!user) return alert('Connectez-vous pour suivre votre parcours.');
+          await supabase.from('user_plan').update({ plan_id: id, current_day: day }).eq('user_id', user.id);
+          location.reload();
+        }}
         onChoose={async (id) => {
           if (!user) return alert('Connectez-vous pour changer de parcours.');
           await supabase.from('user_plan').update({ plan_id: id, current_day: 1 }).eq('user_id', user.id);
