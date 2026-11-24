@@ -1,0 +1,23 @@
+name: Lexique levangile — import (manuel)
+
+# Import unique du lexique Strong français de levangile.com (accord du propriétaire).
+on:
+  workflow_dispatch:
+    inputs:
+      langs: { description: 'grec,hebreu', default: 'grec,hebreu' }
+      limit: { description: '0 = tout (sinon nombre de fiches par langue, pour un essai)', default: '0' }
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - name: Importer
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          LANGS: ${{ inputs.langs }}
+          LIMIT: ${{ inputs.limit }}
+        run: node scripts/levangile-import.mjs

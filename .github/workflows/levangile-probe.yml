@@ -5,15 +5,14 @@ jobs:
   probe:
     runs-on: ubuntu-latest
     steps:
-      - name: Lire listes et fiches
+      - name: Westphal
         run: |
           UA="Mozilla/5.0 (PainDeVie; accord du proprietaire)"
-          echo "=== liste grec p2"; curl -sL -m 20 -A "$UA" "https://www.levangile.com/Liste-Strong-Grec.php?page=2" | grep -o 'href="[^"]*lexique-grec-[^"]*"' | head -5
-          echo "=== liste grec derniere page ?"; curl -sL -m 20 -A "$UA" "https://www.levangile.com/Liste-Strong-Grec.php?page=2" | grep -io 'page=[0-9]*' | sort -u | tail -5
-          echo "=== liste hebreu p1"; curl -sL -m 20 -A "$UA" "https://www.levangile.com/Liste-Strong-Hebreu.php" | grep -o 'href="[^"]*lexique-hebreu-[^"]*"' | head -3
-          curl -sL -m 20 -A "$UA" "https://www.levangile.com/Liste-Strong-Hebreu.php" | grep -io 'page=[0-9]*' | sort -u | tail -5
-          echo "=== hebreu page 500"; curl -sL -m 20 -A "$UA" "https://www.levangile.com/Liste-Strong-Hebreu.php?page=500" | grep -o 'href="[^"]*lexique-hebreu-[^"]*"' | head -3
-          echo "=== grec 26"; U=$(curl -sL -m 20 -A "$UA" "https://www.levangile.com/Liste-Strong-Grec.php?page=2" | grep -o 'lexique-grec-26-[^"]*' | head -1); echo $U
-          curl -sL -m 20 -A "$UA" "https://www.levangile.com/$U" | sed -n '/Strong num/,/Concordance biblique/p' | head -45
-          echo "=== hebreu 430"; U=$(curl -sL -m 20 -A "$UA" "https://www.levangile.com/Liste-Strong-Hebreu.php?page=22" | grep -o 'lexique-hebreu-430-[^"]*' | head -1); echo $U
-          curl -sL -m 20 -A "$UA" "https://www.levangile.com/$U" | sed -n '/Définition de/,/Concordance biblique/p' | head -30
+          B=https://www.levangile.com/Dictionnaire-Biblique/
+          curl -sL -m 20 -A "$UA" "${B}Liste-Definitions-Westphal.php" -o l.html
+          echo "=== liens"; grep -o 'href="[^"]*"' l.html | sort | uniq -c | sort -rn | head -15
+          echo "=== pages"; grep -io '[?&]page=[0-9]*\|[?&]lettre=[a-z]*' l.html | sort -u | head -40
+          echo "=== defs"; grep -o 'href="[^"]*[Dd]efinition[^"]*"' l.html | head -8
+          U=$(grep -o 'href="[^"]*[Dd]efinition[^"]*"' l.html | grep -iv liste | head -3 | tail -1 | sed 's/href="//;s/"$//'); echo "URL $U"
+          case "$U" in http*) F="$U";; /*) F="https://www.levangile.com$U";; *) F="$B$U";; esac
+          curl -sL -m 20 -A "$UA" "$F" -o d.html; echo "=== fiche $F"; sed -n '/<h1/,/<footer/p' d.html | grep -v '^\s*$' | head -70
