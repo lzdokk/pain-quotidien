@@ -4,7 +4,7 @@ import { admin } from '@/lib/supabase/admin';
 import { aiAccess } from '@/lib/ai-access';
 import { glossFr } from '@/lib/gloss-fr';
 import { callJSON } from '@/lib/llm';
-import { alignGloss, GLOSS_ITEM_SCHEMA } from '@/lib/align-gloss';
+import { alignGloss, GLOSS_ITEM_SCHEMA, GLOSS_RULES } from '@/lib/align-gloss';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 120;
@@ -46,8 +46,7 @@ l'ordre, donne sa traduction française en contexte : un à quatre mots françai
 tels qu'on les lirait dans une Bible interlinéaire (ex. « au commencement », « créa »,
 « Dieu », « les cieux », « et », « la terre »). Pour une particule sans équivalent
 (ex. la marque de l'objet direct), écris « [objet] ». Accents français obligatoires.
-IMPORTANT : pour chaque mot, recopie son numéro (n) et le mot d'origine tel quel (g), puis sa traduction (fr).
-Ne saute aucun mot, n'en fusionne aucun, n'en ajoute aucun.
+${GLOSS_RULES}
 Réponds uniquement par un objet JSON : { "mots": [ { "n": 1, "g": "…", "fr": "…" }, ... ] }, exactement un élément par mot.`,
     user: `Traduction française du verset : ${fr?.text ?? '(indisponible)'}
 

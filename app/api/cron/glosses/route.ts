@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { admin } from '@/lib/supabase/admin';
 import { callJSON } from '@/lib/llm';
-import { alignGloss, GLOSS_ITEM_SCHEMA } from '@/lib/align-gloss';
+import { alignGloss, GLOSS_ITEM_SCHEMA, GLOSS_RULES } from '@/lib/align-gloss';
 
 export const maxDuration = 300;
 export const dynamic = 'force-dynamic';
@@ -37,8 +37,7 @@ un à quatre mots français simples (ex. « beaucoup », « diront », « à moi
 « Seigneur », « ne… pas », « ton », « nom », « nous avons prophétisé »). Un vocatif comme kyrie se
 traduit « Seigneur », jamais « monsieur », quand il s'adresse à Jésus ou à Dieu. Pour une particule
 sans équivalent (marque de l'objet direct), écris « [objet] ». Accents obligatoires.
-IMPORTANT : pour chaque mot, recopie son numéro (n) et le mot d'origine tel quel (g), puis sa traduction (fr).
-Ne saute aucun mot, n'en fusionne aucun, n'en ajoute aucun.
+${GLOSS_RULES}
 Réponds uniquement en JSON : { "versets": [ { "ref": "...", "mots": [ { "n": 1, "g": "καὶ", "fr": "et" }, ... ] } ] },
 exactement un élément par mot, dans l'ordre donné.`;
 

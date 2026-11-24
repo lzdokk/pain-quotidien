@@ -33,15 +33,18 @@ const ANCHORS: Record<string, RegExp> = {
   G2424: RE('jésus|de jésus|à jésus'),
   G5547: RE('christ|du christ|de christ|messie|oint'),
   G2962: RE('seigneur|du seigneur|au seigneur|maître|monsieur'),
-  G3756: RE('ne|n[’\']|pas|non|point|aucun|nul|jamais|ni'),
+  G3756: RE('ne|n[’\']|pas|non|point|aucun|nul|jamais|ni|sans'),
+  G3361: RE('ne|n[’\']|pas|non|point|aucun|nul|jamais|ni|sans|de peur|que'),
+  H3808: RE('ne|n[’\']|pas|non|point|aucun|nul|rien|jamais|ni|sans'),
+  H408: RE('ne|n[’\']|pas|non|point|aucun|nul|rien|jamais|ni|sans'),
   G3588: RE('le|la|les|l[’\']|du|de|des|au|aux|à|ce|cet|cette|ces|celui|celle|ceux|celles|qui|que|lui|eux|son|sa|ses|leur|\\[|·|—|-|$'),
   H3068: RE('l[’\']?éternel|éternel|seigneur|yhwh|yahvé|adonaï|de l|à l|par l|du seigneur'),
   H430: RE('dieu|dieux|de dieu|à dieu|élohim|divin|juges|anges'),
   H853: RE('\\[|·|—|-|$|lui|les|le|la|eux|elle|celui|ce|moi|toi|nous|vous|avec')
 };
 
-// Noms (Dieu, Jésus, Seigneur…) : une erreur suffit. Petits mots (et, le…) : il en faut deux.
-const HEAVY = new Set(['G2316', 'G2424', 'G5547', 'G2962', 'H3068', 'H430']);
+// Noms (Dieu, Jésus, Seigneur…) et négations : une erreur suffit. Petits mots (et, le…) : il en faut deux.
+const HEAVY = new Set(['G2316', 'G2424', 'G5547', 'G2962', 'H3068', 'H430', 'G3756', 'G3361', 'H3808', 'H408']);
 
 /** Poids des mots repères dont la traduction ne colle pas. */
 export function anchorMisses(words: W[], fr: (string | null | undefined)[]) {
@@ -84,3 +87,11 @@ export function alignGloss(words: W[], items: GlossItem[]): string[] | null {
   if (miss >= 2) return null;
   return out as string[];
 }
+
+/** Consigne commune aux deux traductions (tâche de fond, à la demande). */
+export const GLOSS_RULES = `RÈGLE D'OR : la traduction d'un mot rend le sens de CE mot-là, jamais celui d'un mot voisin.
+Ne réordonne pas selon la phrase française : si le français dit « je ne manquerai de rien »,
+לֹא (négation) reçoit « ne… pas » et אֶחְסָר reçoit « je manquerai ». Un article reçoit « le », « la »…,
+καί reçoit « et », θεός reçoit « Dieu ».
+Pour chaque mot, recopie son numéro (n) et le mot d'origine tel quel (g), puis sa traduction (fr).
+Ne saute aucun mot, n'en fusionne aucun, n'en ajoute aucun.`;
