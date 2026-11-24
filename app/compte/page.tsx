@@ -5,6 +5,7 @@ import NotifyButton from '@/components/NotifyButton';
 import ShareButton from '@/components/ShareButton';
 import SharePitch from '@/components/SharePitch';
 import AiKeyButton from '@/components/AiKeyButton';
+import { ThemeButton } from '@/components/ThemeSheet';
 import { loadHighlightItems } from '@/lib/highlight-items';
 import { SITE_URL } from '@/lib/site';
 
@@ -32,6 +33,7 @@ export default async function Compte() {
       <div className="wrap" style={{ marginTop: 20 }}>
         <NotifyButton />
         <AiKeyButton />
+        <div style={{ margin: '10px 0' }}><ThemeButton /></div>
         <div className="profile-actions">
           <a className="btn" href="/surlignes">
             Versets surlignés{(highlights?.length ?? 0) ? ` · ${highlights!.length}` : ''}

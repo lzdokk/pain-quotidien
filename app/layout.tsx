@@ -3,6 +3,7 @@ import './theme.css';
 import './globals.css';
 import './etude.css';
 import './apple.css';
+import './custom.css';
 import Reveal from '@/components/Reveal';
 import NativeInit from '@/components/NativeInit';
 import OneSignalInit from '@/components/OneSignalInit';
@@ -12,6 +13,8 @@ import Onboarding from '@/components/Onboarding';
 import AiKeySheet from '@/components/AiKeySheet';
 import Nav from '@/components/Nav';
 import { SITE_URL } from '@/lib/site';
+import { THEME_BOOT } from '@/lib/theme';
+import ThemeSheet from '@/components/ThemeSheet';
 
 const SITE = SITE_URL;
 const INSTA = process.env.NEXT_PUBLIC_INSTAGRAM ?? 'lepainquotidien';
@@ -52,11 +55,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           if(!m){var h=new Date().getHours();m=(h>=20||h<5)?'soir':'matin'}
           document.documentElement.dataset.mode=m}catch(e){}})();
         ` }} />
+        <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
         <Nav />
         {children}
         <RouteMemory />
         <Onboarding />
         <AiKeySheet />
+        <ThemeSheet />
         <NativeInit />
         <OneSignalInit />
         <InstallPrompt />

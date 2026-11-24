@@ -21,6 +21,7 @@ import { chapitreDuJour } from '@/lib/parcours';
 const Dictionnaire = dynamic(() => import('./Dictionnaire'), { ssr: false });
 const StrongModal = dynamic(() => import('./StrongModal'), { ssr: false });
 const VerseImage = dynamic(() => import('./VerseImage'), { ssr: false });
+import { ThemeButton } from './ThemeSheet';
 import { FONDS, readLook, saveLook, readLookPhoto, saveLookPhoto, type Look, LOOK_DEFAULT } from '@/lib/reader-look';
 const EtudeLivres = dynamic(() => import('./EtudeLivres'), { ssr: false, loading: () => <div className="skel skel-card" /> });
 import ChapterStudy from './ChapterStudy';
@@ -216,7 +217,7 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
   // Bulles flottantes : methode de lecture / recherche + historique.
   const [bubble, setBubble] = useState<null | 'method' | 'search' | 'versions' | 'importants' | 'etude' | 'dico' | 'strong' | 'look'>(null);
   // Image de verset à partager, apparence de lecture.
-  const [imgShare, setImgShare] = useState<{ text: string; ref: string } | null>(null);
+  const [imgShare, setImgShare] = useState<{ text: string; ref: string; v?: number } | null>(null);
   const [look, setLookState] = useState<Look>(LOOK_DEFAULT);
   const [lookPhoto, setLookPhoto] = useState<string | null>(null);
   const [lookMsg, setLookMsg] = useState('');
@@ -1088,7 +1089,7 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
         return (
           <div className="vbar-inline">
             <VerseTools refLabel={`${bookName} ${chapter}.${s}`} text={sv.text} color={hl[key(s)] ?? 0}
-                        onShare={() => setImgShare({ text: sv.text, ref: `${bookName} ${chapter}.${s}` })}
+                        onShare={() => setImgShare({ text: sv.text, ref: `${bookName} ${chapter}.${s}`, v: s })}
                         suggestion={sug} hasNote={!!noteFor(s)} multiOn={multi.has(s)}
                         open={{ note: editing, strong: wbw === s, compare: cmp === s, explain: explain?.kind === 'v' && explain.verse === s }}
                         onClose={() => { setSel(null); setEditing(false); }}
@@ -1350,6 +1351,7 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
                 <button className={look.police === 'sans' ? 'on' : ''} style={{ fontFamily: 'var(--sans)' }} onClick={() => setLook({ police: 'sans' })}>Moderne</button>
               </div>
               <button className="linkbtn" style={{ marginTop: 14, fontSize: 13.5 }} onClick={() => setLook({ ...LOOK_DEFAULT })}>Revenir à l’apparence par défaut</button>
+              <div style={{ marginTop: 14 }}><ThemeButton label="Couleurs et police de toute l’app" className="btn sm" /></div>
             </>
           )}
 
@@ -1551,7 +1553,8 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
 
       <FicheSheet slug={fiche} onClose={() => setFiche(null)} />
       {strongCode && <StrongModal code={strongCode} onClose={() => setStrongCode(null)} />}
-      {imgShare && <VerseImage text={imgShare.text} refLabel={imgShare.ref} onClose={() => setImgShare(null)} />}
+      {imgShare && <VerseImage text={imgShare.text} refLabel={imgShare.ref} bcv={imgShare.v ? { b: book, c: chapter, v: imgShare.v } : undefined}
+                               bookName={bookName} onClose={() => setImgShare(null)} />}
 
       {lexOpen && (
         <div className="rsheet-back" onClick={() => setLexOpen(false)}>

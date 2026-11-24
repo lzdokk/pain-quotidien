@@ -168,7 +168,25 @@ export async function loadPhoto(file: File, max = 1600): Promise<{ img: HTMLImag
   return { img, url };
 }
 
-export default function VerseImage({ text, refLabel, onClose }: { text: string; refLabel: string; onClose: () => void }) {
+export default function VerseImage({ text, refLabel, onClose, message, bcv, bookName }: {
+  text: string; refLabel: string; onClose: () => void;
+  /** Méditation déjà prête à joindre au message */
+  message?: string;
+  /** Sinon : verset à chercher (méditation déjà écrite, lue en cache) */
+  bcv?: { b: number; c: number; v: number }; bookName?: string;
+}) {
+  const [medit, setMedit] = useState<string | null>(message ?? null);
+  const [attach, setAttach] = useState(true);
+  useEffect(() => {
+    if (message || !bcv) return;
+    let alive = true;
+    fetch(`/api/explain?b=${bcv.b}&c=${bcv.c}&v=${bcv.v}`).then(r => r.ok ? r.json() : null).then(async d => {
+      if (!alive || !d) return;
+      const { meditationText } = await import('@/lib/meditation-text');
+      setMedit(meditationText({ reference: refLabel, verseText: text, data: d, bookName: bookName ?? refLabel.replace(/\s+\d+.*$/, ''), chapter: bcv.c }));
+    }).catch(() => null);
+    return () => { alive = false; };
+  }, [message, bcv?.b, bcv?.c, bcv?.v]); // eslint-disable-line react-hooks/exhaustive-deps
   const cv = useRef<HTMLCanvasElement>(null);
   const [ready, setReady] = useState(false);
   const [o, setO] = useState<Opts>(() => {
@@ -192,12 +210,16 @@ export default function VerseImage({ text, refLabel, onClose }: { text: string; 
   const fileName = `${refLabel.replace(/[^\p{L}\d]+/gu, '-')}-pain-de-vie.jpg`;
   const shareImg = async () => {
     setBusy(true); setMsg('');
+    if (attach && medit) { try { await navigator.clipboard.writeText(medit); setMsg('Méditation copiée : colle-la en légende si l’app ne l’affiche pas.'); } catch {} }
     try {
       const b = await blob(); if (!b) return;
       const file = new File([b], fileName, { type: 'image/jpeg' });
       const nav: any = navigator;
-      if (nav.canShare?.({ files: [file] })) { await nav.share({ files: [file], title: refLabel }); }
-      else download(b);
+      const withText = attach && medit;
+      if (nav.canShare?.({ files: [file] })) {
+        // Le texte accompagne l'image (WhatsApp, Messages…) ; Instagram l'ignore : il est aussi copié, prêt à coller en légende.
+        await nav.share(withText ? { files: [file], title: refLabel, text: medit } : { files: [file], title: refLabel });
+      } else download(b);
     } catch (e: any) { if (e?.name !== 'AbortError') setMsg('Partage impossible : utilise « Enregistrer ».'); }
     finally { setBusy(false); }
   };
@@ -207,7 +229,7 @@ export default function VerseImage({ text, refLabel, onClose }: { text: string; 
   };
   const save = async () => { const b = await blob(); if (b) download(b); };
   const shareText = async () => {
-    const t = `« ${text} » ${refLabel}`; const nav: any = navigator;
+    const t = attach && medit ? medit : `« ${text} » ${refLabel}`; const nav: any = navigator;
     if (nav.share) { try { await nav.share({ text: t }); return; } catch { /* annulé */ } }
     try { await navigator.clipboard.writeText(t); setMsg('Texte copié ✓'); } catch {}
   };
@@ -259,11 +281,15 @@ export default function VerseImage({ text, refLabel, onClose }: { text: string; 
           <button className={o.align === 'left' ? 'on' : ''} onClick={() => set({ align: 'left' })} aria-label="À gauche">☰ Gauche</button>
         </div>
         <label className="vi-sign"><input type="checkbox" checked={o.sign} onChange={e => set({ sign: e.target.checked })} /> Signature « Pain de Vie »</label>
+        <label className={`vi-sign${medit ? '' : ' off'}`}>
+          <input type="checkbox" checked={attach && !!medit} disabled={!medit} onChange={e => setAttach(e.target.checked)} />
+          {medit ? 'Joindre la méditation complète au message' : 'Méditation pas encore écrite pour ce verset (ouvre « Méditer » d’abord)'}
+        </label>
 
         <div className="vi-actions">
           <button className="btn primary" onClick={shareImg} disabled={!ready || busy}>{busy ? 'Préparation…' : 'Partager l’image'}</button>
           <button className="btn" onClick={save} disabled={!ready}>Enregistrer</button>
-          <button className="btn" onClick={shareText}>Texte seul</button>
+          <button className="btn" onClick={shareText}>{attach && medit ? 'Texte seul' : 'Verset seul'}</button>
         </div>
         {msg && <p className="fine" style={{ textAlign: 'center', marginTop: 8 }}>{msg}</p>}
       </div>

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useUser } from '@/lib/useUser';
 import AiKeyButton from './AiKeyButton';
+import { openTheme, ThemeButton } from './ThemeSheet';
 import SignIn from './SignIn';
 import Brand from './Brand';
 
@@ -105,6 +106,14 @@ export default function Nav(_props: { user?: any }) {
 
           <span className="nav-title">{TITLES.find(([p]) => path === p || path.startsWith(p + '/'))?.[1] ?? ''}</span>
 
+          {path === '/' && (
+            <button className="icon-btn th-open" onClick={openTheme} aria-label="Personnaliser l’app">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 3a9 9 0 100 18c1 0 1.6-.8 1.6-1.6 0-.5-.2-.8-.4-1.1-.3-.3-.4-.6-.4-1 0-.9.7-1.6 1.6-1.6H16a5 5 0 005-5C21 6.6 17 3 12 3z" />
+                <circle cx="7.5" cy="11" r="1" /><circle cx="10" cy="7.5" r="1" /><circle cx="14.5" cy="7.5" r="1" />
+              </svg>
+            </button>
+          )}
           <button className="icon-btn" onClick={toggleMode} aria-label="Matin ou soir">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                  strokeWidth="1.7" strokeLinecap="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z" /></svg>
@@ -142,7 +151,7 @@ export default function Nav(_props: { user?: any }) {
 
       {sheet && !user && (
         <div className="sheet on" onClick={e => { if (e.target === e.currentTarget) setSheet(false); }}>
-          <div className="sheet-in"><SignIn /><div style={{ marginTop: 14 }}><AiKeyButton compact /></div></div>
+          <div className="sheet-in"><SignIn /><div style={{ marginTop: 14 }}><AiKeyButton compact /></div><div style={{ marginTop: 10 }}><ThemeButton /></div></div>
         </div>
       )}
     </>
