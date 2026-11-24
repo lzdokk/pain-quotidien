@@ -1,0 +1,13 @@
+name: Lexique levangile — sonde (manuel)
+on:
+  workflow_dispatch: {}
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Lire deux fiches
+        run: |
+          for u in lexique-hebreu-7225-re-shiyth lexique-hebreu-7225 lexique-grec-26 lexique-hebreu-430; do
+            echo "=== $u"; curl -sL -m 20 -A "Mozilla/5.0 (PainDeVie; accord du proprietaire)" -o p.html -w "%{http_code} %{url_effective}\n" "https://www.levangile.com/$u"
+            sed -n '/Strong num/,/Concordance biblique/p' p.html | head -60
+          done
