@@ -18,6 +18,12 @@ const STOP = new Set(['or', 'dieu', 'seigneur', 'eternel', 'fils', 'pere', 'mere
   'oeil', 'yeux', 'pied', 'pieds', 'bouche', 'tete', 'eau', 'eaux', 'feu', 'chose', 'fait', 'frere', 'freres', 'maison', 'ville',
   'loi', 'gloire', 'grace', 'foi', 'amour', 'paix', 'vrai', 'force', 'jesus', 'christ', 'israel', 'aaron', 'moise', 'david', 'ange', 'anges']);
 
+// Petits mots français du texte, jamais pris pour un sujet (« sur », « pas », « dans »…).
+const FR_SMALL = new Set(('dans sur sous pas son sa ses mon ma mes ton ta tes notre nos votre vos leur leurs par pour avec vers sans plus '
+  + 'mais donc puis tout tous toute toutes qui que quoi dont cette ces les des une aux est sont ont fut furent etait ainsi comme car lors '
+  + 'alors encore aussi tres meme autre autres entre contre devant apres avant depuis jusque chez selon point fort elle elles lui eux nous '
+  + 'vous ils celui celle ceux voici voila quand afin parce lance lancer porte portes mont').split(' '));
+
 let TITLES: Array<{ id: number; titre: string; keys: string[] }> | null = null;
 async function titles() {
   if (TITLES) return TITLES;
@@ -70,22 +76,25 @@ export async function GET(req: NextRequest) {
   for (const v of (vs ?? []) as any[]) {
     const t = ' ' + nz(v.text).replace(/[^a-z0-9æœ]+/g, ' ') + ' ';
     texts.push([v.verse, t]);
-    for (const w of t.split(' ')) if (w.length >= 3) {
+    for (const w of t.split(' ')) if (w.length >= 3 && !FR_SMALL.has(w)) {
       for (const k of [w, w.replace(/s$/, '')]) { if (!words.has(k)) words.set(k, new Set()); words.get(k)!.add(v.verse); }
     }
   }
   const cited = new Set(cites.map(x => x.id));
   const mots: Array<{ id: number; titre: string; verses: number[] }> = [];
-  for (const t of await titles()) {
+  const used = new Set<string>(); // un seul article par mot (« Temple », pas aussi « Temple (Zorobabel) »)
+  const titled = [...await titles()].sort((x, y) => Number(/\(/.test(x.titre)) - Number(/\(/.test(y.titre)) || x.id - y.id);
+  for (const t of titled) {
     if (cited.has(t.id)) continue;
-    let hit: Set<number> | null = null;
+    let hit: Set<number> | null = null, key = '';
     for (const k of t.keys) {
+      if (used.has(k) || FR_SMALL.has(k)) continue;
       if (k.includes(' ')) {
         const vv = texts.filter(([, s]) => s.includes(` ${k} `)).map(([v]) => v);
-        if (vv.length) { hit = new Set(vv); break; }
-      } else if (words.has(k)) { hit = words.get(k)!; break; }
+        if (vv.length) { hit = new Set(vv); key = k; break; }
+      } else if (words.has(k)) { hit = words.get(k)!; key = k; break; }
     }
-    if (hit) mots.push({ id: t.id, titre: t.titre, verses: [...hit].sort((p, q) => p - q) });
+    if (hit) { used.add(key); mots.push({ id: t.id, titre: t.titre, verses: [...hit].sort((p, q) => p - q) }); }
   }
   mots.sort((x, y) => x.verses[0] - y.verses[0]);
 
