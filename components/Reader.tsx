@@ -1,6 +1,6 @@
 'use client';
 import { useUser } from '@/lib/useUser';
-import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
+import { Fragment, useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { supabase } from '@/lib/supabase/client';
 import Explain from './Explain';
@@ -225,6 +225,17 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
   const findDico = async (k: string) => {
     try { const r = await fetch(`/api/dict?q=${encodeURIComponent(k)}`); return (await r.json()).items ?? []; } catch { return []; }
   };
+  const [sAside, setSAside] = useState<any[] | null>(null);
+  const [sAll, setSAll] = useState(false);
+  const sKey = useRef('');
+  useEffect(() => {
+    if (bubble !== 'strong' || !book) return;
+    const k = `${book}-${chapter}`;
+    if (sKey.current === k && sAside) return;
+    sKey.current = k; setSAside(null); setSAll(false); setSres(null); setSq('');
+    fetch(`/api/aside/strong?b=${book}&c=${chapter}`).then(r => r.ok ? r.json() : null)
+      .then(j => setSAside(j?.items ?? [])).catch(() => setSAside([]));
+  }, [bubble, book, chapter]); // eslint-disable-line react-hooks/exhaustive-deps
   const runStrong = async () => {
     if (sq.trim().length < 1) return;
     setSload(true); setSres(await findStrong(sq.trim())); setSload(false);
@@ -500,7 +511,7 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
   const go = (ref: string) => {
     const m = ref.match(/^(.+?)\s+(\d+)/);
     if (!m) return;
-    const nz = (x: string) => x.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const nz = (x: string) => x.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '');
     const norm = nz(m[1]);
     const b = books.find((x: any) => nz(x.name).startsWith(norm));
     if (b) { setBook(b.id); setChapter(Math.min(+m[2], b.chapters)); setExplain(null); setWbw(null); setCmp(null); setTab('bible'); }
@@ -773,7 +784,7 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
 
       {tab === 'etude' && (
         <>
-          <Dictionnaire onRef={goRef} />
+          <Dictionnaire onRef={goRef} chapter={{ b: book, c: chapter, name: bookName }} />
           {studyList
             ? <StudyIndex embedded plan={studyList.plan} ready={studyList.ready} sujets={studyList.sujets}
                           renvois={studyList.renvois} onOpen={setFiche} />
@@ -1286,16 +1297,40 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
           {bubble === 'dico' && (
             <>
               <h3 className="rbubble-t">Dictionnaire biblique</h3>
-              <Dictionnaire bare initialId={dicoInit} onRef={r => { setBubble(null); setDicoInit(null); goRef(r); }} />
+              <Dictionnaire bare initialId={dicoInit} chapter={{ b: book, c: chapter, name: bookName }} onRef={r => { setBubble(null); setDicoInit(null); goRef(r); }} />
             </>
           )}
 
           {bubble === 'strong' && (
             <>
               <h3 className="rbubble-t">Strong</h3>
-              <p className="rbubble-sub">Un mot (amour, grâce), un mot d’origine (agape, chesed) ou un numéro (G26, H7225).</p>
+              {!sres && (
+                <>
+                  <p className="rbubble-sub">Les mots clés {book >= 40 ? 'grecs' : 'hébreux'} de {bookName} {chapter}.</p>
+                  {sAside === null ? <p className="fine">Recherche des mots du chapitre…</p>
+                    : sAside.length === 0 ? <p className="fine">Pas encore de mots d’origine pour ce chapitre.</p> : (
+                    <>
+                      <div className="cstudy-list">
+                        {(sAll ? sAside : sAside.slice(0, 16)).map((w: any) => (
+                          <button key={w.code} className="cstudy-it st-card" onClick={() => setStrongCode(w.code)}>
+                            <span className="cstudy-k">{w.code}{w.type ? ` · ${w.type}` : ''}</span>
+                            <span className="cstudy-t"><span className="st-lem" dir="auto">{w.lemma}</span> {w.translit}</span>
+                            {w.sens && <span className="st-sens">{w.sens}</span>}
+                            <span className="cstudy-v">v. {w.verses.slice(0, 5).join(', ')}{w.verses.length > 5 ? '…' : ''}</span>
+                          </button>
+                        ))}
+                      </div>
+                      {sAside.length > 16 && !sAll && (
+                        <button className="btn sm" style={{ marginTop: 10 }} onClick={() => setSAll(true)}>Voir les {sAside.length} mots</button>
+                      )}
+                    </>
+                  )}
+                  <div className="rbubble-k">Chercher un autre mot ou un numéro</div>
+                </>
+              )}
+              {sres && <button className="pe-back" onClick={() => { setSres(null); setSq(''); }}>‹ Mots de {bookName} {chapter}</button>}
               <div className="srch-row">
-                <input className="field" type="search" value={sq} placeholder="Mot ou numéro"
+                <input className="field" type="search" value={sq} placeholder="amour, agape, G26, H7225…"
                        onChange={e => setSq(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') runStrong(); }} />
                 <button className="btn primary" onClick={runStrong}>Chercher</button>
               </div>

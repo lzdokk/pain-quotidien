@@ -560,3 +560,8 @@ html[data-mode="soir"] .dico-az button.on{color:#0E141A}
 .st-lem{font-family:'Times New Roman',var(--serif);font-size:15px;color:var(--ink-2);margin-left:4px}
 .st-top small{margin-left:6px;font-size:11px;color:var(--ink-4);letter-spacing:.04em}
 .st-def{font-size:13px;color:var(--ink-3);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.st-card .cstudy-t{font-size:14.5px}
+.st-card .st-lem{font-family:'Times New Roman',var(--serif);font-size:17px;font-weight:500;margin-right:4px}
+.st-sens{font-size:12.5px;color:var(--ink-3);max-width:220px;line-height:1.35}
+.dico-aside{margin-bottom:6px}
+.dico-aside .cstudy-list{margin-top:8px}
