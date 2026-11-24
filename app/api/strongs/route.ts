@@ -78,11 +78,24 @@ ${data.kjv_def ? `Traductions retenues : ${data.kjv_def}` : ''}`,
 
   if (q.length < 2) return NextResponse.json({ results: [] });
 
-  const like = `%${q}%`;
-  const { data } = await admin.from('strongs')
-    .select('code, lang, lemma, translit, definition_en, definition_fr')
-    .or(`lemma.ilike.${like},translit.ilike.${like},definition_en.ilike.${like},definition_fr.ilike.${like}`)
-    .limit(40);
+  // « G26 », « H7225 », « 7225 » : par numéro ; sinon dans le mot, la translittération et le français.
+  const sel = 'code, lang, lemma, translit, definition_fr, fr_lsg, fr_type';
+  const num = q.match(/^\s*(?:strong\s*)?([GgHh])?\s*0*(\d{1,5})\s*$/);
+  let data: any[] | null = null;
+  if (num) {
+    const codes = num[1] ? [`${num[1].toUpperCase()}${num[2]}`] : [`H${num[2]}`, `G${num[2]}`];
+    ({ data } = await admin.from('strongs').select(sel).in('code', codes));
+  } else {
+    const like = `%${q.replace(/[%_,()*]/g, ' ').trim()}%`;
+    ({ data } = await admin.from('strongs').select(sel)
+      .or(`lemma.ilike.${like},translit.ilike.${like},definition_fr.ilike.${like},fr_lsg.ilike.${like}`)
+      .order('num').limit(60));
+    // Ceux dont la traduction Louis Segond commence par le mot cherché, d'abord.
+    const k = q.toLowerCase();
+    const rank = (r: any) => (r.translit ?? '').toLowerCase().startsWith(k) ? 0
+      : (r.fr_lsg ?? '').toLowerCase().startsWith(k) ? 1 : (r.fr_lsg ?? '').toLowerCase().includes(k) ? 2 : 3;
+    data = (data ?? []).sort((a, b) => rank(a) - rank(b)).slice(0, 40);
+  }
 
   return NextResponse.json({ results: data ?? [] },
     { headers: { 'Cache-Control': 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800' } });

@@ -9,7 +9,7 @@ type Item = { id: number; titre: string; m?: string };
 type Art = { id: number; titre: string; html: string | null };
 const LETTRES = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
-export default function Dictionnaire({ onRef }: { onRef: (ref: string) => void }) {
+export default function Dictionnaire({ onRef, bare, initialId }: { onRef: (ref: string) => void; bare?: boolean; initialId?: number | null }) {
   const [q, setQ] = useState('');
   const [items, setItems] = useState<Item[] | null>(null);
   const [lettre, setLettre] = useState<string | null>(null);
@@ -38,9 +38,10 @@ export default function Dictionnaire({ onRef }: { onRef: (ref: string) => void }
     if (j?.id) {
       if (push && art) setHist(h => [...h, art]);
       setArt(j);
-      requestAnimationFrame(() => top.current?.scrollIntoView({ block: 'start', behavior: 'smooth' }));
+      if (!bare) requestAnimationFrame(() => top.current?.scrollIntoView({ block: 'start', behavior: 'smooth' }));
     }
   };
+  useEffect(() => { if (initialId) open(`/api/dict?id=${initialId}`, false); }, [initialId]); // eslint-disable-line react-hooks/exhaustive-deps
   const back = () => { const h = [...hist]; const p = h.pop(); setHist(h); setArt(p ?? null); };
   useEffect(() => { if (!art) setHist([]); }, [art]);
 
@@ -53,8 +54,8 @@ export default function Dictionnaire({ onRef }: { onRef: (ref: string) => void }
   };
 
   return (
-    <div className="card pad dico" ref={top} style={{ scrollMarginTop: 80 }}>
-      <span className="kicker">Dictionnaire biblique</span>
+    <div className={bare ? 'dico bare' : 'card pad dico'} ref={top} style={{ scrollMarginTop: 80 }}>
+      {!bare && <span className="kicker">Dictionnaire biblique</span>}
       {!art && (
         <>
           <div className="srch-row" style={{ marginTop: 8 }}>

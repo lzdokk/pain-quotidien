@@ -19,6 +19,7 @@ import CarteEtude from './CarteEtude';
 import { useSuivi } from './EtudierProgress';
 import { chapitreDuJour } from '@/lib/parcours';
 const Dictionnaire = dynamic(() => import('./Dictionnaire'), { ssr: false });
+const StrongModal = dynamic(() => import('./StrongModal'), { ssr: false });
 const EtudeLivres = dynamic(() => import('./EtudeLivres'), { ssr: false, loading: () => <div className="skel skel-card" /> });
 import ChapterStudy from './ChapterStudy';
 import WordsBrowser from './WordsBrowser';
@@ -69,8 +70,10 @@ const chapterCache = new Map<string, Chap>();
 
 /** Les outils du bouton + (Lire), du haut vers le bas. */
 const svg = (d: JSX.Element, sw = 1.8) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round">{d}</svg>;
-const FABS: Array<{ k: 'etude' | 'importants' | 'search' | 'method'; l: string; ic: JSX.Element }> = [
+const FABS: Array<{ k: 'etude' | 'dico' | 'strong' | 'importants' | 'search' | 'method'; l: string; ic: JSX.Element }> = [
   { k: 'etude', l: 'Bible d’étude', ic: svg(<><path d="M12 6.5C10.5 5 8 4.5 4 5v13c4-.5 6.5 0 8 1.5 1.5-1.5 4-2 8-1.5V5c-4-.5-6.5 0-8 1.5zM12 6.5V19" /></>) },
+  { k: 'dico', l: 'Dictionnaire biblique', ic: svg(<path d="M5 4h11a3 3 0 013 3v13H8a3 3 0 01-3-3V4zM5 17a3 3 0 013-3h11M9 8h6" />) },
+  { k: 'strong', l: 'Strong (hébreu, grec)', ic: <span className="rfab-he">א</span> },
   { k: 'importants', l: 'Versets importants', ic: <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 3.2l2.6 5.5 6 .7-4.5 4.1 1.2 5.9L12 16.5 6.7 19.4l1.2-5.9L3.4 9.4l6-.7z" /></svg> },
   { k: 'search', l: 'Rechercher', ic: svg(<><circle cx="11" cy="11" r="6.5" /><path d="M20 20l-4.2-4.2" /></>) },
   { k: 'method', l: 'Méditer', ic: svg(<path d="M9 18h6M10 21h4M12 3a6 6 0 00-3.6 10.8c.7.5 1.1 1.3 1.1 2.2h5c0-.9.4-1.7 1.1-2.2A6 6 0 0012 3z" />, 1.7) }
@@ -208,7 +211,24 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
   const [qHist, setQHist] = useState<string[]>([]);
   const [target, setTarget] = useState<number | null>(null);
   // Bulles flottantes : methode de lecture / recherche + historique.
-  const [bubble, setBubble] = useState<null | 'method' | 'search' | 'versions' | 'importants' | 'etude'>(null);
+  const [bubble, setBubble] = useState<null | 'method' | 'search' | 'versions' | 'importants' | 'etude' | 'dico' | 'strong'>(null);
+  const [dicoInit, setDicoInit] = useState<number | null>(null);
+  const [strongCode, setStrongCode] = useState<string | null>(null);
+  const [sq, setSq] = useState('');
+  const [sres, setSres] = useState<any[] | null>(null);
+  const [sload, setSload] = useState(false);
+  const [strongHits, setStrongHits] = useState<any[]>([]);
+  const [dicoHits, setDicoHits] = useState<any[]>([]);
+  const findStrong = async (k: string) => {
+    try { const r = await fetch(`/api/strongs?q=${encodeURIComponent(k)}`); return (await r.json()).results ?? []; } catch { return []; }
+  };
+  const findDico = async (k: string) => {
+    try { const r = await fetch(`/api/dict?q=${encodeURIComponent(k)}`); return (await r.json()).items ?? []; } catch { return []; }
+  };
+  const runStrong = async () => {
+    if (sq.trim().length < 1) return;
+    setSload(true); setSres(await findStrong(sq.trim())); setSload(false);
+  };
   const [fabOpen, setFabOpen] = useState(false); // bouton + : déplie les autres boutons
   // Recherche rapide dans la bulle loupe (reste dans la bulle, sans changer d'onglet).
   const [bq, setBq] = useState('');
@@ -615,6 +635,10 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
         setWordHits(list.filter((w: any) => nm(`${w.translit} ${w.term} ${w.gloss}`).includes(n)).slice(0, 8));
       });
     } else setWordHits([]);
+    if (q.length >= 2 && !/\S\s+\d/.test(q)) {
+      findStrong(q).then(r => setStrongHits(r.slice(0, 12)));
+      findDico(q).then(r => setDicoHits(r.slice(0, 12)));
+    } else { setStrongHits([]); setDicoHits([]); }
     const themeColor = matchThemeQuery(q);
     if (themeColor) { searchTheme(themeColor); return; }
     setThemeMode(false);
@@ -802,7 +826,7 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
             const nm = (x: string) => (x ?? '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
             const fiches = studyList ? studyList.plan
               .filter(e => studyList.ready[e.slug] !== undefined && nm(e.title).includes(n)).slice(0, 8) : [];
-            if (!fiches.length && !wordHits.length) return null;
+            if (!fiches.length && !wordHits.length && !strongHits.length && !dicoHits.length) return null;
             return (
               <div className="card pad srch-groups">
                 {fiches.length > 0 && (
@@ -812,6 +836,30 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
                       {fiches.map(f => (
                         <button key={f.slug} className="ix-chip" onClick={() => setFiche(f.slug)}>
                           {f.title}<small className="chip-k"> · {kindLabel(f.kind)}</small>
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+                {dicoHits.length > 0 && (
+                  <>
+                    <div className="srch-k">Dans le dictionnaire biblique</div>
+                    <div className="ix-chips">
+                      {dicoHits.map((d: any) => (
+                        <button key={d.id} className="ix-chip" onClick={() => { setDicoInit(d.id); setBubble('dico'); }}>
+                          {d.titre}{d.m === 'x' ? <small className="chip-k"> · cité</small> : null}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+                {strongHits.length > 0 && (
+                  <>
+                    <div className="srch-k">Dans le Strong (hébreu, grec)</div>
+                    <div className="ix-chips">
+                      {strongHits.map((w: any) => (
+                        <button key={w.code} className="ix-chip" onClick={() => setStrongCode(w.code)}>
+                          {w.translit || w.lemma}<small className="chip-k"> · {w.code}</small>
                         </button>
                       ))}
                     </div>
@@ -1231,9 +1279,40 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
       )}
       {fabOpen && <div className="rfab-veil" onClick={() => setFabOpen(false)} />}
 
-      {bubble && tab === 'bible' && (
-        <div className="rbubble" role="dialog">
-          <button className="rbubble-x" onClick={() => setBubble(null)} aria-label="Fermer">×</button>
+      {bubble && (tab === 'bible' || bubble === 'dico' || bubble === 'strong') && (
+        <div className={`rbubble${bubble === 'dico' || bubble === 'strong' ? ' rbubble-wide' : ''}`} role="dialog">
+          <button className="rbubble-x" onClick={() => { setBubble(null); setDicoInit(null); }} aria-label="Fermer">×</button>
+
+          {bubble === 'dico' && (
+            <>
+              <h3 className="rbubble-t">Dictionnaire biblique</h3>
+              <Dictionnaire bare initialId={dicoInit} onRef={r => { setBubble(null); setDicoInit(null); goRef(r); }} />
+            </>
+          )}
+
+          {bubble === 'strong' && (
+            <>
+              <h3 className="rbubble-t">Strong</h3>
+              <p className="rbubble-sub">Un mot (amour, grâce), un mot d’origine (agape, chesed) ou un numéro (G26, H7225).</p>
+              <div className="srch-row">
+                <input className="field" type="search" value={sq} placeholder="Mot ou numéro"
+                       onChange={e => setSq(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') runStrong(); }} />
+                <button className="btn primary" onClick={runStrong}>Chercher</button>
+              </div>
+              {sload ? <p className="rbubble-sub" style={{ marginTop: 10 }}>Recherche…</p> : sres && (
+                sres.length === 0 ? <p className="rbubble-sub" style={{ marginTop: 10 }}>Aucune entrée trouvée.</p> : (
+                  <div className="qs-list">
+                    {sres.map((w: any) => (
+                      <button key={w.code} className="qs-it st-it" onClick={() => setStrongCode(w.code)}>
+                        <span className="st-top"><b>{w.translit || w.lemma}</b> <span className="st-lem">{w.lemma}</span> <small>{w.code}</small></span>
+                        <span className="st-def">{w.fr_lsg || w.definition_fr}</span>
+                      </button>
+                    ))}
+                  </div>
+                )
+              )}
+            </>
+          )}
 
           {bubble === 'etude' && (
             <>
@@ -1377,6 +1456,7 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
       )}
 
       <FicheSheet slug={fiche} onClose={() => setFiche(null)} />
+      {strongCode && <StrongModal code={strongCode} onClose={() => setStrongCode(null)} />}
 
       {lexOpen && (
         <div className="rsheet-back" onClick={() => setLexOpen(false)}>
