@@ -2,6 +2,7 @@
 import { aiFetch } from '@/lib/ai-key';
 import { useEffect, useState } from 'react';
 import R from '@/components/R';
+import LexFr, { hasLexFr } from '@/components/LexFr';
 
 /**
  * Fenêtre de définition d'un code Strong (G26, H2617…).
@@ -11,6 +12,7 @@ import R from '@/components/R';
 type Entry = {
   code: string; lang: string; lemma?: string | null; translit?: string | null;
   pronunciation?: string | null; definition_fr?: string | null; definition_en?: string | null;
+  fr_def?: string | null; fr_lsg?: string | null; fr_origine?: string | null; fr_type?: string | null;
 };
 
 export default function StrongModal({ code, onClose }: { code: string | null; onClose: () => void }) {
@@ -51,7 +53,8 @@ export default function StrongModal({ code, onClose }: { code: string | null; on
               </div>
             )}
             {data.pronunciation && <div className="sw-pron">/{data.pronunciation}/</div>}
-            <p className="sw-def">{<R t={data.definition_fr || data.definition_en || 'Définition indisponible.'} />}</p>
+            {hasLexFr(data) ? <LexFr e={data} />
+              : <p className="sw-def">{<R t={data.definition_fr || data.definition_en || 'Définition indisponible.'} />}</p>}
           </>
         )}
 

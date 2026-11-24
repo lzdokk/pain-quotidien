@@ -4,7 +4,7 @@ name: Lexique levangile — import (manuel)
 on:
   workflow_dispatch:
     inputs:
-      langs: { description: 'grec,hebreu', default: 'grec,hebreu' }
+      langs: { description: 'grec,hebreu,westphal', default: 'grec,hebreu,westphal' }
       limit: { description: '0 = tout (sinon nombre de fiches par langue, pour un essai)', default: '0' }
 
 jobs:

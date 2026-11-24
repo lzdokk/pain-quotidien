@@ -2,6 +2,7 @@
 import { aiFetch } from '@/lib/ai-key';
 import { useState } from 'react';
 import R from '@/components/R';
+import LexFr, { hasLexFr } from '@/components/LexFr';
 
 export default function Lexique() {
   const [q, setQ] = useState('');
@@ -41,7 +42,7 @@ export default function Lexique() {
           <h3 style={{ fontFamily: 'var(--serif)', fontSize: 30, marginTop: 6 }}>{entry.lemma}</h3>
           <p className="muted" style={{ fontSize: 16 }}>{entry.translit}</p>
 
-          {entry.definition_fr ? (
+          {hasLexFr(entry) ? <LexFr e={entry} /> : entry.definition_fr ? (
             <>
               <h4 style={{ marginTop: 20 }}>Le sens</h4>
               <p>{<R t={entry.definition_fr} />}</p>
@@ -53,19 +54,19 @@ export default function Lexique() {
               consultable ci-dessous, et le français sera ajouté au prochain passage.
             </p>
           )}
-          {entry.derivation && (
+          {!hasLexFr(entry) && entry.derivation && (
             <>
               <h4 style={{ marginTop: 18 }}>Étymologie</h4>
               <p style={{ color: 'var(--ink-2)' }}>{entry.derivation}</p>
             </>
           )}
-          {entry.definition_en && (
+          {!hasLexFr(entry) && entry.definition_en && (
             <>
               <h4 style={{ marginTop: 18 }}>Définition de Strong</h4>
               <p style={{ color: 'var(--ink-3)', fontSize: 14.5 }}>{entry.definition_en}</p>
             </>
           )}
-          {entry.kjv_def && (
+          {!hasLexFr(entry) && entry.kjv_def && (
             <p className="fine" style={{ marginTop: 14 }}>Traduit par : {entry.kjv_def}</p>
           )}
           <button className="btn" style={{ marginTop: 18 }} onClick={() => setEntry(null)}>

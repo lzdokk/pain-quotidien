@@ -18,6 +18,7 @@ import dynamic from 'next/dynamic';
 import CarteEtude from './CarteEtude';
 import { useSuivi } from './EtudierProgress';
 import { chapitreDuJour } from '@/lib/parcours';
+const Dictionnaire = dynamic(() => import('./Dictionnaire'), { ssr: false });
 const EtudeLivres = dynamic(() => import('./EtudeLivres'), { ssr: false, loading: () => <div className="skel skel-card" /> });
 import ChapterStudy from './ChapterStudy';
 import WordsBrowser from './WordsBrowser';
@@ -479,9 +480,17 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
   const go = (ref: string) => {
     const m = ref.match(/^(.+?)\s+(\d+)/);
     if (!m) return;
-    const norm = m[1].trim().toLowerCase();
-    const b = books.find((x: any) => x.name.toLowerCase().startsWith(norm));
+    const nz = (x: string) => x.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const norm = nz(m[1]);
+    const b = books.find((x: any) => nz(x.name).startsWith(norm));
     if (b) { setBook(b.id); setChapter(Math.min(+m[2], b.chapters)); setExplain(null); setWbw(null); setCmp(null); setTab('bible'); }
+  };
+  // « Esther 1.10 » (renvois du dictionnaire) : ouvre le chapitre et place le verset.
+  const goRef = (ref: string) => {
+    const m = ref.match(/^(.+?)\s+(\d+)(?:[.:](\d+))?/);
+    if (!m) return;
+    go(`${m[1]} ${m[2]}`);
+    if (m[3]) setTarget(+m[3]); else window.scrollTo({ top: 0 });
   };
 
   // ── Sélection multi-versets (partager / copier un ensemble) ──────────
@@ -740,6 +749,7 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
 
       {tab === 'etude' && (
         <>
+          <Dictionnaire onRef={goRef} />
           {studyList
             ? <StudyIndex embedded plan={studyList.plan} ready={studyList.ready} sujets={studyList.sujets}
                           renvois={studyList.renvois} onOpen={setFiche} />

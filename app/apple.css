@@ -525,3 +525,27 @@ html[data-mode="soir"] .rfab-plus{color:#0E141A}
 .rb-switch{margin-top:14px;display:flex}
 .rb-more{display:block;margin-top:12px;font-size:13.5px}
 .cstudy.bare .fine{font-size:13.5px;line-height:1.5;color:var(--ink-3)}
+
+/* Lexique Strong français (levangile.com) */
+.lexfr-type{margin-left:8px;font-size:10.5px;letter-spacing:.06em;text-transform:none;font-weight:600;color:var(--ink-3);
+ border:1px solid var(--line);border-radius:99px;padding:2px 8px}
+.lexfr-def ol,.lexfr-def ul{margin:4px 0 0;padding-left:20px}
+.lexfr-def li{font-size:15px;line-height:1.5;color:var(--ink);margin:2px 0}
+.lexfr-def li li{font-size:14px;color:var(--ink-2)}
+.lexfr-p{font-size:14.5px;line-height:1.5;color:var(--ink-2);margin:4px 0 0}
+.lexfr-src{font-size:11.5px;color:var(--ink-4);margin-top:12px}
+
+/* Dictionnaire biblique Westphal */
+.dico{margin-bottom:14px}
+.dico-az{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.dico-az button{width:32px;height:32px;border-radius:99px;border:1px solid var(--line);background:none;color:var(--ink-2);font-weight:600;font-size:13px;cursor:pointer}
+.dico-az button.on{background:var(--accent);border-color:var(--accent);color:#fff}
+html[data-mode="soir"] .dico-az button.on{color:#0E141A}
+.dico-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;max-height:340px;overflow-y:auto}
+.dico-list button{border:1px solid var(--line);background:var(--surface-2);border-radius:99px;padding:7px 12px;font-size:14px;color:var(--ink);cursor:pointer}
+.dico-list button.x{background:none;color:var(--ink-2)}
+.dico-art h3{font-family:var(--serif);font-size:26px;margin:8px 0 6px}
+.dico-body{font-size:16px;line-height:1.65;color:var(--ink)}
+.dico-body p{margin:0 0 10px}
+.dico-body a{color:var(--accent);cursor:pointer;text-decoration:underline;text-decoration-color:var(--accent-line);text-underline-offset:3px}
+.dico-body a[data-w]{font-style:italic}

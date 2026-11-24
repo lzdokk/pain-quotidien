@@ -4,13 +4,15 @@ import { useEffect, useMemo, useState } from 'react';
 import RefChip from './RefChip';
 import { bookAbbr } from '@/lib/bible-books';
 import R from '@/components/R';
+import LexFr, { hasLexFr } from '@/components/LexFr';
 
 type W = {
   position: number; word: string; strong: string | null; gloss: string | null;
   gloss_fr: string | null; lang: string; translit: string | null; definition_fr: string | null;
 };
 type Usage = { count: number; refs: Array<{ b: number; c: number; v: number }>; renderings: Array<{ fr: string; n: number }> };
-type Entry = { code: string; lang: string; lemma?: string | null; translit?: string | null; pronunciation?: string | null; definition_fr?: string | null; usage?: Usage };
+type Entry = { code: string; lang: string; lemma?: string | null; translit?: string | null; pronunciation?: string | null; definition_fr?: string | null; usage?: Usage;
+  fr_def?: string | null; fr_lsg?: string | null; fr_origine?: string | null; fr_type?: string | null };
 
 // Mots francais trop courants pour etre relies a un mot d'origine.
 const STOP = new Set(('le la les un une des de du d l a au aux et ou en dans par pour sur avec sans ce cet cette ces se sa son ses ' +
@@ -170,10 +172,14 @@ export default function WordByWord({ book, chapter, verse, frText, prefer, onClo
 
              {entry && (
                <>
-                 <div className="sx-k">Le sens</div>
-                 <p className="sx-def">{<R t={lexSense(entry.definition_fr || active.definition_fr) || 'Sens français en préparation…'} />}</p>
+                 {hasLexFr(entry) ? <LexFr e={entry} /> : (
+                   <>
+                     <div className="sx-k">Le sens</div>
+                     <p className="sx-def">{<R t={lexSense(entry.definition_fr || active.definition_fr) || 'Sens français en préparation…'} />}</p>
+                   </>
+                 )}
 
-                 {entry.usage && entry.usage.renderings.length > 1 && (
+                 {!entry.fr_lsg && entry.usage && entry.usage.renderings.length > 1 && (
                    <>
                      <div className="sx-k">Aussi traduit par</div>
                      <div className="sx-rend">
