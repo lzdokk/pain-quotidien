@@ -17,6 +17,7 @@ type Props = {
   onStrong: () => void;
   onCompare: () => void;
   onMulti: () => void;
+  onShare?: () => void;                            // ouvre l'image du verset (sinon partage du texte)
   children?: React.ReactNode;                      // note, explication, Strong, comparaison…
 };
 
@@ -66,7 +67,7 @@ export default function VerseTools(p: Props) {
         {btn('explain', 'Méditer', <Ic d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z M19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8z" />, p.onExplain, !!p.open?.explain)}
         {btn('strong', 'Strong', <span className="vt-he">א</span>, p.onStrong, !!p.open?.strong)}
         {btn('compare', 'Comparer', <Ic d="M4 5.5C6.5 5 8.5 5.3 10 6.5V19c-1.5-1.2-3.5-1.5-6-1V5.5zM20 5.5c-2.5-.5-4.5-.2-6 1V19c1.5-1.2 3.5-1.5 6-1V5.5z" />, p.onCompare, !!p.open?.compare)}
-        {btn('share', 'Partager', <Ic d="M12 3v12M8 7l4-4 4 4M5 13v6a2 2 0 002 2h10a2 2 0 002-2v-6" />, share)}
+        {btn('share', 'Partager', <Ic d="M12 3v12M8 7l4-4 4 4M5 13v6a2 2 0 002 2h10a2 2 0 002-2v-6" />, p.onShare ?? share)}
         {btn('copy', copied ? 'Copié ✓' : 'Copier', <Ic d="M9 9h10v12H9zM5 15V3h10" />, copy)}
         {btn('multi', p.multiOn ? 'Retirer' : 'Plusieurs', <Ic d={p.multiOn ? 'M5 12h14' : 'M12 5v14M5 12h14'} />, p.onMulti, p.multiOn)}
       </div>

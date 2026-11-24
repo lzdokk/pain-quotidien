@@ -20,6 +20,8 @@ import { useSuivi } from './EtudierProgress';
 import { chapitreDuJour } from '@/lib/parcours';
 const Dictionnaire = dynamic(() => import('./Dictionnaire'), { ssr: false });
 const StrongModal = dynamic(() => import('./StrongModal'), { ssr: false });
+const VerseImage = dynamic(() => import('./VerseImage'), { ssr: false });
+import { FONDS, readLook, saveLook, readLookPhoto, saveLookPhoto, type Look, LOOK_DEFAULT } from '@/lib/reader-look';
 const EtudeLivres = dynamic(() => import('./EtudeLivres'), { ssr: false, loading: () => <div className="skel skel-card" /> });
 import ChapterStudy from './ChapterStudy';
 import WordsBrowser from './WordsBrowser';
@@ -70,13 +72,14 @@ const chapterCache = new Map<string, Chap>();
 
 /** Les outils du bouton + (Lire), du haut vers le bas. */
 const svg = (d: JSX.Element, sw = 1.8) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round">{d}</svg>;
-const FABS: Array<{ k: 'etude' | 'dico' | 'strong' | 'importants' | 'search' | 'method'; l: string; ic: JSX.Element }> = [
+const FABS: Array<{ k: 'etude' | 'dico' | 'strong' | 'importants' | 'search' | 'method' | 'look'; l: string; ic: JSX.Element }> = [
   { k: 'etude', l: 'Bible d’étude', ic: svg(<><path d="M12 6.5C10.5 5 8 4.5 4 5v13c4-.5 6.5 0 8 1.5 1.5-1.5 4-2 8-1.5V5c-4-.5-6.5 0-8 1.5zM12 6.5V19" /></>) },
   { k: 'dico', l: 'Dictionnaire biblique', ic: svg(<path d="M5 4h11a3 3 0 013 3v13H8a3 3 0 01-3-3V4zM5 17a3 3 0 013-3h11M9 8h6" />) },
   { k: 'strong', l: 'Strong (hébreu, grec)', ic: <span className="rfab-he">א</span> },
   { k: 'importants', l: 'Versets importants', ic: <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 3.2l2.6 5.5 6 .7-4.5 4.1 1.2 5.9L12 16.5 6.7 19.4l1.2-5.9L3.4 9.4l6-.7z" /></svg> },
   { k: 'search', l: 'Rechercher', ic: svg(<><circle cx="11" cy="11" r="6.5" /><path d="M20 20l-4.2-4.2" /></>) },
-  { k: 'method', l: 'Méditer', ic: svg(<path d="M9 18h6M10 21h4M12 3a6 6 0 00-3.6 10.8c.7.5 1.1 1.3 1.1 2.2h5c0-.9.4-1.7 1.1-2.2A6 6 0 0012 3z" />, 1.7) }
+  { k: 'method', l: 'Méditer', ic: svg(<path d="M9 18h6M10 21h4M12 3a6 6 0 00-3.6 10.8c.7.5 1.1 1.3 1.1 2.2h5c0-.9.4-1.7 1.1-2.2A6 6 0 0012 3z" />, 1.7) },
+  { k: 'look', l: 'Apparence de lecture', ic: svg(<><path d="M12 3a9 9 0 100 18c1 0 1.6-.8 1.6-1.6 0-.5-.2-.8-.4-1.1-.3-.3-.4-.6-.4-1 0-.9.7-1.6 1.6-1.6H16a5 5 0 005-5C21 6.6 17 3 12 3z" /><circle cx="7.5" cy="11" r="1" /><circle cx="10" cy="7.5" r="1" /><circle cx="14.5" cy="7.5" r="1" /></>) },
 ];
 let loadSeq = 0; // numéro de la dernière demande de chapitre
 /** Lecture d'un chapitre par la route mise en cache (CDN + téléphone). */
@@ -211,7 +214,23 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
   const [qHist, setQHist] = useState<string[]>([]);
   const [target, setTarget] = useState<number | null>(null);
   // Bulles flottantes : methode de lecture / recherche + historique.
-  const [bubble, setBubble] = useState<null | 'method' | 'search' | 'versions' | 'importants' | 'etude' | 'dico' | 'strong'>(null);
+  const [bubble, setBubble] = useState<null | 'method' | 'search' | 'versions' | 'importants' | 'etude' | 'dico' | 'strong' | 'look'>(null);
+  // Image de verset à partager, apparence de lecture.
+  const [imgShare, setImgShare] = useState<{ text: string; ref: string } | null>(null);
+  const [look, setLookState] = useState<Look>(LOOK_DEFAULT);
+  const [lookPhoto, setLookPhoto] = useState<string | null>(null);
+  const [lookMsg, setLookMsg] = useState('');
+  useEffect(() => { setLookState(readLook()); setLookPhoto(readLookPhoto()); }, []);
+  const setLook = (p: Partial<Look>) => setLookState(l => { const n = { ...l, ...p }; saveLook(n); return n; });
+  const pickLookPhoto = async (f?: File) => {
+    if (!f) return;
+    try {
+      const { loadPhoto } = await import('./VerseImage');
+      const { url } = await loadPhoto(f, 1400);
+      setLookPhoto(url); setLook({ fond: 'photo' });
+      setLookMsg(saveLookPhoto(url) ? '' : 'Photo trop lourde pour être gardée : elle restera jusqu’à la fermeture.');
+    } catch { setLookMsg('Photo illisible.'); }
+  };
   const [dicoInit, setDicoInit] = useState<number | null>(null);
   const [strongCode, setStrongCode] = useState<string | null>(null);
   const [sq, setSq] = useState('');
@@ -939,7 +958,9 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
         <a href={backTo} className="back-parable">‹ Revenir à la parabole</a>
       )}
 
-      <div className="card" id="lecteur" style={{ scrollMarginTop: 70 }}>
+      <div className={`card look-${look.fond}${look.police === 'sans' ? ' look-sans' : ''}`} id="lecteur"
+           style={{ scrollMarginTop: 70, ['--rd-scale' as any]: look.taille,
+             ...(look.fond === 'photo' && lookPhoto ? { backgroundImage: `linear-gradient(rgba(8,10,14,${look.voile}),rgba(8,10,14,${look.voile})),url(${lookPhoto})` } : {}) }}>
         {compareWith && (
           <div className="cmp-strip">
             <span>Comparaison : <b>{trad}</b> et <b>{compareWith}</b></span>
@@ -1067,6 +1088,7 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
         return (
           <div className="vbar-inline">
             <VerseTools refLabel={`${bookName} ${chapter}.${s}`} text={sv.text} color={hl[key(s)] ?? 0}
+                        onShare={() => setImgShare({ text: sv.text, ref: `${bookName} ${chapter}.${s}` })}
                         suggestion={sug} hasNote={!!noteFor(s)} multiOn={multi.has(s)}
                         open={{ note: editing, strong: wbw === s, compare: cmp === s, explain: explain?.kind === 'v' && explain.verse === s }}
                         onClose={() => { setSel(null); setEditing(false); }}
@@ -1096,7 +1118,10 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
             {bookName} {chapter}.{multiRefLabel()} · {multi.size} verset{multi.size > 1 ? 's' : ''}
           </span>
           <div className="multibar-actions">
-            <button className="btn sm primary" onClick={shareMulti}>Partager</button>
+            <button className="btn sm primary" onClick={() => setImgShare({
+              text: multiSorted().map(n => verses.find(x => x.verse === n)?.text ?? '').join(' '),
+              ref: `${bookName} ${chapter}.${multiRefLabel()}` })}>Image</button>
+            <button className="btn sm" onClick={shareMulti}>Partager</button>
             <button className="btn sm" onClick={() => navigator.clipboard?.writeText(multiText())}>Copier</button>
             <button className="btn sm" onClick={() => setMulti(new Set())}>Effacer</button>
           </div>
@@ -1293,6 +1318,40 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
       {bubble && (tab === 'bible' || bubble === 'dico' || bubble === 'strong') && (
         <div className={`rbubble${bubble === 'dico' || bubble === 'strong' ? ' rbubble-wide' : ''}`} role="dialog">
           <button className="rbubble-x" onClick={() => { setBubble(null); setDicoInit(null); }} aria-label="Fermer">×</button>
+
+          {bubble === 'look' && (
+            <>
+              <h3 className="rbubble-t">Apparence de lecture</h3>
+              <div className="rbubble-k" style={{ marginTop: 0 }}>Fond</div>
+              <div className="lk-fonds">
+                {FONDS.map(f => (
+                  <button key={f.id} className={look.fond === f.id ? 'on' : ''} onClick={() => setLook({ fond: f.id })}>
+                    <span className="lk-sw" style={{ background: f.swatch }} />{f.label}
+                  </button>
+                ))}
+                <label className={look.fond === 'photo' ? 'on' : ''}>
+                  <input type="file" accept="image/*" onChange={e => pickLookPhoto(e.target.files?.[0])} />
+                  <span className="lk-sw lk-ph" style={lookPhoto ? { backgroundImage: `url(${lookPhoto})` } : undefined}>{lookPhoto ? '' : '+'}</span>Ma photo
+                </label>
+              </div>
+              {look.fond === 'photo' && lookPhoto && (
+                <label className="vi-range">Voile <input type="range" min="0.3" max="0.85" step="0.05" value={look.voile} onChange={e => setLook({ voile: +e.target.value })} /></label>
+              )}
+              {lookMsg && <p className="fine">{lookMsg}</p>}
+              <div className="rbubble-k">Taille du texte</div>
+              <div className="lk-size">
+                <button onClick={() => setLook({ taille: Math.max(0.8, +(look.taille - 0.1).toFixed(2)) })} aria-label="Plus petit">A−</button>
+                <span>{Math.round(look.taille * 100)} %</span>
+                <button onClick={() => setLook({ taille: Math.min(1.6, +(look.taille + 0.1).toFixed(2)) })} aria-label="Plus grand">A+</button>
+              </div>
+              <div className="rbubble-k">Police</div>
+              <div className="vi-chips">
+                <button className={look.police === 'serif' ? 'on' : ''} style={{ fontFamily: 'var(--serif)' }} onClick={() => setLook({ police: 'serif' })}>Classique</button>
+                <button className={look.police === 'sans' ? 'on' : ''} style={{ fontFamily: 'var(--sans)' }} onClick={() => setLook({ police: 'sans' })}>Moderne</button>
+              </div>
+              <button className="linkbtn" style={{ marginTop: 14, fontSize: 13.5 }} onClick={() => setLook({ ...LOOK_DEFAULT })}>Revenir à l’apparence par défaut</button>
+            </>
+          )}
 
           {bubble === 'dico' && (
             <>
@@ -1492,6 +1551,7 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
 
       <FicheSheet slug={fiche} onClose={() => setFiche(null)} />
       {strongCode && <StrongModal code={strongCode} onClose={() => setStrongCode(null)} />}
+      {imgShare && <VerseImage text={imgShare.text} refLabel={imgShare.ref} onClose={() => setImgShare(null)} />}
 
       {lexOpen && (
         <div className="rsheet-back" onClick={() => setLexOpen(false)}>
