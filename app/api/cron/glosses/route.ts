@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { admin } from '@/lib/supabase/admin';
 import { callJSON } from '@/lib/llm';
+import { alignGloss, GLOSS_ITEM_SCHEMA } from '@/lib/align-gloss';
 
 export const maxDuration = 300;
 export const dynamic = 'force-dynamic';
@@ -13,7 +14,8 @@ export const dynamic = 'force-dynamic';
  * l'Ancien. Ne traite que les versets encore incomplets : relançable sans risque.
  *   GET /api/cron/glosses?n=10   (n versets par appel IA, défaut 10, max 15)
  */
-const Batch = z.object({ versets: z.array(z.object({ ref: z.string(), mots: z.array(z.string()) })) });
+const Item = z.object({ n: z.number().optional(), g: z.string().optional(), fr: z.string() });
+const Batch = z.object({ versets: z.array(z.object({ ref: z.string(), mots: z.array(Item) })) });
 const SCHEMA = {
   type: 'OBJECT',
   properties: {
@@ -21,7 +23,7 @@ const SCHEMA = {
       type: 'ARRAY',
       items: {
         type: 'OBJECT',
-        properties: { ref: { type: 'STRING' }, mots: { type: 'ARRAY', items: { type: 'STRING' } } },
+        properties: { ref: { type: 'STRING' }, mots: { type: 'ARRAY', items: GLOSS_ITEM_SCHEMA } },
         required: ['ref', 'mots']
       }
     }
@@ -35,8 +37,10 @@ un à quatre mots français simples (ex. « beaucoup », « diront », « à moi
 « Seigneur », « ne… pas », « ton », « nom », « nous avons prophétisé »). Un vocatif comme kyrie se
 traduit « Seigneur », jamais « monsieur », quand il s'adresse à Jésus ou à Dieu. Pour une particule
 sans équivalent (marque de l'objet direct), écris « [objet] ». Accents obligatoires.
-Réponds uniquement en JSON : { "versets": [ { "ref": "...", "mots": [ ... ] } ] }, exactement un élément
-par mot, dans l'ordre donné.`;
+IMPORTANT : pour chaque mot, recopie son numéro (n) et le mot d'origine tel quel (g), puis sa traduction (fr).
+Ne saute aucun mot, n'en fusionne aucun, n'en ajoute aucun.
+Réponds uniquement en JSON : { "versets": [ { "ref": "...", "mots": [ { "n": 1, "g": "καὶ", "fr": "et" }, ... ] } ] },
+exactement un élément par mot, dans l'ordre donné.`;
 
 type W = { book: number; chapter: number; verse: number; position: number; word: string; strong: string | null; gloss: string | null; lang: string };
 
@@ -97,15 +101,17 @@ export async function GET(req: NextRequest) {
     batches++;
     try {
       const { data } = await callJSON(Batch, {
-        system: SYSTEM, user, responseSchema: SCHEMA, maxTokens: 6000, temperature: 0.2, gloss: false, timeoutMs: 90_000
+        system: SYSTEM, user, responseSchema: SCHEMA, maxTokens: 12000, temperature: 0.2, gloss: false, timeoutMs: 120_000
       });
       const rows: any[] = [];
       const ok = new Set<number>();
       for (const it of data.versets) {
         const v = Number(String(it.ref).split(':').pop());
         const ws = byVerse.get(v);
-        if (!ws || ok.has(v) || it.mots.length !== ws.length) continue;
-        ws.forEach((w, i) => rows.push({ ...w, gloss_fr: it.mots[i].replace(/\*/g, '').trim().slice(0, 40) || '·' }));
+        if (!ws || ok.has(v)) continue;
+        const fr = alignGloss(ws, it.mots);   // chaque traduction sous SON mot, sinon verset refusé
+        if (!fr) continue;
+        ws.forEach((w, i) => rows.push({ ...w, gloss_fr: fr[i] }));
         ok.add(v); done++;
       }
       for (const k of keys) if (!ok.has(Number(k.split(':')[2]))) skip.add(k);

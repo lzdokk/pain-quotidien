@@ -1,0 +1,15 @@
+name: Mot à mot — remise à zéro (manuel)
+
+# Efface les traductions mot à mot de l'ancienne méthode (décalages possibles) ;
+# la tâche horaire « Mot à mot » les refait, bien alignées.
+on:
+  workflow_dispatch: {}
+
+jobs:
+  reset:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Remettre à zéro
+        run: |
+          curl -s --max-time 70 -X POST "https://paindevie.vercel.app/api/cron/glosses-reset" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"

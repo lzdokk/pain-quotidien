@@ -4,6 +4,7 @@ import { admin } from '@/lib/supabase/admin';
 import { aiAccess } from '@/lib/ai-access';
 import { glossFr } from '@/lib/gloss-fr';
 import { callJSON } from '@/lib/llm';
+import { alignGloss, GLOSS_ITEM_SCHEMA } from '@/lib/align-gloss';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 120;
@@ -26,7 +27,7 @@ const norm = (c: string) => {
 };
 
 
-const GlossSchema = z.object({ mots: z.array(z.string()) });
+const GlossSchema = z.object({ mots: z.array(z.object({ n: z.number().optional(), g: z.string().optional(), fr: z.string() })) });
 
 async function translateVerse(book: number, chapter: number, verse: number, words: any[],
   save?: (glosses: string[]) => Promise<unknown>, userKey?: string) {
@@ -45,7 +46,9 @@ l'ordre, donne sa traduction française en contexte : un à quatre mots françai
 tels qu'on les lirait dans une Bible interlinéaire (ex. « au commencement », « créa »,
 « Dieu », « les cieux », « et », « la terre »). Pour une particule sans équivalent
 (ex. la marque de l'objet direct), écris « [objet] ». Accents français obligatoires.
-Réponds uniquement par un objet JSON : { "mots": [ ... ] }, exactement un élément par mot.`,
+IMPORTANT : pour chaque mot, recopie son numéro (n) et le mot d'origine tel quel (g), puis sa traduction (fr).
+Ne saute aucun mot, n'en fusionne aucun, n'en ajoute aucun.
+Réponds uniquement par un objet JSON : { "mots": [ { "n": 1, "g": "…", "fr": "…" }, ... ] }, exactement un élément par mot.`,
     user: `Traduction française du verset : ${fr?.text ?? '(indisponible)'}
 
 Mots ${lang}s, dans l'ordre :
@@ -54,17 +57,17 @@ ${words.map((w, i) => `${i + 1}. ${w.word}${w.gloss ? ` — ${w.gloss}` : ''}`).
 Renvoie { "mots": [...] } avec ${words.length} éléments.`,
     responseSchema: {
       type: 'OBJECT',
-      properties: { mots: { type: 'ARRAY', items: { type: 'STRING' } } },
+      properties: { mots: { type: 'ARRAY', items: GLOSS_ITEM_SCHEMA } },
       required: ['mots']
     },
-    maxTokens: 1500,
+    maxTokens: 3000,
     temperature: 0.2,
     gloss: false,
     timeoutMs: 25_000,
     userKey
   });
-  if (data.mots.length !== words.length) return null;
-  const out = data.mots.map(m => m.replace(/\*/g, '').trim().slice(0, 40));
+  const out = alignGloss(words, data.mots as any);   // chaque traduction sous SON mot, sinon rien
+  if (!out) return null;
   // Mise en cache (sans bloquer si la table/colonne n'existe pas encore).
   if (save) await save(out).catch(() => null);
   else await Promise.all(words.map((w, i) => admin.from('verse_words')

@@ -62,7 +62,7 @@ export default function WordByWord({ book, chapter, verse, frText, prefer, onClo
     (async () => {
       setWords(null); setOpen(null); setEntry(null);
       try {
-        const r = await aiFetch(`/api/verse-words?book=${book}&chapter=${chapter}&verse=${verse}${nt && src === 'grec' ? '&src=grec' : ''}`);
+        const r = await aiFetch(`/api/verse-words?book=${book}&chapter=${chapter}&verse=${verse}${nt && src === 'grec' ? '&src=grec' : ''}&v=2`); // v=2 : mot à mot réaligné (ignore l'ancien cache)
         const j = await r.json();
         if (alive) { setWords(j.words ?? []); setLine(j.line ?? ''); setComplete(j.complete !== false); }
       } catch { if (alive) setWords([]); }
