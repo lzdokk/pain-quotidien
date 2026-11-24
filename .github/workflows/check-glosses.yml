@@ -1,0 +1,13 @@
+name: Mot à mot — vérification (manuel)
+on:
+  workflow_dispatch: {}
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Lire quelques versets
+        run: |
+          for q in "book=40&chapter=1&verse=2&src=grec" "book=66&chapter=14&verse=19&src=grec" "book=43&chapter=3&verse=16&src=grec" "book=40&chapter=1&verse=2"; do
+            echo "=== $q"
+            curl -s -m 60 "https://paindevie.vercel.app/api/verse-words?$q&v=2&t=$RANDOM" | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('lang'), d.get('complete')); [print(w['position'], w['word'], w.get('strong'), '→', w.get('gloss_fr')) for w in d.get('words',[])]"
+          done
