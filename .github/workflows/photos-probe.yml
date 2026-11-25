@@ -1,6 +1,8 @@
 name: Photos — planches de miniatures (manuel)
 on:
   workflow_dispatch: {}
+permissions:
+  contents: write
 jobs:
   probe:
     runs-on: ubuntu-latest
@@ -26,9 +28,8 @@ jobs:
           split -l 60 order.txt part_
           for f in part_*; do montage $(sed 's#^#t/#' $f) -tile 10x6 -geometry 150x220+4+4 -pointsize 18 -set label '%t' -label '%t' -background '#222' -fill white sheet_$f.jpg 2>/dev/null || montage -label '%t' $(sed 's#^#t/#' $f) -tile 10x6 -geometry 150x220+4+4 sheet_$f.jpg; done
           ls sheet_* | wc -l
-      - uses: actions/upload-artifact@v4
-        with:
-          name: planches
-          path: |
-            sheet_*.jpg
-            catalog.json
+      - name: Pousser sur une branche temporaire
+        run: |
+          mkdir out && cp sheet_*.jpg catalog.json out/ && cd out
+          git init -q && git checkout -q -b photos-tmp && git add . && git -c user.name=bot -c user.email=bot@local commit -qm planches
+          git push -qf "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" photos-tmp
