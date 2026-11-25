@@ -14,6 +14,7 @@ import { MEDITER_QUESTIONS, MEDITER_ETAPES } from '@/lib/reading-guide';
 import { ALLIANCES, BOOK_GROUPS, groupOf, searchBooks, bookName as accentName } from '@/lib/bible-books';
 import StudyIndex from './StudyIndex';
 import FicheSheet from './FicheSheet';
+import TroisLectures, { TroisSuite } from './TroisLectures';
 import dynamic from 'next/dynamic';
 import CarteEtude from './CarteEtude';
 import { useSuivi } from './EtudierProgress';
@@ -702,6 +703,10 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
 
       {tab === 'parcours' && (
         <>
+      <TroisLectures onRead={(b, c) => {
+        setBook(b); setChapter(c); setTarget(null); setTab('bible');
+        setTimeout(() => document.getElementById('lecteur')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
+      }} />
       {parcoursEtude && (
         <CarteEtude
           onRead={(b, c) => { setBook(b); setChapter(c); setTarget(null); setTab('bible'); }}
@@ -1059,6 +1064,14 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
         </div>
         )}
 
+        {!loading && verses.length > 0 && !compareWith && (
+          <TroisSuite book={book} chapter={chapter}
+            onGo={(b, c) => {
+              setBook(b); setChapter(c); setTarget(null);
+              setTimeout(() => document.getElementById('lecteur')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
+            }}
+            onBack={() => { setTab('parcours'); setTimeout(() => document.querySelector('.tl-card')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 120); }} />
+        )}
         {!loading && verses.length > 0 && !compareWith && (
           <div className="chap-foot">
             <button className="chap-move" disabled={!prevLabel} onClick={goPrev}>
