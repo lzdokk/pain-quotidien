@@ -1,6 +1,7 @@
 import { unstable_cache } from 'next/cache';
 import { admin } from '@/lib/supabase/admin';
 import { allRows } from '@/lib/supabase/all-rows';
+import { TROIS_ID, TROIS_PLAN } from './trois-plan';
 
 /**
  * CACHE SERVEUR des contenus publics (identiques pour tout le monde).
@@ -19,8 +20,11 @@ export const getReaderStatic = unstable_cache(async () => {
     admin.from('plan_steps').select('*').order('position'),
     admin.from('book_intros').select('book, name, testament, section, title, situ, who, why, christ, key_verse')
   ]);
-  return { books: books ?? [], translations: translations ?? [], plans: plans ?? [], steps: steps ?? [], intros: intros ?? [] };
-}, ['reader-static-v1'], { revalidate: 3600, tags: ['reader'] });
+  // « Les 3 lectures » apparaît en tête, même si la ligne n'est pas encore en base.
+  const allPlans = [...(plans ?? [])];
+  if (!allPlans.some((p: any) => p.id === TROIS_ID)) allPlans.unshift(TROIS_PLAN);
+  return { books: books ?? [], translations: translations ?? [], plans: allPlans, steps: steps ?? [], intros: intros ?? [] };
+}, ['reader-static-v2'], { revalidate: 3600, tags: ['reader'] });
 
 // Index d'étude : la liste des fiches (définition raccourcie pour la recherche).
 export const getIndexList = unstable_cache(async () => {

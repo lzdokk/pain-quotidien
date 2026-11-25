@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react';
 import { ACCENTS, AMBIANCES, FONTS, NUITS, THEME_DEFAULT, readTheme, saveTheme, type Theme } from '@/lib/theme';
 import HeroScene, { SCENES, THEMES, normScene, type SceneId } from './HeroScenes';
 import { PHOTOS, photoThumb } from '@/lib/photos';
+import { prefsChanged, pullPrefs } from '@/lib/prefs-sync';
+import { supabase } from '@/lib/supabase/client';
 
 type HomeBg = { mode: 'auto' | 'scene' | 'photo' | 'lib' | 'dessin'; scene?: SceneId; lib?: string; blur?: number };
 const readBg = (): HomeBg => { try { return JSON.parse(localStorage.getItem('pq-home-bg') ?? '{"mode":"auto"}'); } catch { return { mode: 'auto' }; } };
@@ -38,6 +40,7 @@ export default function ThemeSheet() {
     setBgState(b);
     try { localStorage.setItem('pq-home-bg', JSON.stringify(b)); } catch {}
     window.dispatchEvent(new Event('pq-home-bg'));
+    prefsChanged();
   };
   const pickPhoto = async (f?: File) => {
     if (!f) return;
@@ -57,13 +60,21 @@ export default function ThemeSheet() {
     window.addEventListener('pq-theme-open', on);
     return () => window.removeEventListener('pq-theme-open', on);
   }, []);
+  // Réglages du compte : au démarrage, à la connexion et quand on revient sur l'app.
+  useEffect(() => {
+    pullPrefs();
+    const vis = () => { if (document.visibilityState === 'visible') pullPrefs(); };
+    document.addEventListener('visibilitychange', vis);
+    const { data } = supabase.auth.onAuthStateChange(ev => { if (ev === 'SIGNED_IN') setTimeout(pullPrefs, 300); });
+    return () => { document.removeEventListener('visibilitychange', vis); data.subscription.unsubscribe(); };
+  }, []);
   useEffect(() => {
     if (!open) return;
     document.body.style.overflow = 'hidden';
     return () => { document.body.style.overflow = ''; };
   }, [open]);
   if (!open) return null;
-  const set = (p: Partial<Theme>) => { const n = { ...t, ...p }; setT(n); saveTheme(n); };
+  const set = (p: Partial<Theme>) => { const n = { ...t, ...p }; setT(n); saveTheme(n); prefsChanged(); };
 
   return (
     <div className="th-ov" role="dialog" aria-modal="true" aria-label="Personnaliser l’app" onClick={e => { if (e.target === e.currentTarget) setOpen(false); }}>

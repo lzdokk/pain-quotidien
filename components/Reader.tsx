@@ -14,7 +14,10 @@ import { MEDITER_QUESTIONS, MEDITER_ETAPES } from '@/lib/reading-guide';
 import { ALLIANCES, BOOK_GROUPS, groupOf, searchBooks, bookName as accentName } from '@/lib/bible-books';
 import StudyIndex from './StudyIndex';
 import FicheSheet from './FicheSheet';
-import TroisLectures, { TroisSuite } from './TroisLectures';
+import TroisLectures, { TroisSuite, useTroisProg } from './TroisLectures';
+import { TROIS_ID } from '@/lib/trois-plan';
+import { getRemote, putRemote } from '@/lib/etude-sync';
+import { prefsChanged } from '@/lib/prefs-sync';
 import dynamic from 'next/dynamic';
 import CarteEtude from './CarteEtude';
 import { useSuivi } from './EtudierProgress';
@@ -221,8 +224,13 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
   const [look, setLookState] = useState<Look>(LOOK_DEFAULT);
   const [lookPhoto, setLookPhoto] = useState<string | null>(null);
   const [lookMsg, setLookMsg] = useState('');
-  useEffect(() => { setLookState(readLook()); setLookPhoto(readLookPhoto()); }, []);
-  const setLook = (p: Partial<Look>) => setLookState(l => { const n = { ...l, ...p }; saveLook(n); return n; });
+  useEffect(() => {
+    setLookState(readLook()); setLookPhoto(readLookPhoto());
+    const on = () => setLookState(readLook());
+    window.addEventListener('pq-look', on);
+    return () => window.removeEventListener('pq-look', on);
+  }, []);
+  const setLook = (p: Partial<Look>) => setLookState(l => { const n = { ...l, ...p }; saveLook(n); prefsChanged(); return n; });
   const pickLookPhoto = async (f?: File) => {
     if (!f) return;
     try {
@@ -316,7 +324,45 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
   );
 
   const { actif: parcoursEtude } = useSuivi();
-  const planId = plan?.plan_id ?? 'fondement';
+  // « Les 3 lectures » : suivi par le compte (user_plan) quand c'est possible,
+  // sinon sur l'appareil (sans compte, ou avant l'ajout du parcours en base).
+  const [localPlan, setLocalPlanState] = useState<string | null>(null);
+  const [troisProg, setTroisProg] = useTroisProg();
+  useEffect(() => {
+    let loc: any = null;
+    try { loc = JSON.parse(localStorage.getItem('pq-plan-local') || 'null'); } catch {}
+    setLocalPlanState(loc?.id ?? null);
+    getRemote('plan-local').then(r => {
+      try { const rp = r && JSON.parse(r.body); if (rp && (rp.t ?? 0) > (loc?.t ?? 0)) { setLocalPlanState(rp.id ?? null); localStorage.setItem('pq-plan-local', r!.body); } } catch {}
+    });
+  }, []);
+  const setLocalPlan = (id: string | null) => {
+    const v = JSON.stringify({ id, t: Date.now() });
+    setLocalPlanState(id);
+    try { localStorage.setItem('pq-plan-local', v); } catch {}
+    putRemote('plan-local', v);
+  };
+  const troisDb = plan?.plan_id === TROIS_ID;
+  const troisActive = troisDb || localPlan === TROIS_ID;
+  const troisDay = troisDb ? (plan?.current_day ?? 1) : troisProg.day;
+  const troisGo = async (day: number) => {
+    const n = Math.max(1, Math.min(686, day));
+    if (troisDb && user) {
+      setPlan((p: any) => ({ ...p, current_day: n }));
+      await supabase.from('user_plan').update({ current_day: n }).eq('user_id', user.id);
+    } else setTroisProg({ ...troisProg, started: true, day: n });
+  };
+  const troisNext = async () => {
+    if (troisDb && user) {
+      const today = iso(new Date());
+      // Premier jour lu aujourd'hui : la série de jours continue ; sinon on avance simplement.
+      if (plan?.last_read_on !== today) await supabase.rpc('mark_read', { p_user: user.id });
+      else await supabase.from('user_plan').update({ current_day: troisDay + 1 }).eq('user_id', user.id);
+      setPlan((p: any) => ({ ...p, current_day: troisDay + 1, last_read_on: today }));
+    } else setTroisProg({ ...troisProg, started: true, day: troisDay + 1 });
+    requestAnimationFrame(() => document.querySelector('.tl-card')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  };
+  const planId = troisActive ? TROIS_ID : (plan?.plan_id ?? 'fondement');
   const P = plans.find((p: any) => p.id === planId) ?? plans[0];
   const mySteps = steps.filter((s: any) => s.plan_id === P?.id);
   const position = useMemo(() => {
@@ -703,10 +749,12 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
 
       {tab === 'parcours' && (
         <>
-      <TroisLectures onRead={(b, c) => {
-        setBook(b); setChapter(c); setTarget(null); setTab('bible');
-        setTimeout(() => document.getElementById('lecteur')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
-      }} />
+      {!parcoursEtude && troisActive && (
+        <TroisLectures day={troisDay} onNext={troisNext} onDay={troisGo} onRead={(b, c) => {
+          setBook(b); setChapter(c); setTarget(null); setTab('bible');
+          setTimeout(() => document.getElementById('lecteur')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
+        }} />
+      )}
       {parcoursEtude && (
         <CarteEtude
           onRead={(b, c) => { setBook(b); setChapter(c); setTarget(null); setTab('bible'); }}
@@ -714,7 +762,7 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
           onFiche={(b) => etudeGo(`l:${b}`)}
           onList={() => etudeGo('')} />
       )}
-      {!parcoursEtude && P && position.step && (
+      {!parcoursEtude && !troisActive && P && position.step && (
         <div className="card">
           <div className="today-read tr-flex">
             <div className="tr-main">
@@ -764,16 +812,28 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
       )}
 
       <EtudeLivres
-        plans={plans} steps={steps} activePlanId={P?.id}
-        activeIndex={position.index} activeDay={plan?.current_day ?? 1}
+        plans={plans} steps={steps} activePlanId={troisActive ? TROIS_ID : (P?.id === TROIS_ID ? undefined : P?.id)}
+        activeIndex={position.index} activeDay={troisActive ? troisDay : (plan?.current_day ?? 1)}
         onRead={(b, c) => { try { history.replaceState(null, '', '/lire'); } catch {} setBook(b); setChapter(c); setTarget(null); setTab('bible'); }}
         onJump={async (id, day) => {
+          if (id === TROIS_ID) { await troisGo(day); window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
           if (!user) return alert('Connectez-vous pour suivre votre parcours.');
           await supabase.from('user_plan').update({ plan_id: id, current_day: day }).eq('user_id', user.id);
           location.reload();
         }}
         onChoose={async (id) => {
+          if (id === TROIS_ID) {
+            // Suivi par le compte si le parcours existe en base, sinon sur l'appareil.
+            const { error } = user
+              ? await supabase.from('user_plan').update({ plan_id: id, current_day: 1 }).eq('user_id', user.id)
+              : { error: true as any };
+            if (!error) { setLocalPlan(null); setPlan((p: any) => ({ ...p, plan_id: id, current_day: 1 })); }
+            else { setLocalPlan(TROIS_ID); setTroisProg({ ...troisProg, started: true, day: 1 }); }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            return;
+          }
           if (!user) return alert('Connectez-vous pour changer de parcours.');
+          setLocalPlan(null);
           await supabase.from('user_plan').update({ plan_id: id, current_day: 1 }).eq('user_id', user.id);
           location.reload();
         }} />
@@ -1065,7 +1125,7 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
         )}
 
         {!loading && verses.length > 0 && !compareWith && (
-          <TroisSuite book={book} chapter={chapter}
+          <TroisSuite active={troisActive} book={book} chapter={chapter}
             onGo={(b, c) => {
               setBook(b); setChapter(c); setTarget(null);
               setTimeout(() => document.getElementById('lecteur')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);

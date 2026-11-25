@@ -11,6 +11,7 @@ import { PLUS } from '@/lib/fiches-contexte';
 import { ficheChapitre, FICHES_CHAPITRES } from '@/lib/fiches-chapitres';
 import R from '@/components/R';
 import { MEDITER_QUESTIONS, MEDITER_ETAPES, QUATRE_TEMPS } from '@/lib/reading-guide';
+import { TroisProgramme } from './TroisLectures';
 
 /**
  * PARCOURS (Lire > Parcours) : lecture quotidienne + études de livres, un seul suivi.
@@ -175,6 +176,7 @@ export default function EtudeLivres({ onRead, plans, steps, activePlanId, active
               <div style={{ marginTop: 12 }}>
                 <button className="btn" onClick={() => sure('Recommencer ce parcours au jour 1 ?') && onJump(P.id, 1)}>↺ Recommencer du début</button>
               </div>
+              {P.style === 'triple' && <p className="pe-prog" style={{ marginTop: 10 }}>Parcours en cours : la lecture du jour s’affiche tout en haut.</p>}
             </>
           ) : (
             <button className="btn primary" onClick={() => { setActif(null); onChoose(P.id); }}>Suivre ce parcours</button>
@@ -182,7 +184,13 @@ export default function EtudeLivres({ onRead, plans, steps, activePlanId, active
           {P.audience && <div className="pe-row" style={{ marginTop: 12 }}><dt>Pour qui</dt><dd>{<R t={P.audience} />}</dd></div>}
           {P.rationale && <p style={{ marginTop: 10 }}>{<R t={P.rationale} />}</p>}
         </div>
-        <div className="card pad">
+        {P.style === 'triple' && (
+          <div className="card pad">
+            <div className="pe-prog" style={{ marginBottom: 6 }}>Le programme · Nouveau Testament, Psaume, Ancien Testament</div>
+            <TroisProgramme cur={en ? activeDay : 1} onPick={en ? (d => sure(`Aller au jour ${d} ?`) && onJump(P.id, d)) : undefined} />
+          </div>
+        )}
+        {mine.length > 0 && <div className="card pad">
           {mine.map((e: any, i: number) => {
             const fait = en && i < activeIndex;
             const jour = 1 + mine.slice(0, i).reduce((t: number, x: any) => t + (x.chapters || 1), 0);
@@ -202,7 +210,7 @@ export default function EtudeLivres({ onRead, plans, steps, activePlanId, active
               </div>
             );
           })}
-        </div>
+        </div>}
       </div></div>
     );
   }

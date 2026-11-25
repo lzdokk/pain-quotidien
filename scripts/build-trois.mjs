@@ -4,7 +4,8 @@
  *  - la 2e lecture est poétique (Job, Psaumes, Proverbes, Ecclésiaste, Cantique) ;
  *  - la 3e lecture est dans le Nouveau Testament ;
  *  - affiche les chapitres poétiques et du NT pas encore lus.
- * Ligne : « Gn 1 | Ps 8 | Jn 1 | Thème | Le fil | Question »  (# = commentaire)
+ * Ligne : « Jn 1 | Ps 8 | Gn 1 | Thème | Le fil | Question »  (# = commentaire)
+ * Ordre de lecture : Nouveau Testament, puis poétique, puis Ancien Testament.
  */
 import fs from 'fs';
 const src = fs.readFileSync('lib/refs.ts', 'utf8');
@@ -29,11 +30,11 @@ fs.readFileSync('data/trois-lectures.txt', 'utf8').split('\n').forEach((l, i) =>
   if (!l.trim() || l.startsWith('#')) return;
   const p = l.split('|').map(x => x.trim());
   if (p.length !== 6 || p.some(x => !x)) throw new Error(`ligne ${i + 1} : il faut 6 champs\n${l}`);
-  const a = ref(p[0], i + 1), po = ref(p[1], i + 1), nt = ref(p[2], i + 1);
+  const nt = ref(p[0], i + 1), po = ref(p[1], i + 1), a = ref(p[2], i + 1);
   const exp = AT[days.length];
-  if (!exp || a[0] !== exp[0] || a[1] !== exp[1]) throw new Error(`ligne ${i + 1} : jour ${days.length + 1}, attendu ${BOOKS[exp[0] - 1][0]} ${exp[1]}, trouvé ${p[0]}`);
+  if (!exp || a[0] !== exp[0] || a[1] !== exp[1]) throw new Error(`ligne ${i + 1} : jour ${days.length + 1}, attendu ${BOOKS[exp[0] - 1][0]} ${exp[1]}, trouvé ${p[2]}`);
   if (!POE.has(po[0])) throw new Error(`ligne ${i + 1} : ${p[1]} n'est pas un livre poétique`);
-  if (nt[0] < 40) throw new Error(`ligne ${i + 1} : ${p[2]} n'est pas dans le NT`);
+  if (nt[0] < 40) throw new Error(`ligne ${i + 1} : ${p[0]} n'est pas dans le NT`);
   days.push([...a, ...po, ...nt, p[3], p[4], p[5]]);
 });
 
