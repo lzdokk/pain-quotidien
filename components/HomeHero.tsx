@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
-import HeroScene, { sceneOfDay, SCENES, type SceneId } from './HeroScenes';
+import HeroScene, { sceneOfDay, SCENES, normScene, type SceneId } from './HeroScenes';
 import { openTheme } from './ThemeSheet';
 
 const VerseImage = dynamic(() => import('./VerseImage'), { ssr: false });
@@ -17,7 +17,7 @@ export const readHomePhoto = () => { try { return localStorage.getItem('pq-home-
 export default function HomeHero({ date, dateLabel, text, refLabel, theme }: {
   date: string; dateLabel: string; text: string | null; refLabel: string | null; theme: string | null;
 }) {
-  const [scene, setScene] = useState<SceneId>(sceneOfDay(date));
+  const [scene, setScene] = useState<SceneId>(sceneOfDay(date, theme));
   const [photo, setPhoto] = useState<string | null>(null);
   const [share, setShare] = useState(false);
   useEffect(() => {
@@ -25,12 +25,12 @@ export default function HomeHero({ date, dateLabel, text, refLabel, theme }: {
       const bg = readHomeBg();
       if (bg.mode === 'photo') { const p = readHomePhoto(); setPhoto(p); if (p) return; }
       else setPhoto(null);
-      setScene(bg.mode === 'scene' && bg.scene && SCENES.some(s => s.id === bg.scene) ? bg.scene : sceneOfDay(date));
+      setScene(bg.mode === 'scene' ? (normScene(bg.scene) ?? sceneOfDay(date, theme)) : sceneOfDay(date, theme));
     };
     apply();
     window.addEventListener('pq-home-bg', apply);
     return () => window.removeEventListener('pq-home-bg', apply);
-  }, [date]);
+  }, [date, theme]);
 
   const len = text?.length ?? 0;
   const size = len > 230 ? 'xs' : len > 160 ? 's' : len > 100 ? 'm' : 'l';

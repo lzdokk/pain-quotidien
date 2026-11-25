@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { ACCENTS, AMBIANCES, FONTS, THEME_DEFAULT, readTheme, saveTheme, type Theme } from '@/lib/theme';
-import HeroScene, { SCENES, type SceneId } from './HeroScenes';
+import HeroScene, { SCENES, THEMES, normScene, type SceneId } from './HeroScenes';
 
 type HomeBg = { mode: 'auto' | 'scene' | 'photo'; scene?: SceneId };
 const readBg = (): HomeBg => { try { return JSON.parse(localStorage.getItem('pq-home-bg') ?? '{"mode":"auto"}'); } catch { return { mode: 'auto' }; } };
@@ -31,6 +31,7 @@ export default function ThemeSheet() {
   const [bg, setBgState] = useState<HomeBg>({ mode: 'auto' });
   const [hasPhoto, setHasPhoto] = useState(false);
   const [bgMsg, setBgMsg] = useState('');
+  const [gal, setGal] = useState<string>('esperance'); // thème affiché dans la galerie
   const setBg = (b: HomeBg) => {
     setBgState(b);
     try { localStorage.setItem('pq-home-bg', JSON.stringify(b)); } catch {}
@@ -72,19 +73,26 @@ export default function ThemeSheet() {
         <p className="th-sub">Ta couleur, ton ambiance, ta police : tout s’applique tout de suite, dans toute l’app.</p>
 
         <div className="th-k">Fond de l’accueil</div>
-        <div className="th-scenes">
+        <div className="th-scenes th-modes2">
           <button className={bg.mode === 'auto' ? 'on' : ''} onClick={() => setBg({ mode: 'auto' })}>
-            <span className="th-sc th-auto">↻</span>Chaque jour
+            <span className="th-sc th-auto">↻</span>Selon le thème du jour
           </button>
-          {SCENES.map(sc => (
-            <button key={sc.id} className={bg.mode === 'scene' && bg.scene === sc.id ? 'on' : ''} onClick={() => setBg({ mode: 'scene', scene: sc.id })}>
-              <span className="th-sc"><HeroScene id={sc.id} /></span>{sc.label}
-            </button>
-          ))}
           <label className={bg.mode === 'photo' ? 'on' : ''}>
             <input type="file" accept="image/*" onChange={e => pickPhoto(e.target.files?.[0])} />
             <span className="th-sc th-auto">{hasPhoto ? '✓' : '+'}</span>Ma photo
           </label>
+        </div>
+        <div className="th-gal-k">Ou choisis un fond ({SCENES.length}) :</div>
+        <div className="th-themes">
+          {THEMES.map(t => <button key={t.id} className={gal === t.id ? 'on' : ''} onClick={() => setGal(t.id)}>{t.label}</button>)}
+          <button className={gal === 'tous' ? 'on' : ''} onClick={() => setGal('tous')}>Tous</button>
+        </div>
+        <div className="th-grid">
+          {SCENES.filter(sc => gal === 'tous' || sc.themes.includes(gal)).map(sc => (
+            <button key={sc.id} className={bg.mode === 'scene' && normScene(bg.scene) === sc.id ? 'on' : ''} onClick={() => setBg({ mode: 'scene', scene: sc.id })} title={sc.label}>
+              <span className="th-sc"><HeroScene id={sc.id} /></span><small>{sc.label}</small>
+            </button>
+          ))}
         </div>
         {hasPhoto && bg.mode !== 'photo' && <button className="linkbtn" style={{ fontSize: 13, marginTop: 6 }} onClick={() => setBg({ mode: 'photo' })}>Reprendre ma photo</button>}
         {bgMsg && <p className="fine">{bgMsg}</p>}

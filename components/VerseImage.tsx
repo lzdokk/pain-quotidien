@@ -65,7 +65,7 @@ function draw(cv: HTMLCanvasElement, text: string, ref: string, o: Opts) {
   cv.width = W; cv.height = H;
   const ctx = cv.getContext('2d')!;
   const bg = BGS.find(b => b.id === o.bg);
-  const isPhoto = o.bg === 'photo' && o.photo;
+  const isPhoto = (o.bg === 'photo' || o.bg.startsWith('scene:')) && o.photo;
   const ink = isPhoto ? '#FFFFFF' : bg?.ink ?? '#222';
   const sub = isPhoto ? 'rgba(255,255,255,.78)' : bg?.sub ?? 'rgba(0,0,0,.6)';
 
@@ -192,9 +192,37 @@ export default function VerseImage({ text, refLabel, onClose, message, bcv, book
   const [o, setO] = useState<Opts>(() => {
     let saved: any = {};
     try { saved = JSON.parse(localStorage.getItem('pq-vimg') ?? '{}'); } catch {}
-    return { bg: saved.bg && saved.bg !== 'photo' ? saved.bg : 'aube', font: saved.font ?? 'elegant', format: saved.format ?? 'post', align: saved.align ?? 'center', sign: saved.sign ?? true, veil: 0.45, photo: null };
+    return { bg: saved.bg && saved.bg !== 'photo' && !String(saved.bg).startsWith('scene:') ? saved.bg : 'aube', font: saved.font ?? 'elegant', format: saved.format ?? 'post', align: saved.align ?? 'center', sign: saved.sign ?? true, veil: 0.45, photo: null };
   });
   const [busy, setBusy] = useState(false);
+  // Paysages (les mêmes que l'accueil), suggérés selon le texte du verset.
+  const [scenes, setScenes] = useState<Array<{ id: string; label: string }>>([]);
+  const [sceneMod, setSceneMod] = useState<any>(null);
+  useEffect(() => {
+    import('./HeroScenes').then(m => {
+      setSceneMod(m);
+      const hit = m.THEMES.filter((t: any) => t.words.test(text)).map((t: any) => t.id);
+      const pool = hit.length ? m.SCENES.filter((sc: any) => sc.themes.some((t: string) => hit.includes(t))) : m.SCENES;
+      const seed = [...text].reduce((a, c) => (a * 31 + c.charCodeAt(0)) % 100000, 7);
+      const pick: any[] = [];
+      for (let i = 0; pick.length < Math.min(10, pool.length) && i < 200; i++) {
+        const sc = pool[(seed + i * 37) % pool.length];
+        if (!pick.includes(sc)) pick.push(sc);
+      }
+      setScenes(pick);
+    });
+  }, [text]);
+  const pickScene = async (id: string) => {
+    if (!sceneMod) return;
+    const el = document.querySelector(`.vi-scenes button[data-scene="${id}"] svg`);
+    if (!el) return;
+    const W = 1080, H = 1920; // dessiné en grand, recadré au format
+    let svg = el.outerHTML;
+    svg = svg.replace(/^<svg /, `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" `).replace(/ class="[^"]*"/, '');
+    const url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));
+    const img = await new Promise<HTMLImageElement>((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; });
+    set({ photo: img, bg: `scene:${id}`, veil: 0.28 });
+  };
   const [msg, setMsg] = useState('');
   const set = (p: Partial<Opts>) => setO(x => {
     const n = { ...x, ...p };
@@ -266,7 +294,22 @@ export default function VerseImage({ text, refLabel, onClose, message, bcv, book
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M4 7h3l2-2h6l2 2h3v12H4zM12 16.5a3.5 3.5 0 100-7 3.5 3.5 0 000 7z" /></svg>
           </label>
         </div>
-        {o.bg === 'photo' && o.photo && (
+        {scenes.length > 0 && (
+          <>
+            <div className="vi-k">Paysages pour ce verset</div>
+            <div className="vi-scenes">
+              {scenes.map(sc => {
+                const Comp = sceneMod?.default;
+                return (
+                  <button key={sc.id} data-scene={sc.id} className={o.bg === `scene:${sc.id}` ? 'on' : ''} title={sc.label} onClick={() => pickScene(sc.id)}>
+                    {Comp && <Comp id={sc.id} />}
+                  </button>
+                );
+              })}
+            </div>
+          </>
+        )}
+        {(o.bg === 'photo' || o.bg.startsWith('scene:')) && o.photo && (
           <label className="vi-range">Voile <input type="range" min="0.1" max="0.8" step="0.05" value={o.veil} onChange={e => set({ veil: +e.target.value })} /></label>
         )}
 
