@@ -1,6 +1,8 @@
 import Readings from './Readings';
 import DayNav from './DayNav';
 import ShareButton from './ShareButton';
+import VerseShareButton from './VerseShareButton';
+import { breadText } from '@/lib/bread-text';
 import DayLoadButton from './DayLoadButton';
 import { rich } from '@/lib/rich';
 import AdminOnly from './AdminOnly';
@@ -105,9 +107,7 @@ export default function Shell({ day, readings, user, archive, recentDays, transl
           <blockquote>{vText}</blockquote>
           <cite>{day.verse_ref.toUpperCase()} · {vName}</cite>
           <div className="verse-share">
-            <ShareButton title={day.verse_ref}
-                         text={`« ${vText} »\n${day.verse_ref}\n\n— Pain de Vie, le pain quotidien`}
-                         label="Partager ce verset" className="btn sm" />
+            <VerseShareButton text={vText} refLabel={day.verse_ref} message={breadText(day, vText)} />
           </div>
         </div>
 

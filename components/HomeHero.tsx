@@ -15,8 +15,8 @@ export type HomeBg = { mode: 'auto' | 'scene' | 'photo' | 'lib' | 'dessin'; scen
 export const readHomeBg = (): HomeBg => { try { return JSON.parse(localStorage.getItem('pq-home-bg') ?? '{"mode":"auto"}'); } catch { return { mode: 'auto' }; } };
 export const readHomePhoto = () => { try { return localStorage.getItem('pq-home-photo'); } catch { return null; } };
 
-export default function HomeHero({ date, dateLabel, text, refLabel, theme }: {
-  date: string; dateLabel: string; text: string | null; refLabel: string | null; theme: string | null;
+export default function HomeHero({ date, dateLabel, text, refLabel, theme, message }: {
+  date: string; dateLabel: string; text: string | null; refLabel: string | null; theme: string | null; message?: string;
 }) {
   const themeIds = theme ? THEMES.filter(t => t.words.test(theme)).map(t => t.id) : [];
   // Par défaut : une vraie photo accordée au thème du jour.
@@ -72,7 +72,7 @@ export default function HomeHero({ date, dateLabel, text, refLabel, theme }: {
       <button className="hh-down" onClick={() => document.getElementById('home-suite')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} aria-label="Voir la suite">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
       </button>
-      {share && text && refLabel && <VerseImage text={text} refLabel={refLabel} onClose={() => setShare(false)} />}
+      {share && text && refLabel && <VerseImage text={text} refLabel={refLabel} message={message} onClose={() => setShare(false)} />}
     </section>
   );
 }

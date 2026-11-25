@@ -4,6 +4,7 @@ import { citedVerse } from '@/lib/bible';
 import { polishDeep } from '@/lib/accents';
 import HomeTiles from '@/components/HomeTiles';
 import HomeHero from '@/components/HomeHero';
+import { breadText } from '@/lib/bread-text';
 
 export const revalidate = 3600; // rafraîchi aussi à la publication du jour (cron daily)
 export const metadata = { title: 'Accueil' };
@@ -13,14 +14,15 @@ export default async function Accueil() {
   const sb = await supabasePublic();
   const today = contentDate();
   let { data: day } = await sb.from('daily_bread')
-    .select('date, theme_title, verse_ref, verse_text').eq('published', true).lte('date', today)
+    .select('date, theme_title, theme_lede, verse_ref, verse_text, central_message, bread_lead, bread_says, bread_touches, bread_close').eq('published', true).lte('date', today)
     .order('date', { ascending: false }).limit(1).maybeSingle();
   if (day) day = polishDeep(day);
   const v = day ? await citedVerse(day.verse_ref, day.verse_text) : null;
 
   return (
     <main className="wrap home home-v2">
-      <HomeHero date={today} dateLabel={fdate(today)} text={v?.text ?? null} refLabel={day?.verse_ref ?? null} theme={day?.theme_title ?? null} />
+      <HomeHero date={today} dateLabel={fdate(today)} text={v?.text ?? null} refLabel={day?.verse_ref ?? null} theme={day?.theme_title ?? null}
+                message={day ? breadText(day, v?.text) : undefined} />
       <div id="home-suite" className="home-suite">
         <HomeTiles theme={day?.theme_title ?? null} />
       </div>
