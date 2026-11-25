@@ -127,6 +127,10 @@ export default function Shell({ day, readings, user, archive, recentDays, transl
             <p dangerouslySetInnerHTML={{ __html: rich(day.bread_close) }} />
           </div>
         )}
+        <div className="verse-share" style={{ margin: '4px 0 18px', textAlign: 'center' }}>
+          <VerseShareButton text={vText} refLabel={day.verse_ref} message={breadText(day, vText)}
+                            label="Partager le pain du jour · image + méditation" className="btn primary sm" />
+        </div>
 
         <div className="prayer closing">
           <span className="kicker">Prière de fermeture</span>
