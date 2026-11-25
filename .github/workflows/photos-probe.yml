@@ -1,0 +1,34 @@
+name: Photos — planches de miniatures (manuel)
+on:
+  workflow_dispatch: {}
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Catalogue et miniatures
+        run: |
+          mkdir -p t && sudo apt-get install -y -qq imagemagick >/dev/null
+          for p in $(seq 1 12); do curl -s "https://picsum.photos/v2/list?page=$p&limit=100" > l$p.json; done
+          python3 - <<'PY'
+          import json,glob
+          L=[]
+          for f in sorted(glob.glob('l*.json'), key=lambda x:int(x[1:-5])):
+              try: L+=json.load(open(f))
+              except: pass
+          json.dump([{'id':x['id'],'a':x['author'],'w':x['width'],'h':x['height'],'u':x['url']} for x in L], open('catalog.json','w'))
+          open('ids.txt','w').write('\n'.join(x['id'] for x in L))
+          print(len(L))
+          PY
+          cat ids.txt | xargs -P 16 -I{} sh -c 'curl -sL -m 30 -o t/{}.jpg "https://picsum.photos/id/{}/150/220"'
+          ls t | wc -l
+          cd t && ls *.jpg | sort -n > ../order.txt && cd ..
+          split -l 60 order.txt part_
+          for f in part_*; do montage $(sed 's#^#t/#' $f) -tile 10x6 -geometry 150x220+4+4 -pointsize 18 -set label '%t' -label '%t' -background '#222' -fill white sheet_$f.jpg 2>/dev/null || montage -label '%t' $(sed 's#^#t/#' $f) -tile 10x6 -geometry 150x220+4+4 sheet_$f.jpg; done
+          ls sheet_* | wc -l
+      - uses: actions/upload-artifact@v4
+        with:
+          name: planches
+          path: |
+            sheet_*.jpg
+            catalog.json
