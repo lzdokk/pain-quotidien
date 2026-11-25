@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import type { StudyEntry } from '@/lib/study-client';
 import { kindLabel } from '@/lib/study-client';
+import { SrcFiche } from './SrcBadge';
 
 type Kind = StudyEntry['kind'];
 
@@ -85,6 +86,7 @@ export default function StudyIndex({ plan, ready, sujets, renvois, embedded = fa
       )}
 
       <div className="card pad study-search">
+        {embedded && <div className="study-emb-h"><SrcFiche long /><span>Toute la Bible par thèmes, personnages et lieux</span></div>}
         <input className="field" type="search" value={q} onChange={e => setQ(e.target.value)}
                placeholder="Chercher : alliance, prière, Abraham, Jérusalem, hessed…" />
         <div className="study-meta">

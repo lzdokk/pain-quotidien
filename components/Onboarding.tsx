@@ -46,7 +46,7 @@ const STEPS: Step[] = [
           l&rsquo;<b>annoter</b>, le <b>méditer</b> ou le <b>comparer</b>.
         </p>
         <p>
-          Le bouton <b>+</b>, en bas à droite, ouvre la <b>Bible d&rsquo;étude</b>, la <b>recherche</b> et la
+          Le bouton <b>+</b>, en bas à droite, ouvre l&rsquo;<b>Étude</b> (📖 dictionnaire biblique et ✦ fiches par thème), la <b>recherche</b> et la
           méthode pour <b>méditer</b>. Le <b>Strong</b> donne l&rsquo;hébreu ou le grec, mot par mot.
         </p>
       </>

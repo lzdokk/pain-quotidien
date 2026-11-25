@@ -209,3 +209,33 @@ html[data-mode="soir"][data-nuit] body{background:var(--bg)}
 .vi-after{margin-top:14px;padding:14px;border-radius:16px;background:var(--accent-soft);border:1px solid var(--accent-line);text-align:center}
 .vi-after p{font-size:13.5px;line-height:1.5;color:var(--ink-2);margin:0 0 10px}
 .vi-after .btn{width:100%;justify-content:center}
+
+/* ── Étude : logos de source (📖 Dictionnaire Westphal · ✦ Fiche Pain de Vie) ── */
+:root{--src-dico:#8B5E2B;--src-dico-bg:rgba(139,94,43,.11)}
+html[data-mode="soir"]{--src-dico:#D9AE72;--src-dico-bg:rgba(217,174,114,.14)}
+.src-row{display:flex;flex-wrap:wrap;align-items:center;gap:5px}
+.src-b{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:750;letter-spacing:.07em;text-transform:uppercase;
+  padding:2px 7px 2px 6px;border-radius:99px;line-height:1.5;white-space:nowrap}
+.src-b svg{flex:none}
+.src-b b{font-size:11px;line-height:1}
+.src-dico{color:var(--src-dico);background:var(--src-dico-bg)}
+.src-fiche{color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,transparent)}
+.src-kind{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-4)}
+.cstudy-it .src-row{margin-bottom:3px}
+.cstudy-it.has-dico.has-fiche{border-color:color-mix(in srgb,var(--accent) 30%,var(--glass-line))}
+.src-legend{display:grid;gap:6px;font-size:12.5px;line-height:1.4;color:var(--ink-3);margin:2px 0 4px;
+  padding:10px 12px;border-radius:14px;background:var(--surface-2,rgba(0,0,0,.03))}
+.src-legend span{display:flex;align-items:flex-start;gap:7px}
+.src-legend .src-b{margin-top:1px}
+.src-star{color:var(--accent)}
+.src-ico{display:inline-flex;color:var(--src-dico);margin-right:5px;vertical-align:-1px}
+.dico-list button.fh{border-color:color-mix(in srgb,var(--accent) 35%,var(--line));background:color-mix(in srgb,var(--accent) 7%,transparent)}
+.src-link{display:flex;align-items:center;gap:10px;width:100%;text-align:left;margin:4px 0 14px;padding:11px 13px;border-radius:14px;cursor:pointer;
+  border:1px solid color-mix(in srgb,var(--accent) 25%,var(--line));background:color-mix(in srgb,var(--accent) 6%,var(--surface,transparent));color:var(--ink);font-size:14.5px;font-weight:560}
+.src-link:has(.src-dico){border-color:color-mix(in srgb,var(--src-dico) 30%,var(--line));background:var(--src-dico-bg)}
+.src-link span:not(.src-b){flex:1;min-width:0}
+.src-link i{font-style:normal;font-size:20px;color:var(--ink-4)}
+.src-link:active{transform:scale(.98)}
+.fiche-sheet .src-row,.ix-head .src-row{margin-bottom:6px}
+.study-emb-h{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:14px;font-weight:600;color:var(--ink-2);margin-bottom:10px}
+.dico .pe-back{background:none;border:0;padding:6px 2px;font:inherit;font-size:15px;font-weight:600;color:var(--accent);cursor:pointer}

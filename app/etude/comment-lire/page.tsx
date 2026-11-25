@@ -13,7 +13,7 @@ export default async function CommentLire() {
   return (
     <>
       <main className="wrap">
-        <Link href="/lire?tab=etude" className="back-parable">‹ Bible d&rsquo;étude</Link>
+        <Link href="/lire?tab=etude" className="back-parable">‹ Étude</Link>
         <header className="hero">
           <div className="eyebrow">Guide</div>
           <h1>Comment lire<br />la Bible chaque jour ?</h1>

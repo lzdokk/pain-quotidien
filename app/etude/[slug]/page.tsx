@@ -6,6 +6,7 @@ import { rich } from '@/lib/rich';
 import { polishDeep } from '@/lib/accents';
 import { slugify } from '@/lib/prompts/study-index';
 import R from '@/components/R';
+import { SrcFiche } from '@/components/SrcBadge';
 
 export const revalidate = 3600;
 // Pages générées à la première visite puis gardées en cache (instantanées ensuite).
@@ -36,9 +37,10 @@ export default async function Fiche({ params }: { params: Promise<{ slug: string
   return (
     <>
       <main className="wrap">
-        <Link href="/lire?tab=etude" className="back-parable">‹ Bible d&rsquo;étude</Link>
+        <Link href="/lire?tab=etude" className="back-parable">‹ Étude</Link>
 
         <header className="ix-head">
+          <div className="src-row"><SrcFiche long /></div>
           <span className="kicker">{kind}{e.kind === 'theme' && e.category ? ` · ${e.category}` : ''}{e.subcategory ? ` › ${e.subcategory}` : ''}</span>
           <h1>{e.title}</h1>
           {e.definition && <p className="ix-def" dangerouslySetInnerHTML={{ __html: rich(e.definition) }} />}
@@ -71,7 +73,7 @@ export default async function Fiche({ params }: { params: Promise<{ slug: string
         )}
 
         <p className="ix-note">
-          Fiches rédigées pour Pain de Vie et vérifiées automatiquement (chaque référence existe bien).
+          ✦ Fiche rédigée pour Pain de Vie avec l&rsquo;aide de l&rsquo;IA et vérifiée automatiquement (chaque référence existe bien).
           Lis toujours le passage dans son contexte.
         </p>
       </main>

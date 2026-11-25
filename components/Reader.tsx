@@ -24,7 +24,6 @@ const VerseImage = dynamic(() => import('./VerseImage'), { ssr: false });
 import { ThemeButton } from './ThemeSheet';
 import { FONDS, readLook, saveLook, readLookPhoto, saveLookPhoto, type Look, LOOK_DEFAULT } from '@/lib/reader-look';
 const EtudeLivres = dynamic(() => import('./EtudeLivres'), { ssr: false, loading: () => <div className="skel skel-card" /> });
-import ChapterStudy from './ChapterStudy';
 import WordsBrowser from './WordsBrowser';
 import VerseTools from './VerseTools';
 import { getStudyList, getChapterStudy, kindLabel, type StudyList } from '@/lib/study-client';
@@ -73,9 +72,8 @@ const chapterCache = new Map<string, Chap>();
 
 /** Les outils du bouton + (Lire), du haut vers le bas. */
 const svg = (d: JSX.Element, sw = 1.8) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round">{d}</svg>;
-const FABS: Array<{ k: 'etude' | 'dico' | 'strong' | 'importants' | 'search' | 'method' | 'look' | 'theme'; l: string; ic: JSX.Element }> = [
-  { k: 'etude', l: 'Bible d’étude', ic: svg(<><path d="M12 6.5C10.5 5 8 4.5 4 5v13c4-.5 6.5 0 8 1.5 1.5-1.5 4-2 8-1.5V5c-4-.5-6.5 0-8 1.5zM12 6.5V19" /></>) },
-  { k: 'dico', l: 'Dictionnaire biblique', ic: svg(<path d="M5 4h11a3 3 0 013 3v13H8a3 3 0 01-3-3V4zM5 17a3 3 0 013-3h11M9 8h6" />) },
+const FABS: Array<{ k: 'etude' | 'strong' | 'importants' | 'search' | 'method' | 'look' | 'theme'; l: string; ic: JSX.Element }> = [
+  { k: 'etude', l: 'Étude · dictionnaire et fiches', ic: svg(<><path d="M12 6.5C10.5 5 8 4.5 4 5v13c4-.5 6.5 0 8 1.5 1.5-1.5 4-2 8-1.5V5c-4-.5-6.5 0-8 1.5zM12 6.5V19" /></>) },
   { k: 'strong', l: 'Strong (hébreu, grec)', ic: <span className="rfab-he">א</span> },
   { k: 'importants', l: 'Versets importants', ic: <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 3.2l2.6 5.5 6 .7-4.5 4.1 1.2 5.9L12 16.5 6.7 19.4l1.2-5.9L3.4 9.4l6-.7z" /></svg> },
   { k: 'search', l: 'Rechercher', ic: svg(<><circle cx="11" cy="11" r="6.5" /><path d="M20 20l-4.2-4.2" /></>) },
@@ -216,7 +214,7 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
   const [qHist, setQHist] = useState<string[]>([]);
   const [target, setTarget] = useState<number | null>(null);
   // Bulles flottantes : methode de lecture / recherche + historique.
-  const [bubble, setBubble] = useState<null | 'method' | 'search' | 'versions' | 'importants' | 'etude' | 'dico' | 'strong' | 'look'>(null);
+  const [bubble, setBubble] = useState<null | 'method' | 'search' | 'versions' | 'importants' | 'etude' | 'strong' | 'look'>(null);
   // Image de verset à partager, apparence de lecture.
   const [imgShare, setImgShare] = useState<{ text: string; ref: string; v?: number } | null>(null);
   const [look, setLookState] = useState<Look>(LOOK_DEFAULT);
@@ -805,7 +803,7 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
 
       {tab === 'etude' && (
         <>
-          <Dictionnaire onRef={goRef} chapter={{ b: book, c: chapter, name: bookName }} />
+          <Dictionnaire onRef={goRef} chapter={{ b: book, c: chapter, name: bookName }} onFiche={setFiche} />
           {studyList
             ? <StudyIndex embedded plan={studyList.plan} ready={studyList.ready} sujets={studyList.sujets}
                           renvois={studyList.renvois} onOpen={setFiche} />
@@ -849,7 +847,7 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
 
             <div className="srch-more">
               <button className="btn sm" onClick={() => setLexOpen(true)}>א Mots hébreux</button>
-              <button className="btn sm" onClick={() => setTab('etude')}>Bible d&rsquo;étude</button>
+              <button className="btn sm" onClick={() => setTab('etude')}>Étude</button>
             </div>
           </div>
 
@@ -863,7 +861,7 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
               <div className="card pad srch-groups">
                 {fiches.length > 0 && (
                   <>
-                    <div className="srch-k">Dans la Bible d&rsquo;étude</div>
+                    <div className="srch-k"><span className="src-star">✦</span> Fiches Pain de Vie</div>
                     <div className="ix-chips">
                       {fiches.map(f => (
                         <button key={f.slug} className="ix-chip" onClick={() => setFiche(f.slug)}>
@@ -875,10 +873,10 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
                 )}
                 {dicoHits.length > 0 && (
                   <>
-                    <div className="srch-k">Dans le dictionnaire biblique</div>
+                    <div className="srch-k">Dans le dictionnaire biblique (Westphal)</div>
                     <div className="ix-chips">
                       {dicoHits.map((d: any) => (
-                        <button key={d.id} className="ix-chip" onClick={() => { setDicoInit(d.id); setBubble('dico'); }}>
+                        <button key={d.id} className="ix-chip" onClick={() => { setDicoInit(d.id); setBubble('etude'); }}>
                           {d.titre}{d.m === 'x' ? <small className="chip-k"> · cité</small> : null}
                         </button>
                       ))}
@@ -1317,8 +1315,8 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
       )}
       {fabOpen && <div className="rfab-veil" onClick={() => setFabOpen(false)} />}
 
-      {bubble && (tab === 'bible' || bubble === 'dico' || bubble === 'strong') && (
-        <div className={`rbubble${bubble === 'dico' || bubble === 'strong' ? ' rbubble-wide' : ''}`} role="dialog">
+      {bubble && (tab === 'bible' || bubble === 'etude' || bubble === 'strong') && (
+        <div className={`rbubble${bubble === 'etude' || bubble === 'strong' ? ' rbubble-wide' : ''}`} role="dialog">
           <button className="rbubble-x" onClick={() => { setBubble(null); setDicoInit(null); }} aria-label="Fermer">×</button>
 
           {bubble === 'look' && (
@@ -1353,13 +1351,6 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
               </div>
               <button className="linkbtn" style={{ marginTop: 14, fontSize: 13.5 }} onClick={() => setLook({ ...LOOK_DEFAULT })}>Revenir à l’apparence par défaut</button>
               <div style={{ marginTop: 14 }}><ThemeButton label="Couleurs et police de toute l’app" className="btn sm" /></div>
-            </>
-          )}
-
-          {bubble === 'dico' && (
-            <>
-              <h3 className="rbubble-t">Dictionnaire biblique</h3>
-              <Dictionnaire bare initialId={dicoInit} chapter={{ b: book, c: chapter, name: bookName }} onRef={r => { setBubble(null); setDicoInit(null); goRef(r); }} />
             </>
           )}
 
@@ -1413,16 +1404,16 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
 
           {bubble === 'etude' && (
             <>
-              <h3 className="rbubble-t">Bible d’étude</h3>
-              <p className="rbubble-sub">Les thèmes, personnages, lieux et mots liés à {bookName} {chapter}.</p>
-              <ChapterStudy bare book={book} chapter={chapter} label={`${bookName} ${chapter}`}
-                            onOpen={slug => { setFiche(slug); setBubble(null); }} />
+              <h3 className="rbubble-t">Étude</h3>
+              <Dictionnaire bare initialId={dicoInit} chapter={{ b: book, c: chapter, name: bookName }}
+                            onFiche={slug => { setFiche(slug); setBubble(null); setDicoInit(null); }}
+                            onRef={r => { setBubble(null); setDicoInit(null); goRef(r); }} />
               <label className="switch rb-switch">
                 <input type="checkbox" checked={etudeOn} onChange={e => toggleEtude(e.target.checked)} />
                 <span className="switch-ui" />
-                <span className="switch-l">Repérer ces versets (✦) dans le texte</span>
+                <span className="switch-l">Repérer dans le texte les versets qui ont une fiche (✦)</span>
               </label>
-              <button className="linkbtn rb-more" onClick={() => { setBubble(null); setTab('etude'); }}>Toutes les fiches de la Bible d’étude ›</button>
+              <button className="linkbtn rb-more" onClick={() => { setBubble(null); setDicoInit(null); setTab('etude'); }}>Tous les thèmes, personnages et lieux ›</button>
             </>
           )}
 
@@ -1552,7 +1543,8 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
         </div>
       )}
 
-      <FicheSheet slug={fiche} onClose={() => setFiche(null)} />
+      <FicheSheet slug={fiche} onClose={() => setFiche(null)}
+                  onDico={id => { setFiche(null); setDicoInit(id); setBubble('etude'); }} />
       {strongCode && <StrongModal code={strongCode} onClose={() => setStrongCode(null)} />}
       {imgShare && <VerseImage text={imgShare.text} refLabel={imgShare.ref} bcv={imgShare.v ? { b: book, c: chapter, v: imgShare.v } : undefined}
                                bookName={bookName} onClose={() => setImgShare(null)} />}
