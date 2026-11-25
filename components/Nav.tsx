@@ -60,6 +60,14 @@ export default function Nav(_props: { user?: any }) {
   // Bouton retour : revient à la page précédente de l'app (sinon à l'accueil).
   const router = useRouter();
   const [canBack, setCanBack] = useState(false);
+  // Accueil : barre transparente tant que le grand verset du jour est à l'écran.
+  const [over, setOver] = useState(false);
+  useEffect(() => {
+    if (path !== '/') { setOver(false); return; }
+    const on = () => setOver(window.scrollY < window.innerHeight * 0.72);
+    on(); window.addEventListener('scroll', on, { passive: true });
+    return () => window.removeEventListener('scroll', on);
+  }, [path]);
   useEffect(() => {
     try {
       const st: string[] = JSON.parse(sessionStorage.getItem('pq-hist') || '[]');
@@ -90,7 +98,7 @@ export default function Nav(_props: { user?: any }) {
 
   return (
     <>
-      <nav className="nav">
+      <nav className={`nav${over ? ' over' : ''}`}>
         <div className="nav-in">
           {path === '/' ? (
             <Link href="/" className="brandmark">

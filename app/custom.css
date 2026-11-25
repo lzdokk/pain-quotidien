@@ -79,3 +79,52 @@ html[data-accent]:not([data-accent="ardoise"]) .page-tab[aria-selected="true"]{b
 html[data-accent]:not([data-accent="ardoise"]) .icon-btn.avatar,
 html[data-accent]:not([data-accent="ardoise"]) .chip[aria-selected="true"]{box-shadow:0 6px 14px -8px color-mix(in srgb,var(--brand) 90%,transparent)}
 html[data-accent]:not([data-accent="ardoise"]) .btn.primary{box-shadow:0 1px 0 rgba(255,255,255,.28) inset,0 12px 24px -12px color-mix(in srgb,var(--brand) 90%,transparent)}
+
+/* ── Accueil plein écran : le verset du jour sur un paysage ─────── */
+.home.home-v2{padding-top:0!important}
+.hh{position:relative;margin:calc(-57px - env(safe-area-inset-top)) calc(50% - 50vw) 0;height:100svh;min-height:580px;max-height:1100px;
+ overflow:hidden;border-radius:0 0 32px 32px;color:#fff;isolation:isolate;box-shadow:0 30px 60px -40px rgba(0,0,0,.6)}
+.hh-bg{position:absolute;inset:-2%;z-index:-2;animation:hhzoom 38s ease-in-out infinite alternate}
+.hh-bg svg,.hh-bg img{width:100%;height:100%;object-fit:cover;display:block}
+@keyframes hhzoom{from{transform:scale(1)}to{transform:scale(1.07) translateY(-1%)}}
+@media(prefers-reduced-motion:reduce){.hh-bg{animation:none}}
+.hh-veil{position:absolute;inset:0;z-index:-1;background:
+  linear-gradient(180deg,rgba(0,0,0,.42) 0%,rgba(0,0,0,.06) 20%,rgba(0,0,0,.06) 62%,rgba(0,0,0,.5) 100%),
+  radial-gradient(ellipse 80% 45% at 50% 47%,rgba(0,0,0,.30),transparent 70%)}
+.hh-tap{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+ padding:calc(96px + env(safe-area-inset-top)) 30px calc(180px + env(safe-area-inset-bottom));text-decoration:none;color:#fff}
+.hh-tap:active .hh-verse{transform:scale(.985)}
+.hh-date{position:absolute;top:calc(78px + env(safe-area-inset-top));left:0;right:0;font-size:12px;letter-spacing:.2em;text-transform:uppercase;font-weight:650;opacity:.88;text-shadow:0 1px 8px rgba(0,0,0,.35)}
+.hh-verse{font-family:var(--serif);font-weight:500;line-height:1.28;letter-spacing:-.01em;max-width:600px;margin:0;
+ text-shadow:0 2px 22px rgba(0,0,0,.38),0 1px 2px rgba(0,0,0,.25);transition:transform .2s var(--ease);animation:hhin .9s var(--ease) both}
+.hh-l{font-size:clamp(32px,8.6vw,50px)}.hh-m{font-size:clamp(28px,7.2vw,42px)}.hh-s{font-size:clamp(24px,6.1vw,34px)}.hh-xs{font-size:clamp(20px,5.2vw,28px)}
+@keyframes hhin{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.hh-ref{margin-top:20px;font-style:normal;font-size:13px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;opacity:.92;
+ text-shadow:0 1px 8px rgba(0,0,0,.35);animation:hhin .9s .15s var(--ease) both}
+.hh-ref::before{content:'';display:block;width:34px;height:1.5px;margin:0 auto 14px;background:rgba(255,255,255,.7)}
+.hh-theme{margin-top:28px;display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:99px;max-width:92%;
+ background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+ font-size:13.5px;font-weight:600;line-height:1.3;animation:hhin .9s .3s var(--ease) both}
+.hh-theme b{font-size:16px}
+.hh-tools{position:absolute;right:16px;bottom:calc(112px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:10px}
+.hh-tools button,.hh-down{width:44px;height:44px;border-radius:99px;border:1px solid rgba(255,255,255,.32);background:rgba(255,255,255,.15);
+ backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);color:#fff;display:grid;place-items:center;cursor:pointer}
+.hh-tools svg,.hh-down svg{width:20px;height:20px}
+.hh-down{position:absolute;left:50%;bottom:calc(112px + env(safe-area-inset-bottom));transform:translateX(-50%);animation:hhbob 2.4s ease-in-out infinite}
+@keyframes hhbob{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,6px)}}
+@media(min-width:900px){.hh{border-radius:0 0 40px 40px}.hh-tools,.hh-down{bottom:40px}.hh-tap{padding-bottom:120px}}
+.home-suite{padding-top:26px;scroll-margin-top:70px}
+/* Barre du haut transparente sur le paysage */
+.nav.over{background:transparent!important;border-bottom-color:transparent!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;box-shadow:none!important}
+.nav.over .brandmark,.nav.over .brandmark span{color:#fff!important}
+.nav.over .icon-btn:not(.avatar){color:#fff!important;background:rgba(255,255,255,.15)!important;border-color:rgba(255,255,255,.3)!important;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.nav{transition:background .3s var(--ease),border-color .3s var(--ease)}
+.th-scenes{display:flex;gap:10px;overflow-x:auto;padding:2px 2px 6px;margin:0 -2px;scrollbar-width:none}
+.th-scenes::-webkit-scrollbar{display:none}
+.th-scenes button,.th-scenes label{flex:none;display:flex;flex-direction:column;align-items:center;gap:6px;border:0;background:none;font-size:11.5px;color:var(--ink-2);cursor:pointer;padding:0}
+.th-scenes input{display:none}
+.th-sc{width:62px;height:96px;border-radius:14px;overflow:hidden;border:2px solid transparent;box-shadow:inset 0 0 0 1px var(--line-2);display:grid;place-items:center}
+.th-sc svg{width:100%;height:100%;display:block}
+.th-auto{background:var(--surface-2);font-size:22px;color:var(--ink-3)}
+.th-scenes .on .th-sc{border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 30%,transparent)}
+.th-scenes .on{color:var(--ink);font-weight:650}

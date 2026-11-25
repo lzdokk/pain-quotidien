@@ -3,6 +3,7 @@ import { contentDate } from '@/lib/date';
 import { citedVerse } from '@/lib/bible';
 import { polishDeep } from '@/lib/accents';
 import HomeTiles from '@/components/HomeTiles';
+import HomeHero from '@/components/HomeHero';
 
 export const revalidate = 3600; // rafraîchi aussi à la publication du jour (cron daily)
 export const metadata = { title: 'Accueil' };
@@ -18,20 +19,11 @@ export default async function Accueil() {
   const v = day ? await citedVerse(day.verse_ref, day.verse_text) : null;
 
   return (
-    <main className="wrap home">
-      <header className="home-head">
-        <p className="home-date">{fdate(today)}</p>
-        <h1>Pain de Vie</h1>
-      </header>
-
-      {day && v && (
-        <a href="/pain" className="home-verse">
-          <blockquote>{v.text}</blockquote>
-          <cite>{day.verse_ref}</cite>
-        </a>
-      )}
-
-      <HomeTiles theme={day?.theme_title ?? null} />
+    <main className="wrap home home-v2">
+      <HomeHero date={today} dateLabel={fdate(today)} text={v?.text ?? null} refLabel={day?.verse_ref ?? null} theme={day?.theme_title ?? null} />
+      <div id="home-suite" className="home-suite">
+        <HomeTiles theme={day?.theme_title ?? null} />
+      </div>
     </main>
   );
 }

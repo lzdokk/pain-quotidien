@@ -1,6 +1,10 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { ACCENTS, AMBIANCES, FONTS, THEME_DEFAULT, readTheme, saveTheme, type Theme } from '@/lib/theme';
+import HeroScene, { SCENES, type SceneId } from './HeroScenes';
+
+type HomeBg = { mode: 'auto' | 'scene' | 'photo'; scene?: SceneId };
+const readBg = (): HomeBg => { try { return JSON.parse(localStorage.getItem('pq-home-bg') ?? '{"mode":"auto"}'); } catch { return { mode: 'auto' }; } };
 
 /** Ouvre la fenêtre « Personnaliser l'app » depuis n'importe où. */
 export const openTheme = () => { try { window.dispatchEvent(new Event('pq-theme-open')); } catch {} };
@@ -24,8 +28,29 @@ export function ThemeButton({ label = 'Personnaliser l’app', className = 'btn'
 export default function ThemeSheet() {
   const [open, setOpen] = useState(false);
   const [t, setT] = useState<Theme>(THEME_DEFAULT);
+  const [bg, setBgState] = useState<HomeBg>({ mode: 'auto' });
+  const [hasPhoto, setHasPhoto] = useState(false);
+  const [bgMsg, setBgMsg] = useState('');
+  const setBg = (b: HomeBg) => {
+    setBgState(b);
+    try { localStorage.setItem('pq-home-bg', JSON.stringify(b)); } catch {}
+    window.dispatchEvent(new Event('pq-home-bg'));
+  };
+  const pickPhoto = async (f?: File) => {
+    if (!f) return;
+    try {
+      const { loadPhoto } = await import('./VerseImage');
+      const { url } = await loadPhoto(f, 1600);
+      try { localStorage.setItem('pq-home-photo', url); setHasPhoto(true); setBgMsg(''); setBg({ mode: 'photo' }); }
+      catch { setBgMsg('Photo trop lourde pour être gardée sur le téléphone : essaie une image plus petite.'); }
+    } catch { setBgMsg('Photo illisible.'); }
+  };
   useEffect(() => {
-    const on = () => { setT(readTheme()); setOpen(true); };
+    const on = () => {
+      setT(readTheme()); setBgState(readBg());
+      try { setHasPhoto(!!localStorage.getItem('pq-home-photo')); } catch {}
+      setOpen(true);
+    };
     window.addEventListener('pq-theme-open', on);
     return () => window.removeEventListener('pq-theme-open', on);
   }, []);
@@ -45,6 +70,24 @@ export default function ThemeSheet() {
           <button className="rbubble-x" style={{ position: 'static' }} onClick={() => setOpen(false)} aria-label="Fermer">×</button>
         </div>
         <p className="th-sub">Ta couleur, ton ambiance, ta police : tout s’applique tout de suite, dans toute l’app.</p>
+
+        <div className="th-k">Fond de l’accueil</div>
+        <div className="th-scenes">
+          <button className={bg.mode === 'auto' ? 'on' : ''} onClick={() => setBg({ mode: 'auto' })}>
+            <span className="th-sc th-auto">↻</span>Chaque jour
+          </button>
+          {SCENES.map(sc => (
+            <button key={sc.id} className={bg.mode === 'scene' && bg.scene === sc.id ? 'on' : ''} onClick={() => setBg({ mode: 'scene', scene: sc.id })}>
+              <span className="th-sc"><HeroScene id={sc.id} /></span>{sc.label}
+            </button>
+          ))}
+          <label className={bg.mode === 'photo' ? 'on' : ''}>
+            <input type="file" accept="image/*" onChange={e => pickPhoto(e.target.files?.[0])} />
+            <span className="th-sc th-auto">{hasPhoto ? '✓' : '+'}</span>Ma photo
+          </label>
+        </div>
+        {hasPhoto && bg.mode !== 'photo' && <button className="linkbtn" style={{ fontSize: 13, marginTop: 6 }} onClick={() => setBg({ mode: 'photo' })}>Reprendre ma photo</button>}
+        {bgMsg && <p className="fine">{bgMsg}</p>}
 
         <div className="th-k">Couleur</div>
         <div className="th-acc">
@@ -84,7 +127,7 @@ export default function ThemeSheet() {
           </div>
         </div>
 
-        <button className="linkbtn th-reset" onClick={() => set({ ...THEME_DEFAULT })}>Revenir à l’apparence d’origine</button>
+        <button className="linkbtn th-reset" onClick={() => { set({ ...THEME_DEFAULT }); setBg({ mode: 'auto' }); }}>Revenir à l’apparence d’origine</button>
         <p className="fine" style={{ marginTop: 10 }}>Le mode jour / soir se change avec la lune, en haut. Le fond de lecture de la Bible se règle dans Lire › + › Apparence de lecture.</p>
       </div>
     </div>
