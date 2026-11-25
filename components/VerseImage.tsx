@@ -275,19 +275,38 @@ export default function VerseImage({ text, refLabel, onClose, message, bcv, book
 
   const blob = () => new Promise<Blob | null>(r => cv.current!.toBlob(r, 'image/jpeg', 0.93));
   const fileName = `${refLabel.replace(/[^\p{L}\d]+/gu, '-')}-pain-de-vie.jpg`;
+  // WhatsApp (et d'autres) coupent la légende d'une image vers 1 000 caractères :
+  // l'image part avec une version courte, la méditation complète part en second message.
+  const LIMIT = 900;
+  const shortText = (t: string) => {
+    if (t.length <= LIMIT) return t;
+    const link = t.split('\n').reverse().find(l => /https?:\/\//.test(l)) ?? '';
+    const paras = t.split('\n\n');
+    let out = '';
+    for (const p of paras) {
+      if (/https?:\/\//.test(p)) continue;
+      if ((out + '\n\n' + p).length > LIMIT - 120) break;
+      out = out ? `${out}\n\n${p}` : p;
+    }
+    return `${out}\n\n📖 La méditation complète suit dans le message suivant${link ? ` · ${link.replace(/^Pain de Vie · /, '')}` : ''}`;
+  };
+  const [afterShare, setAfterShare] = useState(false);
   const shareImg = async () => {
-    setBusy(true); setMsg('');
-    if (attach && medit) { try { await navigator.clipboard.writeText(medit); setMsg('Méditation copiée : colle-la en légende si l’app ne l’affiche pas.'); } catch {} }
+    setBusy(true); setMsg(''); setAfterShare(false);
+    if (attach && medit) { try { await navigator.clipboard.writeText(medit); } catch {} }
     try {
       const b = await blob(); if (!b) return;
       const file = new File([b], fileName, { type: 'image/jpeg' });
       const nav: any = navigator;
       const withText = attach && medit;
       if (nav.canShare?.({ files: [file] })) {
-        // Le texte accompagne l'image (WhatsApp, Messages…) ; Instagram l'ignore : il est aussi copié, prêt à coller en légende.
-        await nav.share(withText ? { files: [file], title: refLabel, text: medit } : { files: [file], title: refLabel });
+        await nav.share(withText ? { files: [file], title: refLabel, text: shortText(medit!) } : { files: [file], title: refLabel });
       } else download(b);
-    } catch (e: any) { if (e?.name !== 'AbortError') setMsg('Partage impossible : utilise « Enregistrer ».'); }
+      if (withText) setAfterShare(true);
+    } catch (e: any) {
+      if (e?.name !== 'AbortError') setMsg('Partage impossible : utilise « Enregistrer ».');
+      else if (attach && medit) setAfterShare(true);
+    }
     finally { setBusy(false); }
   };
   const download = (b: Blob) => {
@@ -382,8 +401,14 @@ export default function VerseImage({ text, refLabel, onClose, message, bcv, book
         <div className="vi-actions">
           <button className="btn primary" onClick={shareImg} disabled={!ready || busy}>{busy ? 'Préparation…' : 'Partager l’image'}</button>
           <button className="btn" onClick={save} disabled={!ready}>Enregistrer</button>
-          <button className="btn" onClick={shareText}>{attach && medit ? 'Texte seul' : 'Verset seul'}</button>
+          <button className="btn" onClick={shareText}>{attach && medit ? 'Méditation (texte)' : 'Verset seul'}</button>
         </div>
+        {afterShare && medit && (
+          <div className="vi-after">
+            <p>L’image est partie avec le début de la méditation. Envoie maintenant <b>la méditation complète</b> dans un second message (elle est aussi copiée : tu peux la coller).</p>
+            <button className="btn primary" onClick={shareText}>Envoyer la méditation complète</button>
+          </div>
+        )}
         {msg && <p className="fine" style={{ textAlign: 'center', marginTop: 8 }}>{msg}</p>}
       </div>
     </div>,

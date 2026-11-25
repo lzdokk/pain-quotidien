@@ -206,3 +206,6 @@ html[data-mode="soir"][data-nuit] body{background:var(--bg)}
 .mo-pri .mo-proc{margin:0;padding:0;border:0}
 .mo-pri .mo-verset{font-style:italic;font-size:inherit;color:var(--ink)}
 .mo-pri .mo-ancre{margin-top:0}
+.vi-after{margin-top:14px;padding:14px;border-radius:16px;background:var(--accent-soft);border:1px solid var(--accent-line);text-align:center}
+.vi-after p{font-size:13.5px;line-height:1.5;color:var(--ink-2);margin:0 0 10px}
+.vi-after .btn{width:100%;justify-content:center}
