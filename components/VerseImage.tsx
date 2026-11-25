@@ -21,14 +21,25 @@ const BGS: Bg[] = [
 const FONTS = [
   { id: 'elegant', label: 'Élégant', family: '"Cormorant Garamond"', weight: '500', italic: true, k: 1.18 },
   { id: 'classique', label: 'Classique', family: '"Playfair Display"', weight: '500', italic: false, k: 0.98 },
-  { id: 'moderne', label: 'Moderne', family: 'Inter', weight: '600', italic: false, k: 0.9 }
+  { id: 'livre', label: 'Livre', family: 'Lora', weight: '500', italic: false, k: 0.98 },
+  { id: 'baskerville', label: 'Baskerville', family: '"Libre Baskerville"', weight: '400', italic: true, k: 0.9 },
+  { id: 'display', label: 'Affiche', family: '"DM Serif Display"', weight: '400', italic: false, k: 1.02 },
+  { id: 'antique', label: 'Antique', family: 'Cinzel', weight: '500', italic: false, k: 0.82 },
+  { id: 'marcellus', label: 'Gravé', family: 'Marcellus', weight: '400', italic: false, k: 0.95 },
+  { id: 'calligraphie', label: 'Calligraphie', family: '"Great Vibes"', weight: '400', italic: false, k: 1.35 },
+  { id: 'manuscrite', label: 'Manuscrite', family: '"Dancing Script"', weight: '600', italic: false, k: 1.12 },
+  { id: 'crayon', label: 'Crayon', family: 'Caveat', weight: '600', italic: false, k: 1.28 },
+  { id: 'moderne', label: 'Moderne', family: 'Inter', weight: '600', italic: false, k: 0.9 },
+  { id: 'montserrat', label: 'Montserrat', family: 'Montserrat', weight: '600', italic: false, k: 0.86 },
+  { id: 'josefin', label: 'Fine', family: '"Josefin Sans"', weight: '400', italic: false, k: 0.95 },
+  { id: 'fraunces', label: 'Chaleureuse', family: 'Fraunces', weight: '500', italic: false, k: 0.95 }
 ];
 const FORMATS = [
   { id: 'post', label: 'Post 4:5', w: 1080, h: 1350 },
   { id: 'carre', label: 'Carré', w: 1080, h: 1080 },
   { id: 'story', label: 'Story', w: 1080, h: 1920 }
 ];
-const FONT_CSS = 'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Playfair+Display:ital,wght@0,500;1,500&family=Inter:wght@500;600;700&display=swap';
+const FONT_CSS = 'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Playfair+Display:ital,wght@0,500;1,500&family=Inter:wght@500;600;700&family=Lora:wght@500&family=Libre+Baskerville:ital@1&family=DM+Serif+Display&family=Cinzel:wght@500&family=Marcellus&family=Great+Vibes&family=Dancing+Script:wght@600&family=Caveat:wght@600&family=Montserrat:wght@600&family=Josefin+Sans:wght@400&family=Fraunces:opsz,wght@9..144,500&display=swap';
 
 let fontsReady: Promise<void> | null = null;
 function loadFonts() {
@@ -39,8 +50,7 @@ function loadFonts() {
       await new Promise(r => { l.onload = r; l.onerror = r; setTimeout(r, 2500); });
     }
     await Promise.all([
-      '500 60px "Cormorant Garamond"', 'italic 500 60px "Cormorant Garamond"', '500 60px "Playfair Display"',
-      '600 60px Inter', '700 30px Inter'
+      ...FONTS.map(f => `${f.italic ? 'italic ' : ''}${f.weight} 60px ${f.family}`), '600 60px "Cormorant Garamond"', '700 30px Inter'
     ].map(f => document.fonts.load(f).catch(() => null)));
   })();
   return fontsReady;
@@ -59,7 +69,7 @@ function wrap(ctx: CanvasRenderingContext2D, text: string, maxW: number) {
   return lines;
 }
 
-type Opts = { bg: string; font: string; format: string; align: 'center' | 'left'; sign: boolean; veil: number; photo: HTMLImageElement | null };
+type Opts = { bg: string; font: string; format: string; align: 'center' | 'left'; sign: boolean; veil: number; blur: number; size: number; photo: HTMLImageElement | null };
 
 function draw(cv: HTMLCanvasElement, text: string, ref: string, o: Opts) {
   const F = FORMATS.find(f => f.id === o.format)!; const W = F.w, H = F.h;
@@ -73,7 +83,22 @@ function draw(cv: HTMLCanvasElement, text: string, ref: string, o: Opts) {
   // Fond
   if (isPhoto) {
     const im = o.photo!; const s = Math.max(W / im.width, H / im.height);
-    ctx.drawImage(im, (W - im.width * s) / 2, (H - im.height * s) / 2, im.width * s, im.height * s);
+    const dw = im.width * s, dh = im.height * s, dx = (W - dw) / 2, dy = (H - dh) / 2;
+    if (o.blur > 0) {
+      // Flou : par le filtre du navigateur s'il existe, sinon en réduisant puis agrandissant l'image.
+      if ('filter' in ctx && (ctx as any).filter === 'none') {
+        (ctx as any).filter = `blur(${o.blur * 2.2}px)`;
+        const m = o.blur * 6; ctx.drawImage(im, dx - m, dy - m, dw + 2 * m, dh + 2 * m);
+        (ctx as any).filter = 'none';
+      } else {
+        const k = 1 / (1 + o.blur * 0.9);
+        const t = document.createElement('canvas'); t.width = Math.max(8, Math.round(W * k)); t.height = Math.max(8, Math.round(H * k));
+        const tc = t.getContext('2d')!; tc.imageSmoothingQuality = 'high';
+        tc.drawImage(im, dx * k, dy * k, dw * k, dh * k);
+        ctx.imageSmoothingEnabled = true; (ctx as any).imageSmoothingQuality = 'high';
+        ctx.drawImage(t, 0, 0, W, H);
+      }
+    } else ctx.drawImage(im, dx, dy, dw, dh);
     const g = ctx.createLinearGradient(0, 0, 0, H);
     g.addColorStop(0, `rgba(0,0,0,${o.veil * 0.75})`); g.addColorStop(0.5, `rgba(0,0,0,${o.veil})`); g.addColorStop(1, `rgba(0,0,0,${Math.min(0.95, o.veil * 1.15)})`);
     ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
@@ -109,7 +134,7 @@ function draw(cv: HTMLCanvasElement, text: string, ref: string, o: Opts) {
   const M = W * 0.11, maxW = W - 2 * M;
   const top = H * (o.format === 'story' ? 0.24 : 0.2), bottom = H * (o.format === 'story' ? 0.72 : 0.74);
   const clean = text.replace(/\s+/g, ' ').trim();
-  let size = W * 0.082 * f.k, lines: string[] = [], lh = 0;
+  let size = W * 0.082 * f.k * (o.size || 1), lines: string[] = [], lh = 0;
   for (; size > W * 0.03; size -= 2) {
     ctx.font = `${f.italic ? 'italic ' : ''}${f.weight} ${size}px ${f.family}, Georgia, serif`;
     lines = wrap(ctx, clean, maxW); lh = size * (f.id === 'moderne' ? 1.32 : 1.28);
@@ -193,7 +218,7 @@ export default function VerseImage({ text, refLabel, onClose, message, bcv, book
   const [o, setO] = useState<Opts>(() => {
     let saved: any = {};
     try { saved = JSON.parse(localStorage.getItem('pq-vimg') ?? '{}'); } catch {}
-    return { bg: saved.bg && saved.bg !== 'photo' && !String(saved.bg).startsWith('scene:') ? saved.bg : 'aube', font: saved.font ?? 'elegant', format: saved.format ?? 'post', align: saved.align ?? 'center', sign: saved.sign ?? true, veil: 0.45, photo: null };
+    return { bg: saved.bg && saved.bg !== 'photo' && !String(saved.bg).startsWith('scene:') ? saved.bg : 'aube', font: saved.font ?? 'elegant', format: saved.format ?? 'post', align: saved.align ?? 'center', sign: saved.sign ?? true, veil: 0.45, blur: 0, size: saved.size ?? 1, photo: null };
   });
   const [busy, setBusy] = useState(false);
   // Paysages (les mêmes que l'accueil), suggérés selon le texte du verset.
@@ -312,16 +337,21 @@ export default function VerseImage({ text, refLabel, onClose, message, bcv, book
           </>
         )}
         {(o.bg === 'photo' || o.bg.startsWith('scene:')) && o.photo && (
-          <label className="vi-range">Voile <input type="range" min="0.1" max="0.8" step="0.05" value={o.veil} onChange={e => set({ veil: +e.target.value })} /></label>
+          <>
+            <label className="vi-range">Voile <input type="range" min="0.1" max="0.8" step="0.05" value={o.veil} onChange={e => set({ veil: +e.target.value })} /></label>
+            <label className="vi-range">Flou <input type="range" min="0" max="12" step="1" value={o.blur} onChange={e => set({ blur: +e.target.value })} /></label>
+          </>
         )}
 
         <div className="vi-k">Police</div>
-        <div className="vi-chips">
+        <div className="vi-chips vi-fonts">
           {FONTS.map(f => (
             <button key={f.id} className={o.font === f.id ? 'on' : ''} onClick={() => set({ font: f.id })}
                     style={{ fontFamily: `${f.family}, Georgia, serif`, fontStyle: f.italic ? 'italic' : 'normal' }}>{f.label}</button>
           ))}
-          <span className="vi-sep" />
+        </div>
+        <label className="vi-range">Taille <input type="range" min="0.6" max="1.4" step="0.05" value={o.size} onChange={e => set({ size: +e.target.value })} /></label>
+        <div className="vi-chips" style={{ marginTop: 8 }}>
           <button className={o.align === 'center' ? 'on' : ''} onClick={() => set({ align: 'center' })} aria-label="Centré">≡ Centré</button>
           <button className={o.align === 'left' ? 'on' : ''} onClick={() => set({ align: 'left' })} aria-label="À gauche">☰ Gauche</button>
         </div>

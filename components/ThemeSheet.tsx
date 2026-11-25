@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { ACCENTS, AMBIANCES, FONTS, THEME_DEFAULT, readTheme, saveTheme, type Theme } from '@/lib/theme';
 import HeroScene, { SCENES, THEMES, normScene, type SceneId } from './HeroScenes';
 
-type HomeBg = { mode: 'auto' | 'scene' | 'photo'; scene?: SceneId };
+type HomeBg = { mode: 'auto' | 'scene' | 'photo'; scene?: SceneId; blur?: number };
 const readBg = (): HomeBg => { try { return JSON.parse(localStorage.getItem('pq-home-bg') ?? '{"mode":"auto"}'); } catch { return { mode: 'auto' }; } };
 
 /** Ouvre la fenêtre « Personnaliser l'app » depuis n'importe où. */
@@ -42,7 +42,7 @@ export default function ThemeSheet() {
     try {
       const { loadPhoto } = await import('./VerseImage');
       const { url } = await loadPhoto(f, 1600);
-      try { localStorage.setItem('pq-home-photo', url); setHasPhoto(true); setBgMsg(''); setBg({ mode: 'photo' }); }
+      try { localStorage.setItem('pq-home-photo', url); setHasPhoto(true); setBgMsg(''); setBg({ mode: 'photo', blur: bg.blur }); }
       catch { setBgMsg('Photo trop lourde pour être gardée sur le téléphone : essaie une image plus petite.'); }
     } catch { setBgMsg('Photo illisible.'); }
   };
@@ -74,7 +74,7 @@ export default function ThemeSheet() {
 
         <div className="th-k">Fond de l’accueil</div>
         <div className="th-scenes th-modes2">
-          <button className={bg.mode === 'auto' ? 'on' : ''} onClick={() => setBg({ mode: 'auto' })}>
+          <button className={bg.mode === 'auto' ? 'on' : ''} onClick={() => setBg({ mode: 'auto', blur: bg.blur })}>
             <span className="th-sc th-auto">↻</span>Selon le thème du jour
           </button>
           <label className={bg.mode === 'photo' ? 'on' : ''}>
@@ -89,12 +89,15 @@ export default function ThemeSheet() {
         </div>
         <div className="th-grid">
           {SCENES.filter(sc => gal === 'tous' || sc.themes.includes(gal)).map(sc => (
-            <button key={sc.id} className={bg.mode === 'scene' && normScene(bg.scene) === sc.id ? 'on' : ''} onClick={() => setBg({ mode: 'scene', scene: sc.id })} title={sc.label}>
+            <button key={sc.id} className={bg.mode === 'scene' && normScene(bg.scene) === sc.id ? 'on' : ''} onClick={() => setBg({ mode: 'scene', scene: sc.id, blur: bg.blur })} title={sc.label}>
               <span className="th-sc"><HeroScene id={sc.id} /></span><small>{sc.label}</small>
             </button>
           ))}
         </div>
-        {hasPhoto && bg.mode !== 'photo' && <button className="linkbtn" style={{ fontSize: 13, marginTop: 6 }} onClick={() => setBg({ mode: 'photo' })}>Reprendre ma photo</button>}
+        <label className="vi-range" style={{ marginTop: 12 }}>Flou du fond
+          <input type="range" min="0" max="14" step="1" value={bg.blur ?? 0} onChange={e => setBg({ ...bg, blur: +e.target.value })} />
+        </label>
+        {hasPhoto && bg.mode !== 'photo' && <button className="linkbtn" style={{ fontSize: 13, marginTop: 6 }} onClick={() => setBg({ mode: 'photo', blur: bg.blur })}>Reprendre ma photo</button>}
         {bgMsg && <p className="fine">{bgMsg}</p>}
 
         <div className="th-k">Couleur</div>
@@ -116,6 +119,13 @@ export default function ThemeSheet() {
               </span>{a.label}
             </button>
           ))}
+        </div>
+
+        <div className="th-k">Taille du texte</div>
+        <div className="th-size">
+          <button onClick={() => set({ size: Math.max(0.85, +((t.size ?? 1) - 0.05).toFixed(2)) })} aria-label="Texte plus petit">A−</button>
+          <span>{Math.round((t.size ?? 1) * 100)} %</span>
+          <button onClick={() => set({ size: Math.min(1.4, +((t.size ?? 1) + 0.05).toFixed(2)) })} aria-label="Texte plus grand">A+</button>
         </div>
 
         <div className="th-k">Police</div>

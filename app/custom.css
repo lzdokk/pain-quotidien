@@ -31,6 +31,11 @@ html[data-ambiance]:not([data-ambiance="clair"]):not([data-mode="soir"]) body::b
 html[data-font="chaleureuse"]{--serif:Fraunces,"New York",Georgia,serif}
 html[data-font="litteraire"]{--serif:"EB Garamond","New York",Georgia,serif}
 html[data-font="epuree"]{--serif:"Source Serif 4","New York",Georgia,serif}
+html[data-font="livre"]{--serif:Lora,"New York",Georgia,serif}
+html[data-font="baskerville"]{--serif:"Libre Baskerville","New York",Georgia,serif}
+html[data-font="elegante"]{--serif:"Cormorant Garamond","New York",Georgia,serif}
+html[data-font="elegante"] .vs{font-size:calc(21.5px * var(--rd-scale,1))}
+html[data-font="affiche"]{--serif:"Playfair Display","New York",Georgia,serif}
 html[data-font="chaleureuse"] h1,html[data-font="chaleureuse"] h2,html[data-font="chaleureuse"] .sect{letter-spacing:-.02em}
 html[data-font="litteraire"] .vs{font-size:calc(21px * var(--rd-scale,1))}
 
@@ -150,3 +155,11 @@ html[data-mode="soir"] .th-themes button.on{color:#0E141A}
 .vi-ov,.th-ov{z-index:300}
 .vi-sheet,.th-sheet{max-height:calc(100svh - env(safe-area-inset-top) - 12px)}
 .vi-head{position:sticky;top:-14px;z-index:2;background:var(--surface);margin:-14px -18px 10px;padding:14px 18px 10px}
+
+.vi-fonts{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-bottom:4px}
+.vi-fonts::-webkit-scrollbar{display:none}
+.vi-fonts button{flex:none;font-size:16px}
+.th-size{display:flex;align-items:center;gap:12px}
+.th-size button{width:50px;height:40px;border-radius:12px;border:1px solid var(--line-2);background:none;color:var(--ink);font-weight:650;cursor:pointer}
+.th-size span{min-width:58px;text-align:center;font-size:14px;color:var(--ink-2)}
+.hh-bg.blurred{inset:-8%}
