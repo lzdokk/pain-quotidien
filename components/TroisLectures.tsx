@@ -10,7 +10,7 @@ import { getRemote, putRemote } from '@/lib/etude-sync';
  * Testament, reliés par un même fil, avec une question pour méditer.
  * Progression gardée sur l'appareil et synchronisée avec le compte.
  */
-type Day = { n: number; at: [number, number]; po: [number, number]; nt: [number, number]; theme: string; fil: string; question: string };
+type Day = { partie?: string; n: number; at: [number, number]; po: [number, number]; nt: [number, number]; theme: string; fil: string; question: string };
 type Prog = { started: boolean; day: number; done: Record<string, number>; t: number };
 const KEY = 'pq-trois';
 const CTX = 'pq-trois-ctx';
@@ -49,9 +49,32 @@ function useProg(): [Prog, (p: Prog) => void] {
 
 const dayCache = new Map<number, Promise<{ total: number; prevu: number; day: Day | null; next: Day | null }>>();
 function getDay(n: number) {
-  if (!dayCache.has(n)) dayCache.set(n, fetch(`/api/trois?d=${n}`).then(r => r.json()).catch(() => { dayCache.delete(n); return { total: 0, prevu: 686, day: null, next: null }; }));
+  if (!dayCache.has(n)) dayCache.set(n, fetch(`/api/trois?d=${n}`).then(r => r.json()).catch(() => { dayCache.delete(n); return { total: 0, prevu: 365, day: null, next: null }; }));
   return dayCache.get(n)!;
 }
+/** Programme complet, avec le titre de chaque grande partie inséré à sa place. */
+const withBlocs = (j: any): any[] => {
+  const starts = new Map<number, string>((j.blocs ?? []).map((b: [number, string]) => [b[0], b[1]]));
+  const out: any[] = [];
+  for (const d of (j.days ?? [])) { if (starts.has(d[0])) out.push(['bloc', starts.get(d[0])]); out.push(d); }
+  return out;
+};
+const Row = ({ r, cur, onPick }: { r: any[]; cur: number; onPick?: (n: number) => void }) => {
+  if (r[0] === 'bloc') return <li className="tl-bloc">{r[1]}</li>;
+  const [i, a, ac, p, pc, t, tc, th] = r;
+  return (
+    <li id={`tl-d-${i}`} className={i === cur ? 'on' : i < cur ? 'past' : ''}>
+      <button onClick={() => onPick?.(i)} disabled={!onPick}>
+        <span className="tl-n">{i}</span>
+        <span className="tl-li">
+          <b>{th}</b>
+          <small>{refName(t, tc)} · {refName(p, pc)} · {refName(a, ac)}</small>
+        </span>
+      </button>
+    </li>
+  );
+};
+
 const bit = (done: Record<string, number>, n: number, k: number) => ((done[n] ?? 0) >> k) & 1;
 
 /** Progression locale (sans compte) et cases cochées, synchronisées avec le compte. */
@@ -76,7 +99,7 @@ export default function TroisLectures({ day, onRead, onNext, onDay }: {
   useEffect(() => { let a = true; setData(null); getDay(n).then(j => a && setData(j)); return () => { a = false; }; }, [n]);
   useEffect(() => {
     if (!plan || list) return;
-    fetch('/api/trois?list=1').then(r => r.json()).then(j => setList(j.days ?? [])).catch(() => setList([]));
+    fetch('/api/trois?list=1').then(r => r.json()).then(j => setList(withBlocs(j))).catch(() => setList([]));
   }, [plan, list]);
   // Garde le jour visible dans le programme
   useEffect(() => { if (plan && list) requestAnimationFrame(() => document.getElementById(`tl-d-${n}`)?.scrollIntoView({ block: 'center' })); }, [plan, list, n]);
@@ -84,7 +107,7 @@ export default function TroisLectures({ day, onRead, onNext, onDay }: {
   useEffect(() => { try { sessionStorage.setItem(CTX, JSON.stringify({ day: n })); } catch {} }, [n]);
 
   const d = data?.day;
-  const total = data?.total ?? 0, prevu = data?.prevu ?? 686;
+  const total = data?.total ?? 0, prevu = data?.prevu ?? 365;
   const open = (k: number) => {
     if (!d) return;
     const [b, c] = parts(d)[k];
@@ -104,6 +127,7 @@ export default function TroisLectures({ day, onRead, onNext, onDay }: {
       </div>
       {!d ? <div className="skel skel-card" /> : (
         <>
+          {d.partie && <span className="tl-partie">{d.partie}</span>}
           <h2 className="tl-h">{d.theme}</h2>
           <div className="tl-reads">
             {parts(d).map(([b, c], k) => {
@@ -134,7 +158,7 @@ export default function TroisLectures({ day, onRead, onNext, onDay }: {
           <div className="tl-btns">
             {n < total
               ? <button className="btn primary" onClick={finish}>{nDone === 3 ? 'Jour suivant ›' : 'J’ai lu les 3 · jour suivant'}</button>
-              : <p className="fine">Bravo, tu as lu toute la Bible !</p>}
+              : <p className="fine">Bravo, tu as terminé l’année avec la Parole !</p>}
             {n > 1 && <button className="btn" onClick={() => onDay(n - 1)}>‹ Jour {n - 1}</button>}
           </div>
         </>
@@ -148,26 +172,16 @@ export default function TroisLectures({ day, onRead, onNext, onDay }: {
 export function TroisProgramme({ cur, onPick }: { cur: number; onPick?: (n: number) => void }) {
   const [list, setList] = useState<any[] | null>(null);
   const [all, setAll] = useState(false);
-  useEffect(() => { fetch('/api/trois?list=1').then(r => r.json()).then(j => setList(j.days ?? [])).catch(() => setList([])); }, []);
+  useEffect(() => { fetch('/api/trois?list=1').then(r => r.json()).then(j => setList(withBlocs(j))).catch(() => setList([])); }, []);
   if (!list) return <p className="fine">Chargement du programme…</p>;
-  const from = Math.max(0, cur - 1);
-  const shown = all ? list : list.slice(from, from + 14);
+  const at = Math.max(0, list.findIndex(r => r[0] === cur) - 1);
+  const shown = all ? list : list.slice(at, at + 16);
   return (
     <>
       <ol className="tl-list tl-inline">
-        {shown.map(([i, a, ac, p, pc, t, tc, th]: any[]) => (
-          <li key={i} className={i === cur ? 'on' : i < cur ? 'past' : ''}>
-            <button onClick={() => onPick?.(i)} disabled={!onPick}>
-              <span className="tl-n">{i}</span>
-              <span className="tl-li">
-                <b>{th}</b>
-                <small>{refName(t, tc)} · {refName(p, pc)} · {refName(a, ac)}</small>
-              </span>
-            </button>
-          </li>
-        ))}
+        {shown.map((r, k) => <Row key={k} r={r} cur={cur} onPick={onPick} />)}
       </ol>
-      {!all && <button className="btn sm" style={{ marginTop: 10 }} onClick={() => setAll(true)}>Voir les {list.length} jours</button>}
+      {!all && <button className="btn sm" style={{ marginTop: 10 }} onClick={() => setAll(true)}>Voir les 365 jours</button>}
     </>
   );
 }
@@ -190,17 +204,7 @@ function Programme({ list, cur, total, prevu, onPick, onStop, onClose }: {
         </div>
         {!list ? <p className="fine">Chargement…</p> : (
           <ol className="tl-list">
-            {list.map(([i, a, ac, p, pc, t, tc, th]: any[]) => (
-              <li key={i} id={`tl-d-${i}`} className={i === cur ? 'on' : i < cur ? 'past' : ''}>
-                <button onClick={() => onPick(i)}>
-                  <span className="tl-n">{i}</span>
-                  <span className="tl-li">
-                    <b>{th}</b>
-                    <small>{refName(t, tc)} · {refName(p, pc)} · {refName(a, ac)}</small>
-                  </span>
-                </button>
-              </li>
-            ))}
+            {list.map((r, k) => <Row key={k} r={r} cur={cur} onPick={onPick} />)}
           </ol>
         )}
         {onStop && <button className="linkbtn tl-stop" onClick={onStop}>Arrêter ce parcours</button>}

@@ -15,7 +15,7 @@ import { ALLIANCES, BOOK_GROUPS, groupOf, searchBooks, bookName as accentName } 
 import StudyIndex from './StudyIndex';
 import FicheSheet from './FicheSheet';
 import TroisLectures, { TroisSuite, useTroisProg } from './TroisLectures';
-import { TROIS_ID } from '@/lib/trois-plan';
+import { TROIS_ID, TROIS_DAYS } from '@/lib/trois-plan';
 import { getRemote, putRemote } from '@/lib/etude-sync';
 import { prefsChanged } from '@/lib/prefs-sync';
 import dynamic from 'next/dynamic';
@@ -346,7 +346,7 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
   const troisActive = troisDb || localPlan === TROIS_ID;
   const troisDay = troisDb ? (plan?.current_day ?? 1) : troisProg.day;
   const troisGo = async (day: number) => {
-    const n = Math.max(1, Math.min(686, day));
+    const n = Math.max(1, Math.min(TROIS_DAYS, day));
     if (troisDb && user) {
       setPlan((p: any) => ({ ...p, current_day: n }));
       await supabase.from('user_plan').update({ current_day: n }).eq('user_id', user.id);
