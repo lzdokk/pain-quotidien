@@ -3,8 +3,8 @@
  * Gardé sur le téléphone ; appliqué avant l'affichage (script dans layout)
  * grâce aux attributs data-accent / data-ambiance / data-font sur <html>.
  */
-export type Theme = { accent: string; ambiance: string; font: string; size?: number };
-export const THEME_DEFAULT: Theme = { accent: 'ardoise', ambiance: 'clair', font: 'systeme', size: 1 };
+export type Theme = { accent: string; ambiance: string; font: string; size?: number; nuit?: string; perso?: string };
+export const THEME_DEFAULT: Theme = { accent: 'ardoise', ambiance: 'clair', font: 'systeme', size: 1, nuit: 'auto', perso: '#7A5BA8' };
 
 export const ACCENTS = [
   { id: 'ardoise', label: 'Ardoise', c: '#4E6A85' },
@@ -14,7 +14,27 @@ export const ACCENTS = [
   { id: 'lavande', label: 'Lavande', c: '#6D639F' },
   { id: 'bordeaux', label: 'Bordeaux', c: '#8A3A4C' },
   { id: 'terre', label: 'Terre', c: '#A0583A' },
-  { id: 'graphite', label: 'Graphite', c: '#4B5058' }
+  { id: 'graphite', label: 'Graphite', c: '#4B5058' },
+  { id: 'saphir', label: 'Saphir', c: '#2D58A6' },
+  { id: 'ciel', label: 'Ciel', c: '#3A86BE' },
+  { id: 'emeraude', label: 'Émeraude', c: '#23876A' },
+  { id: 'sauge', label: 'Sauge', c: '#6F8F78' },
+  { id: 'moutarde', label: 'Moutarde', c: '#B08423' },
+  { id: 'corail', label: 'Corail', c: '#CC604F' },
+  { id: 'rose', label: 'Rose', c: '#B35A7A' },
+  { id: 'prune', label: 'Prune', c: '#783D6C' },
+  { id: 'indigo', label: 'Indigo', c: '#46479A' },
+  { id: 'chocolat', label: 'Chocolat', c: '#7A5038' }
+];
+export const NUITS = [
+  { id: 'auto', label: 'Assortie', bg: 'color-mix(in srgb,var(--brand) 18%,#0B0E12)' },
+  { id: 'noir', label: 'Noir pur', bg: '#000000' },
+  { id: 'ardoise', label: 'Ardoise', bg: '#0E141A' },
+  { id: 'bleue', label: 'Nuit bleue', bg: '#0A1224' },
+  { id: 'chaude', label: 'Chaude', bg: '#16110C' },
+  { id: 'foret', label: 'Forêt', bg: '#0C1510' },
+  { id: 'prune', label: 'Prune', bg: '#150D16' },
+  { id: 'graphite', label: 'Graphite', bg: '#18191C' }
 ];
 export const AMBIANCES = [
   { id: 'clair', label: 'Clair', bg: '#FBFBFC', card: '#FFFFFF' },
@@ -54,7 +74,8 @@ export function applySize(scale = 1) {
 }
 export function applyTheme(t: Theme) {
   const h = document.documentElement;
-  h.dataset.accent = t.accent; h.dataset.ambiance = t.ambiance; h.dataset.font = t.font;
+  h.dataset.accent = t.accent; h.dataset.ambiance = t.ambiance; h.dataset.font = t.font; h.dataset.nuit = t.nuit || 'auto';
+  if (t.accent === 'perso' && t.perso) h.style.setProperty('--perso', t.perso); else h.style.removeProperty('--perso');
   applySize(t.size ?? 1);
   const href = FONT_LINKS[t.font];
   if (href && !document.querySelector(`link[data-pq-font="${t.font}"]`)) {
@@ -69,7 +90,8 @@ export function saveTheme(t: Theme) {
 }
 /** Script à exécuter avant l'affichage (dans <body>), sans dépendance. */
 export const THEME_BOOT = `(function(){try{var t=JSON.parse(localStorage.getItem('pq-theme')||'{}');var h=document.documentElement;
-h.dataset.accent=t.accent||'ardoise';h.dataset.ambiance=t.ambiance||'clair';h.dataset.font=t.font||'systeme';
+h.dataset.accent=t.accent||'ardoise';h.dataset.ambiance=t.ambiance||'clair';h.dataset.font=t.font||'systeme';h.dataset.nuit=t.nuit||'auto';
+if(t.accent==='perso'&&t.perso)h.style.setProperty('--perso',t.perso);
 var z=+t.size||1;if(z!==1){var ios=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
 if(ios){h.style.webkitTextSizeAdjust=Math.round(z*100)+'%';h.style.textSizeAdjust=Math.round(z*100)+'%'}else{document.body.style.zoom=z}}
 var L=${JSON.stringify(FONT_LINKS)};if(L[t.font]){var l=document.createElement('link');l.rel='stylesheet';l.href=L[t.font];l.setAttribute('data-pq-font',t.font);document.head.appendChild(l);}}catch(e){}})();`;

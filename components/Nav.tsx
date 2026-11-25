@@ -114,7 +114,7 @@ export default function Nav(_props: { user?: any }) {
 
           <span className="nav-title">{TITLES.find(([p]) => path === p || path.startsWith(p + '/'))?.[1] ?? ''}</span>
 
-          {path === '/' && (
+          {!path.startsWith('/lire') && (
             <button className="icon-btn th-open" onClick={openTheme} aria-label="Personnaliser l’app">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12 3a9 9 0 100 18c1 0 1.6-.8 1.6-1.6 0-.5-.2-.8-.4-1.1-.3-.3-.4-.6-.4-1 0-.9.7-1.6 1.6-1.6H16a5 5 0 005-5C21 6.6 17 3 12 3z" />

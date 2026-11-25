@@ -73,7 +73,7 @@ const chapterCache = new Map<string, Chap>();
 
 /** Les outils du bouton + (Lire), du haut vers le bas. */
 const svg = (d: JSX.Element, sw = 1.8) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round">{d}</svg>;
-const FABS: Array<{ k: 'etude' | 'dico' | 'strong' | 'importants' | 'search' | 'method' | 'look'; l: string; ic: JSX.Element }> = [
+const FABS: Array<{ k: 'etude' | 'dico' | 'strong' | 'importants' | 'search' | 'method' | 'look' | 'theme'; l: string; ic: JSX.Element }> = [
   { k: 'etude', l: 'Bible d’étude', ic: svg(<><path d="M12 6.5C10.5 5 8 4.5 4 5v13c4-.5 6.5 0 8 1.5 1.5-1.5 4-2 8-1.5V5c-4-.5-6.5 0-8 1.5zM12 6.5V19" /></>) },
   { k: 'dico', l: 'Dictionnaire biblique', ic: svg(<path d="M5 4h11a3 3 0 013 3v13H8a3 3 0 01-3-3V4zM5 17a3 3 0 013-3h11M9 8h6" />) },
   { k: 'strong', l: 'Strong (hébreu, grec)', ic: <span className="rfab-he">א</span> },
@@ -81,6 +81,7 @@ const FABS: Array<{ k: 'etude' | 'dico' | 'strong' | 'importants' | 'search' | '
   { k: 'search', l: 'Rechercher', ic: svg(<><circle cx="11" cy="11" r="6.5" /><path d="M20 20l-4.2-4.2" /></>) },
   { k: 'method', l: 'Méditer', ic: svg(<path d="M9 18h6M10 21h4M12 3a6 6 0 00-3.6 10.8c.7.5 1.1 1.3 1.1 2.2h5c0-.9.4-1.7 1.1-2.2A6 6 0 0012 3z" />, 1.7) },
   { k: 'look', l: 'Apparence de lecture', ic: svg(<><path d="M12 3a9 9 0 100 18c1 0 1.6-.8 1.6-1.6 0-.5-.2-.8-.4-1.1-.3-.3-.4-.6-.4-1 0-.9.7-1.6 1.6-1.6H16a5 5 0 005-5C21 6.6 17 3 12 3z" /><circle cx="7.5" cy="11" r="1" /><circle cx="10" cy="7.5" r="1" /><circle cx="14.5" cy="7.5" r="1" /></>) },
+  { k: 'theme', l: 'Personnaliser l’app', ic: svg(<path d="M12 3a9 9 0 100 18c1 0 1.6-.8 1.6-1.6 0-.5-.2-.8-.4-1.1-.3-.3-.4-.6-.4-1 0-.9.7-1.6 1.6-1.6H16a5 5 0 005-5C21 6.6 17 3 12 3z" />) },
 ];
 let loadSeq = 0; // numéro de la dernière demande de chapitre
 /** Lecture d'un chapitre par la route mise en cache (CDN + téléphone). */
@@ -1302,7 +1303,7 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
       {tab === 'bible' && sel === null && multi.size === 0 && !sheet && (
         <div className={`rfabs${fabOpen ? ' open' : ''}`}>
           {fabOpen && FABS.map(f => (
-            <button key={f.k} className="rfab-row" onClick={() => { setBubble(f.k); setFabOpen(false); }}>
+            <button key={f.k} className="rfab-row" onClick={() => { setFabOpen(false); if (f.k === 'theme') { window.dispatchEvent(new Event('pq-theme-open')); return; } setBubble(f.k); }}>
               <span className="rfab-l">{f.l}</span>
               <span className={`rfab${f.k === 'importants' ? ' rfab-star' : ''}`}>{f.ic}</span>
             </button>

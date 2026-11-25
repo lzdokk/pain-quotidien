@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { ACCENTS, AMBIANCES, FONTS, THEME_DEFAULT, readTheme, saveTheme, type Theme } from '@/lib/theme';
+import { ACCENTS, AMBIANCES, FONTS, NUITS, THEME_DEFAULT, readTheme, saveTheme, type Theme } from '@/lib/theme';
 import HeroScene, { SCENES, THEMES, normScene, type SceneId } from './HeroScenes';
 import { PHOTOS, photoThumb } from '@/lib/photos';
 
@@ -123,9 +123,13 @@ export default function ThemeSheet() {
               <span className="th-dot" style={{ background: `linear-gradient(140deg, color-mix(in srgb, ${a.c} 70%, #fff), ${a.c})` }} />{a.label}
             </button>
           ))}
+          <label className={`th-perso${t.accent === 'perso' ? ' on' : ''}`} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--ink-2)' }}>
+            <span className="th-dot" style={{ background: t.accent === 'perso' ? t.perso : 'conic-gradient(#e66,#eb4,#6c6,#4bd,#66e,#c6c,#e66)', boxShadow: t.accent === 'perso' ? '0 0 0 2px var(--accent)' : undefined }} />Ma couleur
+            <input type="color" value={t.perso || '#7A5BA8'} onChange={e => set({ accent: 'perso', perso: e.target.value })} aria-label="Choisir ma couleur" />
+          </label>
         </div>
 
-        <div className="th-k">Ambiance (mode jour)</div>
+        <div className="th-k">Fond du mode jour</div>
         <div className="th-amb">
           {AMBIANCES.map(a => (
             <button key={a.id} className={t.ambiance === a.id ? 'on' : ''} onClick={() => set({ ambiance: a.id })}>
@@ -136,6 +140,19 @@ export default function ThemeSheet() {
             </button>
           ))}
         </div>
+
+        <div className="th-k">Fond du mode nuit</div>
+        <div className="th-nuits">
+          {NUITS.map(n => (
+            <button key={n.id} className={(t.nuit || 'auto') === n.id ? 'on' : ''} onClick={() => set({ nuit: n.id })}>
+              <span className="th-mini" style={{ background: n.bg }}>
+                <i style={{ background: 'rgba(255,255,255,.08)', width: '100%', height: 22 }} />
+                <i style={{ background: 'var(--accent)', width: '55%' }} />
+              </span>{n.label}
+            </button>
+          ))}
+        </div>
+        <p className="fine" style={{ marginTop: 6 }}>Passe en mode nuit avec la lune, en haut, pour voir le résultat.</p>
 
         <div className="th-k">Taille du texte</div>
         <div className="th-size">
