@@ -63,7 +63,7 @@ export default function NotifyButton() {
     <div className="notify-card">
       <div className="notify-txt">
         <strong>Notifications</strong>
-        <span>Reçois le Pain du jour ☀️ et la Sagesse du soir 🌙</span>
+        <span>Reçois le Pain du jour ☀️ le matin et, le soir, une invitation à prendre un temps avec la Parole 🌙</span>
       </div>
       {perm === 'granted' ? (
         <span className="notify-on">Activées ✓</span>

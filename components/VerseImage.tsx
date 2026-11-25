@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { PHOTOS, photoThumb, photoUrl } from '@/lib/photos';
 
 /**
  * IMAGE DE VERSET À PARTAGER : un visuel soigné (Instagram, Story, WhatsApp).
@@ -76,7 +77,7 @@ function draw(cv: HTMLCanvasElement, text: string, ref: string, o: Opts) {
   cv.width = W; cv.height = H;
   const ctx = cv.getContext('2d')!;
   const bg = BGS.find(b => b.id === o.bg);
-  const isPhoto = (o.bg === 'photo' || o.bg.startsWith('scene:')) && o.photo;
+  const isPhoto = (o.bg === 'photo' || o.bg.startsWith('scene:') || o.bg.startsWith('lib:')) && o.photo;
   const ink = isPhoto ? '#FFFFFF' : bg?.ink ?? '#222';
   const sub = isPhoto ? 'rgba(255,255,255,.78)' : bg?.sub ?? 'rgba(0,0,0,.6)';
 
@@ -218,12 +219,13 @@ export default function VerseImage({ text, refLabel, onClose, message, bcv, book
   const [o, setO] = useState<Opts>(() => {
     let saved: any = {};
     try { saved = JSON.parse(localStorage.getItem('pq-vimg') ?? '{}'); } catch {}
-    return { bg: saved.bg && saved.bg !== 'photo' && !String(saved.bg).startsWith('scene:') ? saved.bg : 'aube', font: saved.font ?? 'elegant', format: saved.format ?? 'post', align: saved.align ?? 'center', sign: saved.sign ?? true, veil: 0.45, blur: 0, size: saved.size ?? 1, photo: null };
+    return { bg: saved.bg && saved.bg !== 'photo' && !String(saved.bg).startsWith('scene:') && !String(saved.bg).startsWith('lib:') ? saved.bg : 'aube', font: saved.font ?? 'elegant', format: saved.format ?? 'post', align: saved.align ?? 'center', sign: saved.sign ?? true, veil: 0.45, blur: 0, size: saved.size ?? 1, photo: null };
   });
   const [busy, setBusy] = useState(false);
   // Paysages (les mêmes que l'accueil), suggérés selon le texte du verset.
   const [scenes, setScenes] = useState<Array<{ id: string; label: string }>>([]);
   const [sceneMod, setSceneMod] = useState<any>(null);
+  const [libs, setLibs] = useState<string[]>([]);
   useEffect(() => {
     import('./HeroScenes').then(m => {
       setSceneMod(m);
@@ -235,9 +237,20 @@ export default function VerseImage({ text, refLabel, onClose, message, bcv, book
         const sc = pool[(seed + i * 37) % pool.length];
         if (!pick.includes(sc)) pick.push(sc);
       }
-      setScenes(pick);
+      setScenes(pick.slice(0, 6));
+      const photos = (hit.length ? PHOTOS.filter(p => p.themes.some(t => hit.includes(t))) : PHOTOS);
+      const lp: string[] = [];
+      for (let i = 0; lp.length < Math.min(10, photos.length) && i < 300; i++) {
+        const ph = photos[(seed + i * 41) % photos.length].id;
+        if (!lp.includes(ph)) lp.push(ph);
+      }
+      setLibs(lp);
     });
   }, [text]);
+  const pickLib = async (id: string) => {
+    const img = await new Promise<HTMLImageElement>((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = photoUrl(id); }).catch(() => null);
+    if (img) set({ photo: img, bg: `lib:${id}`, veil: 0.3 });
+  };
   const pickScene = async (id: string) => {
     if (!sceneMod) return;
     const el = document.querySelector(`.vi-scenes button[data-scene="${id}"] svg`);
@@ -323,8 +336,13 @@ export default function VerseImage({ text, refLabel, onClose, message, bcv, book
         </div>
         {scenes.length > 0 && (
           <>
-            <div className="vi-k">Paysages pour ce verset</div>
+            <div className="vi-k">Fonds pour ce verset</div>
             <div className="vi-scenes">
+              {libs.map(id => (
+                <button key={`l${id}`} className={o.bg === `lib:${id}` ? 'on' : ''} title="Photo" onClick={() => pickLib(id)}>
+                  <img src={photoThumb(id)} alt="" loading="lazy" />
+                </button>
+              ))}
               {scenes.map(sc => {
                 const Comp = sceneMod?.default;
                 return (
@@ -336,7 +354,7 @@ export default function VerseImage({ text, refLabel, onClose, message, bcv, book
             </div>
           </>
         )}
-        {(o.bg === 'photo' || o.bg.startsWith('scene:')) && o.photo && (
+        {(o.bg === 'photo' || o.bg.startsWith('scene:') || o.bg.startsWith('lib:')) && o.photo && (
           <>
             <label className="vi-range">Voile <input type="range" min="0.1" max="0.8" step="0.05" value={o.veil} onChange={e => set({ veil: +e.target.value })} /></label>
             <label className="vi-range">Flou <input type="range" min="0" max="12" step="1" value={o.blur} onChange={e => set({ blur: +e.target.value })} /></label>

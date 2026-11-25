@@ -1,7 +1,8 @@
 'use client';
 import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
-import HeroScene, { sceneOfDay, SCENES, normScene, type SceneId } from './HeroScenes';
+import HeroScene, { sceneOfDay, SCENES, THEMES, normScene, type SceneId } from './HeroScenes';
+import { photoOfDay, photoById, photoUrl } from '@/lib/photos';
 import { openTheme } from './ThemeSheet';
 
 const VerseImage = dynamic(() => import('./VerseImage'), { ssr: false });
@@ -10,24 +11,28 @@ const VerseImage = dynamic(() => import('./VerseImage'), { ssr: false });
  * ACCUEIL PLEIN ÉCRAN : le verset du jour sur un paysage (un par jour, au choix,
  * ou ta photo). Un toucher ouvre le Pain du jour ; on fait glisser pour la suite.
  */
-export type HomeBg = { mode: 'auto' | 'scene' | 'photo'; scene?: SceneId; blur?: number };
+export type HomeBg = { mode: 'auto' | 'scene' | 'photo' | 'lib' | 'dessin'; scene?: SceneId; lib?: string; blur?: number };
 export const readHomeBg = (): HomeBg => { try { return JSON.parse(localStorage.getItem('pq-home-bg') ?? '{"mode":"auto"}'); } catch { return { mode: 'auto' }; } };
 export const readHomePhoto = () => { try { return localStorage.getItem('pq-home-photo'); } catch { return null; } };
 
 export default function HomeHero({ date, dateLabel, text, refLabel, theme }: {
   date: string; dateLabel: string; text: string | null; refLabel: string | null; theme: string | null;
 }) {
+  const themeIds = theme ? THEMES.filter(t => t.words.test(theme)).map(t => t.id) : [];
+  // Par défaut : une vraie photo accordée au thème du jour.
   const [scene, setScene] = useState<SceneId>(sceneOfDay(date, theme));
-  const [photo, setPhoto] = useState<string | null>(null);
+  const [photo, setPhoto] = useState<string | null>(photoUrl(photoOfDay(date, themeIds).id));
   const [share, setShare] = useState(false);
   const [blur, setBlur] = useState(0);
   useEffect(() => {
     const apply = () => {
       const bg = readHomeBg();
       setBlur(Math.max(0, Math.min(14, Number(bg.blur) || 0)));
-      if (bg.mode === 'photo') { const p = readHomePhoto(); setPhoto(p); if (p) return; }
-      else setPhoto(null);
-      setScene(bg.mode === 'scene' ? (normScene(bg.scene) ?? sceneOfDay(date, theme)) : sceneOfDay(date, theme));
+      if (bg.mode === 'photo') { const p = readHomePhoto(); if (p) { setPhoto(p); return; } }
+      if (bg.mode === 'lib' && photoById(bg.lib)) { setPhoto(photoUrl(bg.lib!)); return; }
+      if (bg.mode === 'scene' && normScene(bg.scene)) { setPhoto(null); setScene(normScene(bg.scene)!); return; }
+      if (bg.mode === 'dessin') { setPhoto(null); setScene(sceneOfDay(date, theme)); return; }
+      setPhoto(photoUrl(photoOfDay(date, themeIds).id));
     };
     apply();
     window.addEventListener('pq-home-bg', apply);
@@ -41,7 +46,7 @@ export default function HomeHero({ date, dateLabel, text, refLabel, theme }: {
   return (
     <section className="hh" aria-label="Verset du jour">
       <div className={`hh-bg${blur ? ' blurred' : ''}`} style={blur ? { filter: `blur(${blur}px)` } : undefined}>
-        {photo ? <img src={photo} alt="" /> : <HeroScene id={scene} />}
+        {photo ? <img src={photo} alt="" decoding="async" fetchPriority="high" /> : <HeroScene id={scene} />}
       </div>
       <div className="hh-veil" />
       <a href="/pain" className="hh-tap" aria-label="Ouvrir le Pain du jour">

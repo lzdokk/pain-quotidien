@@ -1,4 +1,4 @@
-name: Push — Veillée du soir
+name: Push — Avant de se coucher
 
 # Envoi géré par cron-job.org (20:00 Europe/Paris, fiable + fuseau correct).
 # Planification GitHub désactivée pour éviter les doublons ; garde le

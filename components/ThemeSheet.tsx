@@ -2,8 +2,9 @@
 import { useEffect, useState } from 'react';
 import { ACCENTS, AMBIANCES, FONTS, THEME_DEFAULT, readTheme, saveTheme, type Theme } from '@/lib/theme';
 import HeroScene, { SCENES, THEMES, normScene, type SceneId } from './HeroScenes';
+import { PHOTOS, photoThumb } from '@/lib/photos';
 
-type HomeBg = { mode: 'auto' | 'scene' | 'photo'; scene?: SceneId; blur?: number };
+type HomeBg = { mode: 'auto' | 'scene' | 'photo' | 'lib' | 'dessin'; scene?: SceneId; lib?: string; blur?: number };
 const readBg = (): HomeBg => { try { return JSON.parse(localStorage.getItem('pq-home-bg') ?? '{"mode":"auto"}'); } catch { return { mode: 'auto' }; } };
 
 /** Ouvre la fenêtre « Personnaliser l'app » depuis n'importe où. */
@@ -32,6 +33,7 @@ export default function ThemeSheet() {
   const [hasPhoto, setHasPhoto] = useState(false);
   const [bgMsg, setBgMsg] = useState('');
   const [gal, setGal] = useState<string>('esperance'); // thème affiché dans la galerie
+  const [kind, setKind] = useState<'photos' | 'dessins'>('photos');
   const setBg = (b: HomeBg) => {
     setBgState(b);
     try { localStorage.setItem('pq-home-bg', JSON.stringify(b)); } catch {}
@@ -75,25 +77,39 @@ export default function ThemeSheet() {
         <div className="th-k">Fond de l’accueil</div>
         <div className="th-scenes th-modes2">
           <button className={bg.mode === 'auto' ? 'on' : ''} onClick={() => setBg({ mode: 'auto', blur: bg.blur })}>
-            <span className="th-sc th-auto">↻</span>Selon le thème du jour
+            <span className="th-sc th-auto">↻</span>Photo du jour
+          </button>
+          <button className={bg.mode === 'dessin' ? 'on' : ''} onClick={() => setBg({ mode: 'dessin', blur: bg.blur })}>
+            <span className="th-sc th-auto">✎</span>Dessin du jour
           </button>
           <label className={bg.mode === 'photo' ? 'on' : ''}>
             <input type="file" accept="image/*" onChange={e => pickPhoto(e.target.files?.[0])} />
             <span className="th-sc th-auto">{hasPhoto ? '✓' : '+'}</span>Ma photo
           </label>
         </div>
-        <div className="th-gal-k">Ou choisis un fond ({SCENES.length}) :</div>
+        <div className="th-gal-k">Ou choisis ton fond :</div>
+        <div className="th-kind">
+          <button className={kind === 'photos' ? 'on' : ''} onClick={() => setKind('photos')}>Photos ({PHOTOS.length})</button>
+          <button className={kind === 'dessins' ? 'on' : ''} onClick={() => setKind('dessins')}>Dessins ({SCENES.length})</button>
+        </div>
         <div className="th-themes">
           {THEMES.map(t => <button key={t.id} className={gal === t.id ? 'on' : ''} onClick={() => setGal(t.id)}>{t.label}</button>)}
           <button className={gal === 'tous' ? 'on' : ''} onClick={() => setGal('tous')}>Tous</button>
         </div>
         <div className="th-grid">
-          {SCENES.filter(sc => gal === 'tous' || sc.themes.includes(gal)).map(sc => (
-            <button key={sc.id} className={bg.mode === 'scene' && normScene(bg.scene) === sc.id ? 'on' : ''} onClick={() => setBg({ mode: 'scene', scene: sc.id, blur: bg.blur })} title={sc.label}>
-              <span className="th-sc"><HeroScene id={sc.id} /></span><small>{sc.label}</small>
-            </button>
-          ))}
+          {kind === 'photos'
+            ? PHOTOS.filter(p => gal === 'tous' || p.themes.includes(gal)).map(p => (
+                <button key={p.id} className={bg.mode === 'lib' && bg.lib === p.id ? 'on' : ''} onClick={() => setBg({ mode: 'lib', lib: p.id, blur: bg.blur })} title={`Photo : ${p.author}`}>
+                  <span className="th-sc"><img src={photoThumb(p.id)} alt="" loading="lazy" /></span>
+                </button>
+              ))
+            : SCENES.filter(sc => gal === 'tous' || sc.themes.includes(gal)).map(sc => (
+                <button key={sc.id} className={bg.mode === 'scene' && normScene(bg.scene) === sc.id ? 'on' : ''} onClick={() => setBg({ mode: 'scene', scene: sc.id, blur: bg.blur })} title={sc.label}>
+                  <span className="th-sc"><HeroScene id={sc.id} /></span><small>{sc.label}</small>
+                </button>
+              ))}
         </div>
+        <p className="fine" style={{ marginTop: 6 }}>Photos : Unsplash (libres de droits).</p>
         <label className="vi-range" style={{ marginTop: 12 }}>Flou du fond
           <input type="range" min="0" max="14" step="1" value={bg.blur ?? 0} onChange={e => setBg({ ...bg, blur: +e.target.value })} />
         </label>

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { admin } from '@/lib/supabase/admin';
 import { contentDate } from '@/lib/date';
 import { SITE_URL } from '@/lib/site';
+import { photoOfDay } from '@/lib/photos';
+import { THEMES } from '@/components/HeroScenes';
 
 export const dynamic = 'force-dynamic';
 
@@ -37,7 +39,10 @@ export async function GET(req: NextRequest) {
   }
 
   const raw = req.nextUrl.searchParams.get('slot');
-  const slot = raw === 'soir' ? 'soir' : raw === 'lecture' ? 'lecture' : 'matin';
+  // Le rappel « lecture » de début de soirée est supprimé : s'il est encore
+  // programmé quelque part (cron-job.org), il n'envoie plus rien.
+  if (raw === 'lecture') return NextResponse.json({ ok: true, skipped: 'rappel de lecture supprimé' });
+  const slot = raw === 'soir' ? 'soir' : 'matin';
 
   // On va chercher la journée publiée pour composer un message vivant :
   // le thème du jour en titre, le verset du jour en corps.
@@ -55,28 +60,32 @@ export async function GET(req: NextRequest) {
     day = data;
   } catch { /* si la lecture échoue, on garde un message générique */ }
 
-  let msg: { title: string; body: string; url: string };
-  if (slot === 'lecture') {
+  let msg: { title: string; body: string; url: string; image?: string };
+  if (slot === 'soir') {
+    // Le soir : avant de se coucher, un temps avec la Parole (quelle qu'elle soit).
+    const n = Number(contentDate().slice(8, 10));
+    const SOIR = [
+      'Avant de te coucher, prends un moment avec la Parole de Dieu. Un passage, une prière, et repose-toi en Lui 🙏',
+      'Termine ta journée avec Dieu : ouvre sa Parole quelques minutes et remets-lui ta nuit 🙏',
+      'Un dernier regard vers le Seigneur avant de dormir : un verset, un merci, un abandon 🙏',
+      'Avant le sommeil, laisse Dieu te parler : quelques minutes dans sa Parole suffisent 🙏',
+      '« Je me couche et je m’endors en paix, car toi seul, Éternel, tu me donnes la sécurité » (Psaume 4.9). Prends un temps avec Lui 🙏'
+    ];
     msg = {
-      title: '📖 Ton plan de lecture',
-      body: "As-tu lu aujourd'hui ? Prends quelques minutes avec la Parole 🙏",
-      url: `${SITE}/lire`
-    };
-  } else if (slot === 'soir') {
-    // Le soir : la sagesse du jour (Proverbes, chapitre = jour du mois).
-    const ch = Number(contentDate().slice(8, 10));
-    msg = {
-      title: `📜 Proverbes ${ch} — la sagesse du jour`,
-      body: 'Un chapitre, une méditation, une prière. Prends quelques minutes avec la Parole 🙏',
-      url: `${SITE}/sagesse`
+      title: '🌙 Avant de te coucher',
+      body: SOIR[n % SOIR.length],
+      url: `${SITE}/`
     };
   } else {
     const verse = day?.verse_text ? `« ${clip(day.verse_text)} »` : '';
     const ref = day?.verse_ref ? ` — ${day.verse_ref}` : '';
+    // Photo du jour (la même que l'accueil) : affichée en grand sur Android et ordinateur.
+    const themeIds = day?.theme_title ? THEMES.filter(t => t.words.test(day!.theme_title!)).map(t => t.id) : [];
     msg = {
       title: `☀️ ${day?.theme_title || 'Le Pain du matin'}`,
       body: verse ? `${verse}${ref}` : 'Ta méditation du jour est prête.',
-      url: `${SITE}/`
+      url: `${SITE}/`,
+      image: `${SITE}/photos/${photoOfDay(contentDate(), themeIds).id}.webp`
     };
   }
 
@@ -92,7 +101,8 @@ export async function GET(req: NextRequest) {
       target_channel: 'push',
       headings: { en: msg.title, fr: msg.title },
       contents: { en: msg.body, fr: msg.body },
-      url: msg.url
+      url: msg.url,
+      ...(msg.image ? { chrome_web_image: msg.image, big_picture: msg.image } : {})
     })
   });
 
