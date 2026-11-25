@@ -1,35 +1,28 @@
-name: Photos — planches de miniatures (manuel)
+name: Photos — téléchargement (manuel)
 on:
   workflow_dispatch: {}
 permissions:
   contents: write
 jobs:
-  probe:
+  build:
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
-      - name: Catalogue et miniatures
+      - name: Télécharger et convertir
         run: |
-          mkdir -p t && sudo apt-get install -y -qq imagemagick >/dev/null
+          sudo apt-get install -y -qq webp >/dev/null
+          mkdir -p out/photos out/thumbs raw
+          for id in 10 11 13 15 16 17 24 25 28 29 37 38 46 50 53 54 62 70 74 75 77 81 82 83 93 95 107 109 110 112 116 118 124 128 132 135 136 141 147 159 162 165 166 170 172 176 177 179 184 185 186 187 190 191 196 198 199 202 203 206 213 216 217 218 222 227 229 230 231 235 239 244 247 251 255 260 261 266 270 271 277 279 287 293 295 296 302 306 316 317 323 324 327 337 347 350 353 362 368 374 381 385 386 404 406 412 413 416 423 426 427 432 434 440 443 ; do echo $id; done | xargs -P 8 -I{} sh -c 'curl -sL -m 60 -o raw/{}.jpg "https://picsum.photos/id/{}/1080/1920" && cwebp -quiet -q 70 raw/{}.jpg -o out/photos/{}.webp && cwebp -quiet -q 60 -resize 216 384 raw/{}.jpg -o out/thumbs/{}.webp'
+          ls out/photos | wc -l; du -sh out
           for p in $(seq 1 12); do curl -s "https://picsum.photos/v2/list?page=$p&limit=100" > l$p.json; done
-          python3 - <<'PY'
+          python3 -c "
           import json,glob
           L=[]
-          for f in sorted(glob.glob('l*.json'), key=lambda x:int(x[1:-5])):
+          for f in glob.glob('l*.json'):
               try: L+=json.load(open(f))
               except: pass
-          json.dump([{'id':x['id'],'a':x['author'],'w':x['width'],'h':x['height'],'u':x['url']} for x in L], open('catalog.json','w'))
-          open('ids.txt','w').write('\n'.join(x['id'] for x in L))
-          print(len(L))
-          PY
-          cat ids.txt | xargs -P 16 -I{} sh -c 'curl -sL -m 30 -o t/{}.jpg "https://picsum.photos/id/{}/150/220"'
-          ls t | wc -l
-          cd t && ls *.jpg | sort -n > ../order.txt && cd ..
-          split -l 60 order.txt part_
-          for f in part_*; do montage $(sed 's#^#t/#' $f) -tile 10x6 -geometry 150x220+4+4 -pointsize 18 -set label '%t' -label '%t' -background '#222' -fill white sheet_$f.jpg 2>/dev/null || montage -label '%t' $(sed 's#^#t/#' $f) -tile 10x6 -geometry 150x220+4+4 sheet_$f.jpg; done
-          ls sheet_* | wc -l
+          json.dump({x['id']:x['author'] for x in L}, open('out/authors.json','w'))"
       - name: Pousser sur une branche temporaire
         run: |
-          mkdir out && cp sheet_*.jpg catalog.json out/ && cd out
-          git init -q && git checkout -q -b photos-tmp && git add . && git -c user.name=bot -c user.email=bot@local commit -qm planches
-          git push -qf "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" photos-tmp
+          cd out && git init -q && git checkout -q -b photos-tmp2 && git add . && git -c user.name=bot -c user.email=bot@local commit -qm photos
+          git push -qf "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" photos-tmp2
