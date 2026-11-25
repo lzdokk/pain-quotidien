@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 
 /**
  * IMAGE DE VERSET À PARTAGER : un visuel soigné (Instagram, Story, WhatsApp).
@@ -266,7 +267,8 @@ export default function VerseImage({ text, refLabel, onClose, message, bcv, book
     try { const { img } = await loadPhoto(f); set({ photo: img, bg: 'photo' }); } catch { setMsg('Photo illisible.'); }
   };
 
-  return (
+  // Ouverte au-dessus de tout (hors de l'accueil plein écran, de la barre du haut et du bas).
+  return createPortal(
     <div className="vi-ov" role="dialog" aria-modal="true" aria-label="Image du verset" onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
       <div className="vi-sheet">
         <div className="vi-head">
@@ -336,6 +338,7 @@ export default function VerseImage({ text, refLabel, onClose, message, bcv, book
         </div>
         {msg && <p className="fine" style={{ textAlign: 'center', marginTop: 8 }}>{msg}</p>}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
