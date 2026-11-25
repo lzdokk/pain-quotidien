@@ -308,6 +308,15 @@ const dateFr = (iso: string) => {
  * (lignes écrites avec le pain quotidien du jour), et la Parole proclamée
  * change chaque jour. Sans pain publié ce jour-là : prières de secours.
  */
+/** Formules d'introduction de la proclamation : variées, et différentes chaque jour et pour chaque moment. */
+const INTROS = [
+  'Il est dit dans ta Parole', 'Tu as dit dans l’Écriture', 'Il est écrit', 'Ta Parole déclare',
+  'Tu l’as promis dans ta Parole', 'Je me souviens de ce que tu as dit', 'Comme il est écrit',
+  'Seigneur, tu as déclaré', 'Je proclame ce que dit l’Écriture', 'Ta Parole me rappelle',
+  'Tu as fait cette promesse', 'Je m’appuie sur ce que tu as dit', 'L’Écriture l’affirme',
+  'Je crois ce que tu as dit'
+];
+
 export default async function PriereView({ date }: { date?: string }) {
   const sb = await supabasePublic();
   const today = contentDate();
@@ -378,7 +387,7 @@ export default async function PriereView({ date }: { date?: string }) {
               <div className="mo-pri">
                 {avant.map((l, j) => <p key={`a${j}`} dangerouslySetInnerHTML={{ __html: rich(l) }} />)}
                 <div className="mo-proc">
-                  <p className="mo-verset">Ta Parole dit&nbsp;: «&nbsp;{p.t}&nbsp;» <RefChip r={p.r} /></p>
+                  <p className="mo-verset">{INTROS[(d * 7 + i * 5) % INTROS.length]}&nbsp;: «&nbsp;{p.t}&nbsp;» <RefChip r={p.r} /></p>
                   <p className="mo-ancre">{p.a}</p>
                 </div>
                 {apres.map((l, j) => <p key={`b${j}`} dangerouslySetInnerHTML={{ __html: rich(l) }} />)}
