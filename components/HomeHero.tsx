@@ -72,7 +72,10 @@ export default function HomeHero({ date, dateLabel, text, refLabel, theme, messa
       <button className="hh-down" onClick={() => document.getElementById('home-suite')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} aria-label="Voir la suite">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6" /></svg>
       </button>
-      {share && text && refLabel && <VerseImage text={text} refLabel={refLabel} message={message} onClose={() => setShare(false)} />}
+      {share && text && refLabel && (
+        <VerseImage text={text} refLabel={refLabel} message={message} onClose={() => setShare(false)}
+                    dayBg={{ photo, svg: photo ? null : (typeof document !== 'undefined' ? document.querySelector('.hh-bg svg')?.outerHTML ?? null : null), blur }} />
+      )}
     </section>
   );
 }

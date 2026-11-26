@@ -289,3 +289,4 @@ html[data-mode="soir"]{--src-dico:#D9AE72;--src-dico-bg:rgba(217,174,114,.14)}
 .tl-inline{overflow:visible;flex:none}.tl-list button:disabled{cursor:default;opacity:1}
 .tl-partie{display:inline-block;margin-top:8px;font-size:12px;font-weight:650;color:var(--ink-3);background:var(--surface-2,rgba(0,0,0,.04));border-radius:99px;padding:3px 10px}
 .tl-list li.tl-bloc{font-size:10.5px;font-weight:750;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);padding:14px 4px 4px;border-bottom:1px solid var(--line)}
+.vi-bgs button.vi-day{background-size:cover;background-position:center;background-color:var(--surface-2)}

@@ -77,7 +77,7 @@ function draw(cv: HTMLCanvasElement, text: string, ref: string, o: Opts) {
   cv.width = W; cv.height = H;
   const ctx = cv.getContext('2d')!;
   const bg = BGS.find(b => b.id === o.bg);
-  const isPhoto = (o.bg === 'photo' || o.bg.startsWith('scene:') || o.bg.startsWith('lib:')) && o.photo;
+  const isPhoto = (o.bg === 'photo' || o.bg === 'day' || o.bg.startsWith('scene:') || o.bg.startsWith('lib:')) && o.photo;
   const ink = isPhoto ? '#FFFFFF' : bg?.ink ?? '#222';
   const sub = isPhoto ? 'rgba(255,255,255,.78)' : bg?.sub ?? 'rgba(0,0,0,.6)';
 
@@ -195,8 +195,10 @@ export async function loadPhoto(file: File, max = 1600): Promise<{ img: HTMLImag
   return { img, url };
 }
 
-export default function VerseImage({ text, refLabel, onClose, message, bcv, bookName }: {
+export default function VerseImage({ text, refLabel, onClose, message, bcv, bookName, dayBg: dayIn }: {
   text: string; refLabel: string; onClose: () => void;
+  /** Fond affiché sur l'accueil (photo ou dessin du jour) : proposé en premier. */
+  dayBg?: { photo?: string | null; svg?: string | null; blur?: number };
   /** Méditation déjà prête à joindre au message */
   message?: string;
   /** Sinon : verset à chercher (méditation déjà écrite, lue en cache) */
@@ -219,9 +221,29 @@ export default function VerseImage({ text, refLabel, onClose, message, bcv, book
   const [o, setO] = useState<Opts>(() => {
     let saved: any = {};
     try { saved = JSON.parse(localStorage.getItem('pq-vimg') ?? '{}'); } catch {}
-    return { bg: saved.bg && saved.bg !== 'photo' && !String(saved.bg).startsWith('scene:') && !String(saved.bg).startsWith('lib:') ? saved.bg : 'aube', font: saved.font ?? 'elegant', format: saved.format ?? 'post', align: saved.align ?? 'center', sign: saved.sign ?? true, veil: 0.45, blur: 0, size: saved.size ?? 1, photo: null };
+    return { bg: saved.bg && saved.bg !== 'photo' && saved.bg !== 'day' && !String(saved.bg).startsWith('scene:') && !String(saved.bg).startsWith('lib:') ? saved.bg : 'aube', font: saved.font ?? 'elegant', format: saved.format ?? 'post', align: saved.align ?? 'center', sign: saved.sign ?? true, veil: 0.45, blur: 0, size: saved.size ?? 1, photo: null };
   });
   const [busy, setBusy] = useState(false);
+  // Le fond du jour (celui de l'accueil), choisi d'office et toujours disponible en tête des fonds.
+  const [day, setDay] = useState<{ img: HTMLImageElement; thumb: string; blur: number } | null>(null);
+  useEffect(() => {
+    if (!dayIn || (!dayIn.photo && !dayIn.svg)) return;
+    let src = dayIn.photo ?? '';
+    if (!src && dayIn.svg) {
+      const svg = dayIn.svg.replace(/^<svg /, '<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" ').replace(/ class="[^"]*"/, '');
+      src = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }));
+    }
+    let alive = true;
+    new Promise<HTMLImageElement>((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; })
+      .then(img => {
+        if (!alive) return;
+        // Flou de l'accueil (en pixels d'écran) ramené à l'échelle de l'image.
+        const b = Math.min(12, Math.round((dayIn.blur ?? 0) * 1.2));
+        setDay({ img, thumb: src, blur: b });
+        setO(x => ({ ...x, photo: img, bg: 'day', veil: 0.32, blur: b }));
+      }).catch(() => null);
+    return () => { alive = false; };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
   // Paysages (les mêmes que l'accueil), suggérés selon le texte du verset.
   const [scenes, setScenes] = useState<Array<{ id: string; label: string }>>([]);
   const [sceneMod, setSceneMod] = useState<any>(null);
@@ -344,6 +366,10 @@ export default function VerseImage({ text, refLabel, onClose, message, bcv, book
 
         <div className="vi-k">Fond</div>
         <div className="vi-bgs">
+          {day && (
+            <button className={`vi-day${o.bg === 'day' ? ' on' : ''}`} title="Le fond du jour" aria-label="Le fond du jour"
+                    style={{ backgroundImage: `url(${day.thumb})` }} onClick={() => set({ photo: day.img, bg: 'day', veil: 0.32, blur: day.blur })} />
+          )}
           {BGS.map(b => (
             <button key={b.id} className={o.bg === b.id ? 'on' : ''} aria-label={b.label} title={b.label}
                     style={{ background: `linear-gradient(160deg, ${b.stops!.join(',')})` }} onClick={() => set({ bg: b.id })} />
@@ -373,7 +399,7 @@ export default function VerseImage({ text, refLabel, onClose, message, bcv, book
             </div>
           </>
         )}
-        {(o.bg === 'photo' || o.bg.startsWith('scene:') || o.bg.startsWith('lib:')) && o.photo && (
+        {(o.bg === 'photo' || o.bg === 'day' || o.bg.startsWith('scene:') || o.bg.startsWith('lib:')) && o.photo && (
           <>
             <label className="vi-range">Voile <input type="range" min="0.1" max="0.8" step="0.05" value={o.veil} onChange={e => set({ veil: +e.target.value })} /></label>
             <label className="vi-range">Flou <input type="range" min="0" max="12" step="1" value={o.blur} onChange={e => set({ blur: +e.target.value })} /></label>
