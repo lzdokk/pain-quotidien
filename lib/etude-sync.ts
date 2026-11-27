@@ -41,3 +41,21 @@ export async function putRemote(key: string, body: string): Promise<void> {
     }
   } catch {}
 }
+
+/** Toutes les lignes dont la clé commence par `prefix` (ex. « suivi: »). */
+export async function listRemote(prefix: string): Promise<Array<{ key: string; body: string; t: number }>> {
+  try {
+    const u = await userId(); if (!u) return [];
+    const { data } = await supabase.from('notes').select('reference, body, updated_at')
+      .eq('user_id', u).like('reference', ETUDE_PREFIX + prefix + '%').order('id').limit(2000);
+    return (data ?? []).map((r: any) => ({ key: String(r.reference).slice(ETUDE_PREFIX.length), body: r.body as string, t: Date.parse(r.updated_at) || 0 }));
+  } catch { return []; }
+}
+
+/** Retire une ligne (action explicite du lecteur, ex. supprimer une entrée de son carnet). */
+export async function delRemote(key: string): Promise<void> {
+  try {
+    const u = await userId(); if (!u) return;
+    await supabase.from('notes').delete().eq('user_id', u).eq('reference', ETUDE_PREFIX + key);
+  } catch {}
+}

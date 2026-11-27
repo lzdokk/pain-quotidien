@@ -53,8 +53,13 @@ export default function StrongModal({ code, onClose }: { code: string | null; on
               </div>
             )}
             {data.pronunciation && <div className="sw-pron">/{data.pronunciation}/</div>}
-            {hasLexFr(data) ? <LexFr e={data} />
-              : <p className="sw-def">{<R t={data.definition_fr || data.definition_en || 'Définition indisponible.'} />}</p>}
+            {(data.definition_fr || !hasLexFr(data)) && (
+              <div className="pdv-fiche">
+                {data.definition_fr && <div className="pdv-fiche-h">✦ Fiche Pain de Vie</div>}
+                <p className="sw-def">{<R t={data.definition_fr || data.definition_en || 'Définition indisponible.'} />}</p>
+              </div>
+            )}
+            <LexFr e={data} />
           </>
         )}
 

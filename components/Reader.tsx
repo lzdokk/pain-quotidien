@@ -10,7 +10,6 @@ import VerseCompare from './VerseCompare';
 import OfflineDownload from './OfflineDownload';
 import AiKeyButton from './AiKeyButton';
 import { themeOf, suggestTheme, matchThemeQuery } from '@/lib/highlight-themes';
-import { MEDITER_QUESTIONS, MEDITER_ETAPES } from '@/lib/reading-guide';
 import { ALLIANCES, BOOK_GROUPS, groupOf, searchBooks, bookName as accentName } from '@/lib/bible-books';
 import StudyIndex from './StudyIndex';
 import FicheSheet from './FicheSheet';
@@ -21,8 +20,12 @@ import { prefsChanged } from '@/lib/prefs-sync';
 import dynamic from 'next/dynamic';
 import CarteEtude from './CarteEtude';
 import { useSuivi } from './EtudierProgress';
-import { chapitreDuJour } from '@/lib/parcours';
-const Dictionnaire = dynamic(() => import('./Dictionnaire'), { ssr: false });
+import { chapitreDuJour, parcoursById } from '@/lib/parcours';
+import Mediter, { type Contexte } from './Mediter';
+import CarnetSuivi from './CarnetSuivi';
+import { ordreBibles, bibleMasquee } from '@/lib/ordre-bibles';
+import { entrees as suiviEntrees, abonner as suiviAbonner, synchroniser as suiviSync } from '@/lib/suivi-carnet';
+import ChapterStudy from './ChapterStudy';
 const StrongModal = dynamic(() => import('./StrongModal'), { ssr: false });
 const VerseImage = dynamic(() => import('./VerseImage'), { ssr: false });
 import { ThemeButton } from './ThemeSheet';
@@ -43,7 +46,7 @@ const STYLES = [
 
 // Plus aucune traduction n'est masquee : la S21 est desormais importee en local
 // et pleinement disponible (lecteur ET comparateur).
-const HIDDEN_TRAD = (_t: any) => false;
+const HIDDEN_TRAD = (t: any) => bibleMasquee(t); // hébreu retiré de la liste (gardé pour le mot à mot)
 
 // Mini-explication affichee sous le choix de traduction, pour aider a choisir
 // suivant l'objectif de lecture.
@@ -77,7 +80,7 @@ const chapterCache = new Map<string, Chap>();
 /** Les outils du bouton + (Lire), du haut vers le bas. */
 const svg = (d: JSX.Element, sw = 1.8) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round">{d}</svg>;
 const FABS: Array<{ k: 'etude' | 'strong' | 'importants' | 'search' | 'method' | 'look' | 'theme'; l: string; ic: JSX.Element }> = [
-  { k: 'etude', l: 'Étude · dictionnaire et fiches', ic: svg(<><path d="M12 6.5C10.5 5 8 4.5 4 5v13c4-.5 6.5 0 8 1.5 1.5-1.5 4-2 8-1.5V5c-4-.5-6.5 0-8 1.5zM12 6.5V19" /></>) },
+  { k: 'etude', l: 'Bible d’étude', ic: svg(<><path d="M12 6.5C10.5 5 8 4.5 4 5v13c4-.5 6.5 0 8 1.5 1.5-1.5 4-2 8-1.5V5c-4-.5-6.5 0-8 1.5zM12 6.5V19" /></>) },
   { k: 'strong', l: 'Strong (hébreu, grec)', ic: <span className="rfab-he">א</span> },
   { k: 'importants', l: 'Versets importants', ic: <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 3.2l2.6 5.5 6 .7-4.5 4.1 1.2 5.9L12 16.5 6.7 19.4l1.2-5.9L3.4 9.4l6-.7z" /></svg> },
   { k: 'search', l: 'Rechercher', ic: svg(<><circle cx="11" cy="11" r="6.5" /><path d="M20 20l-4.2-4.2" /></>) },
@@ -240,18 +243,13 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
       setLookMsg(saveLookPhoto(url) ? '' : 'Photo trop lourde pour être gardée : elle restera jusqu’à la fermeture.');
     } catch { setLookMsg('Photo illisible.'); }
   };
-  const [dicoInit, setDicoInit] = useState<number | null>(null);
   const [strongCode, setStrongCode] = useState<string | null>(null);
   const [sq, setSq] = useState('');
   const [sres, setSres] = useState<any[] | null>(null);
   const [sload, setSload] = useState(false);
   const [strongHits, setStrongHits] = useState<any[]>([]);
-  const [dicoHits, setDicoHits] = useState<any[]>([]);
   const findStrong = async (k: string) => {
     try { const r = await fetch(`/api/strongs?q=${encodeURIComponent(k)}`); return (await r.json()).results ?? []; } catch { return []; }
-  };
-  const findDico = async (k: string) => {
-    try { const r = await fetch(`/api/dict?q=${encodeURIComponent(k)}`); return (await r.json()).items ?? []; } catch { return []; }
   };
   const [sAside, setSAside] = useState<any[] | null>(null);
   const [sAll, setSAll] = useState(false);
@@ -288,9 +286,8 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
   }, [visibleTranslations]);
   const langTranslations = useMemo(() => {
     const list = visibleTranslations.filter((t: any) => (t.language ?? 'fr') === lang);
-    // La Bible expliquée (BEX2004) en tête de liste (version + comparaison).
-    return [...list].sort((a: any, b: any) =>
-      a.code === 'BEX2004' ? -1 : b.code === 'BEX2004' ? 1 : 0);
+    // Segond 1910, puis Nouvelle Français courant, puis La Bible expliquée, puis les autres.
+    return [...list].sort(ordreBibles);
   }, [visibleTranslations, lang]);
   // Langues ecrites de droite a gauche (hebreu, arabe).
   const isRtl = (code: string | null) =>
@@ -379,6 +376,23 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
     if (!position?.step) return null;
     try { return chapitreDuJour(position.step, position.chapter); } catch { return null; }
   }, [position]);
+  // Méditer → carnet de suivi : le parcours auquel rattacher la méditation.
+  const [carnetOpen, setCarnetOpen] = useState(false);
+  const [suiviN, setSuiviN] = useState(0);
+  useEffect(() => { const f = () => setSuiviN(suiviEntrees().length); f(); suiviSync(); return suiviAbonner(f); }, []);
+  const medContextes = useMemo(() => {
+    const l: Contexte[] = [];
+    if (troisActive) l.push({ id: TROIS_ID, label: `Les 3 lectures · jour ${troisDay}` });
+    else if (P) l.push({ id: P.id, label: `${P.name} · jour ${plan?.current_day ?? 1}` });
+    const pe = parcoursEtude ? parcoursById(parcoursEtude) : undefined;
+    if (pe) l.push({ id: 'etude:' + pe.id, label: pe.titre });
+    l.push({ id: 'libre', label: 'Lecture libre' });
+    return l;
+  }, [troisActive, troisDay, P, plan, parcoursEtude]);
+  const medDefaut = useMemo(() => {
+    if (!troisActive && jourEtape && jourEtape.book === book && jourEtape.chapter === chapter) return P?.id ?? 'libre';
+    return medContextes[0].id;
+  }, [troisActive, jourEtape, book, chapter, P, medContextes]);
   const nomLivreJour = jourEtape ? (books.find((b: any) => b.id === jourEtape.book)?.name ?? '') : '';
 
   const forgot = plan?.last_read_on && plan.last_read_on !== iso(new Date());
@@ -714,8 +728,7 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
     } else setWordHits([]);
     if (q.length >= 2 && !/\S\s+\d/.test(q)) {
       findStrong(q).then(r => setStrongHits(r.slice(0, 12)));
-      findDico(q).then(r => setDicoHits(r.slice(0, 12)));
-    } else { setStrongHits([]); setDicoHits([]); }
+    } else setStrongHits([]);
     const themeColor = matchThemeQuery(q);
     if (themeColor) { searchTheme(themeColor); return; }
     setThemeMode(false);
@@ -811,6 +824,14 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
         </div>
       )}
 
+      <button className="card cs-entry" onClick={() => setCarnetOpen(true)}>
+        <span className="cs-entry-i" aria-hidden>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M6 3h11a2 2 0 012 2v14a2 2 0 01-2 2H6zM6 3v18M9.5 8h6M9.5 12h6" /></svg>
+        </span>
+        <span className="cs-entry-t"><b>Mon carnet de suivi</b><small>{suiviN ? `${suiviN} méditation${suiviN > 1 ? 's' : ''} validée${suiviN > 1 ? 's' : ''}` : 'Tes méditations validées, avec tes réponses'}</small></span>
+        <i>›</i>
+      </button>
+
       <EtudeLivres
         plans={plans} steps={steps} activePlanId={troisActive ? TROIS_ID : (P?.id === TROIS_ID ? undefined : P?.id)}
         activeIndex={position.index} activeDay={troisActive ? troisDay : (plan?.current_day ?? 1)}
@@ -868,7 +889,6 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
 
       {tab === 'etude' && (
         <>
-          <Dictionnaire onRef={goRef} chapter={{ b: book, c: chapter, name: bookName }} onFiche={setFiche} />
           {studyList
             ? <StudyIndex embedded plan={studyList.plan} ready={studyList.ready} sujets={studyList.sujets}
                           renvois={studyList.renvois} onOpen={setFiche} />
@@ -912,7 +932,7 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
 
             <div className="srch-more">
               <button className="btn sm" onClick={() => setLexOpen(true)}>א Mots hébreux</button>
-              <button className="btn sm" onClick={() => setTab('etude')}>Étude</button>
+              <button className="btn sm" onClick={() => setTab('etude')}>Bible d&rsquo;étude</button>
             </div>
           </div>
 
@@ -921,28 +941,16 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
             const nm = (x: string) => (x ?? '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
             const fiches = studyList ? studyList.plan
               .filter(e => studyList.ready[e.slug] !== undefined && nm(e.title).includes(n)).slice(0, 8) : [];
-            if (!fiches.length && !wordHits.length && !strongHits.length && !dicoHits.length) return null;
+            if (!fiches.length && !wordHits.length && !strongHits.length) return null;
             return (
               <div className="card pad srch-groups">
                 {fiches.length > 0 && (
                   <>
-                    <div className="srch-k"><span className="src-star">✦</span> Fiches Pain de Vie</div>
+                    <div className="srch-k">Dans la Bible d&rsquo;étude</div>
                     <div className="ix-chips">
                       {fiches.map(f => (
                         <button key={f.slug} className="ix-chip" onClick={() => setFiche(f.slug)}>
                           {f.title}<small className="chip-k"> · {kindLabel(f.kind)}</small>
-                        </button>
-                      ))}
-                    </div>
-                  </>
-                )}
-                {dicoHits.length > 0 && (
-                  <>
-                    <div className="srch-k">Dans le dictionnaire biblique (Westphal)</div>
-                    <div className="ix-chips">
-                      {dicoHits.map((d: any) => (
-                        <button key={d.id} className="ix-chip" onClick={() => { setDicoInit(d.id); setBubble('etude'); }}>
-                          {d.titre}{d.m === 'x' ? <small className="chip-k"> · cité</small> : null}
                         </button>
                       ))}
                     </div>
@@ -1388,9 +1396,9 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
       )}
       {fabOpen && <div className="rfab-veil" onClick={() => setFabOpen(false)} />}
 
-      {bubble && (tab === 'bible' || bubble === 'etude' || bubble === 'strong') && (
+      {bubble && bubble !== 'method' && (tab === 'bible' || bubble === 'etude' || bubble === 'strong') && (
         <div className={`rbubble${bubble === 'etude' || bubble === 'strong' ? ' rbubble-wide' : ''}`} role="dialog">
-          <button className="rbubble-x" onClick={() => { setBubble(null); setDicoInit(null); }} aria-label="Fermer">×</button>
+          <button className="rbubble-x" onClick={() => { setBubble(null); }} aria-label="Fermer">×</button>
 
           {bubble === 'look' && (
             <>
@@ -1477,27 +1485,16 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
 
           {bubble === 'etude' && (
             <>
-              <h3 className="rbubble-t">Étude</h3>
-              <Dictionnaire bare initialId={dicoInit} chapter={{ b: book, c: chapter, name: bookName }}
-                            onFiche={slug => { setFiche(slug); setBubble(null); setDicoInit(null); }}
-                            onRef={r => { setBubble(null); setDicoInit(null); goRef(r); }} />
+              <h3 className="rbubble-t">Bible d’étude</h3>
+              <p className="rbubble-sub">Les thèmes, personnages, lieux et mots liés à {bookName} {chapter}.</p>
+              <ChapterStudy bare book={book} chapter={chapter} label={`${bookName} ${chapter}`}
+                            onOpen={slug => { setFiche(slug); setBubble(null); }} />
               <label className="switch rb-switch">
                 <input type="checkbox" checked={etudeOn} onChange={e => toggleEtude(e.target.checked)} />
                 <span className="switch-ui" />
                 <span className="switch-l">Repérer dans le texte les versets qui ont une fiche (✦)</span>
               </label>
-              <button className="linkbtn rb-more" onClick={() => { setBubble(null); setDicoInit(null); setTab('etude'); }}>Tous les thèmes, personnages et lieux ›</button>
-            </>
-          )}
-
-          {bubble === 'method' && (
-            <>
-              <h3 className="rbubble-t">Méditer</h3>
-              <p className="rbubble-sub">D’abord, demande à l’Esprit d’ouvrir ton intelligence.</p>
-              <div className="rbubble-k">Se poser les questions</div>
-              <div className="med-q">{MEDITER_QUESTIONS.map((q, i) => <span key={i}>{q}</span>)}</div>
-              <div className="rbubble-k">Puis</div>
-              <ol className="med-steps">{MEDITER_ETAPES.map(([t, d]) => <li key={t}><b>{t}</b> {d}</li>)}</ol>
+              <button className="linkbtn rb-more" onClick={() => { setBubble(null); setTab('etude'); }}>Toutes les fiches de la Bible d’étude ›</button>
             </>
           )}
 
@@ -1582,8 +1579,7 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
                 <>
                   <select className="field" style={{ marginTop: 8 }} value={compareWith}
                           onChange={e => setCompareWith(e.target.value)}>
-                    {/* Toutes les versions, hebreu compris, pour comparer le texte d'origine */}
-                    {visibleTranslations.filter((t: any) => t.code !== trad).map((t: any) =>
+                    {[...visibleTranslations].sort(ordreBibles).filter((t: any) => t.code !== trad).map((t: any) =>
                       <option key={t.code} value={t.code}>
                         {t.name}{(t.language ?? 'fr') !== 'fr' ? ` · ${LANG_LABELS[t.language] ?? t.language}` : ''}
                       </option>)}
@@ -1616,8 +1612,13 @@ export default function Reader({ books: booksIn, translations, plans, steps, pla
         </div>
       )}
 
-      <FicheSheet slug={fiche} onClose={() => setFiche(null)}
-                  onDico={id => { setFiche(null); setDicoInit(id); setBubble('etude'); }} />
+      <FicheSheet slug={fiche} onClose={() => setFiche(null)} />
+      {bubble === 'method' && book > 0 && (
+        <Mediter book={book} chapter={chapter} bookName={bookName} verses={verses} initialSel={[...multi]}
+                 contextes={medContextes} defaut={medDefaut}
+                 onClose={() => setBubble(null)} onCarnet={() => { setBubble(null); setCarnetOpen(true); }} />
+      )}
+      {carnetOpen && <CarnetSuivi onClose={() => setCarnetOpen(false)} onGoto={(b, c) => { setBook(b); setChapter(c); setTarget(null); setTab('bible'); }} />}
       {strongCode && <StrongModal code={strongCode} onClose={() => setStrongCode(null)} />}
       {imgShare && <VerseImage text={imgShare.text} refLabel={imgShare.ref} bcv={imgShare.v ? { b: book, c: chapter, v: imgShare.v } : undefined}
                                bookName={bookName} onClose={() => setImgShare(null)} />}

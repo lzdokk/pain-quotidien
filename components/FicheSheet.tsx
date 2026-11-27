@@ -5,7 +5,6 @@ import RefChip from './RefChip';
 import { getFiche, kindLabel } from '@/lib/study-client';
 import { slugify } from '@/lib/prompts/slug';
 import R from '@/components/R';
-import { SrcDico, SrcFiche, titleKey } from './SrcBadge';
 
 type Section = { title: string; items: Array<{ label: string; refs: string[] }> };
 
@@ -19,14 +18,9 @@ const rich = (s: string) => String(s ?? '')
  * Chaque référence se lit d'un toucher (avec toutes les actions verset) ;
  * « Voir aussi » ouvre la fiche suivante dans la même feuille (retour possible).
  */
-export default function FicheSheet({ slug, onClose, onDico }: {
-  slug: string | null; onClose: () => void;
-  /** Ouvre l'article du dictionnaire Westphal du même nom. */
-  onDico?: (id: number) => void;
-}) {
+export default function FicheSheet({ slug, onClose }: { slug: string | null; onClose: () => void }) {
   const [stack, setStack] = useState<string[]>([]);
   const [data, setData] = useState<any>(undefined);
-  const [dico, setDico] = useState<{ id: number; titre: string } | null>(null);
   const cur = stack[stack.length - 1] ?? null;
 
   useEffect(() => { setStack(slug ? [slug] : []); }, [slug]);
@@ -34,16 +28,9 @@ export default function FicheSheet({ slug, onClose, onDico }: {
     if (!cur) return;
     let alive = true;
     setData(undefined);
-    setDico(null);
-    getFiche(cur).then(d => {
-      if (!alive) return;
-      setData(d);
-      // Article du dictionnaire du même nom (même mot, sans accents ni pluriel).
-      if (d?.title && onDico) fetch(`/api/dict?t=${encodeURIComponent(d.title)}`).then(r => r.ok ? r.json() : null)
-        .then(a => { if (alive && a?.id && titleKey(a.titre) === titleKey(d.title)) setDico(a); }).catch(() => {});
-    });
+    getFiche(cur).then(d => { if (alive) setData(d); });
     return () => { alive = false; };
-  }, [cur]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [cur]);
 
   if (!cur) return null;
   const sections = (data?.sections ?? []) as Section[];
@@ -65,16 +52,10 @@ export default function FicheSheet({ slug, onClose, onDico }: {
           : data === null ? <p className="empty">Cette fiche est en préparation : elle arrive bientôt.</p>
           : (
             <>
-              <div className="src-row"><SrcFiche long /></div>
               <span className="kicker">{kindLabel(data.kind)}{data.kind === 'theme' && data.category ? ` · ${data.category}` : ''}</span>
               <h2 className="fiche-title">{data.title}</h2>
               {data.definition && <p className="ix-def" dangerouslySetInnerHTML={{ __html: rich(data.definition) }} />}
               <p className="ix-meta">{total} passage{total > 1 ? 's' : ''} · touchez une référence pour la lire</p>
-              {dico && onDico && (
-                <button className="src-link" onClick={() => onDico(dico.id)}>
-                  <SrcDico long /><span>Lire l&rsquo;article « {dico.titre} » du dictionnaire</span><i>›</i>
-                </button>
-              )}
 
               {sections.map((s, i) => (
                 <section className="fiche-sec" key={i}>
@@ -100,7 +81,7 @@ export default function FicheSheet({ slug, onClose, onDico }: {
                   </div>
                 </div>
               )}
-              <p className="ix-note">✦ Fiche rédigée pour Pain de Vie avec l&rsquo;aide de l&rsquo;IA ; chaque référence a été vérifiée. Lis toujours le passage dans son contexte.</p>
+              <p className="ix-note">Fiche rédigée pour Pain de Vie ; chaque référence a été vérifiée. Lis toujours le passage dans son contexte.</p>
             </>
           )}
       </div>

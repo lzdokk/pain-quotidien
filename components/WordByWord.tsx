@@ -51,7 +51,7 @@ export default function WordByWord({ book, chapter, verse, frText, prefer, onClo
   const [complete, setComplete] = useState(true);
   // Nouveau Testament : les numéros Strong existent sur le grec original.
   // Nouveau Testament : le GREC original par défaut (l'hébreu de Delitzsch reste au choix).
-  const [src, setSrc] = useState<'he' | 'grec'>(prefer ?? 'grec');
+  const [src, setSrc] = useState<'he' | 'grec'>('grec'); // NT : toujours le grec original (l'hébreu de Delitzsch est retiré)
   const [open, setOpen] = useState<number | null>(null);
   const [entry, setEntry] = useState<Entry | null>(null);
   const [loadingEntry, setLoadingEntry] = useState(false);
@@ -114,12 +114,6 @@ export default function WordByWord({ book, chapter, verse, frText, prefer, onClo
       <button className="mclose" onClick={onClose} aria-label="Fermer">✕</button>
       <div className="msub">Strong · mot à mot</div>
 
-      {nt && (
-        <div className="wbw-src-pick">
-          <button className={`cmp-chip${src === 'grec' ? ' on' : ''}`} onClick={() => setSrc('grec')}>Grec original · Strong</button>
-          <button className={`cmp-chip${src === 'he' ? ' on' : ''}`} onClick={() => setSrc('he')}>Hébreu (Delitzsch)</button>
-        </div>
-      )}
 
       {words === null ? <p className="empty">Chargement…</p> :
        words.length === 0 ? <p className="empty">Ce verset n&rsquo;a pas encore de données mot à mot.</p> :
@@ -172,12 +166,14 @@ export default function WordByWord({ book, chapter, verse, frText, prefer, onClo
 
              {entry && (
                <>
-                 {hasLexFr(entry) ? <LexFr e={entry} /> : (
-                   <>
+                 {(entry.definition_fr || active.definition_fr || !hasLexFr(entry)) && (
+                   <div className="pdv-fiche">
+                     <div className="pdv-fiche-h">✦ Fiche Pain de Vie</div>
                      <div className="sx-k">Le sens</div>
                      <p className="sx-def">{<R t={lexSense(entry.definition_fr || active.definition_fr) || 'Sens français en préparation…'} />}</p>
-                   </>
+                   </div>
                  )}
+                 <LexFr e={entry} />
 
                  {!entry.fr_lsg && entry.usage && entry.usage.renderings.length > 1 && (
                    <>

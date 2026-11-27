@@ -10,6 +10,7 @@ export default function LexFr({ e }: { e?: E | null }) {
   if (!e || !hasLexFr(e)) return null;
   return (
     <div className="lexfr">
+      <div className="lexfr-h">Strong · lexique français</div>
       {e.fr_def && (
         <>
           <div className="sx-k">Définition{e.fr_type ? <span className="lexfr-type">{e.fr_type}</span> : null}</div>

@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
+import { ordreBibles, bibleMasquee } from '@/lib/ordre-bibles';
 
 type Row = { code: string; name: string; language: string; text: string };
 
@@ -21,7 +22,7 @@ export default function Compare({ book, chapter, verse, refLabel, onClose }:
     (async () => {
       const r = await fetch(`/api/verse-compare?book=${book}&chapter=${chapter}&verse=${verse}`);
       const j = await r.json();
-      if (alive) setItems(j.items ?? []);
+      if (alive) setItems((j.items ?? []).filter((i: any) => !bibleMasquee(i)));
     })();
     return () => { alive = false; };
   }, [book, chapter, verse]);
@@ -32,8 +33,8 @@ export default function Compare({ book, chapter, verse, refLabel, onClose }:
   }, [items]);
 
   const shown = (items ?? []).filter(i => !only || i.language === only)
-    // La Bible expliquée (BEX2004) en premier.
-    .sort((a, b) => a.code === 'BEX2004' ? -1 : b.code === 'BEX2004' ? 1 : 0);
+    // Segond 1910 d'abord, puis la Nouvelle Français courant (lib/ordre-bibles).
+    .sort(ordreBibles);
 
   return (
     <div className="modal-in vexplain">

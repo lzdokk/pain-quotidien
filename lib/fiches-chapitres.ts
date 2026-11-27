@@ -21,8 +21,8 @@ export const FICHES_CHAPITRES: Record<string, FicheChapitre> = {
     blocs: [['1-15', 'Paul se présente, salue les Romains et exprime son désir de venir les voir'], ['16-17', 'Le thème de toute la lettre : l’Évangile est la puissance de Dieu pour sauver quiconque croit ; le juste vivra par la foi'], ['18-32', 'L’humanité qui ne reconnaît pas Dieu s’égare dans les idoles, et Dieu la laisse suivre son chemin']],
     questions: [
       'Paul, serviteur de Jésus-Christ, apôtre mis à part pour l’Évangile de Dieu (v. 1).',
-      'Vers 56-58, depuis Corinthe, Paul écrit à une Église qu’il n’a jamais visitée, au cœur de l’empire. Il salue, remercie Dieu pour leur foi et dit son désir de les voir (1-15) ; il pose le thème de la lettre : l’Évangile est puissance de Dieu pour sauver (16-17) ; puis il montre que l’humanité entière s’égare quand elle refuse de reconnaître Dieu (18-32).',
       'Aux croyants de Rome, juifs et non-Juifs, « bien-aimés de Dieu, appelés à être saints » (v. 7) ; et à travers eux, à tout lecteur, moi compris.',
+      'Vers 56-58, depuis Corinthe, Paul écrit à une Église qu’il n’a jamais visitée, au cœur de l’empire. Il salue, remercie Dieu pour leur foi et dit son désir de les voir (1-15) ; il pose le thème de la lettre : l’Évangile est puissance de Dieu pour sauver (16-17) ; puis il montre que l’humanité entière s’égare quand elle refuse de reconnaître Dieu (18-32).',
       'Honnêtement : j’aurais sans doute applaudi la fin du chapitre en pensant à « ces gens-là », sans me reconnaître. Et j’aurais pu avoir honte de croire à un message qui paraît folie à Rome.',
       'Ne pas avoir honte de l’Évangile (16), reconnaître Dieu et le remercier au lieu de servir ce qu’il a créé (20-25), et ne pas me croire à l’abri : Paul poursuit au chapitre 2.',
       'Oui : on remplace Dieu par l’argent, l’image, le succès, et on appelle cela la liberté (23-25). Le diagnostic de Paul décrit autant nos sociétés que Rome.'

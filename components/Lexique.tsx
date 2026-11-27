@@ -42,18 +42,20 @@ export default function Lexique() {
           <h3 style={{ fontFamily: 'var(--serif)', fontSize: 30, marginTop: 6 }}>{entry.lemma}</h3>
           <p className="muted" style={{ fontSize: 16 }}>{entry.translit}</p>
 
-          {hasLexFr(entry) ? <LexFr e={entry} /> : entry.definition_fr ? (
-            <>
-              <h4 style={{ marginTop: 20 }}>Le sens</h4>
+          {entry.definition_fr ? (
+            <div className="pdv-fiche">
+              <div className="pdv-fiche-h">✦ Fiche Pain de Vie</div>
+              <h4 style={{ marginTop: 8 }}>Le sens</h4>
               <p>{<R t={entry.definition_fr} />}</p>
-            </>
-          ) : (
+            </div>
+          ) : hasLexFr(entry) ? null : (
             <p className="fine" style={{ marginTop: 16 }}>
               La mise en français de cette entrée n&rsquo;a pas pu être produite
               (limite quotidienne atteinte). La définition d&rsquo;origine reste
               consultable ci-dessous, et le français sera ajouté au prochain passage.
             </p>
           )}
+          <LexFr e={entry} />
           {!hasLexFr(entry) && entry.derivation && (
             <>
               <h4 style={{ marginTop: 18 }}>Étymologie</h4>

@@ -46,11 +46,11 @@ export const QUATRE_TEMPS: Array<[string, string]> = [
 /** MÉDITER UN CHAPITRE (méthode de Mickaël) : d'abord les questions, puis les étapes. */
 export const MEDITER_QUESTIONS: string[] = [
   'Qui parle ?',
+  'À qui s’adresse ce passage ?',
   'Que se passe-t-il ? Quel est le contexte ?',
-  'À qui s’adresse ce verset ?',
   'Comment aurais-je réagi dans la même situation ?',
   'Comment devrais-je réagir ?',
-  'Ce verset est-il d’actualité ?'
+  'Ce passage est-il d’actualité ?'
 ];
 export const MEDITER_ETAPES: Array<[string, string]> = [
   ['Choisir', 'le verset le plus parlant du chapitre'],
